@@ -592,7 +592,7 @@ const Dashboard = () => {
                                   cursor: "pointer",
                                 }}
                               >
-                                <RiCalendarScheduleFill />
+                                <RiCalendarScheduleFill title="Reschedule"/>
                               </button>
                               <button
                                 style={{
@@ -603,7 +603,7 @@ const Dashboard = () => {
                                 }}
                                 onClick={()=>navigate(`/preview/${appointment.patientId}`)}
                               >
-                                <FaEye />
+                                <FaEye title="View prescription"/>
                               </button>
                               <button
                                 style={{
@@ -616,7 +616,7 @@ const Dashboard = () => {
                                   handleInvoiceClick(appointment._id)
                                 }
                               >
-                                <IoReceipt />
+                                <IoReceipt title="Invoice"/>
                               </button>
                               <RequirePermission allowedRoles={["Admin"]}>
                                 <button
@@ -630,7 +630,7 @@ const Dashboard = () => {
                                     cursor: "pointer",
                                   }}
                                 >
-                                  <FaTrash />
+                                  <FaTrash title="Delete"/>
                                 </button>
                               </RequirePermission>
                             </div>

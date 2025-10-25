@@ -536,10 +536,12 @@ const ReportsPage = () => {
                   <td>{r.status}</td>
                   <td style={{ display: "flex", gap: "1rem",alignItems:"center" }}>
                     <FaEye 
+                      title="View Details"
                       style={{color:"#096dd9"}}
                       onClick={() => openInvoiceDrawer(r.appointmentId)} 
                     />
                     <MdDelete 
+                      title="Delete"
                       style={{color:"var(--danger-color)"}}
                       onClick={async () => {
                         if (window.confirm("Delete this report entry?")) {
@@ -549,6 +551,7 @@ const ReportsPage = () => {
                       }}
                     />
                     <RiMoneyRupeeCircleFill 
+                      title="Mark as paid"
                       style={{color:"var(--secondary-color)"}}
                       onClick={async () => {
                         if (
