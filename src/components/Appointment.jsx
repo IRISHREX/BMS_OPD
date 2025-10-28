@@ -30,12 +30,13 @@ const Appointment = () => {
   const [department, setDepartment] = useState("Pediatrics");
   const [doctorFirstName, setDoctorFirstName] = useState("");
   const [doctorLastName, setDoctorLastName] = useState("");
+  const [profession, setProfession] = useState("");
   const [address, setAddress] = useState("");
   const [_id, set_id] = useState("");
   const [hasVisited, setHasVisited] = useState(false);
   const [price, setPrice] = useState(0);
   const [doctorFee, setDoctorFee] = useState(100);
-  const [diagnosys, setDiagnosys] = useState({ BP: "", Diabetics: "", SPO2: "", Height: "", Weight: "", Others: "" });
+  const [diagnosys, setDiagnosys] = useState({ BP: "", PR: "", SPO2: "", Temp: "", Height: "", Weight: "", Others: "" });
   const [paymentStatus, setPaymentStatus] = useState("Pending");
 
   const [downloadInvoice, setDownloadInvoice] = useState(false);
@@ -309,8 +310,9 @@ const Appointment = () => {
       // Append units to diagnosys fields for the payload
       const diagnosysForPayload = {
         BP: diagnosys.BP ? diagnosys.BP : undefined,
-        Diabetics: diagnosys.Diabetics ? diagnosys.Diabetics : undefined,
+        PR: diagnosys.PR ? diagnosys.PR : undefined,
         SPO2: diagnosys.SPO2 ? diagnosys.SPO2 : undefined,
+        Temp: diagnosys.Temp ? diagnosys.Temp : undefined,
         Height: diagnosys.Height ? diagnosys.Height : undefined,
         Weight: diagnosys.Weight ? diagnosys.Weight : undefined,
         Others: othersValue || undefined,
@@ -336,6 +338,7 @@ const Appointment = () => {
         department,
         doctorId: _id || undefined,
         hasVisited: hasVisitedBool,
+        profession,
         address,
         price,
         // send paymentStatus to backend and let backend decide status according to centralized rules
@@ -384,10 +387,11 @@ const Appointment = () => {
       setDoctorFirstName("");
       setDoctorLastName("");
       setHasVisited(false);
+      setProfession("")
       setAddress("");
       set_id("");
       setPrice(0);
-      setDiagnosys({ BP: "", Diabetics: "", SPO2: "", Height: "", Weight: "", Others: "" });
+      setDiagnosys({ BP: "", PR: "", SPO2: "", Temp: "", Height: "", Weight: "", Others: "" });
       setDownloadInvoice(false);
       setStep(1);
     }
@@ -422,6 +426,7 @@ const Appointment = () => {
           setAgeMonths("");
           setAgeDays("");
         }
+        setProfession(appt.profession || "");
         setAddress(appt.address || "");
         setDepartment(appt.department || department);
         if (appt.doctorId) set_id(appt.doctorId);
@@ -543,6 +548,7 @@ const Appointment = () => {
                                 setName(p.name || "");
                                 setPhone(p.phone || "");
                                 setNic(p.nic || "");
+                                if (p.profession) setProfession(p.profession)
                                 if (p.address) setAddress(p.address);
                                 // fill dob/age/gender if present (but do NOT override appointmentDate)
                                 if (p.dob) {
@@ -569,7 +575,7 @@ const Appointment = () => {
                             >
                               <div style={{ fontWeight: 600 }}>{p.name}</div>
                               <div className="muted" style={{ fontSize: 13 }}>
-                                {p.phone || p.email || p.address || ""}
+                                {p.phone || p.email || p.profession || p.address || ""}
                               </div>
                             </div>
                           ))}
@@ -714,25 +720,21 @@ const Appointment = () => {
                   />
                 </div>
                 <div className="lnr-input-box">
-                  <div className="address-box inner-box-of-lnr">
-                    <label htmlFor="">Addrrss:</label>
-                    <textarea
-                      rows="2"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      placeholder="Area, vill/City, P.O, P.S, District, PIN code"
-                    />
-                  </div>
                   <input
-                    type="date"
-                    placeholder="Appointment Date"
-                    min={todayStr}
-                    value={appointmentDate}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      setAppointmentDate(v && v < todayStr ? todayStr : v);
-                    }}
+                    type="text"
+                    placeholder="Profession"
+                    value={profession}
+                    onChange={(e) => setProfession(e.target.value)}
                   />
+                    <div className="inner-box-of-lnr">
+                      <label htmlFor="">Addrrss:</label>
+                      <textarea className="address-box"
+                        rows="1"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Area, vill/City, P.O, P.S, District, PIN code"
+                      />
+                    </div>
                 </div>
                 <div className="btn-container">
                   <button
@@ -748,37 +750,29 @@ const Appointment = () => {
 
             {step === 2 && (
               <div>
-                <div className="diagnosis-grid">
-                  <div className="diagnosis-grid-col">
-                    <div>
+                <div className="vitals-grid">
                       <input
                         type="text"
-                        placeholder="BP (e.g., 120/80 mmHg)"
+                        placeholder="BP (e.g., 120/80 mm of Hg)"
                         maxLength={7}
                         value={diagnosys.BP}
                         onChange={(e) => setDiagnosys(d => ({ ...d, BP: e.target.value }))}
                       />
-                    </div>
-                    <div>
                       <input
                         type="number"
-                        placeholder="Diabetes (mg/dL)"
+                        placeholder="PR (bpm)"
                         min="20"
-                        max="600"
-                        value={diagnosys.Diabetics}
+                        max="500"
+                        value={diagnosys.PR}
                         onChange={(e) => {
                           const v = e.target.value;
-                          setDiagnosys(d => ({ ...d, Diabetics: v && v>600? 600:v }))
+                          setDiagnosys(d => ({ ...d, PR: v && v>500? 500:v }))
                         }}
                       />
-                    </div>
-                  </div>
 
-                  <div className="diagnosis-grid-col">
-                    <div>
                       <input
                         type="number"
-                        placeholder="SPO2 (%)"
+                        placeholder="SPO2 (% in RA)"
                         min="0"
                         max="100"
                         inputMode="numeric"
@@ -788,8 +782,17 @@ const Appointment = () => {
                           setDiagnosys(d => ({ ...d, SPO2: v && v>100? 100:v }));
                         }}
                       />
-                    </div>
-                    <div>
+                      <input
+                        type="number"
+                        placeholder="Temp (F)"
+                        min="50"
+                        max="200"
+                        value={diagnosys.Temp}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setDiagnosys(d => ({ ...d, Temp: v && v>200? 200:v }))
+                        }}
+                      />
                       <input
                         type="number"
                         placeholder="Height (cm)"
@@ -801,11 +804,7 @@ const Appointment = () => {
                           setDiagnosys(d => ({ ...d, Height: v && v>250? 250:v }))
                         }}
                       />
-                    </div>
-                  </div>
 
-                  <div className="diagnosis-grid-col">
-                    <div>
                       <input
                         type="number"
                         placeholder="Weight (kg)"
@@ -817,16 +816,24 @@ const Appointment = () => {
                           setDiagnosys(d => ({ ...d, Weight: v && v>300? 300:v }))
                         }}
                       />
-                    </div>
-                    <div>
+                </div>
+                <div className="lnr-input-box">
                       <textarea
-                        rows="1"
+                        rows="2"
                         value={diagnosys.Others}
                         onChange={(e) => setDiagnosys(d => ({ ...d, Others: e.target.value }))}
                         placeholder="Others"
                       />
-                    </div>
-                  </div>
+                      <input
+                        type="date"
+                        placeholder="Appointment Date"
+                        min={todayStr}
+                        value={appointmentDate}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setAppointmentDate(v && v < todayStr ? todayStr : v);
+                        }}
+                      />
                 </div>
 
                 <div className="fees-detail-box">
@@ -839,7 +846,7 @@ const Appointment = () => {
 
                 <div style={{ marginTop: "2rem" }}>
                   <div className="invoice-container">
-                    <div className="checkbox-container" style={{ marginTop: "1rem" }}>
+                    <div className="checkbox-container" style={{ marginTop: "1rem", padding:"0.5rem 0" }}>
                       <div className="pay-status-box">
                         <label htmlFor="">Payment Status: </label>
                         <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
