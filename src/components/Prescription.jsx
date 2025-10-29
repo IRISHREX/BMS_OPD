@@ -42,6 +42,7 @@ const Prescription = ({ patientId, onClose }) => {
     return Array.from(map.values());
   }, [symptomSuggestions]);
   const [medicalHistory, setMedicalHistory] = useState("");
+  const [complaints, setComplaints] = useState();
   const [gravida, setGravida] = useState("");
   const [parity, setParity] = useState("");
   const [LMP, setLMP] = useState("");
@@ -903,6 +904,8 @@ const Prescription = ({ patientId, onClose }) => {
               onChange={(e) =>setEDD(e.target.value)}
             />
           </div>
+        </div>
+        <div className="form-row">
           <div className="form-group">
             <label>BP (mm of Hg)</label>
             <input
@@ -958,6 +961,8 @@ const Prescription = ({ patientId, onClose }) => {
               }}
             />
           </div>
+        </div>
+        <div className="form-row" style={{marginBottom:"2rem"}}>
           <div className="form-group">
             <label>Height (cm)</label>
             <input
@@ -996,6 +1001,7 @@ const Prescription = ({ patientId, onClose }) => {
             />
           </div>
         </div>
+        
         <div className="form-group full-width">
           <label>Medical History</label>
           <input
@@ -1007,8 +1013,8 @@ const Prescription = ({ patientId, onClose }) => {
         <div className="form-group full-width">
           <label>Presenting Complaints</label>
           <input
-            value={medicalHistory}
-            onChange={(e) => setMedicalHistory(e.target.value)}
+            value={complaints}
+            onChange={(e) => setComplaints(e.target.value)}
           />
         </div>
         <div>
