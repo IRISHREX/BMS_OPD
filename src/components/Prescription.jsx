@@ -56,6 +56,7 @@ const Prescription = ({ patientId, onClose }) => {
     Weight: "",
     Others: "",
   });
+  const [followUp, setFollowUp] = useState("");
   const [medicineAdvice, setMedicineAdvice] = useState([]);
   const [autoPopulating, setAutoPopulating] = useState(false);
   const [selectedTestTypes, setSelectedTestTypes] = useState([]);
@@ -139,6 +140,7 @@ const Prescription = ({ patientId, onClose }) => {
           setParity(r.parity);
           setLMP(r.LMP);
           setEDD(r.EDD);
+          setFollowUp(r.followUp);
           setDiagnosys(
             r.diagnosys || {
               BP: "",
@@ -187,11 +189,12 @@ const Prescription = ({ patientId, onClose }) => {
           const payloadSnap = {
             initialComplain: r.initialComplain || "",
             medicalHistory: r.medicalHistory || "",
-            gravida,
-            parity,
-            LMP,
-            EDD,
+            gravida: r.gravida || "",
+            parity: r.parity || "",
+            LMP: r.LMP || "",
+            EDD: r.EDD || "",
             diagnosys: r.diagnosys || {},
+            followUp: r.followUp || "",
             medicineAdvice: Array.isArray(r.medicineAdvice)
               ? r.medicineAdvice
               : r.medicineAdvice
@@ -225,11 +228,12 @@ const Prescription = ({ patientId, onClose }) => {
       const currentSnap = {
         initialComplain: initialComplain || "",
         medicalHistory: medicalHistory || "",
-        gravida,
-        parity,
-        LMP,
-        EDD,
+        gravida: gravida || "",
+        parity: parity || "",
+        LMP: LMP || "",
+        EDD: EDD || "",
         diagnosys: diagnosys || {},
+        followUp: followUp || "",
         medicineAdvice: medicineAdvice || [],
         advice: currentAdvice,
       };
@@ -252,6 +256,7 @@ const Prescription = ({ patientId, onClose }) => {
     testAdviceRows,
     medicationAdvice,
     dietAdvice,
+    followUp,
     originalPayload,
   ]);
 
@@ -820,6 +825,7 @@ const Prescription = ({ patientId, onClose }) => {
         diagnosys: diagnosys || {},
         medicineAdvice: medicineAdvice || [],
         advice: advSaved,
+        followUp: followUp || "",
       };
       setOriginalPayload(newSnap);
       setIsDirty(false);
@@ -844,10 +850,10 @@ const Prescription = ({ patientId, onClose }) => {
 
   if (loading) return <div>Loading...</div>;
 
-  const nextStep = () =>
-    setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
-  const prevStep = () => setCurrentStep((s) => Math.max(s - 1, 0));
-  const goToStep = (i) => setCurrentStep(i);
+  // const nextStep = () =>
+  //   setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
+  // const prevStep = () => setCurrentStep((s) => Math.max(s - 1, 0));
+  // const goToStep = (i) => setCurrentStep(i);
 
   return (
     // <section className="main">
@@ -1460,7 +1466,7 @@ const Prescription = ({ patientId, onClose }) => {
           {selectedTestTypes.includes("Test Advice") && (
             <div
               className="form-group full-width"
-              style={{ overflowX: "auto" }}
+              style={{ overflowX: "auto", marginBottom:"2rem" }}
             >
               <label>Test Advice</label>
               <table className="test-advice-table">
@@ -1550,6 +1556,7 @@ const Prescription = ({ patientId, onClose }) => {
                       </td>
                       <td>
                         <input
+                          style={{display:"flex",alignItems:"center"}}
                           type="date"
                           value={row.testDate}
                           onChange={(e) =>
@@ -1613,6 +1620,16 @@ const Prescription = ({ patientId, onClose }) => {
             </div>
           )}
         </div>
+        {/* <div className="form-row"> */}
+          <div className="form-group" style={{margin:"2rem 0"}}>
+            <label>Next Follow-up Date</label>
+            <input style={{display:"flex",alignItems:"center"}}
+              type="date"
+              value={followUp}
+              onChange={(e) =>setFollowUp(e.target.value)}
+            />
+          </div>
+        {/* </div> */}
       </div>
 
       <div className="wizard-footer">
