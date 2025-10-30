@@ -2,12 +2,13 @@ import React, { useContext, useState } from "react";
 import { TiHome } from "react-icons/ti";
 import { RiLogoutBoxFill } from "react-icons/ri";
 import { AiFillMessage } from "react-icons/ai";
+import { BiBarChart } from "react-icons/bi";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { FaUserDoctor } from "react-icons/fa6";
-import { MdAddModerator } from "react-icons/md";
+import { FaUserNurse, FaUserPlus } from "react-icons/fa";
 import { IoPersonAddSharp } from "react-icons/io5";
 // import { FaPrescription } from "react-icons/fa6";
-import { FiSettings } from "react-icons/fi";
+import { IoMdSettings } from "react-icons/io";
 
 import api from "../utils/api";
 import { toast } from "react-toastify";
@@ -23,11 +24,29 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      const res = await api.get(`/api/v1/user/admin/logout`);
-      toast.success(res.data.message);
+      const res = await api.get(`/api/v1/user/admin/logout`, {
+        withCredentials: true,
+      });
+
+      // 1. Update React state
       setIsAuthenticated(false);
+      toast.success(res.data.message);
+
+      // 2. Clear local storage and session storage
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // 3. Force a hard reload to the login page to clear all in-memory state
+      // and fetch a fresh version of the app.
+      window.location.href = "/login";
+
     } catch (err) {
+      // Even if logout fails, attempt to clear local state and redirect
+      setIsAuthenticated(false);
+      localStorage.clear();
+      sessionStorage.clear();
       toast.error(err?.response?.data?.message || 'Logout failed');
+      window.location.href = "/login";
     }
   };
 
@@ -45,6 +64,10 @@ const Sidebar = () => {
     navigateTo("/messages");
     setShow(!show);
   };
+  const gotoReportsPage = () => {
+    navigateTo('/reports');
+    setShow(!show);
+  }
   const gotoAddNewDoctor = () => {
     navigateTo("/doctor/addnew");
     setShow(!show);
@@ -53,6 +76,10 @@ const Sidebar = () => {
     navigateTo("/admin/addnew");
     setShow(!show);
   };
+  const gotoCompoundersPage = () => {
+    navigateTo('/compounders');
+    setShow(!show);
+  }
   // const prescriptionPage = () => {
   //   navigateTo("/prescription");
   // }
@@ -73,15 +100,19 @@ const Sidebar = () => {
           {(role === 'Admin' || role === 'Doctor') && <FaUserDoctor onClick={gotoDoctorsPage} />}
           {/* Admin and Doctor can create compounder */}
           {(role === 'Admin' || role === 'Doctor') && (
-            <MdAddModerator onClick={gotoAddNewAdmin} />
+            <>
+              <FaUserPlus onClick={gotoAddNewAdmin} title="Create Compounder" />
+              <FaUserNurse onClick={gotoCompoundersPage} title="Compounders" />
+            </>
           )}
           {/* Only Admin can add new doctors */}
           {role === 'Admin' && <IoPersonAddSharp onClick={gotoAddNewDoctor} />}
           {/* Messages and Prescriptions available to Admin, Doctor, Compounder */}
           {(["Admin","Doctor","Compounder"].includes(role)) && <AiFillMessage onClick={gotoMessagesPage} />}
+          {(["Admin","Doctor","Compounder"].includes(role)) && <BiBarChart onClick={gotoReportsPage} />}
           {/* {(["Admin","Doctor","Compounder"].includes(role)) && <FaPrescription onClick={prescriptionPage} />} */}
           {/* Settings: Admin and Doctor have access to settings */}
-          {(["Admin","Doctor"].includes(role)) && <FiSettings onClick={gotoSettingsPage} />}
+          {(["Admin","Doctor"].includes(role)) && <IoMdSettings onClick={gotoSettingsPage} />}
           <RiLogoutBoxFill onClick={handleLogout} />
         </div>
       </nav>

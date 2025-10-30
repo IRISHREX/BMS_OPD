@@ -1,4 +1,6 @@
 import React, { useContext, useEffect, useState, useMemo } from "react";
+import InvoiceViewer from './InvoiceViewer';
+import Reports from './Reports';
 import { Context } from "../main";
 import { Navigate, useNavigate } from "react-router-dom";
 import api from "../utils/api";
@@ -9,6 +11,11 @@ import Prescription from "./Prescription";
 import Modal from "react-modal";
 import { FaTrash } from "react-icons/fa";
 import RequirePermission from "./RequirePermission";
+import { MdOutlineContentPasteSearch } from "react-icons/md";
+import { RiCalendarScheduleFill } from "react-icons/ri";
+import { FaEye } from "react-icons/fa";
+import { IoReceipt } from "react-icons/io5";
+import useSound from "use-sound";
 // import Doctors from "./Doctors";
 
 const Dashboard = () => {
@@ -24,6 +31,12 @@ const Dashboard = () => {
   const [prescriptionModalOpen, setPrescriptionModalOpen] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [selectedPatientData, setSelectedPatientData] = useState(null);
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+  const [activeInvoice, setActiveInvoice] = useState(null);
+
+  // Note: Sound file should be in the `public` directory.
+  const [playDeleteSound] = useSound("/delete.mp3");
+  const [playSettledSound] = useSound("/settled.mp3");
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -35,7 +48,31 @@ const Dashboard = () => {
       }
     };
     fetchAppointments();
+
+    const onUpdated = () => fetchAppointments();
+    window.addEventListener('appointments:updated', onUpdated);
+    return () => window.removeEventListener('appointments:updated', onUpdated);
   }, []);
+
+  const handleUpdatePaymentStatus = async (appointmentId, paymentStatus) => {
+    try {
+      // send only paymentStatus and let backend harmonize status/payment according to rules
+  const body = { paymentStatus };
+      const { data } = await api.put(`/api/v1/appointment/status/${appointmentId}`, body);
+      const updated = data.appointment || null;
+      if (updated) {
+        setAppointments((prev) => prev.map(a => a._id === appointmentId ? updated : a));
+      } else {
+        setAppointments((prev) => prev.map(a => a._id === appointmentId ? { ...a, paymentStatus: paymentStatus } : a));
+      }
+      toast.success(data.message || 'Payment status updated');
+      if (paymentStatus === "Paid") {
+        playSettledSound();
+      }
+    } catch (e) {
+      toast.error(e?.response?.data?.message || 'Failed to update payment status');
+    }
+  };
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -44,7 +81,9 @@ const Dashboard = () => {
           const { data } = await api.get(`/api/v1/user/doctors`);
           setDoctors(data.doctors);
         } else {
-          const { data } = await api.get(`/api/v1/user/doctor/search?query=${encodeURIComponent(searchTerm)}`);
+          const { data } = await api.get(
+            `/api/v1/user/doctor/search?query=${encodeURIComponent(searchTerm)}`
+          );
           setDoctors(data.doctors);
         }
       } catch (error) {
@@ -59,9 +98,10 @@ const Dashboard = () => {
     if (!window.confirm("Delete this appointment?")) return;
     try {
       await api.delete(`/api/v1/appointment/delete/${id}`);
-      setAppointments(prev => prev.filter(a => a._id !== id));
-      setSelectedAppointments(prev => prev.filter(x => x !== id));
+      setAppointments((prev) => prev.filter((a) => a._id !== id));
+      setSelectedAppointments((prev) => prev.filter((x) => x !== id));
       toast.success("Appointment deleted");
+      playDeleteSound();
     } catch (err) {
       toast.error("Delete failed");
     }
@@ -69,13 +109,20 @@ const Dashboard = () => {
 
   // Bulk delete selected appointments
   const handleBulkDelete = async () => {
-    if (selectedAppointments.length === 0) return toast.info("No appointments selected");
-    if (!window.confirm(`Delete ${selectedAppointments.length} appointments?`)) return;
+    if (selectedAppointments.length === 0)
+      return toast.info("No appointments selected");
+    if (!window.confirm(`Delete ${selectedAppointments.length} appointments?`))
+      return;
     try {
-      await api.post(`/api/v1/appointment/bulk-delete`, { ids: selectedAppointments });
-      setAppointments(prev => prev.filter(a => !selectedAppointments.includes(a._id)));
+      await api.post(`/api/v1/appointment/bulk-delete`, {
+        ids: selectedAppointments,
+      });
+      setAppointments((prev) =>
+        prev.filter((a) => !selectedAppointments.includes(a._id))
+      );
       setSelectedAppointments([]);
       toast.success("Bulk delete complete");
+      playDeleteSound();
     } catch (err) {
       toast.error("Bulk delete failed");
     }
@@ -83,25 +130,63 @@ const Dashboard = () => {
 
   // Toggle select for bulk delete
   const toggleSelectAppointment = (id) => {
-    setSelectedAppointments(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    setSelectedAppointments((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
   };
 
   const handleUpdateStatus = async (appointmentId, status) => {
     try {
-      const { data } = await api.put(
-        `/api/v1/appointment/status/${appointmentId}`,
-        { status }
-      );
-      setAppointments((prevAppointments) =>
-        prevAppointments.map((appointment) =>
-          appointment._id === appointmentId
-            ? { ...appointment, status }
-            : appointment
-        )
-      );
-      toast.success(data.message);
+      // Let backend enforce rules. When requesting Completed, backend will ensure paymentStatus is Paid.
+      // If requesting Completed from UI, include paymentStatus: 'Paid' so harmonizeStatusPayment accepts Completed
+      const body = status === 'Completed' ? { status, paymentStatus: 'Paid' } : { status };
+      const { data } = await api.put(`/api/v1/appointment/status/${appointmentId}`, body);
+      const updatedAppt = data.appointment || null;
+      if (updatedAppt) {
+        setAppointments((prev) => prev.map((a) => (a._id === appointmentId ? updatedAppt : a)));
+      }
+      toast.success(data.message || 'Status updated');
+      if (updatedAppt && updatedAppt.paymentStatus === "Paid") {
+        playSettledSound();
+      }
     } catch (error) {
       toast.error(error.response.data.message);
+    }
+  };
+
+  const [invoicesList, setInvoicesList] = useState([]);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
+  const [showInvoicesModal, setShowInvoicesModal] = useState(false);
+
+  const handleInvoiceClick = async (appointmentId) => {
+    try {
+      const { data } = await api.get(
+        `/api/v1/invoice/appointment/${appointmentId}`
+      );
+      let invoices = [];
+      if (Array.isArray(data.invoices)) {
+        invoices = data.invoices;
+      } else if (Array.isArray(data.invoice)) {
+        invoices = data.invoice;
+      } else if (data.invoices) {
+        invoices = [data.invoices];
+      } else if (data.invoice) {
+        invoices = [data.invoice];
+      } else if (Array.isArray(data)) {
+        invoices = data;
+      } else if (data && data._id) {
+        invoices = [data];
+      }
+  // extracted invoices from API response
+      if (!invoices || invoices.length === 0) {
+        toast.info("No invoice found for this appointment");
+        return;
+      }
+      setInvoicesList(invoices);
+      setShowInvoicesModal(true);
+      setSelectedInvoiceId(null);
+    } catch (e) {
+      toast.error("Failed to fetch invoice for appointment");
     }
   };
 
@@ -143,9 +228,9 @@ const Dashboard = () => {
               <p>
                 Welcome to your dashboard! Here you can manage appointments,
                 view patient information, and oversee your medical practice with
-                ease.
-                If you have any questions or need assistance, feel free to reach out
-                to our support team. <b>Biomechasoft +91 9609436103</b>
+                ease. If you have any questions or need assistance, feel free to
+                reach out to our support team.{" "}
+                <b>Biomechasoft +91 9609436103</b>
               </p>
             </div>
           </div>
@@ -158,6 +243,8 @@ const Dashboard = () => {
             <h3>{Doctors.length}</h3>
           </div>
         </div>
+  {/* Reports summary (today/month/total) */}
+  <Reports appointments={appointments} />
 
         {/* Middle banner / navbar-like filter area */}
         <div className="banner middle-banner">
@@ -192,7 +279,7 @@ const Dashboard = () => {
           </div>
 
           <div className="search-box">
-            <label>Search</label>
+            <MdOutlineContentPasteSearch size={"1.8rem"} color="grey" />
             <input
               type="text"
               placeholder="Search by name/phone/date"
@@ -205,134 +292,128 @@ const Dashboard = () => {
         <div className="banner table-banner">
           <div className="heading-box">
             <h5>Appointments</h5>
-            <button
-              className="btn add-btn"
-              onClick={() => navigate("/add-appointment")}
-            >
-              Add new
-            </button>
-            <RequirePermission allowedRoles={["Admin"]}>
+            <div className="btn-box">
               <button
-                className="btn remove-btn"
-                onClick={handleBulkDelete}
-                disabled={selectedAppointments.length === 0}
-                style={{marginLeft:'1rem'}}
+                className="btn add-btn"
+                onClick={() => navigate("/add-appointment")}
               >
-                Delete Selected ({selectedAppointments.length})
+                Book Appointment
               </button>
-            </RequirePermission>
+              <RequirePermission allowedRoles={["Admin"]}>
+                <button
+                  className="btn remove-btn"
+                  onClick={handleBulkDelete}
+                  disabled={selectedAppointments.length === 0}
+                >
+                  Delete Selected ({selectedAppointments.length})
+                </button>
+              </RequirePermission>
+            </div>
           </div>
 
           <div className="table-container">
             <table>
               <thead>
                 <tr>
-                    <th>
-                      <input
-                        type="checkbox"
-                        checked={(() => {
-                          const filteredAppointments = (appointments || []).filter(
-                            (appointment) => {
-                              try {
-                                const apptDate = new Date(appointment.appointment_date);
-                                const today = new Date();
-                                const startOfToday = new Date(
-                                  today.getFullYear(),
-                                  today.getMonth(),
-                                  today.getDate()
+                  <th>
+                    <input
+                      type="checkbox"
+                      onChange={(e) => {
+                        const filteredAppointments = (
+                          appointments || []
+                        ).filter((appointment) => {
+                          try {
+                            const apptDate = new Date(
+                              appointment.appointment_date
+                            );
+                            const apptYmd = apptDate.toLocaleDateString("en-CA")
+                            const today = new Date();
+                            const startOfToday = new Date(
+                              today.getFullYear(),
+                              today.getMonth(),
+                              today.getDate()
+                            );
+                            const todayYmd = startOfToday.toLocaleDateString("en-CA");
+
+                            // Filter by dropdown
+                            if (filterOption === "Today") {
+                              if (apptYmd !== todayYmd) return false;
+                            } else if (filterOption === "Old") {
+                              if (apptYmd >= todayYmd) return false;
+                            } else if (filterOption === "Upcoming") {
+                              // future (strictly greater than today)
+                              if (apptYmd <= todayYmd) return false;
+                            } else if (filterOption === "Custom") {
+                              if (customStart && customEnd) {
+                                const start = new Date(
+                                  customStart + "T00:00:00"
                                 );
-                                if (filterOption === "Today") {
-                                  const apptYmd = apptDate.toISOString().slice(0, 10);
-                                  const todayYmd = startOfToday.toISOString().slice(0, 10);
-                                  if (apptYmd !== todayYmd) return false;
-                                } else if (filterOption === "Old") {
-                                  if (apptDate >= startOfToday) return false;
-                                } else if (filterOption === "Upcoming") {
-                                  if (apptDate <= startOfToday) return false;
-                                } else if (filterOption === "Custom") {
-                                  if (customStart && customEnd) {
-                                    const start = new Date(customStart + "T00:00:00");
-                                    const end = new Date(customEnd + "T23:59:59");
-                                    if (apptDate < start || apptDate > end) return false;
-                                  }
-                                }
-                                if (searchTerm && searchTerm.trim() !== "") {
-                                  const q = searchTerm.toLowerCase();
-                                  const name = `${appointment.firstName || ""} ${appointment.lastName || ""}`.toLowerCase();
-                                  const phone = (appointment.phone || appointment.mobile || appointment.patientPhone || "").toString().toLowerCase();
-                                  const dateStr = (appointment.appointment_date || "").toString().toLowerCase();
-                                  if (!name.includes(q) && !phone.includes(q) && !dateStr.includes(q)) {
-                                    return false;
-                                  }
-                                }
-                                return true;
-                              } catch (err) {
-                                return true;
+                                const end = new Date(customEnd + "T23:59:59");
+                                if (apptDate < start || apptDate > end)
+                                  return false;
                               }
                             }
-                          );
-                          return filteredAppointments.length > 0 && selectedAppointments.length === filteredAppointments.length;
-                        })()}
-                        onChange={e => {
-                          const filteredAppointments = (appointments || []).filter(
-                            (appointment) => {
-                              try {
-                                const apptDate = new Date(appointment.appointment_date);
-                                const today = new Date();
-                                const startOfToday = new Date(
-                                  today.getFullYear(),
-                                  today.getMonth(),
-                                  today.getDate()
-                                );
-                                if (filterOption === "Today") {
-                                  const apptYmd = apptDate.toISOString().slice(0, 10);
-                                  const todayYmd = startOfToday.toISOString().slice(0, 10);
-                                  if (apptYmd !== todayYmd) return false;
-                                } else if (filterOption === "Old") {
-                                  if (apptDate >= startOfToday) return false;
-                                } else if (filterOption === "Upcoming") {
-                                  if (apptDate <= startOfToday) return false;
-                                } else if (filterOption === "Custom") {
-                                  if (customStart && customEnd) {
-                                    const start = new Date(customStart + "T00:00:00");
-                                    const end = new Date(customEnd + "T23:59:59");
-                                    if (apptDate < start || apptDate > end) return false;
-                                  }
-                                }
-                                if (searchTerm && searchTerm.trim() !== "") {
-                                  const q = searchTerm.toLowerCase();
-                                  const name = `${appointment.firstName || ""} ${appointment.lastName || ""}`.toLowerCase();
-                                  const phone = (appointment.phone || appointment.mobile || appointment.patientPhone || "").toString().toLowerCase();
-                                  const dateStr = (appointment.appointment_date || "").toString().toLowerCase();
-                                  if (!name.includes(q) && !phone.includes(q) && !dateStr.includes(q)) {
-                                    return false;
-                                  }
-                                }
-                                return true;
-                              } catch (err) {
-                                return true;
+
+                            // Search term across name, phone and date
+                            if (searchTerm && searchTerm.trim() !== "") {
+                              const q = searchTerm.toLowerCase();
+                              const name = (
+                                appointment.name ||
+                                `${appointment.firstName || ""} ${
+                                  appointment.lastName || ""
+                                }`
+                              ).toLowerCase();
+                              const phone = (
+                                appointment.phone ||
+                                appointment.mobile ||
+                                appointment.patientPhone ||
+                                ""
+                              )
+                                .toString()
+                                .toLowerCase();
+                              const dateStr = (
+                                appointment.appointment_date || ""
+                              )
+                                .toString()
+                                .toLowerCase();
+                              if (
+                                !name.includes(q) &&
+                                !phone.includes(q) &&
+                                !dateStr.includes(q)
+                              ) {
+                                return false;
                               }
                             }
-                          );
-                          setSelectedAppointments(e.target.checked ? filteredAppointments.map(a => a._id) : []);
-                        }}
-                      />
-                    </th>
+
+                            return true;
+                          } catch (err) {
+                            return true;
+                          }
+                        });
+                        setSelectedAppointments(
+                          e.target.checked
+                            ? filteredAppointments.map((a) => a._id)
+                            : []
+                        );
+                      }}
+                    />
+                  </th>
                   <th>Sr. No.</th>
                   <th>Patient Name</th>
                   <th>Appointment Date</th>
-                  <th>Created By</th>
+                  {/* <th>Created By</th> */}
                   <th>Phone</th>
                   <th>Gender</th>
-                  <th>Payment Mode</th>
-                  <th>Fees Amount</th>
+                  {/* <th>Payment Mode</th> */}
+                  {/* <th>Fees Amount</th> */}
+                  <th>Payment Status</th>
                   <th>Status</th>
                   <th>Doctor</th>
                   <th>Department</th>
-                  <th>Visited</th>
+                  <th>Visited Before</th>
                   <th>Booked By</th>
                   <th>Prescription</th>
-                    <th>Actions</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -342,25 +423,23 @@ const Dashboard = () => {
                     (appointment) => {
                       try {
                         const apptDate = new Date(appointment.appointment_date);
+                        const apptYmd = apptDate.toLocaleDateString("en-CA");
                         const today = new Date();
                         const startOfToday = new Date(
                           today.getFullYear(),
                           today.getMonth(),
                           today.getDate()
                         );
+                        const todayYmd = startOfToday.toLocaleDateString("en-CA");
 
                         // Filter by dropdown
                         if (filterOption === "Today") {
-                          const apptYmd = apptDate.toISOString().slice(0, 10);
-                          const todayYmd = startOfToday
-                            .toISOString()
-                            .slice(0, 10);
                           if (apptYmd !== todayYmd) return false;
                         } else if (filterOption === "Old") {
-                          if (apptDate >= startOfToday) return false;
+                          if (apptYmd >= todayYmd) return false;
                         } else if (filterOption === "Upcoming") {
                           // future (strictly greater than today)
-                          if (apptDate <= startOfToday) return false;
+                          if (apptYmd <= todayYmd) return false;
                         } else if (filterOption === "Custom") {
                           if (customStart && customEnd) {
                             const start = new Date(customStart + "T00:00:00");
@@ -373,9 +452,12 @@ const Dashboard = () => {
                         // Search term across name, phone and date
                         if (searchTerm && searchTerm.trim() !== "") {
                           const q = searchTerm.toLowerCase();
-                          const name = `${appointment.firstName || ""} ${
-                            appointment.lastName || ""
-                          }`.toLowerCase();
+                          const name = (
+                            appointment.name ||
+                            `${appointment.firstName || ""} ${
+                              appointment.lastName || ""
+                            }`
+                          ).toLowerCase();
                           const phone = (
                             appointment.phone ||
                             appointment.mobile ||
@@ -406,30 +488,54 @@ const Dashboard = () => {
                   return filteredAppointments && filteredAppointments.length > 0
                     ? filteredAppointments.map((appointment) => (
                         <tr key={appointment._id}>
-                            <td>
-                              <input
-                                type="checkbox"
-                                checked={selectedAppointments.includes(appointment._id)}
-                                onChange={() => toggleSelectAppointment(appointment._id)}
-                              />
-                            </td>
-                          <td>{appointments.indexOf(appointment) + 1}</td>
-                          <td>{appointment.name||`${appointment.firstName} ${appointment.lastName}`}</td>
                           <td>
-                            {appointment.appointment_date.substring(0, 16)}
+                            <input
+                              type="checkbox"
+                              checked={selectedAppointments.includes(
+                                appointment._id
+                              )}
+                              onChange={() =>
+                                toggleSelectAppointment(appointment._id)
+                              }
+                            />
                           </td>
-                          <td>{appointment.bookedBy||"You"}</td>
+                          <td>{appointments.indexOf(appointment) + 1}</td>
+                          <td>
+                            {appointment.name ||
+                              `${appointment.firstName} ${appointment.lastName}`}
+                          </td>
+                          <td>
+                            {appointment.appointment_date.substring(0, 10)}
+                          </td>
+                          {/* <td>{appointment?.booked_by || "You"}</td> */}
                           <td>{appointment.phone || appointment.mobile}</td>
                           <td>{appointment.gender}</td>
-                          <td>{appointment.paymentMode || "Cash"}</td>
-                          <td>{appointment.feesAmount || "0"}</td>
-                          <td>
+                          {/* <td>{appointment.paymentMode || "Cash"}</td> */}
+                          {/* <td>{appointment.price || appointment.feesAmount || "0"}</td> */}
+                          <td style={{minWidth: "6.5rem"}}>
+                            <select value={appointment.paymentStatus || 'Pending'} 
+                              onChange={(e) => handleUpdatePaymentStatus(appointment._id, e.target.value)}
+                              className={
+                                appointment.paymentStatus === "Pending"
+                                ? "value-rejected"
+                                : "value-completed"
+                              }
+                              style={{fontSize: "1rem"}}
+                            >
+                              <option value="Pending" className="value-rejected">Pending</option>
+                              {/* <option value="Accepted">Accepted</option> */}
+                              <option value="Paid" className="value-completed">Paid</option>
+                            </select>
+                          </td>
+                          <td style={{minWidth: "8rem"}}>
                             <select
                               className={
                                 appointment.status === "Pending"
                                   ? "value-pending"
                                   : appointment.status === "Accepted"
                                   ? "value-accepted"
+                                  : appointment.status === "Completed"
+                                  ? "value-completed"
                                   : "value-rejected"
                               }
                               value={appointment.status}
@@ -439,6 +545,7 @@ const Dashboard = () => {
                                   e.target.value
                                 )
                               }
+                              style={{fontSize: "1rem"}}
                             >
                               <option value="Pending" className="value-pending">
                                 Pending
@@ -455,6 +562,12 @@ const Dashboard = () => {
                               >
                                 Rejected
                               </option>
+                              <option
+                                value="Completed"
+                                className="value-completed" 
+                              >
+                                Completed
+                              </option>
                             </select>
                           </td>
                           <td>{`${appointment.doctor.firstName} ${appointment.doctor.lastName}`}</td>
@@ -467,8 +580,8 @@ const Dashboard = () => {
                             )}
                           </td>
                           <td>
-                            {appointment.bookedBy
-                              ? appointment.bookedBy
+                            {appointment.book_by_name
+                              ? appointment.book_by_name
                               : appointment.patientId || "-"}
                           </td>
                           <td>
@@ -481,17 +594,60 @@ const Dashboard = () => {
                               Prescription
                             </button>
                           </td>
-                            <td>
-                              <RequirePermission allowedRoles={["Admin"]}>
+                          <td>
+                            <div className="td-btn-container">
+                              {/* TODO:functionalities need to be implemented */}
                               <button
-                                className="btn remove-btn"
-                                onClick={() => handleDeleteAppointment(appointment._id)}
-                                style={{background:'none',border:'none',color:'#b10c0c'}}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#0859afff",
+                                  cursor: "pointer",
+                                }}
                               >
-                                <FaTrash />
+                                <RiCalendarScheduleFill title="Reschedule"/>
                               </button>
+                              <button
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#5bbe8eff",
+                                  cursor: "pointer",
+                                }}
+                                onClick={()=>navigate(`/preview/${appointment.patientId}`)}
+                              >
+                                <FaEye title="View prescription"/>
+                              </button>
+                              <button
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#760692ff",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() =>
+                                  handleInvoiceClick(appointment._id)
+                                }
+                              >
+                                <IoReceipt title="Invoice"/>
+                              </button>
+                              <RequirePermission allowedRoles={["Admin"]}>
+                                <button
+                                  onClick={() =>
+                                    handleDeleteAppointment(appointment._id)
+                                  }
+                                  style={{
+                                    background: "none",
+                                    border: "none",
+                                    color: "#b10c0c",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  <FaTrash title="Delete"/>
+                                </button>
                               </RequirePermission>
-                            </td>
+                            </div>
+                          </td>
                         </tr>
                       ))
                     : "No Appointments Found!";
@@ -500,34 +656,94 @@ const Dashboard = () => {
             </table>
           </div>
 
+          {/* Invoice selection modal for multiple invoices - only opens on IoReceipt click */}
           <Modal
-            isOpen={prescriptionModalOpen}
-            onRequestClose={closePrescriptionModal}
-            contentLabel="Prescription Modal"
+            isOpen={showInvoicesModal}
+            onRequestClose={() => {
+              setShowInvoicesModal(false);
+              setInvoicesList([]);
+              setSelectedInvoiceId(null);
+            }}
+            contentLabel="Invoices Modal"
             ariaHideApp={false}
-            style={{ content: { maxWidth: "700px", margin: "auto" } }}
+            style={{ content: { maxWidth: "600px", margin: "auto" } }}
           >
-            <Prescription
-              patientId={selectedPatientId}
-              patientData={selectedPatientData}
-              onClose={closePrescriptionModal}
-            />
-          </Modal>
-          <Modal
-            isOpen={prescriptionModalOpen}
-            onRequestClose={closePrescriptionModal}
-            contentLabel="Prescription Modal"
-            ariaHideApp={false}
-            style={{ content: { maxWidth: "100%", margin: "auto" } }}
-          >
-            <Prescription
-              patientId={selectedPatientId}
-              patientData={selectedPatientData}
-              onClose={closePrescriptionModal}
+            <h3>Invoices for Appointment</h3>
+            <div>
+              {invoicesList.map((inv, idx) => (
+                <div
+                  key={inv._id || inv.id}
+                  style={{
+                    marginBottom: 10,
+                    borderBottom: "1px solid #eee",
+                    paddingBottom: 8,
+                  }}
+                >
+                  <div>
+                    <b>Invoice #:</b> {inv.invoiceNumber || inv._id || inv.id}
+                  </div>
+                  <div>
+                    <b>Date:</b>{" "}
+                    {inv.issuedAt
+                      ? String(inv.issuedAt).substring(0, 10)
+                      : inv.date
+                      ? String(inv.date).substring(0, 10)
+                      : "-"}
+                  </div>
+                  <div>
+                    <b>Total:</b> {inv.total || inv.subtotal || 0}
+                  </div>
+                  <button
+                    className="btn btn-primary"
+                    style={{ marginRight: 8 }}
+                    onClick={() => setSelectedInvoiceId(inv._id || inv.id)}
+                  >
+                    View
+                  </button>
+                  <button
+                    className="btn"
+                    onClick={() =>
+                      window.open(`/invoice/${inv._id || inv.id}`, "_blank")
+                    }
+                  >
+                    Open Full Page
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              className="btn"
+              style={{ marginTop: 12 }}
+              onClick={() => {
+                setShowInvoicesModal(false);
+                setInvoicesList([]);
+                setSelectedInvoiceId(null);
+              }}
+            >
+              Close
+            </button>
+            {/* InvoiceViewer for selected invoice inside modal */}
+            <InvoiceViewer
+              invoiceId={selectedInvoiceId}
+              isOpen={!!selectedInvoiceId}
+              onClose={() => setSelectedInvoiceId(null)}
             />
           </Modal>
 
-          {}
+          {/* Prescription modal - only for prescription */}
+          <Modal
+            isOpen={prescriptionModalOpen}
+            onRequestClose={closePrescriptionModal}
+            contentLabel="Prescription Modal"
+            ariaHideApp={false}
+            style={{ content: { margin: "auto" } }}
+          >
+            <Prescription
+              patientId={selectedPatientId}
+              patientData={selectedPatientData}
+              onClose={closePrescriptionModal}
+            />
+          </Modal>
         </div>
       </section>
     </>

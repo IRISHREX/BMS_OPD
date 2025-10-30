@@ -11,6 +11,7 @@ import Appoinment from "./components/Appointment"
 import AddNewDoctor from "./components/AddNewDoctor";
 import Messages from "./components/Messages";
 import Doctors from "./components/Doctors";
+import Compounders from "./components/Compounders";
 import { Context } from "./main";
 import api from "./utils/api";
 import { ToastContainer } from "react-toastify";
@@ -26,6 +27,9 @@ import RoleSettings from "./components/RoleSettings";
 import ThemeSettings from "./components/ThemeSettings";
 import AdvancedSettings from "./components/AdvancedSettings";
 import RequireAuth from "./components/RequireAuth";
+import InvoiceSettings from "./components/InvoiceSettings";
+import InvoicePage from "./components/InvoicePage";
+import ReportsPage from "./components/ReportsPage";
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated, admin, setAdmin } =
@@ -81,14 +85,29 @@ const App = () => {
             <Doctors />
           </RequireAuth>
         } />
+        <Route path="/compounders" element={
+          <RequireAuth allowedRoles={["Admin","Doctor"]}>
+            <Compounders />
+          </RequireAuth>
+        } />
         <Route path="/settings" element={
           <RequireAuth allowedRoles={["Admin","Doctor"]}>
             <Settings />
           </RequireAuth>
         } />
+        <Route path="/reports" element={
+          <RequireAuth allowedRoles={["Admin","Doctor","Compounder"]}>
+            <ReportsPage />
+          </RequireAuth>
+        } />
         <Route path="/settings/medicine" element={
           <RequireAuth allowedRoles={["Admin","Doctor"]}>
             <MedicineSettings />
+          </RequireAuth>
+        } />
+        <Route path="/settings/invoices" element={
+          <RequireAuth allowedRoles={["Admin","Doctor","Compounder"]}>
+            <InvoiceSettings />
           </RequireAuth>
         } />
         <Route path="/settings/roles" element={
@@ -107,6 +126,7 @@ const App = () => {
           </RequireAuth>
         } />
         <Route path="/preview/:patientId" element={<Preview />} />
+        <Route path="/invoice/:invoiceId" element={<InvoicePage />} />
       </Routes>
       <ToastContainer position="top-center" />
     </Router>
