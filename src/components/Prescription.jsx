@@ -61,7 +61,7 @@ const Prescription = ({ patientId, onClose }) => {
   const [autoPopulating, setAutoPopulating] = useState(false);
   const [selectedTestTypes, setSelectedTestTypes] = useState([]);
   const [testAdviceRows, setTestAdviceRows] = useState([
-    { testName: "", testType: "", precautions: "", testDate: "" },
+    { testName: "", testType: "", precautions: "", testDate: "", selected: false },
   ]);
   const [medicationAdvice, setMedicationAdvice] = useState("");
   const [dietAdvice, setDietAdvice] = useState("");
@@ -98,7 +98,7 @@ const Prescription = ({ patientId, onClose }) => {
   const addNewTestAdviceRow = () => {
     setTestAdviceRows((prev) => [
       ...prev,
-      { testName: "", testType: "", precautions: "", testDate: "" },
+      { testName: "", testType: "", precautions: "", testDate: "", selected: true },
     ]);
   };
 
@@ -684,6 +684,7 @@ const Prescription = ({ patientId, onClose }) => {
               frequency: m.frequency || t.frequency || "",
               route: m.route || "mouth",
               duration: m.duration || "",
+              selected: m.selected || false,
             });
           });
         } else {
@@ -694,6 +695,7 @@ const Prescription = ({ patientId, onClose }) => {
             frequency: t.frequency || "",
             route: t.route || "mouth",
             duration: t.duration || "",
+            selected: t.selected || false,
           });
         }
       });
@@ -881,9 +883,10 @@ const Prescription = ({ patientId, onClose }) => {
             <input
               type="number"
               value={gravida}
-              onChange={(e) =>{
+              onChange={(e) => {
                 const v = e.target.value;
-                setGravida(v && v>15? 15:v)}}
+                setGravida(v && v > 15 ? 15 : v);
+              }}
             />
           </div>
           <div className="form-group">
@@ -891,23 +894,25 @@ const Prescription = ({ patientId, onClose }) => {
             <input
               type="number"
               value={parity}
-              onChange={(e) =>setParity(e.target.value)}
+              onChange={(e) => setParity(e.target.value)}
             />
           </div>
           <div className="form-group">
             <label>LMP</label>
-            <input style={{display:"flex",alignItems:"center"}}
+            <input
+              style={{ display: "flex", alignItems: "center" }}
               type="date"
               value={LMP}
-              onChange={(e) =>setLMP(e.target.value)}
+              onChange={(e) => setLMP(e.target.value)}
             />
           </div>
           <div className="form-group">
             <label>EDD</label>
-            <input style={{display:"flex",alignItems:"center"}}
+            <input
+              style={{ display: "flex", alignItems: "center" }}
               type="date"
               value={EDD}
-              onChange={(e) =>setEDD(e.target.value)}
+              onChange={(e) => setEDD(e.target.value)}
             />
           </div>
         </div>
@@ -963,12 +968,12 @@ const Prescription = ({ patientId, onClose }) => {
               value={diagnosys.Temp}
               onChange={(e) => {
                 const v = e.target.value;
-                setDiagnosys({ ...diagnosys, Temp: v && v > 200 ? 200 : v })
+                setDiagnosys({ ...diagnosys, Temp: v && v > 200 ? 200 : v });
               }}
             />
           </div>
         </div>
-        <div className="form-row" style={{marginBottom:"2rem"}}>
+        <div className="form-row" style={{ marginBottom: "2rem" }}>
           <div className="form-group">
             <label>Height (cm)</label>
             <input
@@ -1007,7 +1012,7 @@ const Prescription = ({ patientId, onClose }) => {
             />
           </div>
         </div>
-        
+
         <div className="form-group full-width">
           <label>Medical History</label>
           <input
@@ -1038,7 +1043,7 @@ const Prescription = ({ patientId, onClose }) => {
                   display: "flex",
                   width: "100%",
                   gap: "0.5rem",
-                  alignItems: "center",
+                  // alignItems: "center",
                 }}
               >
                 <AutoSuggestInput
@@ -1172,6 +1177,7 @@ const Prescription = ({ patientId, onClose }) => {
                                   frequency: p.frequency || "",
                                   route: p.route || "",
                                   duration: p.duration || "",
+                                  selected: p.selected || false,
                                 });
                               }
                             });
@@ -1189,6 +1195,7 @@ const Prescription = ({ patientId, onClose }) => {
                                   frequency: m.frequency || "",
                                   route: m.route || "",
                                   duration: m.duration || "",
+                                  selected: m.selected || false,
                                 });
                               }
                             });
@@ -1218,6 +1225,7 @@ const Prescription = ({ patientId, onClose }) => {
                                     testType: t.testType || "",
                                     precautions: t.precautions || "",
                                     testDate: t.testDate || "",
+                                    selected: t.selected || false,
                                   }
                                 );
                             });
@@ -1310,100 +1318,122 @@ const Prescription = ({ patientId, onClose }) => {
         <div>
           <div className="form-group full-width medicine-section">
             <label>Medicine Advice</label>
+            <div className="medicine-data">
+            <div className="medicine-head medicine-row">
+              <span></span>
+              <span>Medicine Name</span>
+              <span>Type</span>
+              <span>Dose</span>
+              <span>Frequency</span>
+              <span>Route</span>
+              <span>Duration</span>
+            </div>
             <div className="medicines-list">
               {medicineAdvice.map((m, idx) => (
                 <div className="medicine-row" key={idx}>
-                  <AutoSuggestInput
-                    single
-                    placeholder="Name"
-                    value={m.name || ""}
-                    suggestions={medSuggestions.medicines}
-                    onChange={(e) => {
-                      const copy = [...medicineAdvice];
-                      copy[idx] = { ...copy[idx], name: e.target.value };
-                      setMedicineAdvice(copy);
-                    }}
-                    onSelect={(item, label) => {
-                      // item can be medicine object (from useMedicineSuggestions) or string
-                      const copy = [...medicineAdvice];
-                      if (item && typeof item === "object") {
+                  <div className="medicine-checkbox">
+                    <input 
+                      type="checkbox" 
+                      checked={m.selected }
+                      onChange={(e)=>{
+                        const copy = [...medicineAdvice];
+                        copy[idx] = {...copy[idx], selected: e.target.checked}
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                  </div>
+                    <AutoSuggestInput
+                      single
+                      placeholder="Name"
+                      value={m.name || ""}
+                      suggestions={medSuggestions.medicines}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
+                        copy[idx] = { ...copy[idx], name: e.target.value };
+                        setMedicineAdvice(copy);
+                      }}
+                      onSelect={(item, label) => {
+                        // item can be medicine object (from useMedicineSuggestions) or string
+                        const copy = [...medicineAdvice];
+                        if (item && typeof item === "object") {
+                          copy[idx] = {
+                            ...copy[idx],
+                            name: item.name || label || copy[idx].name,
+                            type: item.type || copy[idx].type,
+                            dose: item.dose || copy[idx].dose,
+                            frequency: item.frequency || copy[idx].frequency,
+                            route: item.route || copy[idx].route,
+                            duration: item.duration || copy[idx].duration,
+                            selected: item.selected || copy[idx].selected,
+                          };
+                        } else {
+                          copy[idx] = { ...copy[idx], name: label || item };
+                        }
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                    <AutoSuggestInput
+                      single
+                      placeholder="Type"
+                      value={m.type || ""}
+                      suggestions={medSuggestions.lists.types}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
+                        copy[idx] = { ...copy[idx], type: e.target.value };
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                    <AutoSuggestInput
+                      single
+                      placeholder="Dose"
+                      value={m.dose || ""}
+                      suggestions={medSuggestions.lists.doses}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
+                        copy[idx] = { ...copy[idx], dose: e.target.value };
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                    <AutoSuggestInput
+                      single
+                      placeholder="Frequency"
+                      value={m.frequency || ""}
+                      suggestions={medSuggestions.lists.frequencies}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
                         copy[idx] = {
                           ...copy[idx],
-                          name: item.name || label || copy[idx].name,
-                          type: item.type || copy[idx].type,
-                          dose: item.dose || copy[idx].dose,
-                          frequency: item.frequency || copy[idx].frequency,
-                          route: item.route || copy[idx].route,
-                          duration: item.duration || copy[idx].duration,
+                          frequency: e.target.value,
                         };
-                      } else {
-                        copy[idx] = { ...copy[idx], name: label || item };
-                      }
-                      setMedicineAdvice(copy);
-                    }}
-                  />
-                  <AutoSuggestInput
-                    single
-                    placeholder="Type"
-                    value={m.type || ""}
-                    suggestions={medSuggestions.lists.types}
-                    onChange={(e) => {
-                      const copy = [...medicineAdvice];
-                      copy[idx] = { ...copy[idx], type: e.target.value };
-                      setMedicineAdvice(copy);
-                    }}
-                  />
-                  <AutoSuggestInput
-                    single
-                    placeholder="Dose"
-                    value={m.dose || ""}
-                    suggestions={medSuggestions.lists.doses}
-                    onChange={(e) => {
-                      const copy = [...medicineAdvice];
-                      copy[idx] = { ...copy[idx], dose: e.target.value };
-                      setMedicineAdvice(copy);
-                    }}
-                  />
-                  <AutoSuggestInput
-                    single
-                    placeholder="Frequency"
-                    value={m.frequency || ""}
-                    suggestions={medSuggestions.lists.frequencies}
-                    onChange={(e) => {
-                      const copy = [...medicineAdvice];
-                      copy[idx] = {
-                        ...copy[idx],
-                        frequency: e.target.value,
-                      };
-                      setMedicineAdvice(copy);
-                    }}
-                  />
-                  <AutoSuggestInput
-                    single
-                    placeholder="Route"
-                    value={m.route || ""}
-                    suggestions={medSuggestions.lists.routes}
-                    onChange={(e) => {
-                      const copy = [...medicineAdvice];
-                      copy[idx] = { ...copy[idx], route: e.target.value };
-                      setMedicineAdvice(copy);
-                    }}
-                  />
-                  <AutoSuggestInput
-                    single
-                    placeholder="Duration"
-                    value={m.duration || ""}
-                    suggestions={medSuggestions.lists.durations}
-                    onChange={(e) => {
-                      const copy = [...medicineAdvice];
-                      copy[idx] = {
-                        ...copy[idx],
-                        duration: e.target.value,
-                      };
-                      setMedicineAdvice(copy);
-                    }}
-                  />
-                  <button
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                    <AutoSuggestInput
+                      single
+                      placeholder="Route"
+                      value={m.route || ""}
+                      suggestions={medSuggestions.lists.routes}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
+                        copy[idx] = { ...copy[idx], route: e.target.value };
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                    <AutoSuggestInput
+                      single
+                      placeholder="Duration"
+                      value={m.duration || ""}
+                      suggestions={medSuggestions.lists.durations}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
+                        copy[idx] = {
+                          ...copy[idx],
+                          duration: e.target.value,
+                        };
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                    {/* <button
                     type="button"
                     className="remove-btn"
                     onClick={() => {
@@ -1413,7 +1443,7 @@ const Prescription = ({ patientId, onClose }) => {
                     }}
                   >
                     Remove
-                  </button>
+                  </button> */}
                 </div>
               ))}
               <div className="medicine-actions">
@@ -1430,6 +1460,7 @@ const Prescription = ({ patientId, onClose }) => {
                         frequency: "",
                         route: "",
                         duration: "",
+                        selected: true,
                       },
                     ])
                   }
@@ -1445,6 +1476,7 @@ const Prescription = ({ patientId, onClose }) => {
                 </button>
               </div>
             </div>
+          </div>
           </div>
         </div>
 
@@ -1466,22 +1498,35 @@ const Prescription = ({ patientId, onClose }) => {
           {selectedTestTypes.includes("Test Advice") && (
             <div
               className="form-group full-width"
-              style={{ overflowX: "auto", marginBottom:"2rem" }}
+              style={{ overflowX: "auto", marginBottom: "2rem" }}
             >
               <label>Test Advice</label>
               <table className="test-advice-table">
                 <thead>
                   <tr>
+                    <th></th>
                     <th style={{ minWidth: "9rem" }}>Test Name</th>
                     <th>Test Type</th>
                     <th>Precautions</th>
                     <th>Test Date</th>
-                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
                   {testAdviceRows.map((row, idx) => (
                     <tr key={idx}>
+                      <td>
+                        <input 
+                          type="checkbox" 
+                          checked={row.selected}
+                          onChange={(e) =>
+                            handleTestAdviceChange(
+                              idx,
+                              "selected",
+                              e.target.checked
+                            )
+                          }
+                        />
+                      </td>
                       <td>
                         <AutoSuggestInput
                           single
@@ -1556,7 +1601,7 @@ const Prescription = ({ patientId, onClose }) => {
                       </td>
                       <td>
                         <input
-                          style={{display:"flex",alignItems:"center"}}
+                          style={{ display: "flex", alignItems: "center" }}
                           type="date"
                           value={row.testDate}
                           onChange={(e) =>
@@ -1567,19 +1612,6 @@ const Prescription = ({ patientId, onClose }) => {
                             )
                           }
                         />
-                      </td>
-                      <td>
-                        <button
-                          type="button"
-                          className="remove-btn"
-                          onClick={() =>
-                            setTestAdviceRows((prev) =>
-                              prev.filter((_, i) => i !== idx)
-                            )
-                          }
-                        >
-                          Remove
-                        </button>
                       </td>
                     </tr>
                   ))}
@@ -1621,14 +1653,15 @@ const Prescription = ({ patientId, onClose }) => {
           )}
         </div>
         {/* <div className="form-row"> */}
-          <div className="form-group" style={{margin:"2rem 0"}}>
-            <label>Next Follow-up Date</label>
-            <input style={{display:"flex",alignItems:"center"}}
-              type="date"
-              value={followUp}
-              onChange={(e) =>setFollowUp(e.target.value)}
-            />
-          </div>
+        <div className="form-group" style={{ margin: "2rem 0" }}>
+          <label>Next Follow-up Date</label>
+          <input
+            style={{ display: "flex", alignItems: "center" }}
+            type="date"
+            value={followUp}
+            onChange={(e) => setFollowUp(e.target.value)}
+          />
+        </div>
         {/* </div> */}
       </div>
 
