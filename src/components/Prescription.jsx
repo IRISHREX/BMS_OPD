@@ -86,6 +86,7 @@ const Prescription = ({ patientId, onClose }) => {
   const [originalPayload, setOriginalPayload] = useState(null);
   const [isDirty, setIsDirty] = useState(false);
   // Checkbox toggle for advice types
+  const [gestationalAge, setGestationalAge] = useState("");
   const handleCheckboxToggle = (e, testType) => {
     setSelectedTestTypes((prev) =>
       e.target.checked
@@ -100,6 +101,51 @@ const Prescription = ({ patientId, onClose }) => {
       ...prev,
       { testName: "", testType: "", precautions: "", testDate: "", selected: true },
     ]);
+  };
+
+  // Obstetric calculations
+  useEffect(() => {
+    if (!LMP) {
+      setGestationalAge("");
+      return;
+    }
+    try {
+      const lmpDate = new Date(LMP);
+      if (isNaN(lmpDate.getTime())) {
+        setGestationalAge("");
+        return;
+      }
+
+      // Calculate EDD from LMP
+      const eddDate = new Date(lmpDate);
+      eddDate.setMonth(eddDate.getMonth() + 9);
+      eddDate.setDate(eddDate.getDate() + 7);
+      setEDD(eddDate.toISOString().slice(0, 10));
+
+      // Calculate Gestational Age
+      const today = new Date();
+      const msPerDay = 1000 * 60 * 60 * 24;
+      const daysDifference = Math.floor((today - lmpDate) / msPerDay);
+      const weeks = Math.floor(daysDifference / 7);
+      const days = daysDifference % 7;
+      setGestationalAge(`${weeks} weeks, ${days} days`);
+    } catch (e) {
+      setGestationalAge("");
+    }
+  }, [LMP]);
+
+  const handleEddChange = (e) => {
+    const newEdd = e.target.value;
+    setEDD(newEdd);
+    if (!newEdd) return;
+    try {
+      const eddDate = new Date(newEdd);
+      eddDate.setMonth(eddDate.getMonth() - 9);
+      eddDate.setDate(eddDate.getDate() - 7);
+      setLMP(eddDate.toISOString().slice(0, 10));
+    } catch (e) {
+      // ignore invalid date
+    }
   };
 
   // Update test advice row
@@ -764,10 +810,13 @@ const Prescription = ({ patientId, onClose }) => {
         return alert("No appointment found to attach the prescription to.");
       // Build structured advice
       const adviceToSave = {};
+      const selectedMedicines = medicineAdvice.filter((m) => m.selected);
+      let selectedTests = [];
       if (selectedTestTypes.includes("Test Advice")) {
-        adviceToSave.testAdvice = testAdviceRows.filter(
-          (r) => r.testName && r.testName.trim() !== ""
+        selectedTests = testAdviceRows.filter(
+          (r) => r.selected && r.testName && r.testName.trim() !== ""
         );
+        adviceToSave.testAdvice = selectedTests;
       }
       if (selectedTestTypes.includes("Medication")) {
         adviceToSave.medication = medicationAdvice;
@@ -783,7 +832,7 @@ const Prescription = ({ patientId, onClose }) => {
         );
       const hasContent =
         (initialComplain && initialComplain.trim()) ||
-        (Array.isArray(medicineAdvice) && medicineAdvice.length > 0) ||
+        (Array.isArray(selectedMedicines) && selectedMedicines.length > 0) ||
         Object.keys(adviceToSave).length > 0 ||
         diagnosysHasContent;
       if (!hasContent) {
@@ -798,8 +847,8 @@ const Prescription = ({ patientId, onClose }) => {
             initialComplain,
             medicalHistory,
             diagnosys,
-            medicineAdvice,
-            advice: adviceToSave,
+            medicineAdvice: selectedMedicines,
+            advice: adviceToSave, // Contains selected tests
           },
         ],
         status: "Completed",
@@ -825,8 +874,8 @@ const Prescription = ({ patientId, onClose }) => {
         LMP: LMP || "",
         EDD: EDD || "",
         diagnosys: diagnosys || {},
-        medicineAdvice: medicineAdvice || [],
-        advice: advSaved,
+        medicineAdvice: selectedMedicines,
+        advice: advSaved, // Contains selected tests
         followUp: followUp || "",
       };
       setOriginalPayload(newSnap);
@@ -880,21 +929,34 @@ const Prescription = ({ patientId, onClose }) => {
         <div className="form-row">
           <div className="form-group">
             <label>Gravida</label>
-            <input
-              type="number"
+            <AutoSuggestInput
+              single
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               value={gravida}
               onChange={(e) => {
-                const v = e.target.value;
-                setGravida(v && v > 15 ? 15 : v);
+                const v = e.target.value.replace(/\D/g, ""); // Allow only digits
+                setGravida(v);
               }}
+              suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
+              placeholder="G"
             />
           </div>
           <div className="form-group">
             <label>Parity</label>
-            <input
-              type="number"
+            <AutoSuggestInput
+              single
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               value={parity}
-              onChange={(e) => setParity(e.target.value)}
+              onChange={(e) => {
+                const v = e.target.value.replace(/\D/g, ""); // Allow only digits
+                setParity(v);
+              }}
+              suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
+              placeholder="P"
             />
           </div>
           <div className="form-group">
@@ -913,6 +975,15 @@ const Prescription = ({ patientId, onClose }) => {
               type="date"
               value={EDD}
               onChange={(e) => setEDD(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label>Gestational Age</label>
+            <input
+              type="text"
+              value={gestationalAge}
+              readOnly
+              placeholder="Calculated from LMP"
             />
           </div>
         </div>
