@@ -42,19 +42,26 @@ const Prescription = ({ patientId, onClose }) => {
     return Array.from(map.values());
   }, [symptomSuggestions]);
   const [medicalHistory, setMedicalHistory] = useState("");
+  const [complaints, setComplaints] = useState();
+  const [gravida, setGravida] = useState("");
+  const [parity, setParity] = useState("");
+  const [LMP, setLMP] = useState("");
+  const [EDD, setEDD] = useState("");
   const [diagnosys, setDiagnosys] = useState({
     BP: "",
-    Diabetics: "",
+    PR: "",
     SPO2: "",
+    Temp: "",
     Height: "",
     Weight: "",
     Others: "",
   });
+  const [followUp, setFollowUp] = useState("");
   const [medicineAdvice, setMedicineAdvice] = useState([]);
   const [autoPopulating, setAutoPopulating] = useState(false);
   const [selectedTestTypes, setSelectedTestTypes] = useState([]);
   const [testAdviceRows, setTestAdviceRows] = useState([
-    { testName: "", testType: "", precautions: "", testDate: "" },
+    { testName: "", testType: "", precautions: "", testDate: "", selected: false },
   ]);
   const [medicationAdvice, setMedicationAdvice] = useState("");
   const [dietAdvice, setDietAdvice] = useState("");
@@ -91,7 +98,7 @@ const Prescription = ({ patientId, onClose }) => {
   const addNewTestAdviceRow = () => {
     setTestAdviceRows((prev) => [
       ...prev,
-      { testName: "", testType: "", precautions: "", testDate: "" },
+      { testName: "", testType: "", precautions: "", testDate: "", selected: true },
     ]);
   };
 
@@ -129,11 +136,17 @@ const Prescription = ({ patientId, onClose }) => {
           const r = latest.result[0];
           setInitialComplain(r.initialComplain || "");
           setMedicalHistory(r.medicalHistory || "");
+          setGravida(r.gravida);
+          setParity(r.parity);
+          setLMP(r.LMP);
+          setEDD(r.EDD);
+          setFollowUp(r.followUp);
           setDiagnosys(
             r.diagnosys || {
               BP: "",
-              Diabetics: "",
+              PR: "",
               SPO2: "",
+              Temp: "",
               Height: "",
               Weight: "",
               Others: "",
@@ -176,7 +189,12 @@ const Prescription = ({ patientId, onClose }) => {
           const payloadSnap = {
             initialComplain: r.initialComplain || "",
             medicalHistory: r.medicalHistory || "",
+            gravida: r.gravida || "",
+            parity: r.parity || "",
+            LMP: r.LMP || "",
+            EDD: r.EDD || "",
             diagnosys: r.diagnosys || {},
+            followUp: r.followUp || "",
             medicineAdvice: Array.isArray(r.medicineAdvice)
               ? r.medicineAdvice
               : r.medicineAdvice
@@ -210,7 +228,12 @@ const Prescription = ({ patientId, onClose }) => {
       const currentSnap = {
         initialComplain: initialComplain || "",
         medicalHistory: medicalHistory || "",
+        gravida: gravida || "",
+        parity: parity || "",
+        LMP: LMP || "",
+        EDD: EDD || "",
         diagnosys: diagnosys || {},
+        followUp: followUp || "",
         medicineAdvice: medicineAdvice || [],
         advice: currentAdvice,
       };
@@ -223,12 +246,17 @@ const Prescription = ({ patientId, onClose }) => {
   }, [
     initialComplain,
     medicalHistory,
+    gravida,
+    parity,
+    LMP,
+    EDD,
     diagnosys,
     medicineAdvice,
     selectedTestTypes,
     testAdviceRows,
     medicationAdvice,
     dietAdvice,
+    followUp,
     originalPayload,
   ]);
 
@@ -656,6 +684,7 @@ const Prescription = ({ patientId, onClose }) => {
               frequency: m.frequency || t.frequency || "",
               route: m.route || "mouth",
               duration: m.duration || "",
+              selected: m.selected || false,
             });
           });
         } else {
@@ -666,6 +695,7 @@ const Prescription = ({ patientId, onClose }) => {
             frequency: t.frequency || "",
             route: t.route || "mouth",
             duration: t.duration || "",
+            selected: t.selected || false,
           });
         }
       });
@@ -790,9 +820,14 @@ const Prescription = ({ patientId, onClose }) => {
       const newSnap = {
         initialComplain: initialComplain || "",
         medicalHistory: medicalHistory || "",
+        gravida: gravida || "",
+        parity: parity || "",
+        LMP: LMP || "",
+        EDD: EDD || "",
         diagnosys: diagnosys || {},
         medicineAdvice: medicineAdvice || [],
         advice: advSaved,
+        followUp: followUp || "",
       };
       setOriginalPayload(newSnap);
       setIsDirty(false);
@@ -817,30 +852,15 @@ const Prescription = ({ patientId, onClose }) => {
 
   if (loading) return <div>Loading...</div>;
 
-  const nextStep = () =>
-    setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
-  const prevStep = () => setCurrentStep((s) => Math.max(s - 1, 0));
-  const goToStep = (i) => setCurrentStep(i);
+  // const nextStep = () =>
+  //   setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
+  // const prevStep = () => setCurrentStep((s) => Math.max(s - 1, 0));
+  // const goToStep = (i) => setCurrentStep(i);
 
   return (
     // <section className="main">
     <div className=" content-box" ref={rootRef}>
       <div className="header pres-header">Prescription</div>
-
-      <ul className="progressbar">
-        {steps.map((label, idx) => (
-          <li
-            key={label}
-            className={`${idx < currentStep ? "completed" : ""} ${
-              idx === currentStep ? "active" : ""
-            }`}
-            onClick={() => goToStep(idx)}
-          >
-            <span className="step-label">{label}</span>
-          </li>
-        ))}
-      </ul>
-
       <div
         className="shortcuts-hint"
         style={{
@@ -850,778 +870,817 @@ const Prescription = ({ patientId, onClose }) => {
           opacity: 0.4,
         }}
       >
-        Shortcuts: <kbd>Enter</kbd>=next field, <kbd>Enter</kbd>+<kbd>Tab</kbd>
-        =next step, <kbd>Enter</kbd>+<kbd>P</kbd>=Save & Print,{" "}
-        <kbd>Ctrl/⌘</kbd>+<kbd>Enter</kbd>=next field, <kbd>Ctrl/⌘</kbd>+
-        <kbd>P</kbd>=Save & Print
+        Shortcuts: <kbd>Enter/Tab</kbd>=next field, <kbd>Tab</kbd>+
+        <kbd>Enter</kbd>
+        =Go to the top, <kbd>Ctrl/⌘</kbd>+<kbd>Enter</kbd>=next field,{" "}
+        <kbd>Ctrl/⌘</kbd>+<kbd>P</kbd>=Save & Print
       </div>
 
       <div className="form-main">
-        <div className="steps-slider">
-          <div
-            className="slides"
-            style={{
-              display: "flex",
-              width: `${steps.length * 100}%`,
-              transform: `translateX(-${currentStep * (100 / steps.length)}%)`,
-              transition: "transform 320ms ease",
-            }}
-          >
-            {/* 0 - Complain & Advice */}
+        <div className="form-row">
+          <div className="form-group">
+            <label>Gravida</label>
+            <input
+              type="number"
+              value={gravida}
+              onChange={(e) => {
+                const v = e.target.value;
+                setGravida(v && v > 15 ? 15 : v);
+              }}
+            />
+          </div>
+          <div className="form-group">
+            <label>Parity</label>
+            <input
+              type="number"
+              value={parity}
+              onChange={(e) => setParity(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label>LMP</label>
+            <input
+              style={{ display: "flex", alignItems: "center" }}
+              type="date"
+              value={LMP}
+              onChange={(e) => setLMP(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label>EDD</label>
+            <input
+              style={{ display: "flex", alignItems: "center" }}
+              type="date"
+              value={EDD}
+              onChange={(e) => setEDD(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="form-row">
+          <div className="form-group">
+            <label>BP (mm of Hg)</label>
+            <input
+              type="text"
+              placeholder="BP (e.g., 120/80 mmHg)"
+              maxLength={7}
+              value={diagnosys.BP}
+              onChange={(e) =>
+                setDiagnosys({ ...diagnosys, BP: e.target.value })
+              }
+            />
+          </div>
+          <div className="form-group">
+            <label>PR (bpm)</label>
+            <input
+              type="number"
+              // placeholder="PR (bpm)"
+              min="20"
+              max="500"
+              value={diagnosys.PR}
+              onChange={(e) => {
+                const v = e.target.value;
+                setDiagnosys({ ...diagnosys, PR: v && v > 500 ? 500 : v });
+              }}
+            />
+          </div>
+          <div className="form-group">
+            <label>SPO2 (% in RA)</label>
+            <input
+              type="number"
+              // placeholder="SPO2 (%)"
+              min="0"
+              max="100"
+              inputMode="numeric"
+              value={diagnosys.SPO2}
+              onChange={(e) => {
+                const v = e.target.value;
+                setDiagnosys({ ...diagnosys, SPO2: v && v > 100 ? 100 : v });
+              }}
+            />
+          </div>
+          <div className="form-group">
+            <label>Temp (F)</label>
+            <input
+              type="number"
+              // placeholder="Temp (F)"
+              min="50"
+              max="200"
+              value={diagnosys.Temp}
+              onChange={(e) => {
+                const v = e.target.value;
+                setDiagnosys({ ...diagnosys, Temp: v && v > 200 ? 200 : v });
+              }}
+            />
+          </div>
+        </div>
+        <div className="form-row" style={{ marginBottom: "2rem" }}>
+          <div className="form-group">
+            <label>Height (cm)</label>
+            <input
+              type="number"
+              // placeholder="Height (cm)"
+              min="30"
+              max="250"
+              value={diagnosys.Height}
+              onChange={(e) => {
+                const v = e.target.value;
+                setDiagnosys({ ...diagnosys, Height: v && v > 250 ? 250 : v });
+              }}
+            />
+          </div>
+          <div className="form-group">
+            <label>Weight (kg)</label>
+            <input
+              type="number"
+              // placeholder="Weight (kg)"
+              min="1"
+              max="300"
+              value={diagnosys.Weight}
+              onChange={(e) => {
+                const v = e.target.value;
+                setDiagnosys({ ...diagnosys, Weight: v && v > 300 ? 300 : v });
+              }}
+            />
+          </div>
+          <div className="form-group">
+            <label>Others</label>
+            <input
+              value={diagnosys.Others}
+              onChange={(e) =>
+                setDiagnosys({ ...diagnosys, Others: e.target.value })
+              }
+            />
+          </div>
+        </div>
+
+        <div className="form-group full-width">
+          <label>Medical History</label>
+          <input
+            value={medicalHistory}
+            onChange={(e) => setMedicalHistory(e.target.value)}
+          />
+        </div>
+
+        <div className="form-group full-width">
+          <label>Presenting Complaints</label>
+          <input
+            value={complaints}
+            onChange={(e) => setComplaints(e.target.value)}
+          />
+        </div>
+        <div>
+          <div className="form-group full-width">
+            <label>Provisional Diagnosis</label>
             <div
-              className="step-slide"
-              style={{ flex: `0 0 ${100 / steps.length}%` }}
+              style={{
+                display: "flex",
+                gap: "0.5rem",
+                flexDirection: "column",
+              }}
             >
-              <div className={`form-step ${currentStep === 0 ? "active" : ""}`}>
-                <div className="form-group full-width">
-                  <label>Initial Complain</label>
+              <div
+                style={{
+                  display: "flex",
+                  width: "100%",
+                  gap: "0.5rem",
+                  // alignItems: "center",
+                }}
+              >
+                <AutoSuggestInput
+                  style={{ flex: 1 }}
+                  value={initialComplain}
+                  onChange={(e) => {
+                    // allow manual typing to show in the input
+                    setInitialComplain(e.target.value);
+                    setComplaintQuery(e.target.value);
+                    // debounce server query (only for last token after last comma)
+                    if (complainDebounceRef.current)
+                      clearTimeout(complainDebounceRef.current);
+                    complainDebounceRef.current = setTimeout(async () => {
+                      const val = e.target.value || "";
+                      // Token to search is the last part of the string after a comma, or the whole string if no comma.
+                      const lastToken = (val.split(",").pop() || "").trim();
+                      if (!lastToken) {
+                        setComplaintSuggestions([]);
+                        return;
+                      }
+                      try {
+                        setIsFetchingComplaints(true);
+                        const { data } = await api.get(
+                          `/api/v1/medical/suggestions/advices`,
+                          { params: { q: lastToken, limit: 100 } }
+                        );
+                        // server returns advices
+                        setComplaintSuggestions(
+                          (data.advices || []).map((a) => ({
+                            ...a,
+                            label: a.name,
+                          }))
+                        );
+                      } catch (err) {
+                        setComplaintSuggestions([]);
+                      } finally {
+                        setIsFetchingComplaints(false);
+                      }
+                    }, 280);
+                  }}
+                  suggestions={
+                    complaintSuggestions.length
+                      ? complaintSuggestions
+                      : symptomSuggestions
+                  }
+                  placeholder="Type to search complaints or symptoms..."
+                  onSelect={(item, newVal) => {
+                    // determine label
+                    const label =
+                      item && typeof item === "object"
+                        ? item.name ||
+                          (typeof newVal === "string" ? newVal : "")
+                        : typeof newVal === "string"
+                        ? newVal
+                        : item || "";
+                    // Replace last partial token (if present) or append selected label as a new token.
+                    // AutoSuggestInput already updated the value via onChange. Just ensure trailing comma and space.
+                    setInitialComplain(newVal.trim() + ", ");
+                    setComplaintSuggestions([]);
+                    // track selected complaints list (preserve old behavior)
+                    setSelectedComplaints((prev) => {
+                      const names = new Set(
+                        (prev || []).map((p) => p.name || p)
+                      );
+                      if (item && typeof item === "object") {
+                        if (names.has(item.name)) return prev || [];
+                        return [...(prev || []), item];
+                      }
+                      if (names.has(label)) return prev || [];
+                      return [...(prev || []), label];
+                    });
+                    // append mapped items to medicines/tests/diet if item is object
+                    if (item && typeof item === "object")
+                      autoPopulateFromComplaint(item, true, true);
+                    else autoPopulateFromComplaint(label, false, true);
+                  }}
+                />
+                <button
+                  type="button"
+                  className="icon-btn"
+                  title={autoPopulating ? "Populating..." : "Auto-populate"}
+                  style={{ minWidth: "fit-content", overflowY: "hidden" }}
+                  onClick={() =>
+                    autoPopulateFromComplaint(initialComplain, true)
+                  }
+                  disabled={
+                    !initialComplain || initialComplain.trim().length < 2
+                  }
+                >
+                  {autoPopulating ? "⏳" : "⚡"}
+                </button>
+                <button
+                  type="button"
+                  className="icon-btn secondary"
+                  title="Analyze"
+                  style={{ minWidth: "fit-content", overflowY: "hidden" }}
+                  onClick={async () => {
+                    // call analyze on selected complaints/symptoms
+                    const symptoms = selectedComplaints.length
+                      ? selectedComplaints.flatMap(
+                          (c) =>
+                            c.symptoms || (typeof c === "string" ? [c] : [])
+                        )
+                      : initialComplain
+                      ? [initialComplain]
+                      : [];
+                    try {
+                      const { data } = await api.post(
+                        `/api/v1/medical/analyze`,
+                        { symptoms }
+                      );
+                      setAnalyzeResult(data.suggested || null);
+                      if (data.suggested) {
+                        // apply suggested aggregated results (merge + normalize + dedupe)
+                        // medicines: normalize names and dedupe (case-insensitive)
+                        if (
+                          Array.isArray(data.suggested.medicines) &&
+                          data.suggested.medicines.length
+                        ) {
+                          setMedicineAdvice((prev) => {
+                            const seen = new Map();
+                            // add existing
+                            (prev || []).forEach((p) => {
+                              if (!p || !p.name) return;
+                              const key = (p.name || "").toLowerCase().trim();
+                              if (!seen.has(key)) {
+                                seen.set(key, {
+                                  name: (p.name || "").trim(),
+                                  type: p.type || "",
+                                  dose: p.dose || "",
+                                  frequency: p.frequency || "",
+                                  route: p.route || "",
+                                  duration: p.duration || "",
+                                  selected: p.selected || false,
+                                });
+                              }
+                            });
+                            // add suggested
+                            data.suggested.medicines.forEach((m) => {
+                              if (!m || !m.name) return;
+                              const nm =
+                                typeof m === "string" ? m : m.name || "";
+                              const key = (nm || "").toLowerCase().trim();
+                              if (!seen.has(key)) {
+                                seen.set(key, {
+                                  name: nm.trim(),
+                                  type: m.type || "",
+                                  dose: m.dose || "",
+                                  frequency: m.frequency || "",
+                                  route: m.route || "",
+                                  duration: m.duration || "",
+                                  selected: m.selected || false,
+                                });
+                              }
+                            });
+                            return Array.from(seen.values());
+                          });
+                        }
+                        // test advice: dedupe by testName
+                        if (
+                          Array.isArray(data.suggested.testAdvice) &&
+                          data.suggested.testAdvice.length
+                        ) {
+                          setTestAdviceRows((prev) => {
+                            const seen = new Map();
+                            (prev || []).forEach((p) => {
+                              if (p && p.testName)
+                                seen.set(
+                                  (p.testName || "").toLowerCase().trim(),
+                                  p
+                                );
+                            });
+                            data.suggested.testAdvice.forEach((t) => {
+                              if (t && t.testName)
+                                seen.set(
+                                  (t.testName || "").toLowerCase().trim(),
+                                  {
+                                    testName: (t.testName || "").trim(),
+                                    testType: t.testType || "",
+                                    precautions: t.precautions || "",
+                                    testDate: t.testDate || "",
+                                    selected: t.selected || false,
+                                  }
+                                );
+                            });
+                            return Array.from(seen.values());
+                          });
+                          setSelectedTestTypes((prev) =>
+                            Array.from(
+                              new Set([...(prev || []), "Test Advice"])
+                            )
+                          );
+                        }
+                        // medication advice (string): split lines, dedupe
+                        if (data.suggested.medication) {
+                          setMedicationAdvice((prev) =>
+                            dedupeAndSortLines(
+                              (prev || "") + "\n" + data.suggested.medication
+                            )
+                          );
+                          setSelectedTestTypes((prev) =>
+                            Array.from(new Set([...(prev || []), "Medication"]))
+                          );
+                        }
+                        // diet advice (string): split lines, dedupe
+                        if (data.suggested.diet) {
+                          setDietAdvice((prev) =>
+                            dedupeAndSortLines(
+                              (prev || "") + "\n" + data.suggested.diet
+                            )
+                          );
+                          setSelectedTestTypes((prev) =>
+                            Array.from(new Set([...(prev || []), "Diet"]))
+                          );
+                        }
+                      }
+                    } catch (err) {
+                      toast.error("Analysis failed");
+                    }
+                  }}
+                >
+                  🔬
+                </button>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  marginTop: 8,
+                  flexWrap: "wrap",
+                }}
+              >
+                {(selectedComplaints || []).map((c, i) => (
                   <div
+                    key={i}
                     style={{
-                      display: "flex",
-                      gap: "0.5rem",
-                      flexDirection: "column",
+                      padding: "6px 10px",
+                      background: "#eef2ff",
+                      borderRadius: 6,
                     }}
                   >
-                    <div
-                      style={{
-                        display: "flex",
-                        width: "100%",
-                        gap: "0.5rem",
-                        alignItems: "center",
-                      }}
-                    >
-                      <AutoSuggestInput
-                        style={{ flex: 1 }}
-                        value={initialComplain}
-                        onChange={(e) => {
-                          // allow manual typing to show in the input
-                          setInitialComplain(e.target.value);
-                          setComplaintQuery(e.target.value);
-                          // debounce server query (only for last token after last comma)
-                          if (complainDebounceRef.current)
-                            clearTimeout(complainDebounceRef.current);
-                          complainDebounceRef.current = setTimeout(async () => {
-                            const val = e.target.value || "";
-                            // Token to search is the last part of the string after a comma, or the whole string if no comma.
-                            const lastToken = (
-                              val.split(",").pop() || ""
-                            ).trim();
-                            if (!lastToken) {
-                              setComplaintSuggestions([]);
-                              return;
-                            }
-                            try {
-                              setIsFetchingComplaints(true);
-                              const { data } = await api.get(
-                                `/api/v1/medical/suggestions/advices`,
-                                { params: { q: lastToken, limit: 100 } }
-                              );
-                              // server returns advices
-                              setComplaintSuggestions(
-                                (data.advices || []).map((a) => ({
-                                  ...a,
-                                  label: a.name,
-                                }))
-                              );
-                            } catch (err) {
-                              setComplaintSuggestions([]);
-                            } finally {
-                              setIsFetchingComplaints(false);
-                            }
-                          }, 280);
-                        }}
-                        suggestions={
-                          complaintSuggestions.length
-                            ? complaintSuggestions
-                            : symptomSuggestions
-                        }
-                        placeholder="Type to search complaints or symptoms..."
-                        onSelect={(item, newVal) => {
-                          // determine label
-                          const label =
-                            item && typeof item === "object"
-                              ? item.name ||
-                                (typeof newVal === "string" ? newVal : "")
-                              : typeof newVal === "string"
-                              ? newVal
-                              : item || "";
-                          // Replace last partial token (if present) or append selected label as a new token.
-                          // AutoSuggestInput already updated the value via onChange. Just ensure trailing comma and space.
-                          setInitialComplain(newVal.trim() + ", ");
-                          setComplaintSuggestions([]);
-                          // track selected complaints list (preserve old behavior)
-                          setSelectedComplaints((prev) => {
-                            const names = new Set(
-                              (prev || []).map((p) => p.name || p)
-                            );
-                            if (item && typeof item === "object") {
-                              if (names.has(item.name)) return prev || [];
-                              return [...(prev || []), item];
-                            }
-                            if (names.has(label)) return prev || [];
-                            return [...(prev || []), label];
-                          });
-                          // append mapped items to medicines/tests/diet if item is object
-                          if (item && typeof item === "object")
-                            autoPopulateFromComplaint(item, true, true);
-                          else autoPopulateFromComplaint(label, false, true);
-                        }}
-                      />
-                      <button
-                        type="button"
-                        className="icon-btn"
-                        title={
-                          autoPopulating ? "Populating..." : "Auto-populate"
-                        }
-                        style={{ minWidth: "fit-content", overflowY: "hidden" }}
-                        onClick={() =>
-                          autoPopulateFromComplaint(initialComplain, true)
-                        }
-                        disabled={
-                          !initialComplain || initialComplain.trim().length < 2
-                        }
-                      >
-                        {autoPopulating ? "⏳" : "⚡"}
-                      </button>
-                      <button
-                        type="button"
-                        className="icon-btn secondary"
-                        title="Analyze"
-                        style={{ minWidth: "fit-content", overflowY: "hidden" }}
-                        onClick={async () => {
-                          // call analyze on selected complaints/symptoms
-                          const symptoms = selectedComplaints.length
-                            ? selectedComplaints.flatMap(
-                                (c) =>
-                                  c.symptoms ||
-                                  (typeof c === "string" ? [c] : [])
-                              )
-                            : initialComplain
-                            ? [initialComplain]
-                            : [];
-                          try {
-                            const { data } = await api.post(
-                              `/api/v1/medical/analyze`,
-                              { symptoms }
-                            );
-                            setAnalyzeResult(data.suggested || null);
-                            if (data.suggested) {
-                              // apply suggested aggregated results (merge + normalize + dedupe)
-                              // medicines: normalize names and dedupe (case-insensitive)
-                              if (
-                                Array.isArray(data.suggested.medicines) &&
-                                data.suggested.medicines.length
-                              ) {
-                                setMedicineAdvice((prev) => {
-                                  const seen = new Map();
-                                  // add existing
-                                  (prev || []).forEach((p) => {
-                                    if (!p || !p.name) return;
-                                    const key = (p.name || "")
-                                      .toLowerCase()
-                                      .trim();
-                                    if (!seen.has(key)) {
-                                      seen.set(key, {
-                                        name: (p.name || "").trim(),
-                                        type: p.type || "",
-                                        dose: p.dose || "",
-                                        frequency: p.frequency || "",
-                                        route: p.route || "",
-                                        duration: p.duration || "",
-                                      });
-                                    }
-                                  });
-                                  // add suggested
-                                  data.suggested.medicines.forEach((m) => {
-                                    if (!m || !m.name) return;
-                                    const nm =
-                                      typeof m === "string" ? m : m.name || "";
-                                    const key = (nm || "").toLowerCase().trim();
-                                    if (!seen.has(key)) {
-                                      seen.set(key, {
-                                        name: nm.trim(),
-                                        type: m.type || "",
-                                        dose: m.dose || "",
-                                        frequency: m.frequency || "",
-                                        route: m.route || "",
-                                        duration: m.duration || "",
-                                      });
-                                    }
-                                  });
-                                  return Array.from(seen.values());
-                                });
-                              }
-                              // test advice: dedupe by testName
-                              if (
-                                Array.isArray(data.suggested.testAdvice) &&
-                                data.suggested.testAdvice.length
-                              ) {
-                                setTestAdviceRows((prev) => {
-                                  const seen = new Map();
-                                  (prev || []).forEach((p) => {
-                                    if (p && p.testName)
-                                      seen.set(
-                                        (p.testName || "").toLowerCase().trim(),
-                                        p
-                                      );
-                                  });
-                                  data.suggested.testAdvice.forEach((t) => {
-                                    if (t && t.testName)
-                                      seen.set(
-                                        (t.testName || "").toLowerCase().trim(),
-                                        {
-                                          testName: (t.testName || "").trim(),
-                                          testType: t.testType || "",
-                                          precautions: t.precautions || "",
-                                          testDate: t.testDate || "",
-                                        }
-                                      );
-                                  });
-                                  return Array.from(seen.values());
-                                });
-                                setSelectedTestTypes((prev) =>
-                                  Array.from(
-                                    new Set([...(prev || []), "Test Advice"])
-                                  )
-                                );
-                              }
-                              // medication advice (string): split lines, dedupe
-                              if (data.suggested.medication) {
-                                setMedicationAdvice((prev) =>
-                                  dedupeAndSortLines(
-                                    (prev || "") +
-                                      "\n" +
-                                      data.suggested.medication
-                                  )
-                                );
-                                setSelectedTestTypes((prev) =>
-                                  Array.from(
-                                    new Set([...(prev || []), "Medication"])
-                                  )
-                                );
-                              }
-                              // diet advice (string): split lines, dedupe
-                              if (data.suggested.diet) {
-                                setDietAdvice((prev) =>
-                                  dedupeAndSortLines(
-                                    (prev || "") + "\n" + data.suggested.diet
-                                  )
-                                );
-                                setSelectedTestTypes((prev) =>
-                                  Array.from(new Set([...(prev || []), "Diet"]))
-                                );
-                              }
-                            }
-                          } catch (err) {
-                            toast.error("Analysis failed");
-                          }
-                        }}
-                      >
-                        🔬
-                      </button>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 8,
-                        marginTop: 8,
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      {(selectedComplaints || []).map((c, i) => (
-                        <div
-                          key={i}
-                          style={{
-                            padding: "6px 10px",
-                            background: "#eef2ff",
-                            borderRadius: 6,
-                          }}
-                        >
-                          <span>{typeof c === "string" ? c : c.name}</span>
-                          <button
-                            style={{ marginLeft: 8 }}
-                            className="remove-btn"
-                            onClick={() =>
-                              setSelectedComplaints((prev) =>
-                                prev.filter((_, idx) => idx !== i)
-                              )
-                            }
-                          >
-                            x
-                          </button>
-                        </div>
-                      ))}
-                      {analyzeResult && (
-                        <div
-                          style={{
-                            padding: "6px 10px",
-                            background: "#ecfdf5",
-                            borderRadius: 6,
-                          }}
-                        >
-                          <strong>Analyze applied</strong>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <br />
-              <br />
-              <div
-                className={`form-step ${
-                  currentStep === 1 ? "active full-step" : ""
-                }`}
-              >
-                <div className="form-group full-width medicine-section">
-                  <label>Medicine Advice</label>
-                  <div className="medicines-list">
-                    {medicineAdvice.map((m, idx) => (
-                      <div className="medicine-row" key={idx}>
-                        <AutoSuggestInput
-                          single
-                          placeholder="Name"
-                          value={m.name || ""}
-                          suggestions={medSuggestions.medicines}
-                          onChange={(e) => {
-                            const copy = [...medicineAdvice];
-                            copy[idx] = { ...copy[idx], name: e.target.value };
-                            setMedicineAdvice(copy);
-                          }}
-                          onSelect={(item, label) => {
-                            // item can be medicine object (from useMedicineSuggestions) or string
-                            const copy = [...medicineAdvice];
-                            if (item && typeof item === "object") {
-                              copy[idx] = {
-                                ...copy[idx],
-                                name: item.name || label || copy[idx].name,
-                                type: item.type || copy[idx].type,
-                                dose: item.dose || copy[idx].dose,
-                                frequency:
-                                  item.frequency || copy[idx].frequency,
-                                route: item.route || copy[idx].route,
-                                duration: item.duration || copy[idx].duration,
-                              };
-                            } else {
-                              copy[idx] = { ...copy[idx], name: label || item };
-                            }
-                            setMedicineAdvice(copy);
-                          }}
-                        />
-                        <AutoSuggestInput
-                          single
-                          placeholder="Type"
-                          value={m.type || ""}
-                          suggestions={medSuggestions.lists.types}
-                          onChange={(e) => {
-                            const copy = [...medicineAdvice];
-                            copy[idx] = { ...copy[idx], type: e.target.value };
-                            setMedicineAdvice(copy);
-                          }}
-                        />
-                        <AutoSuggestInput
-                          single
-                          placeholder="Dose"
-                          value={m.dose || ""}
-                          suggestions={medSuggestions.lists.doses}
-                          onChange={(e) => {
-                            const copy = [...medicineAdvice];
-                            copy[idx] = { ...copy[idx], dose: e.target.value };
-                            setMedicineAdvice(copy);
-                          }}
-                        />
-                        <AutoSuggestInput
-                          single
-                          placeholder="Frequency"
-                          value={m.frequency || ""}
-                          suggestions={medSuggestions.lists.frequencies}
-                          onChange={(e) => {
-                            const copy = [...medicineAdvice];
-                            copy[idx] = {
-                              ...copy[idx],
-                              frequency: e.target.value,
-                            };
-                            setMedicineAdvice(copy);
-                          }}
-                        />
-                        <AutoSuggestInput
-                          single
-                          placeholder="Route"
-                          value={m.route || ""}
-                          suggestions={medSuggestions.lists.routes}
-                          onChange={(e) => {
-                            const copy = [...medicineAdvice];
-                            copy[idx] = { ...copy[idx], route: e.target.value };
-                            setMedicineAdvice(copy);
-                          }}
-                        />
-                        <AutoSuggestInput
-                          single
-                          placeholder="Duration"
-                          value={m.duration || ""}
-                          suggestions={medSuggestions.lists.durations}
-                          onChange={(e) => {
-                            const copy = [...medicineAdvice];
-                            copy[idx] = {
-                              ...copy[idx],
-                              duration: e.target.value,
-                            };
-                            setMedicineAdvice(copy);
-                          }}
-                        />
-                        <button
-                          type="button"
-                          className="remove-btn"
-                          onClick={() => {
-                            const copy = [...medicineAdvice];
-                            copy.splice(idx, 1);
-                            setMedicineAdvice(copy);
-                          }}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    ))}
-                    <div className="medicine-actions">
-                      <button
-                        type="button"
-                        className="add-btn"
-                        onClick={() =>
-                          setMedicineAdvice([
-                            ...medicineAdvice,
-                            {
-                              name: "",
-                              type: "",
-                              dose: "",
-                              frequency: "",
-                              route: "",
-                              duration: "",
-                            },
-                          ])
-                        }
-                      >
-                        Add Medicine
-                      </button>
-                      <button
-                        type="button"
-                        className="clear-btn"
-                        onClick={() => setMedicineAdvice([])}
-                      >
-                        Clear All
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <br />
-              <br />
-              <div
-                className={`form-step ${
-                  currentStep === 2 ? "active full-step" : ""
-                }`}
-              >
-                <div className="form-row" style={{ marginBottom: 12 }}>
-                  {["Test Advice", "Medication", "Diet"].map(
-                    (testType, index) => (
-                      <label key={index} style={{ marginRight: "1rem" }}>
-                        <input
-                          type="checkbox"
-                          value={testType}
-                          checked={selectedTestTypes.includes(testType)}
-                          onChange={(e) => handleCheckboxToggle(e, testType)}
-                        />{" "}
-                        {testType}
-                      </label>
-                    )
-                  )}
-                </div>
-                {/* Test Advice Table */}
-                {selectedTestTypes.includes("Test Advice") && (
-                  <div
-                    className="form-group full-width"
-                    style={{ overflowX: "auto" }}
-                  >
-                    <label>Test Advice</label>
-                    <table className="test-advice-table">
-                      <thead>
-                        <tr>
-                          <th style={{ minWidth: "9rem" }}>Test Name</th>
-                          <th>Test Type</th>
-                          <th>Precautions</th>
-                          <th>Test Date</th>
-                          <th></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {testAdviceRows.map((row, idx) => (
-                          <tr key={idx}>
-                            <td>
-                              <AutoSuggestInput
-                                single
-                                placeholder="Test Name"
-                                value={row.testName}
-                                suggestions={testSuggestions}
-                                onChange={(e) =>
-                                  handleTestAdviceChange(
-                                    idx,
-                                    "testName",
-                                    e.target.value
-                                  )
-                                }
-                                onSelect={(item, label) => {
-                                  // item will be test object with name and possibly testType/precautions/testDate
-                                  if (item && typeof item === "object") {
-                                    handleTestAdviceChange(
-                                      idx,
-                                      "testName",
-                                      item.name || label
-                                    );
-                                    handleTestAdviceChange(
-                                      idx,
-                                      "testType",
-                                      item.testType || ""
-                                    );
-                                    handleTestAdviceChange(
-                                      idx,
-                                      "precautions",
-                                      item.precautions || ""
-                                    );
-                                    handleTestAdviceChange(
-                                      idx,
-                                      "testDate",
-                                      item.testDate || ""
-                                    );
-                                  } else {
-                                    handleTestAdviceChange(
-                                      idx,
-                                      "testName",
-                                      label || item
-                                    );
-                                  }
-                                }}
-                              />
-                            </td>
-                            <td>
-                              <input
-                                type="text"
-                                value={row.testType}
-                                onChange={(e) =>
-                                  handleTestAdviceChange(
-                                    idx,
-                                    "testType",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </td>
-                            <td>
-                              <input
-                                type="text"
-                                value={row.precautions}
-                                onChange={(e) =>
-                                  handleTestAdviceChange(
-                                    idx,
-                                    "precautions",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </td>
-                            <td>
-                              <input
-                                type="date"
-                                value={row.testDate}
-                                onChange={(e) =>
-                                  handleTestAdviceChange(
-                                    idx,
-                                    "testDate",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </td>
-                            <td>
-                              <button
-                                type="button"
-                                className="remove-btn"
-                                onClick={() =>
-                                  setTestAdviceRows((prev) =>
-                                    prev.filter((_, i) => i !== idx)
-                                  )
-                                }
-                              >
-                                Remove
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    <span>{typeof c === "string" ? c : c.name}</span>
                     <button
-                      type="button"
-                      className="add-btn"
-                      onClick={addNewTestAdviceRow}
-                      style={{ marginTop: 8 }}
+                      style={{ marginLeft: 8 }}
+                      className="remove-btn"
+                      onClick={() =>
+                        setSelectedComplaints((prev) =>
+                          prev.filter((_, idx) => idx !== i)
+                        )
+                      }
                     >
-                      Add Test Row
+                      x
                     </button>
                   </div>
-                )}
-                {/* Medication Advice Textarea */}
-                {selectedTestTypes.includes("Medication") && (
-                  <div className="form-group full-width">
-                    <label>Medication Advice</label>
-                    <textarea
-                      value={medicationAdvice}
-                      onChange={(e) => setMedicationAdvice(e.target.value)}
-                      placeholder="Enter medication advice..."
-                      rows={2}
-                    />
+                ))}
+                {analyzeResult && (
+                  <div
+                    style={{
+                      padding: "6px 10px",
+                      background: "#ecfdf5",
+                      borderRadius: 6,
+                    }}
+                  >
+                    <strong>Analyze applied</strong>
                   </div>
                 )}
-                {/* Diet Advice Textarea */}
-                {selectedTestTypes.includes("Diet") && (
-                  <div className="form-group full-width">
-                    <label>Diet Advice</label>
-                    <textarea
-                      value={dietAdvice}
-                      onChange={(e) => setDietAdvice(e.target.value)}
-                      placeholder="Enter diet advice..."
-                      rows={2}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* 1 - Medical History */}
-            <div
-              className="step-slide"
-              style={{ flex: `0 0 ${100 / steps.length}%` }}
-            >
-              <div className="form-group full-width">
-                <label>Medical History</label>
-                <input
-                  value={medicalHistory}
-                  onChange={(e) => setMedicalHistory(e.target.value)}
-                />
-              </div>
-              <br />
-              <div className="form-row">
-                <div className="form-group">
-                  <label>BP (mmHg)</label>
-                  <input
-                    type="text"
-                    placeholder="BP (e.g., 120/80 mmHg)"
-                    maxLength={7}
-                    value={diagnosys.BP}
-                    onChange={(e) =>
-                      setDiagnosys({ ...diagnosys, BP: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Diabetics (mg/dL)</label>
-                  <input
-                    type="number"
-                    placeholder="Diabetes (mg/dL)"
-                    min="20"
-                    max="600"
-                    value={diagnosys.Diabetics}
-                    onChange={(e) =>{
-                      const v = e.target.value;
-                      setDiagnosys({ ...diagnosys, Diabetics: v && v>600? 600:v })
-                    }}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>SPO2 (%)</label>
-                  <input
-                    type="number"
-                    placeholder="SPO2 (%)"
-                    min="0"
-                    max="100"
-                    inputMode="numeric"
-                    value={diagnosys.SPO2}
-                    onChange={(e) =>{
-                      const v = e.target.value;
-                      setDiagnosys({ ...diagnosys, SPO2: v && v>100? 100:v })
-                    }}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Height (cm)</label>
-                  <input
-                    type="number"
-                    placeholder="Height (cm)"
-                    min="30"
-                    max="250"
-                    value={diagnosys.Height}
-                    onChange={(e) =>{
-                      const v = e.target.value;
-                      setDiagnosys({ ...diagnosys, Height: v && v>250? 250:v })
-                    }}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Weight (kg)</label>
-                  <input
-                    type="number"
-                    placeholder="Weight (kg)"
-                    min="1"
-                    max="300"
-                    value={diagnosys.Weight}
-                    onChange={(e) =>{
-                      const v = e.target.value;
-                      setDiagnosys({ ...diagnosys, Weight: v && v>300? 300:v })
-                    }}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Others</label>
-                  <input
-                    value={diagnosys.Others}
-                    onChange={(e) =>
-                      setDiagnosys({ ...diagnosys, Others: e.target.value })
-                    }
-                  />
-                </div>
               </div>
             </div>
           </div>
         </div>
+
+        <div>
+          <div className="form-group full-width medicine-section">
+            <label>Medicine Advice</label>
+            <div className="medicine-data">
+            <div className="medicine-head medicine-row">
+              <span></span>
+              <span>Medicine Name</span>
+              <span>Type</span>
+              <span>Dose</span>
+              <span>Frequency</span>
+              <span>Route</span>
+              <span>Duration</span>
+            </div>
+            <div className="medicines-list">
+              {medicineAdvice.map((m, idx) => (
+                <div className="medicine-row" key={idx}>
+                  <div className="medicine-checkbox">
+                    <input 
+                      type="checkbox" 
+                      checked={m.selected }
+                      onChange={(e)=>{
+                        const copy = [...medicineAdvice];
+                        copy[idx] = {...copy[idx], selected: e.target.checked}
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                  </div>
+                    <AutoSuggestInput
+                      single
+                      placeholder="Name"
+                      value={m.name || ""}
+                      suggestions={medSuggestions.medicines}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
+                        copy[idx] = { ...copy[idx], name: e.target.value };
+                        setMedicineAdvice(copy);
+                      }}
+                      onSelect={(item, label) => {
+                        // item can be medicine object (from useMedicineSuggestions) or string
+                        const copy = [...medicineAdvice];
+                        if (item && typeof item === "object") {
+                          copy[idx] = {
+                            ...copy[idx],
+                            name: item.name || label || copy[idx].name,
+                            type: item.type || copy[idx].type,
+                            dose: item.dose || copy[idx].dose,
+                            frequency: item.frequency || copy[idx].frequency,
+                            route: item.route || copy[idx].route,
+                            duration: item.duration || copy[idx].duration,
+                            selected: item.selected || copy[idx].selected,
+                          };
+                        } else {
+                          copy[idx] = { ...copy[idx], name: label || item };
+                        }
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                    <AutoSuggestInput
+                      single
+                      placeholder="Type"
+                      value={m.type || ""}
+                      suggestions={medSuggestions.lists.types}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
+                        copy[idx] = { ...copy[idx], type: e.target.value };
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                    <AutoSuggestInput
+                      single
+                      placeholder="Dose"
+                      value={m.dose || ""}
+                      suggestions={medSuggestions.lists.doses}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
+                        copy[idx] = { ...copy[idx], dose: e.target.value };
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                    <AutoSuggestInput
+                      single
+                      placeholder="Frequency"
+                      value={m.frequency || ""}
+                      suggestions={medSuggestions.lists.frequencies}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
+                        copy[idx] = {
+                          ...copy[idx],
+                          frequency: e.target.value,
+                        };
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                    <AutoSuggestInput
+                      single
+                      placeholder="Route"
+                      value={m.route || ""}
+                      suggestions={medSuggestions.lists.routes}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
+                        copy[idx] = { ...copy[idx], route: e.target.value };
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                    <AutoSuggestInput
+                      single
+                      placeholder="Duration"
+                      value={m.duration || ""}
+                      suggestions={medSuggestions.lists.durations}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
+                        copy[idx] = {
+                          ...copy[idx],
+                          duration: e.target.value,
+                        };
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                    {/* <button
+                    type="button"
+                    className="remove-btn"
+                    onClick={() => {
+                      const copy = [...medicineAdvice];
+                      copy.splice(idx, 1);
+                      setMedicineAdvice(copy);
+                    }}
+                  >
+                    Remove
+                  </button> */}
+                </div>
+              ))}
+              <div className="medicine-actions">
+                <button
+                  type="button"
+                  className="add-btn"
+                  onClick={() =>
+                    setMedicineAdvice([
+                      ...medicineAdvice,
+                      {
+                        name: "",
+                        type: "",
+                        dose: "",
+                        frequency: "",
+                        route: "",
+                        duration: "",
+                        selected: true,
+                      },
+                    ])
+                  }
+                >
+                  Add Medicine
+                </button>
+                <button
+                  type="button"
+                  className="clear-btn"
+                  onClick={() => setMedicineAdvice([])}
+                >
+                  Clear All
+                </button>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+
+        <div>
+          <div className="form-row" style={{ marginBottom: 12 }}>
+            {["Test Advice", "Medication", "Diet"].map((testType, index) => (
+              <label key={index} style={{ marginRight: "1rem" }}>
+                <input
+                  type="checkbox"
+                  value={testType}
+                  checked={selectedTestTypes.includes(testType)}
+                  onChange={(e) => handleCheckboxToggle(e, testType)}
+                />{" "}
+                {testType}
+              </label>
+            ))}
+          </div>
+          {/* Test Advice Table */}
+          {selectedTestTypes.includes("Test Advice") && (
+            <div
+              className="form-group full-width"
+              style={{ overflowX: "auto", marginBottom: "2rem" }}
+            >
+              <label>Test Advice</label>
+              <table className="test-advice-table">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th style={{ minWidth: "9rem" }}>Test Name</th>
+                    <th>Test Type</th>
+                    <th>Precautions</th>
+                    <th>Test Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {testAdviceRows.map((row, idx) => (
+                    <tr key={idx}>
+                      <td>
+                        <input 
+                          type="checkbox" 
+                          checked={row.selected}
+                          onChange={(e) =>
+                            handleTestAdviceChange(
+                              idx,
+                              "selected",
+                              e.target.checked
+                            )
+                          }
+                        />
+                      </td>
+                      <td>
+                        <AutoSuggestInput
+                          single
+                          placeholder="Test Name"
+                          value={row.testName}
+                          suggestions={testSuggestions}
+                          onChange={(e) =>
+                            handleTestAdviceChange(
+                              idx,
+                              "testName",
+                              e.target.value
+                            )
+                          }
+                          onSelect={(item, label) => {
+                            // item will be test object with name and possibly testType/precautions/testDate
+                            if (item && typeof item === "object") {
+                              handleTestAdviceChange(
+                                idx,
+                                "testName",
+                                item.name || label
+                              );
+                              handleTestAdviceChange(
+                                idx,
+                                "testType",
+                                item.testType || ""
+                              );
+                              handleTestAdviceChange(
+                                idx,
+                                "precautions",
+                                item.precautions || ""
+                              );
+                              handleTestAdviceChange(
+                                idx,
+                                "testDate",
+                                item.testDate || ""
+                              );
+                            } else {
+                              handleTestAdviceChange(
+                                idx,
+                                "testName",
+                                label || item
+                              );
+                            }
+                          }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.testType}
+                          onChange={(e) =>
+                            handleTestAdviceChange(
+                              idx,
+                              "testType",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.precautions}
+                          onChange={(e) =>
+                            handleTestAdviceChange(
+                              idx,
+                              "precautions",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          style={{ display: "flex", alignItems: "center" }}
+                          type="date"
+                          value={row.testDate}
+                          onChange={(e) =>
+                            handleTestAdviceChange(
+                              idx,
+                              "testDate",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button
+                type="button"
+                className="add-btn"
+                onClick={addNewTestAdviceRow}
+                style={{ marginTop: 8 }}
+              >
+                Add Test Row
+              </button>
+            </div>
+          )}
+          {/* Medication Advice Textarea */}
+          {selectedTestTypes.includes("Medication") && (
+            <div className="form-group full-width">
+              <label>Medication Advice</label>
+              <textarea
+                value={medicationAdvice}
+                onChange={(e) => setMedicationAdvice(e.target.value)}
+                placeholder="Enter medication advice..."
+                rows={2}
+              />
+            </div>
+          )}
+          {/* Diet Advice Textarea */}
+          {selectedTestTypes.includes("Diet") && (
+            <div className="form-group full-width">
+              <label>Diet Advice</label>
+              <textarea
+                value={dietAdvice}
+                onChange={(e) => setDietAdvice(e.target.value)}
+                placeholder="Enter diet advice..."
+                rows={2}
+              />
+            </div>
+          )}
+        </div>
+        {/* <div className="form-row"> */}
+        <div className="form-group" style={{ margin: "2rem 0" }}>
+          <label>Next Follow-up Date</label>
+          <input
+            style={{ display: "flex", alignItems: "center" }}
+            type="date"
+            value={followUp}
+            onChange={(e) => setFollowUp(e.target.value)}
+          />
+        </div>
+        {/* </div> */}
       </div>
 
       <div className="wizard-footer">
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {currentStep > 0 && (
-            <button className="btn secondary" onClick={prevStep}>
-              Back
-            </button>
-          )}
-          {currentStep < steps.length - 1 && (
-            <button className="btn secondary" onClick={nextStep}>
-              Next
-            </button>
-          )}
-          {currentStep === steps.length - 1 && (
-            <>
-              <button
-                className="btn btn-primary"
-                onClick={() => handleSave(false)}
-                disabled={!isDirty}
-              >
-                Save
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={() => handleSave(true)}
-                disabled={!isDirty}
-              >
-                Save & Print
-              </button>
-            </>
-          )}
+          <button
+            className="btn btn-primary"
+            onClick={() => handleSave(false)}
+            disabled={!isDirty}
+          >
+            Save
+          </button>
+          <button
+            className="btn btn-primary"
+            onClick={() => handleSave(true)}
+            disabled={!isDirty}
+          >
+            Save & Print
+          </button>
         </div>
         <div className="cross-box">
           {isDirty ? (
@@ -1635,7 +1694,6 @@ const Prescription = ({ patientId, onClose }) => {
         </div>
       </div>
     </div>
-    // </section>
   );
 };
 

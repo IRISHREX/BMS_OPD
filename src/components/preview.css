@@ -42,7 +42,7 @@
   width: min(98%, var(--page-width));
   background: #fff;
   border: 0.09375rem solid var(--border); /* 1.5px */
-  border-radius: var(--radius);
+  /* border-radius: var(--radius); */
   box-shadow: 0 0.5rem 2rem rgba(14,35,58,0.09); /* 8px 32px */
   margin-top: 0.5rem;
   overflow: hidden;

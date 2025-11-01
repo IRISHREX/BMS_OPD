@@ -84,7 +84,8 @@ form textarea {
 }
 
 .lnr-input-box {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 2rem;
     align-items: end;
     margin-bottom: 2rem;
@@ -106,7 +107,7 @@ form textarea {
     gap: 0.5rem;
     height: 100%;
 }
-
+.address-box{width: 100%;}
 .btn-container {
     display: flex;
     justify-content: flex-end;
@@ -133,23 +134,13 @@ form textarea {
     gap: 1rem;
 }
 
-.diagnosis-grid {
+.vitals-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 2rem;
     margin-bottom: 2rem;
 }
 
-.diagnosis-grid-col {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.diagnosis-grid-col input, 
-textarea {
-    width: 100%;
-}
 
 .fees-detail-box{
     padding: 10px;
@@ -194,9 +185,6 @@ textarea {
         padding: 0.3125rem 0.625rem; /* 5px 10px */
         border-radius: 0.3125rem; /* 5px */
     }
-    .lnr-input-box{
-        align-items: center;
-    }
     .inner-box-of-lnr{
         width: 100%;
     }
@@ -209,6 +197,12 @@ textarea {
         padding: 0.4375rem 1.25rem; /* 7px 20px */
         border-radius: 0.3125rem; /* 5px */
     } 
+}
+
+@media (max-width: 44.0625rem) { /* 705px */
+    .lnr-input-box{
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 35.625rem) { /* 570px */
