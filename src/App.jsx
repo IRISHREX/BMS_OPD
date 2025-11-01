@@ -17,7 +17,7 @@ import api from "./utils/api";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "./components/Sidebar";
-import AddNewAdmin from "./components/AddNewAdmin";
+import AddNewAdmin from "./components/AddNewMedicatAssistant";
 import "./App.css";
 import Prescription from "./components/Prescription";
 import Preview from "./components/Preview";
@@ -65,7 +65,7 @@ const App = () => {
             <AddNewDoctor />
           </RequireAuth>
         } />
-        <Route path="/admin/addnew" element={
+        <Route path="/helper/addnew" element={
           <RequireAuth allowedRoles={["Admin","Doctor"]}>
             <AddNewAdmin />
           </RequireAuth>

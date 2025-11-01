@@ -73,7 +73,7 @@ const Sidebar = () => {
     setShow(!show);
   };
   const gotoAddNewAdmin = () => {
-    navigateTo("/admin/addnew");
+    navigateTo("/helper/addnew");
     setShow(!show);
   };
   const gotoCompoundersPage = () => {

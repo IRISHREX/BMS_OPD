@@ -62,6 +62,16 @@ const Compounders = () => {
               <UserCard
                 key={el._id}
                 user={el}
+                extraLines={[
+                  <div key="doctors">
+                    <strong>Assigned Doctors:</strong>{" "}
+                    {(el.assignedDoctors || []).length > 0
+                      ? el.assignedDoctors
+                          .map((d) => `${d.firstName} ${d.lastName}`)
+                          .join(", ")
+                      : "None"}
+                  </div>,
+                ]}
                 onView={(u) => setSelected(u)}
                 onEdit={(u) => {
                   setSelected(u);

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../main";
 import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import api from "../utils/api";
 import { useDispatch, useSelector } from 'react-redux';
 import { createAdminRequest, resetAdminCreate } from '../store/adminCreateSlice';
 
@@ -28,7 +29,7 @@ const AddNewAdmin = () => {
         setAvailableDoctors(data.doctors || []);
         } catch (err) {
         // show friendly message
-         
+         console.log("Error fetching doctors for assignment",err);
         if (typeof toast !== 'undefined') toast.error('Failed to fetch doctors for assignment');
       }
     };
@@ -74,7 +75,7 @@ const AddNewAdmin = () => {
     <section className="page">
       <section className="container form-component add-admin-form">
       <img src="/logo.png" alt="logo" className="logo" style={{ width: "150px", borderRadius: "50%"}}/>
-  <h1 className="form-title">CREATE COMPOUNDER</h1>
+  <h1 className="form-title">ADD NEW MEDICAL ASSISTANT</h1>
         <form onSubmit={handleAddNewAdmin}>
           <div>
             <input
