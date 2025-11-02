@@ -1,0 +1,93 @@
+import React, { useState, useRef, useEffect } from 'react';
+import AutoSuggestInput from './AutoSuggestInput';
+import api from '../utils/api';
+
+const AutoSuggestInputforSymptom = ({ value, onChange, onSelect, placeholder }) => {
+  const [symptomSuggestions, setSymptomSuggestions] = useState([]);
+  const [diseaseSuggestions, setDiseaseSuggestions] = useState([]);
+  const debounceRef = useRef(null);
+
+  useEffect(() => {
+    if (value) {
+      getSuggestions(value);
+    }
+  }, [value]);
+
+  const getSuggestions = (query) => {
+    return new Promise((resolve) => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+  
+      debounceRef.current = setTimeout(async () => {
+        const lastToken = (query.split(',').pop() || '').trim();
+        if (!lastToken) {
+          setSymptomSuggestions([]);
+          return resolve([]);
+        }
+        try {
+          const { data } = await api.get(`/api/v1/medical/suggestions/symptoms`, {
+            params: { q: lastToken }
+          });
+          const suggestions = data.symptoms || [];
+          setSymptomSuggestions(suggestions);
+          resolve(suggestions);
+        } catch (error) {
+          console.error("Error fetching symptom suggestions:", error);
+          setSymptomSuggestions([]);
+          resolve([]);
+        }
+      }, 300); // 300ms debounce delay
+    });
+  };
+
+  const handleSelect = async (item, newValue) => {
+    if (onSelect) {
+      onSelect(item, newValue);
+    }
+    const query = newValue.split(',').map(s => s.trim()).filter(Boolean).join(',');
+    if (query) {
+      try {
+        const { data } = await api.get(`/api/v1/medical/advance-search-symptoms`, {
+          params: { query }
+        });
+        setDiseaseSuggestions(data.results || []);
+        console.log("Suggested Diseases:", data.results || []);
+      } catch (error) {
+        console.error("Error fetching disease suggestions:", error);
+        setDiseaseSuggestions([]);
+      }
+    }
+  };
+
+  return (
+    <div>
+      <AutoSuggestInput
+        value={value}
+        onChange={onChange}
+        onSelect={handleSelect}
+        suggestions={symptomSuggestions}
+        getSuggestions={getSuggestions}
+        placeholder={placeholder || "Enter presenting complaints..."}
+      />
+      {diseaseSuggestions.length > 0 && (
+        <div className="disease-suggestions-dropdown">
+          <p style={{ margin: '8px 0 4px', fontSize: '0.9rem', color: '#555', fontWeight: '600' }}>Suggested Diseases:</p>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {diseaseSuggestions.map((disease, index) => (
+              <li
+                key={index}
+                className="disease-suggestion-item"
+                onClick={() => console.log(`Selected disease: ${disease}`)}
+              >
+                {disease}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AutoSuggestInputforSymptom;
