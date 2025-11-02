@@ -66,7 +66,10 @@ const Doctors = () => {
               <UserCard
                 key={element._id}
                 user={element}
-                extraLines={[<div key="dept"><strong>Dept:</strong> {element.doctorDepartment}</div>]}
+                extraLines={[
+                  <div key="dept"><strong>Dept:</strong> {element.doctorDepartment}</div>,
+                  <div key="qual"><strong>Qualifications:</strong> {element?.qualifications || 'N/A'}</div>
+                ]}
                 onView={(u) => setSelectedDoctor(u)}
                 onEdit={(u) => {
                   setSelectedDoctor(u);
@@ -79,7 +82,8 @@ const Doctors = () => {
                     dob: u.dob ? u.dob.substring(0,10) : '',
                     gender: u.gender,
                     doctorDepartment: u.doctorDepartment,
-                    consultationFee: u.consultationFee || 100
+                    consultationFee: u.consultationFee || 100,
+                    qualifications: u.qualifications || ''
                   });
                   setShowUpdateModal(true);
                 }}
@@ -144,6 +148,7 @@ const Doctors = () => {
             <label>DOB: <input type="date" value={updateFields.dob} onChange={e => setUpdateFields(f => ({ ...f, dob: e.target.value }))} /></label><br/>
             <label>Gender: <select value={updateFields.gender} onChange={e => setUpdateFields(f => ({ ...f, gender: e.target.value }))}><option value="Male">Male</option><option value="Female">Female</option></select></label><br/>
             <label>Department: <input type="text" value={updateFields.doctorDepartment} onChange={e => setUpdateFields(f => ({ ...f, doctorDepartment: e.target.value }))} /></label><br/>
+            <label>Qualifications: <input type="text" value={updateFields.qualifications} onChange={e => setUpdateFields(f => ({ ...f, qualifications: e.target.value }))} /></label><br/>
             <label>Consultation Fee: <input type="number" value={updateFields.consultationFee} onChange={e => setUpdateFields(f => ({ ...f, consultationFee: Number(e.target.value) }))} /></label><br/>
             <button type="submit">Update</button>
             <button type="button" onClick={() => setShowUpdateModal(false)}>Cancel</button>
