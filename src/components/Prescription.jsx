@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import AutoSuggestInput from "./AutoSuggestInput";
+import AutoSuggestInputforSymptom from "./AutoSuggestInputforSymptom";
 import useSymptomSuggestions from "./useSymptomSuggestions";
 import useMedicineSuggestions from "./useMedicineSuggestions";
 import api from "../utils/api";
@@ -44,7 +45,7 @@ const Prescription = ({ patientId, onClose }) => {
   const [medicalHistory, setMedicalHistory] = useState("");
   const [complaints, setComplaints] = useState();
   const [gravida, setGravida] = useState("");
-  const [parity, setParity] = useState("");
+  const [parity, setParity] = useState(""); 
   const [LMP, setLMP] = useState("");
   const [EDD, setEDD] = useState("");
   const [diagnosys, setDiagnosys] = useState({
@@ -1094,9 +1095,17 @@ const Prescription = ({ patientId, onClose }) => {
 
         <div className="form-group full-width">
           <label>Presenting Complaints</label>
-          <input
-            value={complaints}
-            onChange={(e) => setComplaints(e.target.value)}
+          <AutoSuggestInputforSymptom
+            value={complaints || ""}
+            onChange={(e) => {
+              setComplaints(e.target.value);
+            }}
+            onSelect={(item, newValue) => {
+              setComplaints(newValue);
+              // This will also trigger the disease suggestion fetch inside AutoSuggestInputforSymptom
+              console.log("Selected symptom/item:", item);
+            }}
+            placeholder="Enter presenting complaints..."
           />
         </div>
         <div>
