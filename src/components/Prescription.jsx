@@ -15,6 +15,7 @@ const Prescription = ({ patientId, onClose }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [appointmentId, setAppointmentId] = useState("");
   const [nic, setNic] = useState("");
+  const [gender, setGender] = useState("");
   const [bookedBy, setBookedBy] = useState("");
   const [initialComplain, setInitialComplain] = useState("");
   const symptomSuggestions = useSymptomSuggestions();
@@ -191,6 +192,7 @@ const Prescription = ({ patientId, onClose }) => {
         const latest = appointments[0];
         setAppointmentId(latest._id);
         setNic(latest.nic || "");
+        setGender(latest.gender || "");
         setBookedBy(latest.bookedBy || "");
         setComplaints(latest.result[0]?.presentingComplaints || "");
         setDoctorId(latest.doctorId || "");
@@ -990,101 +992,96 @@ const Prescription = ({ patientId, onClose }) => {
       </div>
 
       <div className="form-main">
-        <div className="form-row">
-          <div className="form-group">
-            <label>Gravida</label>
-            <AutoSuggestInput
-              single
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={gravida}
-              onChange={(e) => {
-                const v = e.target.value.replace(/\D/g, ""); // Allow only digits
-                setGravida(v);
-              }}
-              suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
-              placeholder="G"
-            />
-          </div>
-          <div className="form-group">
-            <label>Parity</label>
-            <div className="parity-box">
-            <AutoSuggestInput
-              single
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={parity?.Pa}
-              onChange={(e) => {
-                const v = e.target.value.replace(/\D/g, ""); // Allow only digits
-                setParity({ ...parity, Pa: v ? v : 1 });
-              }}
-              suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
-              placeholder="P"
-            />
-            +
-            <AutoSuggestInput
-              single
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={parity?.Pb}
-              onChange={(e) => {
-                const v = e.target.value.replace(/\D/g, ""); // Allow only digits
-                setParity({ ...parity, Pb: v });
-              }}
-              suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
-              placeholder="P"
-            />
+        {gender === "Female" && (
+          <>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Gravida</label>
+                <AutoSuggestInput
+                  single
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={gravida}
+                  onChange={(e) => {
+                    const v = e.target.value.replace(/\D/g, ""); // Allow only digits
+                    setGravida(v);
+                  }}
+                  suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
+                  placeholder="G"
+                />
+              </div>
+              <div className="form-group">
+                <label>Parity</label>
+                <div className="parity-box">
+                  <AutoSuggestInput
+                    single
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={parity?.Pa}
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/\D/g, ""); // Allow only digits
+                      setParity({ ...parity, Pa: v ? v : 1 });
+                    }}
+                    suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
+                    placeholder="P"
+                  />
+                  +
+                  <AutoSuggestInput
+                    single
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={parity?.Pb}
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/\D/g, ""); // Allow only digits
+                      setParity({ ...parity, Pb: v });
+                    }}
+                    suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
+                    placeholder="P"
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>LMP</label>
+                <input
+                  style={{ display: "flex", alignItems: "center" }}
+                  type="date"
+                  value={LMP}
+                  onChange={(e) => setLMP(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>EDD</label>
+                <input
+                  style={{ display: "flex", alignItems: "center" }}
+                  type="date"
+                  value={EDD}
+                  onChange={(e) => setEDD(e.target.value)}
+                />
+              </div>
             </div>
-          </div>
-          <div className="form-group">
-            <label>LMP</label>
-            <input
-              style={{ display: "flex", alignItems: "center" }}
-              type="date"
-              value={LMP}
-              onChange={(e) => setLMP(e.target.value)}
-            />
-          </div>
-          <div className="form-group">
-            <label>EDD</label>
-            <input
-              style={{ display: "flex", alignItems: "center" }}
-              type="date"
-              value={EDD}
-              onChange={(e) => setEDD(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label>POG</label>
-            <input
-              type="text"
-              value={POG}
-              readOnly
-              placeholder="Calculated from EDD"
-            />
-          </div>
-          <div className="form-group">
-            <label>LCB</label>
-            <input
-              type="text"
-              value={LCB}
-              onChange={(e) => setLCB(e.target.value)}
-            />
-          </div>
-          <div className="form-group">
-            <label>MOD</label>
-            <select value={MOD} onChange={(e) => setMOD(e.target.value)}>
-              <option value="">Select MOD</option>
-              <option value="NVD">NVD</option>
-              <option value="LUCS">LUCS</option>
-            </select>
-          </div>
-        </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>POG</label>
+                <input type="text" value={POG} readOnly placeholder="Calculated from EDD" />
+              </div>
+              <div className="form-group">
+                <label>LCB</label>
+                <input type="text" value={LCB} onChange={(e) => setLCB(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>MOD</label>
+                <select value={MOD} onChange={(e) => setMOD(e.target.value)}>
+                  <option value="">Select MOD</option>
+                  <option value="NVD">NVD</option>
+                  <option value="LUCS">LUCS</option>
+                </select>
+              </div>
+            </div>
+          </>
+        )}
         <div className="form-row">
           <div className="form-group">
             <label>BP (mm of Hg)</label>
