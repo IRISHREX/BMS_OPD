@@ -502,7 +502,7 @@ const Appointment = () => {
                   onChange={(e) => setHasVisited(e.target.checked)}
                 />
               </div>
-              {hasVisited && (
+              {/* {hasVisited && (
                 <div className="search-container">
                   <input
                     type="search"
@@ -514,7 +514,7 @@ const Appointment = () => {
                     Search
                   </button>
                 </div>
-              )}
+              )} */}
             </div>
             {step === 1 && (
               <div style={{position: "relative"}}>
