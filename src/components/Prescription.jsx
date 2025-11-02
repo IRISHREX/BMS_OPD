@@ -45,7 +45,7 @@ const Prescription = ({ patientId, onClose }) => {
   const [medicalHistory, setMedicalHistory] = useState("");
   const [complaints, setComplaints] = useState();
   const [gravida, setGravida] = useState("");
-  const [parity, setParity] = useState(""); 
+  const [parity, setParity] = useState({Pa: "1", Pb: "0",});
   const [LMP, setLMP] = useState("");
   const [EDD, setEDD] = useState("");
   const [diagnosys, setDiagnosys] = useState({
@@ -62,7 +62,13 @@ const Prescription = ({ patientId, onClose }) => {
   const [autoPopulating, setAutoPopulating] = useState(false);
   const [selectedTestTypes, setSelectedTestTypes] = useState([]);
   const [testAdviceRows, setTestAdviceRows] = useState([
-    { testName: "", testType: "", precautions: "", testDate: "", selected: false },
+    {
+      testName: "",
+      testType: "",
+      precautions: "",
+      testDate: "",
+      selected: false,
+    },
   ]);
   const [medicationAdvice, setMedicationAdvice] = useState("");
   const [dietAdvice, setDietAdvice] = useState("");
@@ -87,7 +93,9 @@ const Prescription = ({ patientId, onClose }) => {
   const [originalPayload, setOriginalPayload] = useState(null);
   const [isDirty, setIsDirty] = useState(false);
   // Checkbox toggle for advice types
-  const [gestationalAge, setGestationalAge] = useState("");
+  const [POG, setPOG] = useState("");
+  const [LCB, setLCB] = useState("");
+  const [MOD, setMOD] = useState("");
   const handleCheckboxToggle = (e, testType) => {
     setSelectedTestTypes((prev) =>
       e.target.checked
@@ -100,20 +108,26 @@ const Prescription = ({ patientId, onClose }) => {
   const addNewTestAdviceRow = () => {
     setTestAdviceRows((prev) => [
       ...prev,
-      { testName: "", testType: "", precautions: "", testDate: "", selected: true },
+      {
+        testName: "",
+        testType: "",
+        precautions: "",
+        testDate: "",
+        selected: true,
+      },
     ]);
   };
 
   // Obstetric calculations
   useEffect(() => {
     if (!LMP) {
-      setGestationalAge("");
+      setPOG("");
       return;
     }
     try {
       const lmpDate = new Date(LMP);
       if (isNaN(lmpDate.getTime())) {
-        setGestationalAge("");
+        setPOG("");
         return;
       }
 
@@ -123,15 +137,15 @@ const Prescription = ({ patientId, onClose }) => {
       eddDate.setDate(eddDate.getDate() + 7);
       setEDD(eddDate.toISOString().slice(0, 10));
 
-      // Calculate Gestational Age
+      // Calculate POG
       const today = new Date();
       const msPerDay = 1000 * 60 * 60 * 24;
-      const daysDifference = Math.floor((today - lmpDate) / msPerDay);
+      const daysDifference = Math.floor((today - eddDate) / msPerDay);
       const weeks = Math.floor(daysDifference / 7);
       const days = daysDifference % 7;
-      setGestationalAge(`${weeks} weeks, ${days} days`);
+      setPOG(`${weeks} weeks, ${days} days`);
     } catch (e) {
-      setGestationalAge("");
+      setPOG("");
     }
   }, [LMP]);
 
@@ -946,19 +960,35 @@ const Prescription = ({ patientId, onClose }) => {
           </div>
           <div className="form-group">
             <label>Parity</label>
+            <div className="parity-box">
             <AutoSuggestInput
               single
               type="text"
               inputMode="numeric"
               pattern="[0-9]*"
-              value={parity}
+              value={parity?.Pa}
               onChange={(e) => {
                 const v = e.target.value.replace(/\D/g, ""); // Allow only digits
-                setParity(v);
+                setParity({ ...parity, Pa: v ? v : 1 });
               }}
               suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
               placeholder="P"
             />
+            +
+            <AutoSuggestInput
+              single
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={parity?.Pb}
+              onChange={(e) => {
+                const v = e.target.value.replace(/\D/g, ""); // Allow only digits
+                setParity({...parity, Pb: v? v:0 });
+              }}
+              suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
+              placeholder="P"
+            />
+            </div>
           </div>
           <div className="form-group">
             <label>LMP</label>
@@ -978,14 +1008,32 @@ const Prescription = ({ patientId, onClose }) => {
               onChange={(e) => setEDD(e.target.value)}
             />
           </div>
+        </div>
+        <div className="form-row">
           <div className="form-group">
-            <label>Gestational Age</label>
+            <label>POG</label>
             <input
               type="text"
-              value={gestationalAge}
+              value={POG}
               readOnly
-              placeholder="Calculated from LMP"
+              placeholder="Calculated from EDD"
             />
+          </div>
+          <div className="form-group">
+            <label>LCB</label>
+            <input
+              type="text"
+              value={LCB}
+              onChange={(e) => setLCB(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label>MOD</label>
+            <select value={MOD} onChange={(e) => setMOD(e.target.value)}>
+              <option value="">Select MOD</option>
+              <option value="NVD">NVD</option>
+              <option value="LUCS">LUCS</option>
+            </select>
           </div>
         </div>
         <div className="form-row">
@@ -1085,13 +1133,7 @@ const Prescription = ({ patientId, onClose }) => {
           </div>
         </div>
 
-        <div className="form-group full-width">
-          <label>Medical History</label>
-          <input
-            value={medicalHistory}
-            onChange={(e) => setMedicalHistory(e.target.value)}
-          />
-        </div>
+
 
         <div className="form-group full-width">
           <label>Presenting Complaints</label>
@@ -1102,15 +1144,49 @@ const Prescription = ({ patientId, onClose }) => {
             }}
             onSelect={(item, newValue) => {
               setComplaints(newValue);
-              // This will also trigger the disease suggestion fetch inside AutoSuggestInputforSymptom
-              console.log("Selected symptom/item:", item);
             }}
             placeholder="Enter presenting complaints..."
           />
         </div>
+        <div className="form-group full-width form-row">
+          <label>Medical History</label>
+          <div className="form-row">
+            <div className="medHistory-checkboxes">
+              <input type="checkbox" />
+              <span>HTN(Hypertension)</span>
+            </div>
+            <div className="medHistory-checkboxes">
+              <input type="checkbox" />
+              <span>T2DM(Type-2 Diabetes Mellitus)</span>
+            </div>
+            <div className="medHistory-checkboxes">
+              <input type="checkbox" />
+              <span>Hyperlipidemia</span>
+            </div>
+            <div className="medHistory-checkboxes">
+              <input type="checkbox" />
+              <span>Thyroid</span>
+            </div>
+            <input
+              placeholder="Others"
+              value={medicalHistory}
+              onChange={(e) => setMedicalHistory(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="form-group">
+          <label> Clinical Findings</label>
+          <input type="text" />
+        </div>
         <div>
           <div className="form-group full-width">
-            <label>Provisional Diagnosis</label>
+            <label>
+              <select style={{padding:"0", border:"none", fontSize:"1rem"}}>
+                <option value="">Provisional Diagnosis</option>
+                <option value="">Diagnosis</option>
+                <option value="">Diffential Diagnosis</option>
+              </select>
+            </label>
             <div
               style={{
                 display: "flex",
@@ -1399,29 +1475,32 @@ const Prescription = ({ patientId, onClose }) => {
           <div className="form-group full-width medicine-section">
             <label>Medicine Advice</label>
             <div className="medicine-data">
-            <div className="medicine-head medicine-row">
-              <span></span>
-              <span>Medicine Name</span>
-              <span>Type</span>
-              <span>Dose</span>
-              <span>Frequency</span>
-              <span>Route</span>
-              <span>Duration</span>
-            </div>
-            <div className="medicines-list">
-              {medicineAdvice.map((m, idx) => (
-                <div className="medicine-row" key={idx}>
-                  <div className="medicine-checkbox">
-                    <input 
-                      type="checkbox" 
-                      checked={m.selected }
-                      onChange={(e)=>{
-                        const copy = [...medicineAdvice];
-                        copy[idx] = {...copy[idx], selected: e.target.checked}
-                        setMedicineAdvice(copy);
-                      }}
-                    />
-                  </div>
+              <div className="medicine-head medicine-row">
+                <span></span>
+                <span>Medicine Name</span>
+                <span>Type</span>
+                <span>Dose</span>
+                <span>Route</span>
+                <span>Frequency</span>
+                <span>Duration</span>
+              </div>
+              <div className="medicines-list">
+                {medicineAdvice.map((m, idx) => (
+                  <div className="medicine-row" key={idx}>
+                    <div className="medicine-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={m.selected}
+                        onChange={(e) => {
+                          const copy = [...medicineAdvice];
+                          copy[idx] = {
+                            ...copy[idx],
+                            selected: e.target.checked,
+                          };
+                          setMedicineAdvice(copy);
+                        }}
+                      />
+                    </div>
                     <AutoSuggestInput
                       single
                       placeholder="Name"
@@ -1476,20 +1555,6 @@ const Prescription = ({ patientId, onClose }) => {
                     />
                     <AutoSuggestInput
                       single
-                      placeholder="Frequency"
-                      value={m.frequency || ""}
-                      suggestions={medSuggestions.lists.frequencies}
-                      onChange={(e) => {
-                        const copy = [...medicineAdvice];
-                        copy[idx] = {
-                          ...copy[idx],
-                          frequency: e.target.value,
-                        };
-                        setMedicineAdvice(copy);
-                      }}
-                    />
-                    <AutoSuggestInput
-                      single
                       placeholder="Route"
                       value={m.route || ""}
                       suggestions={medSuggestions.lists.routes}
@@ -1499,6 +1564,20 @@ const Prescription = ({ patientId, onClose }) => {
                         setMedicineAdvice(copy);
                       }}
                     />
+                      <AutoSuggestInput
+                        single
+                        placeholder="Frequency"
+                        value={m.frequency || ""}
+                        suggestions={medSuggestions.lists.frequencies}
+                        onChange={(e) => {
+                          const copy = [...medicineAdvice];
+                          copy[idx] = {
+                            ...copy[idx],
+                            frequency: e.target.value,
+                          };
+                          setMedicineAdvice(copy);
+                        }}
+                      />
                     <AutoSuggestInput
                       single
                       placeholder="Duration"
@@ -1524,39 +1603,39 @@ const Prescription = ({ patientId, onClose }) => {
                   >
                     Remove
                   </button> */}
+                  </div>
+                ))}
+                <div className="medicine-actions">
+                  <button
+                    type="button"
+                    className="add-btn"
+                    onClick={() =>
+                      setMedicineAdvice([
+                        ...medicineAdvice,
+                        {
+                          name: "",
+                          type: "",
+                          dose: "",
+                          frequency: "",
+                          route: "",
+                          duration: "",
+                          selected: true,
+                        },
+                      ])
+                    }
+                  >
+                    Add Medicine
+                  </button>
+                  <button
+                    type="button"
+                    className="clear-btn"
+                    onClick={() => setMedicineAdvice([])}
+                  >
+                    Clear All
+                  </button>
                 </div>
-              ))}
-              <div className="medicine-actions">
-                <button
-                  type="button"
-                  className="add-btn"
-                  onClick={() =>
-                    setMedicineAdvice([
-                      ...medicineAdvice,
-                      {
-                        name: "",
-                        type: "",
-                        dose: "",
-                        frequency: "",
-                        route: "",
-                        duration: "",
-                        selected: true,
-                      },
-                    ])
-                  }
-                >
-                  Add Medicine
-                </button>
-                <button
-                  type="button"
-                  className="clear-btn"
-                  onClick={() => setMedicineAdvice([])}
-                >
-                  Clear All
-                </button>
               </div>
             </div>
-          </div>
           </div>
         </div>
 
@@ -1595,8 +1674,8 @@ const Prescription = ({ patientId, onClose }) => {
                   {testAdviceRows.map((row, idx) => (
                     <tr key={idx}>
                       <td>
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           checked={row.selected}
                           onChange={(e) =>
                             handleTestAdviceChange(
