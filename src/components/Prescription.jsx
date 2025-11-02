@@ -192,6 +192,7 @@ const Prescription = ({ patientId, onClose }) => {
         setAppointmentId(latest._id);
         setNic(latest.nic || "");
         setBookedBy(latest.bookedBy || "");
+        setComplaints(latest.result[0]?.presentingComplaints || "");
         setDoctorId(latest.doctorId || "");
         if (latest.result && latest.result.length) {
           const r = latest.result[0];
@@ -859,11 +860,20 @@ const Prescription = ({ patientId, onClose }) => {
       await api.put(`/api/v1/appointment/patient/update/${patientId}`, {
         result: [
           {
+            presentingComplaints: complaints,
             initialComplain,
             medicalHistory,
+            gravida,
+            parity,
+            LMP,
+            EDD,
+            POG,
+            LCB,
+            MOD,
             diagnosys,
             medicineAdvice: selectedMedicines,
             advice: adviceToSave, // Contains selected tests
+            followUp,
           },
         ],
         status: "Completed",
@@ -983,7 +993,7 @@ const Prescription = ({ patientId, onClose }) => {
               value={parity?.Pb}
               onChange={(e) => {
                 const v = e.target.value.replace(/\D/g, ""); // Allow only digits
-                setParity({...parity, Pb: v? v:0 });
+                setParity({ ...parity, Pb: v });
               }}
               suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
               placeholder="P"

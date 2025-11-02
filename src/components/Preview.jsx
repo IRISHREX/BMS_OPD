@@ -229,10 +229,74 @@ const Preview = () => {
                   </div>
                 </div>
                 <div className="pData">
-                  <div className="complaints">
-                    <b>Chief Complaints: </b>
-                    <p>{report.initialComplain}</p>
+                  {report?.presentingComplaints && (
+                    <div className="complaints">
+                      <b>Presenting Complaints: </b>
+                      <p>{report.presentingComplaints}</p>
+                    </div>
+                  )}
+                  {report?.initialComplain && (
+                    <div className="complaints">
+                      <b>Provisional Diagnosis: </b>
+                      <p>{report.initialComplain}</p>
+                    </div>
+                  )}
+                  {report?.medicalHistory && (
+                    <div className="complaints">
+                      <b>Medical History: </b>
+                      <p>{report.medicalHistory}</p>
+                    </div>
+                  )}
+                </div>
+                <div className="pData-vitals">
+                  <div className="vital-row">
+                    {report?.gravida && (
+                      <p>
+                        <b>Gravida:</b> {report.gravida}
+                      </p>
+                    )}
+                    {report?.parity?.Pa && (
+                      <p>
+                        <b>Parity:</b> {report.parity.Pa} + {report.parity.Pb}
+                      </p>
+                    )}
+                    {report?.LMP && (
+                      <p>
+                        <b>LMP:</b> {formatDate(report.LMP)}
+                      </p>
+                    )}
+                    {report?.EDD && (
+                      <p>
+                        <b>EDD:</b> {formatDate(report.EDD)}
+                      </p>
+                    )}
                   </div>
+                  {report?.diagnosys && (
+                    <>
+                      <div className="vital-row">
+                        {report.diagnosys.BP && (
+                          <p>
+                            <b>BP:</b> {report.diagnosys.BP} mm of Hg
+                          </p>
+                        )}
+                        {report.diagnosys.PR && (
+                          <p>
+                            <b>PR:</b> {report.diagnosys.PR} bpm
+                          </p>
+                        )}
+                        {report.diagnosys.SPO2 && (
+                          <p>
+                            <b>SPO2:</b> {report.diagnosys.SPO2} %
+                          </p>
+                        )}
+                        {report.diagnosys.Temp && (
+                          <p>
+                            <b>Temp:</b> {report.diagnosys.Temp} °F
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="diagno-advice">
