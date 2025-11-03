@@ -139,10 +139,14 @@ const Messages = () => {
         </div>
         <div style={{ marginLeft: 'auto' }}>
           <input type="checkbox" checked={selected.length > 0 && selected.length === messageIdsOnPage.length} onChange={toggleSelectAll} style={{marginRight: '1rem'}}/>
-          <button onClick={() => bulkMarkAsRead(true)} disabled={selected.length===0} className="secondary">
+          <button onClick={() => bulkMarkAsRead(true)} disabled={selected.length===0} className="secondary"
+            style={{padding:"0.5rem", borderRadius:"0.375rem", cursor:"pointer"}}
+          >
             Mark Read ({selected.length})
           </button>
-          <button onClick={() => bulkMarkAsRead(false)} disabled={selected.length===0} className="secondary" style={{marginLeft: '0.5rem'}}>
+          <button onClick={() => bulkMarkAsRead(false)} disabled={selected.length===0} className="secondary" 
+            style={{marginLeft: '0.5rem', padding:"0.5rem", borderRadius:"0.375rem", cursor:"pointer"}}
+          >
             Mark Unread ({selected.length})
           </button>
           <button onClick={bulkDelete} disabled={selected.length===0} className="remove-btn" style={{backgroundColor: "#ffbcc4ff",color:'#b10c0cff', marginLeft: '0.5rem'}}>Delete Selected ({selected.length})</button>

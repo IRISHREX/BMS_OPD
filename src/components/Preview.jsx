@@ -237,7 +237,7 @@ const Preview = () => {
                   )}
                   {report?.initialComplain && (
                     <div className="complaints">
-                      <b>Provisional Diagnosis: </b>
+                      <b>{report?.diagnosys_heading} </b>
                       <p>{report.initialComplain}</p>
                     </div>
                   )}
@@ -245,6 +245,12 @@ const Preview = () => {
                     <div className="complaints">
                       <b>Medical History: </b>
                       <p>{report.medicalHistory}</p>
+                    </div>
+                  )}
+                  {report?.clinical_findings && (
+                    <div className="complaints">
+                      <b>Clinical Findings: </b>
+                      <p>{report.clinical_findings}</p>
                     </div>
                   )}
                 </div>
