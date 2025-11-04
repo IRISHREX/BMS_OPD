@@ -902,11 +902,6 @@ const Prescription = ({ patientId, onClose }) => {
               LCB,
               MOD,
             },
-            LMP,
-            EDD,
-            POG,
-            LCB,
-            MOD,
             diagnosys,
             medicineAdvice: selectedMedicines,
             advice: adviceToSave, // Contains selected tests
