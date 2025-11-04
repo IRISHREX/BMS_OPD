@@ -44,7 +44,6 @@ const Prescription = ({ patientId, onClose }) => {
     return Array.from(map.values());
   }, [symptomSuggestions]);
   const [temp_medicalHistory, setTemp_medicalHistory] = useState(["HTN(Hypertension)","T2DM(Type-2 Diabetes Mellitus)","Hyperlipidemia","Thyroid"]);
-  const [otherHistory, setOtherHistory] = useState("");
   const [medicalHistory, setMedicalHistory] = useState("");
   const [clinical_findings, setClinical_findings] = useState("");
   const [diagnosys_heading, setDiagnosys_heading] = useState("Provisional Diagnosis");
@@ -985,8 +984,6 @@ const Prescription = ({ patientId, onClose }) => {
     if (onClose) onClose();
   };
 
-  if (loading) return <div>Loading...</div>;
-
   // const nextStep = () =>
   //   setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
   // const prevStep = () => setCurrentStep((s) => Math.max(s - 1, 0));
@@ -995,6 +992,26 @@ const Prescription = ({ patientId, onClose }) => {
   const d = new Date();
   d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); // normalize to local date
   const todayStr = d.toISOString().split("T")[0];
+
+  useEffect(() => {
+    // compute BMI from Height (cm) and Weight (kg)
+    let bmiValue = "";
+    const heightInMeters = Number(diagnosys.Height) / 100;
+    const weightInKg = Number(diagnosys.Weight);
+    if (heightInMeters > 0 && weightInKg > 0) {
+      const bmi = (weightInKg / (heightInMeters * heightInMeters)).toFixed(2);
+      bmiValue = bmi;
+    }
+    // avoid unnecessary state updates
+    if ((diagnosys.BMI || "") !== bmiValue) {
+      setDiagnosys({ ...diagnosys, BMI: bmiValue });
+      // console.log("Calculated BMI:", bmiValue);
+    }
+  }, [diagnosys.Height, diagnosys.Weight]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     // <section className="main">
@@ -1214,7 +1231,8 @@ const Prescription = ({ patientId, onClose }) => {
           </div>
           <div className="form-group">
             <label>Others</label>
-            <input value={diagnosys.Others} readOnly />
+            <input value={diagnosys.Others} 
+            onChange={(e) => setDiagnosys({ ...diagnosys, Others: e.target.value })} />
           </div>
         </div>
 
@@ -1365,7 +1383,7 @@ const Prescription = ({ patientId, onClose }) => {
                     else autoPopulateFromComplaint(label, false, true);
                   }}
                 />
-                <button
+                {/* <button
                   type="button"
                   className="icon-btn"
                   title={autoPopulating ? "Populating..." : "Auto-populate"}
@@ -1510,7 +1528,7 @@ const Prescription = ({ patientId, onClose }) => {
                   }}
                 >
                   🔬
-                </button>
+                </button> */}
               </div>
               <div
                 style={{
@@ -1730,7 +1748,7 @@ const Prescription = ({ patientId, onClose }) => {
 
         <div>
           <div className="form-row" style={{ marginBottom: 12 }}>
-            {["Test Advice", "Medication", "Diet"].map((testType, index) => (
+            {["Test Advice", "Additional Advice"].map((testType, index) => (
               <label key={index} style={{ marginRight: "1rem" }}>
                 <input
                   type="checkbox"
@@ -1893,9 +1911,9 @@ const Prescription = ({ patientId, onClose }) => {
             </div>
           )}
           {/* Medication Advice Textarea */}
-          {selectedTestTypes.includes("Medication") && (
+          {selectedTestTypes.includes("Additional Advice") && (
             <div className="form-group full-width">
-              <label>Medication Advice</label>
+              <label>Additional Advice</label>
               <textarea
                 value={medicationAdvice}
                 onChange={(e) => setMedicationAdvice(e.target.value)}
@@ -1905,7 +1923,7 @@ const Prescription = ({ patientId, onClose }) => {
             </div>
           )}
           {/* Diet Advice Textarea */}
-          {selectedTestTypes.includes("Diet") && (
+          {/* {selectedTestTypes.includes("Diet") && (
             <div className="form-group full-width">
               <label>Diet Advice</label>
               <textarea
@@ -1915,7 +1933,7 @@ const Prescription = ({ patientId, onClose }) => {
                 rows={2}
               />
             </div>
-          )}
+          )} */}
         </div>
         {/* <div className="form-row"> */}
         <div className="form-group" style={{ margin: "2rem 0" }}>
