@@ -992,7 +992,7 @@ const Prescription = ({ patientId, onClose }) => {
       </div>
 
       <div className="form-main">
-        {gender === "Female" && (
+        {gender.toLowerCase() === "female" && (
           <>
             <div className="form-row">
               <div className="form-group">
