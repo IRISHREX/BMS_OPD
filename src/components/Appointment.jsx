@@ -36,7 +36,7 @@ const Appointment = () => {
   const [hasVisited, setHasVisited] = useState(false);
   const [price, setPrice] = useState(0);
   const [doctorFee, setDoctorFee] = useState(100);
-  const [diagnosys, setDiagnosys] = useState({ BP: "", PR: "", SPO2: "", Temp: "", Height: "", Weight: "", Others: "" });
+  const [diagnosys, setDiagnosys] = useState({ BP: "", PR: "", SPO2: "", Temp: "", Height: "", Weight: "", BMI: "", Others: "" });
   const [paymentStatus, setPaymentStatus] = useState("Pending");
 
   const [downloadInvoice, setDownloadInvoice] = useState(false);
@@ -329,16 +329,16 @@ const Appointment = () => {
       const hasVisitedBool = Boolean(hasVisited);
 
       // Calculate BMI if height and weight are available
-      let bmiString = "";
+      let bmiValue = "";
       const heightInMeters = Number(diagnosys.Height) / 100;
       const weightInKg = Number(diagnosys.Weight);
       if (heightInMeters > 0 && weightInKg > 0) {
         const bmi = (weightInKg / (heightInMeters * heightInMeters)).toFixed(2);
-        bmiString = `BMI:${bmi}`;
+        bmiValue = bmi;
       }
 
       // Combine calculated BMI with any manually entered "Others" text
-      const othersValue = [bmiString, diagnosys.Others].filter(Boolean).join('; ');
+      // const othersValue = [bmiString, diagnosys.Others].filter(Boolean).join('; ');
 
       // Append units to diagnosys fields for the payload
       const diagnosysForPayload = {
@@ -348,7 +348,8 @@ const Appointment = () => {
         Temp: diagnosys.Temp ? diagnosys.Temp : undefined,
         Height: diagnosys.Height ? diagnosys.Height : undefined,
         Weight: diagnosys.Weight ? diagnosys.Weight : undefined,
-        Others: othersValue || undefined,
+        BMI: bmiValue ? bmiValue : undefined,
+        Others: diagnosys.Others ? diagnosys.Others : undefined,
       };
 
       const payload = {
@@ -424,7 +425,7 @@ const Appointment = () => {
       setAddress("");
       set_id("");
       setPrice(0);
-      setDiagnosys({ BP: "", PR: "", SPO2: "", Temp: "", Height: "", Weight: "", Others: "" });
+      setDiagnosys({ BP: "", PR: "", SPO2: "", Temp: "", Height: "", Weight: "", BMI: "", Others: "" });
       setDownloadInvoice(false);
       setStep(1);
     }

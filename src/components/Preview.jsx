@@ -9,6 +9,7 @@ import { dobToAge } from "../utils/ageUtils";
 import { Context } from "../main";
 import PrescriptionFormat from "./PrescriptionFormat";
 import "./presFormat.css";
+import { PiPrescriptionBold } from "react-icons/pi";
 
 // Helper: format date
 const formatDate = (date) =>
@@ -161,7 +162,8 @@ const Preview = () => {
   const previewFollowup =
     (report && report.advice && report.advice.followup_date) ||
     patient.reportdate ||
-    report?.followUp || "";
+    report?.followUp ||
+    "";
 
   // --- UI ---
   return (
@@ -171,233 +173,271 @@ const Preview = () => {
           ← Go Back
         </button>
       </div>
-      <div className="prescription">
-        <div className="presdownload" id="pdfDownload">
-          <div className="pres-page">
-            <div className="header">
-              <div className="logo">
-                <img src={"/logo.png"} alt="logo" />
+      {report ? (
+        <div className="prescription">
+          <div className="presdownload" id="pdfDownload">
+            <div className="pres-page">
+              <div className="header">
+                <div className="logo">
+                  <img src={"/Doctor_logo.svg"} alt="logo" />
+                </div>
+                <div className="Dr-detail">
+                  <h2>
+                    {doctor
+                      ? `Dr. ${doctor.firstName || ""} ${doctor.lastName || ""}`
+                      : clinic.name || "Doctor"}
+                  </h2>
+                  <p>{clinic.address}</p>
+                </div>
               </div>
-              <div className="Dr-detail">
-                <h2>
-                  {doctor
-                    ? `Dr. ${doctor.firstName || ""} ${doctor.lastName || ""}`
-                    : clinic.name || "Doctor"}
-                </h2>
-                <p>{clinic.address}</p>
-              </div>
-            </div>
 
-            <div className="main">
-              <div className="upper-box">
-                <div className="pHeader">
-                  <div className="pName-age">
+              <div className="main">
+                <div className="upper-box">
+                  <div>
                     <p>
-                      <strong>
-                        {patient.name
-                          ? patient.name
-                          : `${patient?.firstName} ${patient?.lastName}`}
-                      </strong>
-                      ,{" "}
-                      {patient.gender && patient.gender.charAt(0)}/
+                      <b>ID: </b>
+                      {patient.nic}
+                    </p>
+                    <p>
+                      <b>Name: </b>
+                      {patient.name ||
+                        `${patient?.firstName} ${patient?.lastName}`}
+                    </p>
+                    <p>
+                      <b>Address: </b>
+                      {patient.address}
+                    </p>
+                    <p>
+                      <b>Phone No: </b>
+                      {patient.phone}
+                    </p>
+                    <p>
+                      <b>Gender: </b>
+                      {patient.gender}
+                    </p>
+                  </div>
+                  <div className="mid">
+                    <p>
+                      <b>Age: </b>
                       {patient.dob
                         ? dobToAge(patient.dob)
                         : patient.age
                         ? `${patient.age} years`
                         : ""}
-                      /{patient.gender}
                     </p>
                   </div>
-                  <div className="cDate">
+                  <div className="right">
                     <p>
-                      <b>Consultation Date: </b>
+                      <b>Date: </b>
                       {formatDate(report?.createdAt || patient.updatedAt)}
                     </p>
-                  </div>
-                </div>
-                <div className="pAddress-id">
-                  <div className="paddress">
-                    <p>
-                      <b>Address: </b>
-                      {patient.address ? patient.address : "N/A"}
-                    </p>
-                  </div>
-                  <div className="pId">
-                    <p>
-                      <b>Patient ID: </b> {patientId}
-                    </p>
+                    {report.diagnosys?.Weight && (
+                      <p>
+                        <b>Weight: </b>
+                        {report.diagnosys.Weight} Kg
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="pData">
-                  {report?.presentingComplaints && (
-                    <div className="complaints">
-                      <b>Presenting Complaints: </b>
-                      <p>{report.presentingComplaints}</p>
+                  {patient.gender === "Female" && (
+                    <div className="gravida-section">
+                      {report?.femaleTests?.Gravida && (
+                        <p>
+                          <b>G</b> {report.femaleTests.Gravida}
+                          {report?.femaleTests?.Parity && (
+                            <span style={{ marginLeft: "0.5rem" }}>
+                              <b>P</b> {report.femaleTests.Parity}
+                            </span>
+                          )}
+                        </p>
+                      )}
+                      {report?.femaleTests?.LMP && (
+                        <p>
+                          <b>LMP:</b> {formatDate(report.femaleTests.LMP)}
+                        </p>
+                      )}
+                      {report?.femaleTests?.EDD && (
+                        <p>
+                          <b>EDD:</b> {formatDate(report.femaleTests.EDD)}
+                        </p>
+                      )}
+                      {report?.femaleTests?.POG && (
+                        <p>
+                          <b>POG:</b> {report.femaleTests.POG}
+                        </p>
+                      )}
+                      {report?.femaleTests?.LCB && (
+                        <p>
+                          <b>LCB:</b> {report.femaleTests.LCB}
+                        </p>
+                      )}
+                      {report?.femaleTests?.MOD && (
+                        <p>
+                          <b>MOD:</b> {report.femaleTests.MOD}
+                        </p>
+                      )}
                     </div>
                   )}
-                  {report?.initialComplain && (
-                    <div className="complaints">
-                      <b>Provisional Diagnosis: </b>
-                      <p>{report.initialComplain}</p>
-                    </div>
-                  )}
-                  {report?.medicalHistory && (
-                    <div className="complaints">
-                      <b>Medical History: </b>
-                      <p>{report.medicalHistory}</p>
-                    </div>
-                  )}
-                </div>
-                <div className="pData-vitals">
-                  <div className="vital-row">
-                    {report?.gravida && (
+                  <div className="vitals">
+                    {report?.diagnosys?.BP && (
                       <p>
-                        <b>Gravida:</b> {report.gravida}
+                        <b>BP: </b>
+                        {report.diagnosys.BP} mm of Hg
                       </p>
                     )}
-                    {report?.parity?.Pa && (
+                    {report?.diagnosys?.PR && (
                       <p>
-                        <b>Parity:</b> {report.parity.Pa} + {report.parity.Pb}
+                        <b>PR: </b>
+                        {report.diagnosys.PR} bpm
                       </p>
                     )}
-                    {report?.LMP && (
+                    {report?.diagnosys?.SPO2 && (
                       <p>
-                        <b>LMP:</b> {formatDate(report.LMP)}
+                        <b>SPO2: </b>
+                        {report.diagnosys.SPO2} % in RA
                       </p>
                     )}
-                    {report?.EDD && (
+                    {report?.diagnosys?.Temp && (
                       <p>
-                        <b>EDD:</b> {formatDate(report.EDD)}
+                        <b>Temp: </b>
+                        {report.diagnosys.Temp} °F
+                      </p>
+                    )}
+                    {report?.diagnosys?.Others && (
+                      <p>
+                        <b>Others: </b>
+                        {report.diagnosys.Others}
                       </p>
                     )}
                   </div>
-                  {report?.diagnosys && (
-                    <>
-                      <div className="vital-row">
-                        {report.diagnosys.BP && (
-                          <p>
-                            <b>BP:</b> {report.diagnosys.BP} mm of Hg
-                          </p>
-                        )}
-                        {report.diagnosys.PR && (
-                          <p>
-                            <b>PR:</b> {report.diagnosys.PR} bpm
-                          </p>
-                        )}
-                        {report.diagnosys.SPO2 && (
-                          <p>
-                            <b>SPO2:</b> {report.diagnosys.SPO2} %
-                          </p>
-                        )}
-                        {report.diagnosys.Temp && (
-                          <p>
-                            <b>Temp:</b> {report.diagnosys.Temp} °F
-                          </p>
-                        )}
-                      </div>
-                    </>
+                  <p>
+                    <b>Presenting Complaints: </b>
+                    {report?.presentingComplaints || "N/A"}
+                  </p>
+                  <p>
+                    <b>Medical History: </b>
+                    {report?.medicalHistory
+                      ? report.medicalHistory.slice(
+                          report.medicalHistory.length - 1,
+                          report.medicalHistory.length
+                        ) === ","
+                        ? report.medicalHistory.slice(
+                            0,
+                            report.medicalHistory.length - 1
+                          )
+                        : report.medicalHistory
+                      : "N/A"}
+                  </p>
+                  <p>
+                    <b>Clinical Findings: </b>
+                    {report?.clinical_findings || "N/A"}
+                  </p>
+                  {report?.advice?.testAdvice?.length > 0 && (
+                    <div className="advice-section">
+                      <p className="investigation">
+                        <b>Investigations: </b>
+                        {report.advice.testAdvice.map((t, i) => (
+                          <span key={i}>
+                            {t.testName}
+                            {report.advice.testAdvice.length - 1 !== i && ", "}
+                          </span>
+                        ))}
+                      </p>
+                    </div>
                   )}
+                  <p>
+                    <b>{report.diagnosys_heading ? report.diagnosys_heading : "Provisional Diagnosis"}: </b>
+                    {report?.initialComplain?.
+                      slice(report.initialComplain.length - 1, report.initialComplain.length) === "," 
+                      ? report.initialComplain.slice(0, report.initialComplain.length - 1) : report?.initialComplain || "N/A"}
+                  </p>
                 </div>
-              </div>
-              <div className="diagno-advice">
-                <h3>Prescription (RX)</h3>
-                <div className="medic-details">
-                  <div className="medic-header">
-                    <div>Sl</div>
-                    <div>Medicine</div>
-                    <div>Dose</div>
-                    <div>Frequency</div>
-                    <div>Duration</div>
-                    <div>Route</div>
-                  </div>
-                  <div className="medic-data">
-                    {medicines.length > 0 ? (
-                      medicines.map((med, idx) => (
-                        <div className="data-row" key={med._id || idx}>
-                          <div>{idx + 1}</div>
-                          <div>
-                            {med.type && <b>{med.type}. </b>}
-                            {med.name || ""}
+
+                <div className="diagno-advice">
+                  {/* <h3>Prescription (RX)</h3> */}
+                  <PiPrescriptionBold
+                    style={{ fontSize: "2rem", color: "black" }}
+                  />
+                  <div className="medic-details">
+                    <div className="medicine-rows head-row">
+                      <b>Sl</b>
+                      <b>Medicine</b>
+                      <b>Dose</b>
+                      <b>Route</b>
+                      <b>Frequency</b>
+                      <b>Duration</b>
+                    </div>
+                    <div className="medic-data">
+                      {medicines.length > 0 ? (
+                        medicines.map((med, idx) => (
+                          <div className="medicine-rows" key={med._id || idx}>
+                            <p>{idx + 1}</p>
+                            <p>
+                              {med.name || ""}
+                              {med.type && <span>({med.type}) </span>}
+                            </p>
+                            <p>{med.dose || ""}</p>
+                            <p>{med.route || ""}</p>
+                            <p>{med.frequency || ""}</p>
+                            <p>{med.duration || ""}</p>
                           </div>
-                          <div>{med.dose || ""}</div>
-                          <div>{med.frequency || ""}</div>
-                          <div>{med.duration || ""}</div>
-                          <div>{med.route || ""}</div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="no-meds">No medicines prescribed.</div>
-                    )}
+                        ))
+                      ) : (
+                        <div className="no-meds">No medicines prescribed.</div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                {report?.advice?.testAdvice?.length > 0 && (
-                  <div className="advice-section">
-                    <b>Test Advice:</b>
-                    <ul>
-                      {report.advice.testAdvice.map((t, i) => (
-                        <li key={i}>
-                          {t.testName}
-                          {t.testType && ` (${t.testType})`}
-                          {t.precautions && ` - Precautions: ${t.precautions}`}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {report?.advice?.medication && (
-                  <div className="advice-section">
-                    <b>General Advice:</b>
-                    <p style={{ whiteSpace: "pre-wrap" }}>
-                      {report.advice.medication}
-                    </p>
-                  </div>
-                )}
-
-                {report?.advice?.diet && (
-                  <div className="advice-section">
-                    <b>Diet Advice:</b>
-                    <p style={{ whiteSpace: "pre-wrap" }}>
-                      {report.advice.diet}
-                    </p>
-                  </div>
-                )}
-              </div>
-              <div className="seal">
-                <div className="follow-date">
-                  {previewFollowup && (
-                    <p>
-                      <b>Follow-up Date: </b>
-                      {formatDate(previewFollowup)}
-                    </p>
+                <div className="seal">
+                  {report?.advice?.medication && (
+                    <div className="advice-section">
+                      <p>
+                        <b>Additional Advice:</b>
+                        {report.advice.medication}
+                      </p>
+                    </div>
                   )}
-                </div>
-                <div className="drSeal">
-                  <h3>
-                    {doctor
-                      ? `Dr. ${doctor.firstName || ""} ${doctor.lastName || ""}`
-                      : ""}
-                  </h3>
-                  {doctor?.qualification && <p>{doctor.qualification}</p>}
+                  <div className="follow-date">
+                    <p>
+                      <b>Next Follow-up Date: </b>
+                      {formatDate(report?.followUp)}
+                    </p>
+                  </div>
+                  <div className="drSeal">
+                    <h3>
+                      {doctor
+                        ? `Dr. ${doctor.firstName || ""} ${
+                            doctor.lastName || ""
+                          }`
+                        : ""}
+                    </h3>
+
+                    {/* {doctor?.qualification && <p>{doctor.qualification}</p>}
                   {doctor?.doctorDepartment && <p>{doctor.doctorDepartment}</p>}
-                  {doctor?.designation && <p>{doctor.designation}</p>}
+                  {doctor?.designation && <p>{doctor.designation}</p>} */}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="footer">
-              <p>
-                For any concerns please contact the clinic. Contact:{" "}
-                {clinic?.contact}
-              </p>
+              <div className="footer">
+                <p>
+                  For any concerns please contact the clinic. Contact:{" "}
+                  {clinic?.contact}
+                </p>
+              </div>
             </div>
           </div>
+          <div className="pdf-down-btn" onClick={downLoadPDF}>
+            Download PDF
+          </div>
         </div>
-        <div className="pdf-down-btn" onClick={downLoadPDF}>
-          Download PDF
+      ) : (
+        <div className="prescription">
+          <p>No report available</p>
         </div>
-      </div>
+      )}
     </section>
   );
 };

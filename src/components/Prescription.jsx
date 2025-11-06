@@ -43,10 +43,13 @@ const Prescription = ({ patientId, onClose }) => {
     });
     return Array.from(map.values());
   }, [symptomSuggestions]);
+  const [temp_medicalHistory, setTemp_medicalHistory] = useState(["HTN(Hypertension)","T2DM(Type-2 Diabetes Mellitus)","Hyperlipidemia","Thyroid"]);
   const [medicalHistory, setMedicalHistory] = useState("");
+  const [clinical_findings, setClinical_findings] = useState("");
+  const [diagnosys_heading, setDiagnosys_heading] = useState("Provisional Diagnosis");
   const [complaints, setComplaints] = useState();
   const [gravida, setGravida] = useState("");
-  const [parity, setParity] = useState({Pa: "1", Pb: "0",});
+  const [parity, setParity] = useState({ Pa: "1", Pb: "0" });
   const [LMP, setLMP] = useState("");
   const [EDD, setEDD] = useState("");
   const [diagnosys, setDiagnosys] = useState({
@@ -56,6 +59,7 @@ const Prescription = ({ patientId, onClose }) => {
     Temp: "",
     Height: "",
     Weight: "",
+    BMI: "",
     Others: "",
   });
   const [followUp, setFollowUp] = useState("");
@@ -200,10 +204,12 @@ const Prescription = ({ patientId, onClose }) => {
           const r = latest.result[0];
           setInitialComplain(r.initialComplain || "");
           setMedicalHistory(r.medicalHistory || "");
+          setClinical_findings(r.clinical_findings || "");
+          setDiagnosys_heading(r.diagnosys_heading || "Provisional Diagnosis");
           if (r.femaleTests) {
             setGravida(r.femaleTests.Gravida || "");
-            if (r.femaleTests.Parity && r.femaleTests.Parity.includes('+')) {
-              const [Pa, Pb] = r.femaleTests.Parity.split('+');
+            if (r.femaleTests.Parity && r.femaleTests.Parity.includes("+")) {
+              const [Pa, Pb] = r.femaleTests.Parity.split("+");
               setParity({ Pa, Pb });
             } else {
               setParity({ Pa: r.femaleTests.Parity || "1", Pb: "0" });
@@ -213,7 +219,8 @@ const Prescription = ({ patientId, onClose }) => {
             setPOG(r.femaleTests.POG || "");
             setLCB(r.femaleTests.LCB || "");
             setMOD(r.femaleTests.MOD || "");
-          } else { // For backwards compatibility with old data structure
+          } else {
+            // For backwards compatibility with old data structure
             setGravida(r.gravida || "");
             setLMP(r.LMP || "");
             setEDD(r.EDD || "");
@@ -227,6 +234,7 @@ const Prescription = ({ patientId, onClose }) => {
               Temp: "",
               Height: "",
               Weight: "",
+              BMI: "",
               Others: "",
             }
           );
@@ -267,6 +275,8 @@ const Prescription = ({ patientId, onClose }) => {
           const payloadSnap = {
             initialComplain: r.initialComplain || "",
             medicalHistory: r.medicalHistory || "",
+            clinical_findings: r.clinical_findings || "",
+            diagnosys_heading: r.diagnosys_heading || "Provisional Diagnosis",
             femaleTests: {
               Gravida: r.femaleTests?.Gravida || r.gravida || "",
               Parity: r.femaleTests?.Parity || "",
@@ -311,6 +321,8 @@ const Prescription = ({ patientId, onClose }) => {
       const currentSnap = {
         initialComplain: initialComplain || "",
         medicalHistory: medicalHistory || "",
+        clinical_findings: clinical_findings || "",
+        diagnosys_heading: diagnosys_heading || "Provisional Diagnosis",
         femaleTests: {
           Gravida: gravida || "",
           Parity: `${parity.Pa}+${parity.Pb}`,
@@ -334,6 +346,8 @@ const Prescription = ({ patientId, onClose }) => {
   }, [
     initialComplain,
     medicalHistory,
+    clinical_findings,
+    diagnosys_heading,
     gravida,
     parity,
     LMP,
@@ -882,7 +896,7 @@ const Prescription = ({ patientId, onClose }) => {
         diagnosysHasContent;
       if (!hasContent) {
         toast.error(
-          "Please add at least one of: initial complaint, medicines or advice before saving."
+          "Please add at least one of: Diagnosis, medicines or advice before saving."
         );
         return;
       }
@@ -892,6 +906,9 @@ const Prescription = ({ patientId, onClose }) => {
           {
             initialComplain,
             medicalHistory,
+            clinical_findings,
+            diagnosys_heading,
+            followUp,
             presentingComplaints: complaints,
             Gravida: gravida,
             Parity: `${parity.Pa}+${parity.Pb}`,
@@ -923,6 +940,8 @@ const Prescription = ({ patientId, onClose }) => {
       const newSnap = {
         initialComplain: initialComplain || "",
         medicalHistory: medicalHistory || "",
+        clinical_findings: clinical_findings || "",
+        diagnosys_heading: diagnosys_heading || "Provisional Diagnosis",
         femaleTests: {
           Gravida: gravida || "",
           Parity: `${parity.Pa}+${parity.Pb}`,
@@ -958,12 +977,34 @@ const Prescription = ({ patientId, onClose }) => {
     if (onClose) onClose();
   };
 
-  if (loading) return <div>Loading...</div>;
-
   // const nextStep = () =>
   //   setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
   // const prevStep = () => setCurrentStep((s) => Math.max(s - 1, 0));
   // const goToStep = (i) => setCurrentStep(i);
+
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); // normalize to local date
+  const todayStr = d.toISOString().split("T")[0];
+
+  useEffect(() => {
+    // compute BMI from Height (cm) and Weight (kg)
+    let bmiValue = "";
+    const heightInMeters = Number(diagnosys.Height) / 100;
+    const weightInKg = Number(diagnosys.Weight);
+    if (heightInMeters > 0 && weightInKg > 0) {
+      const bmi = (weightInKg / (heightInMeters * heightInMeters)).toFixed(2);
+      bmiValue = bmi;
+    }
+    // avoid unnecessary state updates
+    if ((diagnosys.BMI || "") !== bmiValue) {
+      setDiagnosys({ ...diagnosys, BMI: bmiValue });
+      // console.log("Calculated BMI:", bmiValue);
+    }
+  }, [diagnosys.Height, diagnosys.Weight]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     // <section className="main">
@@ -1015,12 +1056,14 @@ const Prescription = ({ patientId, onClose }) => {
                     value={parity?.Pa}
                     onChange={(e) => {
                       const v = e.target.value.replace(/\D/g, ""); // Allow only digits
-                      setParity({ ...parity, Pa: v ? v : 1 });
+                      setParity({ ...parity, Pa: v });
                     }}
-                    suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
+                    suggestions={Array.from({ length: 16 }, (_, i) =>
+                      String(i)
+                    )}
                     placeholder="P"
                   />
-                  +
+                  <div style={{padding:"0.55rem", textAlign:"center"}}>+</div>
                   <AutoSuggestInput
                     single
                     type="text"
@@ -1031,7 +1074,9 @@ const Prescription = ({ patientId, onClose }) => {
                       const v = e.target.value.replace(/\D/g, ""); // Allow only digits
                       setParity({ ...parity, Pb: v });
                     }}
-                    suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
+                    suggestions={Array.from({ length: 16 }, (_, i) =>
+                      String(i)
+                    )}
                     placeholder="P"
                   />
                 </div>
@@ -1050,19 +1095,28 @@ const Prescription = ({ patientId, onClose }) => {
                 <input
                   style={{ display: "flex", alignItems: "center" }}
                   type="date"
+                  readOnly
                   value={EDD}
-                  onChange={(e) => setEDD(e.target.value)}
                 />
               </div>
             </div>
             <div className="form-row">
               <div className="form-group">
                 <label>POG</label>
-                <input type="text" value={POG} readOnly placeholder="Calculated from EDD" />
+                <input
+                  type="text"
+                  value={POG}
+                  readOnly
+                  placeholder="Calculated from EDD"
+                />
               </div>
               <div className="form-group">
                 <label>LCB</label>
-                <input type="text" value={LCB} onChange={(e) => setLCB(e.target.value)} />
+                <input
+                  type="text"
+                  value={LCB}
+                  onChange={(e) => setLCB(e.target.value)}
+                />
               </div>
               <div className="form-group">
                 <label>MOD</label>
@@ -1162,17 +1216,18 @@ const Prescription = ({ patientId, onClose }) => {
             />
           </div>
           <div className="form-group">
-            <label>Others</label>
+            <label>BMI</label>
             <input
-              value={diagnosys.Others}
-              onChange={(e) =>
-                setDiagnosys({ ...diagnosys, Others: e.target.value })
-              }
+              value={diagnosys.BMI}
+              readOnly
             />
           </div>
+          <div className="form-group">
+            <label>Others</label>
+            <input value={diagnosys.Others} 
+            onChange={(e) => setDiagnosys({ ...diagnosys, Others: e.target.value })} />
+          </div>
         </div>
-
-
 
         <div className="form-group full-width">
           <label>Presenting Complaints</label>
@@ -1190,40 +1245,45 @@ const Prescription = ({ patientId, onClose }) => {
         <div className="form-group full-width form-row">
           <label>Medical History</label>
           <div className="form-row">
-            <div className="medHistory-checkboxes">
-              <input type="checkbox" />
-              <span>HTN(Hypertension)</span>
-            </div>
-            <div className="medHistory-checkboxes">
-              <input type="checkbox" />
-              <span>T2DM(Type-2 Diabetes Mellitus)</span>
-            </div>
-            <div className="medHistory-checkboxes">
-              <input type="checkbox" />
-              <span>Hyperlipidemia</span>
-            </div>
-            <div className="medHistory-checkboxes">
-              <input type="checkbox" />
-              <span>Thyroid</span>
-            </div>
+            {temp_medicalHistory.map((history, index) => (
+              // <div key={index} className="medHistory-checkboxes">
+              //   <input type="checkbox" />
+              //   <span>{history}</span>
+              // </div>
+              <button className="medicalHistory-btns"
+                onClick={()=>{
+                  setMedicalHistory(medicalHistory+history+",");
+                }}
+              >
+                {history}
+              </button>
+            ))}
+          </div>
             <input
-              placeholder="Others"
+              placeholder="Enter medical history..."
               value={medicalHistory}
               onChange={(e) => setMedicalHistory(e.target.value)}
             />
-          </div>
         </div>
         <div className="form-group">
           <label> Clinical Findings</label>
-          <input type="text" />
+          <input 
+            type="text" 
+            value={clinical_findings}
+            onChange={(e)=>setClinical_findings(e.target.value)}
+          />
         </div>
         <div>
           <div className="form-group full-width">
             <label>
-              <select style={{padding:"0", border:"none", fontSize:"1rem"}}>
-                <option value="">Provisional Diagnosis</option>
-                <option value="">Diagnosis</option>
-                <option value="">Diffential Diagnosis</option>
+              <select
+                style={{ padding: "0", border: "none", fontSize: "1rem" }}
+                value={diagnosys_heading}
+                onChange={(e)=> setDiagnosys_heading(e.target.value)}
+              >
+                <option value="Provisional Diagnosis">Provisional Diagnosis</option>
+                <option value="Diagnosis">Diagnosis</option>
+                <option value="Diffential Diagnosis">Diffential Diagnosis</option>
               </select>
             </label>
             <div
@@ -1296,7 +1356,7 @@ const Prescription = ({ patientId, onClose }) => {
                         : item || "";
                     // Replace last partial token (if present) or append selected label as a new token.
                     // AutoSuggestInput already updated the value via onChange. Just ensure trailing comma and space.
-                    setInitialComplain(newVal.trim() + ", ");
+                    setInitialComplain(newVal.trim() );
                     setComplaintSuggestions([]);
                     // track selected complaints list (preserve old behavior)
                     setSelectedComplaints((prev) => {
@@ -1316,7 +1376,7 @@ const Prescription = ({ patientId, onClose }) => {
                     else autoPopulateFromComplaint(label, false, true);
                   }}
                 />
-                <button
+                {/* <button
                   type="button"
                   className="icon-btn"
                   title={autoPopulating ? "Populating..." : "Auto-populate"}
@@ -1461,7 +1521,7 @@ const Prescription = ({ patientId, onClose }) => {
                   }}
                 >
                   🔬
-                </button>
+                </button> */}
               </div>
               <div
                 style={{
@@ -1522,6 +1582,7 @@ const Prescription = ({ patientId, onClose }) => {
                 <span>Route</span>
                 <span>Frequency</span>
                 <span>Duration</span>
+                <span>Action</span>
               </div>
               <div className="medicines-list">
                 {medicineAdvice.map((m, idx) => (
@@ -1603,20 +1664,20 @@ const Prescription = ({ patientId, onClose }) => {
                         setMedicineAdvice(copy);
                       }}
                     />
-                      <AutoSuggestInput
-                        single
-                        placeholder="Frequency"
-                        value={m.frequency || ""}
-                        suggestions={medSuggestions.lists.frequencies}
-                        onChange={(e) => {
-                          const copy = [...medicineAdvice];
-                          copy[idx] = {
-                            ...copy[idx],
-                            frequency: e.target.value,
-                          };
-                          setMedicineAdvice(copy);
-                        }}
-                      />
+                    <AutoSuggestInput
+                      single
+                      placeholder="Frequency"
+                      value={m.frequency || ""}
+                      suggestions={medSuggestions.lists.frequencies}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
+                        copy[idx] = {
+                          ...copy[idx],
+                          frequency: e.target.value,
+                        };
+                        setMedicineAdvice(copy);
+                      }}
+                    />
                     <AutoSuggestInput
                       single
                       placeholder="Duration"
@@ -1631,7 +1692,7 @@ const Prescription = ({ patientId, onClose }) => {
                         setMedicineAdvice(copy);
                       }}
                     />
-                    {/* <button
+                    <button
                     type="button"
                     className="remove-btn"
                     onClick={() => {
@@ -1641,7 +1702,7 @@ const Prescription = ({ patientId, onClose }) => {
                     }}
                   >
                     Remove
-                  </button> */}
+                  </button>
                   </div>
                 ))}
                 <div className="medicine-actions">
@@ -1680,7 +1741,7 @@ const Prescription = ({ patientId, onClose }) => {
 
         <div>
           <div className="form-row" style={{ marginBottom: 12 }}>
-            {["Test Advice", "Medication", "Diet"].map((testType, index) => (
+            {["Test Advice", "Additional Advice"].map((testType, index) => (
               <label key={index} style={{ marginRight: "1rem" }}>
                 <input
                   type="checkbox"
@@ -1703,10 +1764,13 @@ const Prescription = ({ patientId, onClose }) => {
                 <thead>
                   <tr>
                     <th></th>
-                    <th style={{ minWidth: "9rem" }}>Test Name</th>
-                    <th>Test Type</th>
+                    <th style={{ minWidth: "9rem", textAlign: "left" }}>
+                      Test Name
+                    </th>
+                    <th></th>
+                    {/* <th>Test Type</th>
                     <th>Precautions</th>
-                    <th>Test Date</th>
+                    <th>Test Date</th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -1772,6 +1836,20 @@ const Prescription = ({ patientId, onClose }) => {
                         />
                       </td>
                       <td>
+                        <button
+                          type="button"
+                          className="remove-btn"
+                          style={{ width: "100%" }}
+                          onClick={() => {
+                            const copy = [...testAdviceRows];
+                            copy.splice(idx, 1);
+                            setTestAdviceRows(copy);
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </td>
+                      {/* <td>
                         <input
                           type="text"
                           value={row.testType}
@@ -1810,7 +1888,7 @@ const Prescription = ({ patientId, onClose }) => {
                             )
                           }
                         />
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
                 </tbody>
@@ -1826,9 +1904,9 @@ const Prescription = ({ patientId, onClose }) => {
             </div>
           )}
           {/* Medication Advice Textarea */}
-          {selectedTestTypes.includes("Medication") && (
+          {selectedTestTypes.includes("Additional Advice") && (
             <div className="form-group full-width">
-              <label>Medication Advice</label>
+              <label>Additional Advice</label>
               <textarea
                 value={medicationAdvice}
                 onChange={(e) => setMedicationAdvice(e.target.value)}
@@ -1838,7 +1916,7 @@ const Prescription = ({ patientId, onClose }) => {
             </div>
           )}
           {/* Diet Advice Textarea */}
-          {selectedTestTypes.includes("Diet") && (
+          {/* {selectedTestTypes.includes("Diet") && (
             <div className="form-group full-width">
               <label>Diet Advice</label>
               <textarea
@@ -1848,7 +1926,7 @@ const Prescription = ({ patientId, onClose }) => {
                 rows={2}
               />
             </div>
-          )}
+          )} */}
         </div>
         {/* <div className="form-row"> */}
         <div className="form-group" style={{ margin: "2rem 0" }}>
@@ -1856,8 +1934,12 @@ const Prescription = ({ patientId, onClose }) => {
           <input
             style={{ display: "flex", alignItems: "center" }}
             type="date"
+            min={todayStr}
             value={followUp}
-            onChange={(e) => setFollowUp(e.target.value)}
+            onChange={(e) => {
+              const v = e.target.value;
+              setFollowUp(v);
+            }}
           />
         </div>
         {/* </div> */}
