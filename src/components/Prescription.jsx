@@ -1259,7 +1259,7 @@ const Prescription = ({ patientId, onClose }) => {
               // </div>
               <button className="medicalHistory-btns"
                 onClick={()=>{
-                  setMedicalHistory(medicalHistory+history+", ");
+                  setMedicalHistory(medicalHistory+history+",");
                 }}
               >
                 {history}
@@ -1945,7 +1945,7 @@ const Prescription = ({ patientId, onClose }) => {
             value={followUp}
             onChange={(e) => {
               const v = e.target.value;
-              setFollowUp(v && v < todayStr ? todayStr : v);
+              setFollowUp(v);
             }}
           />
         </div>
