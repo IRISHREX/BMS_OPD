@@ -348,7 +348,9 @@ const Preview = () => {
                   )}
                   <p>
                     <b>{report.diagnosys_heading ? report.diagnosys_heading : "Provisional Diagnosis"}: </b>
-                    {report?.initialComplain || "N/A"}
+                    {report?.initialComplain?.
+                      slice(report.initialComplain.length - 1, report.initialComplain.length) === "," 
+                      ? report.initialComplain.slice(0, report.initialComplain.length - 1) : report?.initialComplain || "N/A"}
                   </p>
                 </div>
 

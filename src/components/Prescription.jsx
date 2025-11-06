@@ -896,7 +896,7 @@ const Prescription = ({ patientId, onClose }) => {
         diagnosysHasContent;
       if (!hasContent) {
         toast.error(
-          "Please add at least one of: initial complaint, medicines or advice before saving."
+          "Please add at least one of: Diagnosis, medicines or advice before saving."
         );
         return;
       }
@@ -1363,7 +1363,7 @@ const Prescription = ({ patientId, onClose }) => {
                         : item || "";
                     // Replace last partial token (if present) or append selected label as a new token.
                     // AutoSuggestInput already updated the value via onChange. Just ensure trailing comma and space.
-                    setInitialComplain(newVal.trim() + ", ");
+                    setInitialComplain(newVal.trim() );
                     setComplaintSuggestions([]);
                     // track selected complaints list (preserve old behavior)
                     setSelectedComplaints((prev) => {
