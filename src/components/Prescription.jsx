@@ -910,15 +910,8 @@ const Prescription = ({ patientId, onClose }) => {
             diagnosys_heading,
             followUp,
             presentingComplaints: complaints,
-            femaleTests: {
-              Gravida: gravida,
-              Parity: `${parity.Pa}+${parity.Pb}`,
-              LMP,
-              EDD,
-              POG,
-              LCB,
-              MOD,
-            },
+            Gravida: gravida,
+            Parity: `${parity.Pa}+${parity.Pb}`,
             LMP,
             EDD,
             POG,
@@ -1033,7 +1026,7 @@ const Prescription = ({ patientId, onClose }) => {
       </div>
 
       <div className="form-main">
-        {gender === "Female" && (
+        {gender.toLowerCase() === "female" && (
           <>
             <div className="form-row">
               <div className="form-group">
