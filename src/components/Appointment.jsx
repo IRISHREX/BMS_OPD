@@ -70,6 +70,39 @@ const Appointment = () => {
     "ENT",
   ];
 
+  const professions = [
+    "Farmer",
+    "Toto Driver",
+    "Laborer / Day Laborer",
+    "Teacher",
+    "Professor",
+    "Student",
+    "Housewife/Homemaker",
+    "Shopkeeper",
+    "Driver (auto, truck, taxi)",
+    "Clerk",
+    "Police personnel",
+    "Army personnel",
+    "Businessman",
+    "Sweeper/Sanitation worker",
+    "Tailor",
+    "Barber",
+    "Electrician",
+    "Plumber",
+    "Mechanic",
+    "Mason",
+    "Painter",
+    "Fisherman",
+    "Watchman/Security guard",
+    "Nurse",
+    "Doctor",
+    "Engineer",
+    "Technician",
+    "Imam",
+    "Vendor (street, market)",
+    "Unemployed",
+    "Retired",
+  ];
   const [doctors, setDoctors] = useState([]);
   const [dashboardUser, setDashboardUser] = useState(null);
   const [canBook, setCanBook] = useState(false);
@@ -718,12 +751,17 @@ const Appointment = () => {
                   />
                 </div>
                 <div className="lnr-input-box">
-                  <input
-                    type="text"
-                    placeholder="Profession"
+                  <select
                     value={profession}
                     onChange={(e) => setProfession(e.target.value)}
-                  />
+                  >
+                    <option value="">Select Profession</option>
+                    {professions.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
+                  </select>
                     <div className="inner-box-of-lnr">
                       <label htmlFor="">Addrrss:</label>
                       <textarea className="address-box"
