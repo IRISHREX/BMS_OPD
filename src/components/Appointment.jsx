@@ -48,10 +48,10 @@ const Appointment = () => {
     paymentStatus: "Pending",
   });
   const [step, setStep] = useState(1);
-  const [doctorSearch, setDoctorSearch] = useState("");
   const [departmentSearch, setDepartmentSearch] = useState("");
   const [searchNameOrPhone, setSearchNameOrPhone] = useState("");
   const [patientSuggestions, setPatientSuggestions] = useState([]);
+  const [doctorList, setDoctorList] = useState([]);
   const [showPatientSuggestions, setShowPatientSuggestions] = useState(false);
   const suggestRef = useRef();
   const suggestTimer = useRef();
@@ -237,30 +237,27 @@ const Appointment = () => {
   //   }
   // }, [phone]);
 
-  // when department or doctorSearch changes, auto-select first doctor
   useEffect(() => {
-    const list = doctors.filter(
-      (d) =>
-        d.doctorDepartment === department &&
-        (!doctorSearch ||
-          `${d.firstName} ${d.lastName}`
-            .toLowerCase()
-            .includes(doctorSearch.toLowerCase()))
-    );
-    if (list.length > 0) {
-      const first = list[0];
-      set_id(first._id);
-      setDoctorFirstName(first.firstName);
-      setDoctorLastName(first.lastName);
-      setDoctorFee(first.consultationFee || 100);
-      setPrice(Math.round((first.consultationFee || 100) * 0.2));
-    } else {
-      set_id("");
-      setDoctorFirstName("");
-      setDoctorLastName("");
-      setPrice(0);
+    if (!dashboardUser || !doctors.length) return;
+
+    let filteredDoctors = [];
+    if (dashboardUser.role === 'Admin') {
+      filteredDoctors = doctors;
+    } else if (dashboardUser.role === 'Doctor') {
+      filteredDoctors = doctors.filter(doc => doc._id === dashboardUser._id);
+    } else if (dashboardUser.role === 'Compounder') {
+      filteredDoctors = doctors.filter(doc => dashboardUser.assignedDoctors.includes(doc._id));
     }
-  }, [department, doctors, doctorSearch]);
+
+    setDoctorList(filteredDoctors);
+
+    if (filteredDoctors.length > 0) {
+      set_id(filteredDoctors[0]._id);
+    } else {
+      set_id('');
+    }
+
+  }, [dashboardUser, doctors]);
 
   useEffect(() => {
     if (_id) {
@@ -835,6 +832,31 @@ const Appointment = () => {
                           setAppointmentDate(v && v < todayStr ? todayStr : v);
                         }}
                       />
+                </div>
+
+                <div className="lnr-input-box">
+                  <select
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
+                  >
+                    {departmentsArray.map((depart) => (
+                      <option value={depart} key={depart}>
+                        {depart}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={_id}
+                    onChange={(e) => set_id(e.target.value)}
+                    disabled={dashboardUser && dashboardUser.role === "Doctor"}
+                  >
+                    <option value="">Select Doctor</option>
+                    {doctorList.map((doctor) => (
+                      <option value={doctor._id} key={doctor._id}>
+                        {doctor.firstName} {doctor.lastName}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="fees-detail-box">

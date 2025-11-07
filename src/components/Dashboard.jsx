@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useMemo } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import InvoiceViewer from './InvoiceViewer';
 import Reports from './Reports';
 import { Context } from "../main";
@@ -24,9 +24,12 @@ const Dashboard = () => {
   const [filterOption, setFilterOption] = useState("All");
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // For text search
+  const [selectedDoctorId, setSelectedDoctorId] = useState(""); // For doctor filter
   const navigate = useNavigate();
-  const [Doctors, setDoctors] = useState([]);
+  const [doctors, setDoctors] = useState([]); // For total count card
+  const [doctorFilterList, setDoctorFilterList] = useState([]); // For dropdown
+  const [filteredAppointments, setFilteredAppointments] = useState([]);
   // Modal and prescription state
   const [prescriptionModalOpen, setPrescriptionModalOpen] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
@@ -34,6 +37,7 @@ const Dashboard = () => {
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [activeInvoice, setActiveInvoice] = useState(null);
 
+  const { isAuthenticated, admin } = useContext(Context);
   // Note: Sound file should be in the `public` directory.
   const [playDeleteSound] = useSound("/delete.mp3");
   const [playSettledSound] = useSound("/settled.mp3");
@@ -74,24 +78,42 @@ const Dashboard = () => {
     }
   };
 
+  // Set up doctor filter list based on user role
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        if (searchTerm.trim() === "") {
-          const { data } = await api.get(`/api/v1/user/doctors`);
-          setDoctors(data.doctors);
-        } else {
-          const { data } = await api.get(
-            `/api/v1/user/doctor/search?query=${encodeURIComponent(searchTerm)}`
-          );
-          setDoctors(data.doctors);
+        const { data } = await api.get(`/api/v1/user/doctors`);
+        setDoctors(data.doctors || []);
+
+        if (admin && admin.role) {
+          if (admin.role === 'Admin') {
+            setDoctorFilterList(data.doctors || []);
+            setSelectedDoctorId(''); // Admin can see all by default
+          } else if (admin.role === 'Doctor') {
+            setDoctorFilterList(data.doctors || []);
+            setSelectedDoctorId(admin._id); // Doctor sees only their own
+          } else if (admin.role === 'Compounder') {
+            // Compounder sees only their assigned doctors
+            const assignedDoctorIds = (admin.assignedDoctors || []).map(d => d._id);
+            const assignedDoctorsList = (data.doctors || []).filter(doc => assignedDoctorIds.includes(doc._id));
+            setDoctorFilterList(assignedDoctorsList);
+            if (assignedDoctorsList.length > 0) {
+              setSelectedDoctorId(assignedDoctorsList[0]._id); // Default to first assigned doctor
+            } else {
+              setSelectedDoctorId('');
+            }
+          }
         }
       } catch (error) {
         toast.error(error.response?.data?.message || "Failed to fetch doctors");
+        setDoctors([]);
+        setDoctorFilterList([]);
       }
     };
-    fetchDoctors();
-  }, []);
+    if (isAuthenticated && admin) {
+      fetchDoctors();
+    }
+  }, [isAuthenticated, admin]);
 
   // Delete single appointment by ID
   const handleDeleteAppointment = async (id) => {
@@ -209,7 +231,18 @@ const Dashboard = () => {
     setSelectedPatientData(null);
   };
 
-  const { isAuthenticated, admin } = useContext(Context);
+  useEffect(() => {
+    let filtered = appointments;
+
+    if (selectedDoctorId) {
+      filtered = filtered.filter(
+        (appointment) => appointment.doctorId === selectedDoctorId
+      );
+    }
+
+    setFilteredAppointments(filtered);
+  }, [appointments, selectedDoctorId, searchTerm, filterOption, customStart, customEnd]);
+
   if (!isAuthenticated) {
     return <Navigate to={"/login"} />;
   }
@@ -240,7 +273,7 @@ const Dashboard = () => {
           </div>
           <div className="thirdBox">
             <p>Registered Doctors</p>
-            <h3>{Doctors.length}</h3>
+            <h3>{doctors.length}</h3>
           </div>
         </div>
   {/* Reports summary (today/month/total) */}
@@ -259,6 +292,26 @@ const Dashboard = () => {
               <option value="Upcoming">Upcoming</option>
               <option value="Custom">Custom</option>
             </select>
+
+            {/* Doctor Filter Dropdown */}
+            <select
+              value={selectedDoctorId}
+              onChange={(e) => setSelectedDoctorId(e.target.value)}
+              disabled={admin?.role === 'Doctor'}
+            >
+              {admin?.role !== 'Doctor' && <option value="">All Doctors</option>}
+              {doctorFilterList.map((doc) => (
+                <option key={doc._id} value={doc._id}>
+                  {doc.firstName} {doc.lastName}
+                </option>
+              ))}
+            </select>
+
+            {/* <input
+                type="text"
+                placeholder="Search by doctor name"
+                onChange={(e) => setSearchTerm(e.target.value)}
+              /> */}
 
             {filterOption === "Custom" && (
               <div className="custom-dates">
@@ -417,76 +470,9 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {(() => {
-                  // derive filtered appointments based on filterOption, custom dates and search term
-                  const filteredAppointments = (appointments || []).filter(
-                    (appointment) => {
-                      try {
-                        const apptDate = new Date(appointment.appointment_date);
-                        const apptYmd = apptDate.toLocaleDateString("en-CA");
-                        const today = new Date();
-                        const startOfToday = new Date(
-                          today.getFullYear(),
-                          today.getMonth(),
-                          today.getDate()
-                        );
-                        const todayYmd = startOfToday.toLocaleDateString("en-CA");
-
-                        // Filter by dropdown
-                        if (filterOption === "Today") {
-                          if (apptYmd !== todayYmd) return false;
-                        } else if (filterOption === "Old") {
-                          if (apptYmd >= todayYmd) return false;
-                        } else if (filterOption === "Upcoming") {
-                          // future (strictly greater than today)
-                          if (apptYmd <= todayYmd) return false;
-                        } else if (filterOption === "Custom") {
-                          if (customStart && customEnd) {
-                            const start = new Date(customStart + "T00:00:00");
-                            const end = new Date(customEnd + "T23:59:59");
-                            if (apptDate < start || apptDate > end)
-                              return false;
-                          }
-                        }
-
-                        // Search term across name, phone and date
-                        if (searchTerm && searchTerm.trim() !== "") {
-                          const q = searchTerm.toLowerCase();
-                          const name = (
-                            appointment.name ||
-                            `${appointment.firstName || ""} ${
-                              appointment.lastName || ""
-                            }`
-                          ).toLowerCase();
-                          const phone = (
-                            appointment.phone ||
-                            appointment.mobile ||
-                            appointment.patientPhone ||
-                            ""
-                          )
-                            .toString()
-                            .toLowerCase();
-                          const dateStr = (appointment.appointment_date || "")
-                            .toString()
-                            .toLowerCase();
-                          if (
-                            !name.includes(q) &&
-                            !phone.includes(q) &&
-                            !dateStr.includes(q)
-                          ) {
-                            return false;
-                          }
-                        }
-
-                        return true;
-                      } catch (err) {
-                        return true;
-                      }
-                    }
-                  );
-
-                  return filteredAppointments && filteredAppointments.length > 0
-                    ? filteredAppointments.map((appointment) => (
+                {filteredAppointments && filteredAppointments.length > 0
+                    ? filteredAppointments.filter((appointment) => { try { const apptDate = new Date( appointment.appointment_date ); const apptYmd = apptDate.toLocaleDateString("en-CA")
+                       const today = new Date(); const startOfToday = new Date( today.getFullYear(), today.getMonth(), today.getDate() ); const todayYmd = startOfToday.toLocaleDateString("en-CA"); if (filterOption === "Today") { if (apptYmd !== todayYmd) return false; } else if (filterOption === "Old") { if (apptYmd >= todayYmd) return false; } else if (filterOption === "Upcoming") { if (apptYmd <= todayYmd) return false; } else if (filterOption === "Custom") { if (customStart && customEnd) { const start = new Date( customStart + "T00:00:00" ); const end = new Date(customEnd + "T23:59:59"); if (apptDate < start || apptDate > end) return false; } } if (searchTerm && searchTerm.trim() !== "") { const q = searchTerm.toLowerCase(); const name = ( appointment.name || `${appointment.firstName || ""} ${ appointment.lastName || "" }` ).toLowerCase(); const phone = ( appointment.phone || appointment.mobile || appointment.patientPhone || "" ) .toString() .toLowerCase(); const dateStr = ( appointment.appointment_date || "" ) .toString() .toLowerCase(); if ( !name.includes(q) && !phone.includes(q) && !dateStr.includes(q) ) { return false; } } return true; } catch (err) { return true; } }).map((appointment) => (
                         <tr key={appointment._id}>
                           <td>
                             <input
@@ -650,8 +636,7 @@ const Dashboard = () => {
                           </td>
                         </tr>
                       ))
-                    : "No Appointments Found!";
-                })()}
+                    : "No Appointments Found!"}
               </tbody>
             </table>
           </div>
