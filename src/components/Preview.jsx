@@ -148,6 +148,10 @@ const Preview = () => {
     Array.isArray(patient.report) && patient.report.length > 0
       ? patient.report[0]
       : null;
+  const femaleTests = patient.femaleTests || (report ? report.femaleTests : null);
+  const gravida = femaleTests?.Gravida || (report ? report.gravida : null);
+  const parity = femaleTests?.parity || (report ? report.parity : null);
+
   const clinic = {
     name: doctor?.clinicName || doctor?.hospital || "",
     address: doctor?.address || "N/A",
@@ -242,39 +246,39 @@ const Preview = () => {
                 <div className="pData">
                   {patient.gender === "Female" && (
                     <div className="gravida-section">
-                      {report?.femaleTests?.Gravida && (
+                      {gravida && (
                         <p>
-                          <b>G</b> {report.femaleTests.Gravida}
-                          {report?.femaleTests?.Parity && (
+                          <b>G</b> {gravida}
+                          {parity && (
                             <span style={{ marginLeft: "0.5rem" }}>
-                              <b>P</b> {report.femaleTests.Parity}
+                              <b>P</b> {parity.Pa}+{parity.Pb}
                             </span>
                           )}
                         </p>
                       )}
-                      {report?.femaleTests?.LMP && (
+                      {femaleTests?.LMP && (
                         <p>
-                          <b>LMP:</b> {formatDate(report.femaleTests.LMP)}
+                          <b>LMP:</b> {formatDate(femaleTests?.LMP)}
                         </p>
                       )}
-                      {report?.femaleTests?.EDD && (
+                      {femaleTests?.EDD && (
                         <p>
-                          <b>EDD:</b> {formatDate(report.femaleTests.EDD)}
+                          <b>EDD:</b> {formatDate(femaleTests?.EDD)}
                         </p>
                       )}
-                      {report?.femaleTests?.POG && (
+                      {femaleTests?.POG && (
                         <p>
-                          <b>POG:</b> {report.femaleTests.POG}
+                          <b>POG:</b> {femaleTests?.POG}
                         </p>
                       )}
-                      {report?.femaleTests?.LCB && (
+                      {femaleTests?.LCB && (
                         <p>
-                          <b>LCB:</b> {report.femaleTests.LCB}
+                          <b>LCB:</b> {femaleTests?.LCB}
                         </p>
                       )}
-                      {report?.femaleTests?.MOD && (
+                      {femaleTests?.MOD && (
                         <p>
-                          <b>MOD:</b> {report.femaleTests.MOD}
+                          <b>MOD:</b> {femaleTests?.MOD}
                         </p>
                       )}
                     </div>

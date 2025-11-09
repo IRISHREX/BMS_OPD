@@ -206,25 +206,26 @@ const Prescription = ({ patientId, onClose }) => {
           setMedicalHistory(r.medicalHistory || "");
           setClinical_findings(r.clinical_findings || "");
           setDiagnosys_heading(r.diagnosys_heading || "Provisional Diagnosis");
-          if (r.femaleTests) {
-            setGravida(r.femaleTests.Gravida || "");
-            if (r.femaleTests.Parity && r.femaleTests.Parity.includes("+")) {
-              const [Pa, Pb] = r.femaleTests.Parity.split("+");
-              setParity({ Pa, Pb });
-            } else {
-              setParity({ Pa: r.femaleTests.Parity || "1", Pb: "0" });
-            }
-            setLMP(r.femaleTests.LMP || "");
-            setEDD(r.femaleTests.EDD || "");
-            setPOG(r.femaleTests.POG || "");
-            setLCB(r.femaleTests.LCB || "");
-            setMOD(r.femaleTests.MOD || "");
+        }
+        if (latest.femaleTests) {
+          setGravida(latest.femaleTests.Gravida || "");
+          if (latest.femaleTests.parity) {
+            setParity({ Pa: latest.femaleTests.parity.Pa || "1", Pb: latest.femaleTests.parity.Pb || "0" });
           } else {
-            // For backwards compatibility with old data structure
-            setGravida(r.gravida || "");
-            setLMP(r.LMP || "");
-            setEDD(r.EDD || "");
+            setParity({ Pa: "1", Pb: "0" });
           }
+          setLMP(latest.femaleTests.LMP || "");
+          setEDD(latest.femaleTests.EDD || "");
+          setPOG(latest.femaleTests.POG || "");
+          setLCB(latest.femaleTests.LCB || "");
+          setMOD(latest.femaleTests.MOD || "");
+        }
+
+        if (latest.result && latest.result.length) {
+          const r = latest.result[0];
+          setInitialComplain(r.initialComplain || "");
+          setMedicalHistory(r.medicalHistory || "");
+          setClinical_findings(r.clinical_findings || "");
           setFollowUp(r.followUp);
           setDiagnosys(
             r.diagnosys || {
@@ -277,15 +278,6 @@ const Prescription = ({ patientId, onClose }) => {
             medicalHistory: r.medicalHistory || "",
             clinical_findings: r.clinical_findings || "",
             diagnosys_heading: r.diagnosys_heading || "Provisional Diagnosis",
-            femaleTests: {
-              Gravida: r.femaleTests?.Gravida || r.gravida || "",
-              Parity: r.femaleTests?.Parity || "",
-              LMP: r.femaleTests?.LMP || r.LMP || "",
-              EDD: r.femaleTests?.EDD || r.EDD || "",
-              POG: r.femaleTests?.POG || "",
-              LCB: r.femaleTests?.LCB || "",
-              MOD: r.femaleTests?.MOD || "",
-            },
             diagnosys: r.diagnosys || {},
             followUp: r.followUp || "",
             medicineAdvice: Array.isArray(r.medicineAdvice)
@@ -294,6 +286,16 @@ const Prescription = ({ patientId, onClose }) => {
               ? [r.medicineAdvice]
               : [],
             advice: initialAdviceObj,
+          };
+          payloadSnap.femaleTests = {
+            Gravida: latest.femaleTests?.Gravida || "",
+            parity: { 
+              Pa: latest.femaleTests?.parity?.Pa || "1", 
+              Pb: latest.femaleTests?.parity?.Pb || "0" 
+            },
+            LMP: latest.femaleTests?.LMP || "",
+            EDD: latest.femaleTests?.EDD || "",
+            POG: latest.femaleTests?.POG || "",
           };
           setOriginalPayload(payloadSnap);
         }
@@ -323,15 +325,6 @@ const Prescription = ({ patientId, onClose }) => {
         medicalHistory: medicalHistory || "",
         clinical_findings: clinical_findings || "",
         diagnosys_heading: diagnosys_heading || "Provisional Diagnosis",
-        femaleTests: {
-          Gravida: gravida || "",
-          Parity: `${parity.Pa}+${parity.Pb}`,
-          LMP: LMP || "",
-          EDD: EDD || "",
-          POG: POG || "",
-          LCB: LCB || "",
-          MOD: MOD || "",
-        },
         diagnosys: diagnosys || {},
         followUp: followUp || "",
         medicineAdvice: medicineAdvice || [],
@@ -340,6 +333,17 @@ const Prescription = ({ patientId, onClose }) => {
       const dirty =
         JSON.stringify(originalPayload) !== JSON.stringify(currentSnap);
       setIsDirty(Boolean(dirty));
+      if (originalPayload && !currentSnap.femaleTests) {
+        currentSnap.femaleTests = {
+          Gravida: gravida || "",
+          parity: parity,
+          LMP: LMP || "",
+          EDD: EDD || "",
+          POG: POG || "",
+          LCB: LCB || "",
+          MOD: MOD || "",
+        };
+      }
     } catch (e) {
       setIsDirty(false);
     }
@@ -902,6 +906,15 @@ const Prescription = ({ patientId, onClose }) => {
       }
       await api.put(`/api/v1/appointment/patient/update/${patientId}`, {
         followup_date: followUp, // Moved to root level as per schema
+        femaleTests: {
+          Gravida: gravida,
+          parity: { Pa: parity.Pa, Pb: parity.Pb },
+          LMP,
+          EDD,
+          POG,
+          LCB,
+          MOD,
+        },
         result: [
           {
             initialComplain,
@@ -910,15 +923,6 @@ const Prescription = ({ patientId, onClose }) => {
             diagnosys_heading,
             followUp,
             presentingComplaints: complaints,
-            // gravida: gravida,
-            // parity: { Pa: parity.Pa, Pb: parity.Pb },
-            gravida: gravida,
-            parity: { Pa: parity.Pa, Pb: parity.Pb },
-            LMP,
-            EDD,
-            POG,
-            LCB,
-            MOD,
             diagnosys,
             medicineAdvice: selectedMedicines,
             advice: adviceToSave, // Contains selected tests
@@ -944,15 +948,15 @@ const Prescription = ({ patientId, onClose }) => {
         medicalHistory: medicalHistory || "",
         clinical_findings: clinical_findings || "",
         diagnosys_heading: diagnosys_heading || "Provisional Diagnosis",
-        femaleTests: {
-          Gravida: gravida || "",
-          Parity: `${parity.Pa}+${parity.Pb}`,
-          LMP: LMP || "",
-          EDD: EDD || "",
-          POG: POG || "",
-          LCB: LCB || "",
-          MOD: MOD || "",
-        },
+        // femaleTests: {
+        //   Gravida: gravida || "",
+        //   Parity: `${parity.Pa}+${parity.Pb}`,
+        //   LMP: LMP || "",
+        //   EDD: EDD || "",
+        //   POG: POG || "",
+        //   LCB: LCB || "",
+        //   MOD: MOD || "",
+        // },
         diagnosys: diagnosys || {},
         medicineAdvice: selectedMedicines,
         advice: advSaved, // Contains selected tests
