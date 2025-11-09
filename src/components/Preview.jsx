@@ -150,7 +150,7 @@ const Preview = () => {
       : null;
   const femaleTests = patient.femaleTests || (report ? report.femaleTests : null);
   const gravida = femaleTests?.Gravida || (report ? report.gravida : null);
-  const parity = femaleTests?.parity || (report ? report.parity : null);
+  const parity = femaleTests?.Parity || (report ? report.parity : null);
 
   const clinic = {
     name: doctor?.clinicName || doctor?.hospital || "",

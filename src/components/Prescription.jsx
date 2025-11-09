@@ -206,17 +206,24 @@ const Prescription = ({ patientId, onClose }) => {
           setMedicalHistory(r.medicalHistory || "");
           setClinical_findings(r.clinical_findings || "");
           setDiagnosys_heading(r.diagnosys_heading || "Provisional Diagnosis");
-        }
-        if (latest.femaleTests) {
-          setGravida(latest.femaleTests.Gravida || "");
-          if (latest.femaleTests.parity) {
-            setParity({ Pa: latest.femaleTests.parity.Pa || "1", Pb: latest.femaleTests.parity.Pb || "0" });
+
+          // Check for femaleTests in the new location first, then fall back to the old one.
+          const femaleTestData = r.femaleTests || latest.femaleTests;
+          if (femaleTestData) {
+            setGravida(femaleTestData.Gravida || "");
+            // Handle both 'Parity' (new) and 'parity' (old)
+            const parityData = femaleTestData.Parity || femaleTestData.parity;
+            if (parityData) {
+              setParity({ Pa: parityData.Pa || "1", Pb: parityData.Pb || "0" });
+            } else {
+              setParity({ Pa: "1", Pb: "0" });
+            }
+            setLMP(femaleTestData.LMP || "");
+            setEDD(femaleTestData.EDD || "");
+            setPOG(femaleTestData.POG || "");
           } else {
-            setParity({ Pa: "1", Pb: "0" });
+            setParity({ Pa: "1", Pb: "0" }); // Default if no data found
           }
-          setLMP(latest.femaleTests.LMP || "");
-          setEDD(latest.femaleTests.EDD || "");
-          setPOG(latest.femaleTests.POG || "");
           setLCB(latest.femaleTests.LCB || "");
           setMOD(latest.femaleTests.MOD || "");
         }
@@ -906,15 +913,6 @@ const Prescription = ({ patientId, onClose }) => {
       }
       await api.put(`/api/v1/appointment/patient/update/${patientId}`, {
         followup_date: followUp, // Moved to root level as per schema
-        femaleTests: {
-          Gravida: gravida,
-          parity: { Pa: parity.Pa, Pb: parity.Pb },
-          LMP,
-          EDD,
-          POG,
-          LCB,
-          MOD,
-        },
         result: [
           {
             initialComplain,
@@ -926,6 +924,16 @@ const Prescription = ({ patientId, onClose }) => {
             diagnosys,
             medicineAdvice: selectedMedicines,
             advice: adviceToSave, // Contains selected tests
+            femaleTests: {
+              Gravida: gravida,
+              // Note: Schema has 'Parity' (capitalized) in result, but 'parity' at root. Using 'Parity' to match the nested schema.
+              Parity: { Pa: parity.Pa, Pb: parity.Pb },
+              LMP,
+              EDD,
+              POG,
+              LCB,
+              MOD,
+            },
           },
         ],
         status: "Completed",
