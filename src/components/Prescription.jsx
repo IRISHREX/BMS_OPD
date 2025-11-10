@@ -49,7 +49,7 @@ const Prescription = ({ patientId, onClose }) => {
   const [diagnosys_heading, setDiagnosys_heading] = useState("Provisional Diagnosis");
   const [complaints, setComplaints] = useState();
   const [gravida, setGravida] = useState("");
-  const [parity, setParity] = useState({ Pa: "1", Pb: "0" });
+  const [parity, setParity] = useState({ Pa: "", Pb: "" });
   const [LMP, setLMP] = useState("");
   const [EDD, setEDD] = useState("");
   const [diagnosys, setDiagnosys] = useState({
@@ -212,7 +212,7 @@ const Prescription = ({ patientId, onClose }) => {
               const [Pa, Pb] = r.femaleTests.Parity.split("+");
               setParity({ Pa, Pb });
             } else {
-              setParity({ Pa: r.femaleTests.Parity || "1", Pb: "0" });
+              setParity({ Pa: r.femaleTests.Parity || "", Pb: "" });
             }
             setLMP(r.femaleTests.LMP || "");
             setEDD(r.femaleTests.EDD || "");
@@ -221,9 +221,19 @@ const Prescription = ({ patientId, onClose }) => {
             setMOD(r.femaleTests.MOD || "");
           } else {
             // For backwards compatibility with old data structure
-            setGravida(r.gravida || "");
+            setGravida(r.Gravida || "");
+            // setParity({Pa: r.Parity || "", Pb: ""});
+            if (r.Parity && r.Parity.includes("+")) {
+              const [Pa, Pb] = r.Parity.split("+");
+              setParity({ Pa, Pb });
+            } else {
+              setParity({ Pa: r.Parity || "", Pb: "" });
+            }
             setLMP(r.LMP || "");
             setEDD(r.EDD || "");
+            setPOG(r.POG || "");
+            setLCB(r.LCB || "");
+            setMOD(r.MOD || "");
           }
           setFollowUp(r.followUp);
           setDiagnosys(

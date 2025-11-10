@@ -242,39 +242,39 @@ const Preview = () => {
                 <div className="pData">
                   {patient.gender === "Female" && (
                     <div className="gravida-section">
-                      {report?.femaleTests?.Gravida && (
+                      {report?.Gravida && (
                         <p>
-                          <b>G</b> {report.femaleTests.Gravida}
-                          {report?.femaleTests?.Parity && (
+                          <b>G</b> {report.Gravida}
+                          {report?.Parity && (
                             <span style={{ marginLeft: "0.5rem" }}>
-                              <b>P</b> {report.femaleTests.Parity}
+                              <b>P</b> {report.Parity}
                             </span>
                           )}
                         </p>
                       )}
-                      {report?.femaleTests?.LMP && (
+                      {report?.LMP && (
                         <p>
-                          <b>LMP:</b> {formatDate(report.femaleTests.LMP)}
+                          <b>LMP:</b> {formatDate(report.LMP)}
                         </p>
                       )}
-                      {report?.femaleTests?.EDD && (
+                      {report?.EDD && (
                         <p>
-                          <b>EDD:</b> {formatDate(report.femaleTests.EDD)}
+                          <b>EDD:</b> {formatDate(report.EDD)}
                         </p>
                       )}
-                      {report?.femaleTests?.POG && (
+                      {report?.POG && (
                         <p>
-                          <b>POG:</b> {report.femaleTests.POG}
+                          <b>POG:</b> {report.POG}
                         </p>
                       )}
-                      {report?.femaleTests?.LCB && (
+                      {report?.LCB && (
                         <p>
-                          <b>LCB:</b> {report.femaleTests.LCB}
+                          <b>LCB:</b> {report.LCB}
                         </p>
                       )}
-                      {report?.femaleTests?.MOD && (
+                      {report?.MOD && (
                         <p>
-                          <b>MOD:</b> {report.femaleTests.MOD}
+                          <b>MOD:</b> {report.MOD}
                         </p>
                       )}
                     </div>
