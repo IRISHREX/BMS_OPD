@@ -49,7 +49,7 @@ const Prescription = ({ patientId, onClose }) => {
   const [diagnosys_heading, setDiagnosys_heading] = useState("Provisional Diagnosis");
   const [complaints, setComplaints] = useState();
   const [gravida, setGravida] = useState("");
-  const [parity, setParity] = useState({ Pa: "1", Pb: "0" });
+  const [parity, setParity] = useState({ Pa: "", Pb: "" });
   const [LMP, setLMP] = useState("");
   const [EDD, setEDD] = useState("");
   const [diagnosys, setDiagnosys] = useState({
@@ -216,13 +216,26 @@ const Prescription = ({ patientId, onClose }) => {
             if (parityData) {
               setParity({ Pa: parityData.Pa || "1", Pb: parityData.Pb || "0" });
             } else {
-              setParity({ Pa: "1", Pb: "0" });
+              setParity({ Pa: r.femaleTests.Parity || "", Pb: "" });
             }
             setLMP(femaleTestData.LMP || "");
             setEDD(femaleTestData.EDD || "");
             setPOG(femaleTestData.POG || "");
           } else {
-            setParity({ Pa: "1", Pb: "0" }); // Default if no data found
+            // For backwards compatibility with old data structure
+            setGravida(r.Gravida || "");
+            // setParity({Pa: r.Parity || "", Pb: ""});
+            if (r.Parity && r.Parity.includes("+")) {
+              const [Pa, Pb] = r.Parity.split("+");
+              setParity({ Pa, Pb });
+            } else {
+              setParity({ Pa: r.Parity || "", Pb: "" });
+            }
+            setLMP(r.LMP || "");
+            setEDD(r.EDD || "");
+            setPOG(r.POG || "");
+            setLCB(r.LCB || "");
+            setMOD(r.MOD || "");
           }
           setLCB(latest.femaleTests.LCB || "");
           setMOD(latest.femaleTests.MOD || "");
