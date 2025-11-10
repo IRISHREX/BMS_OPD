@@ -148,6 +148,10 @@ const Preview = () => {
     Array.isArray(patient.report) && patient.report.length > 0
       ? patient.report[0]
       : null;
+  const femaleTests = patient.femaleTests || (report ? report.femaleTests : null);
+  const gravida = femaleTests?.Gravida || (report ? report.gravida : null);
+  const parity = femaleTests?.Parity || (report ? report.parity : null);
+
   const clinic = {
     name: doctor?.clinicName || doctor?.hospital || "",
     address: doctor?.address || "N/A",
