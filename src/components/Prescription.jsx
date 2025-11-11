@@ -43,10 +43,17 @@ const Prescription = ({ patientId, onClose }) => {
     });
     return Array.from(map.values());
   }, [symptomSuggestions]);
-  const [temp_medicalHistory, setTemp_medicalHistory] = useState(["HTN(Hypertension)","T2DM(Type-2 Diabetes Mellitus)","Hyperlipidemia","Thyroid"]);
+  const [temp_medicalHistory, setTemp_medicalHistory] = useState([
+    "HTN(Hypertension)",
+    "T2DM(Type-2 Diabetes Mellitus)",
+    "Hyperlipidemia",
+    "Thyroid",
+  ]);
   const [medicalHistory, setMedicalHistory] = useState("");
   const [clinical_findings, setClinical_findings] = useState("");
-  const [diagnosys_heading, setDiagnosys_heading] = useState("Provisional Diagnosis");
+  const [diagnosys_heading, setDiagnosys_heading] = useState(
+    "Provisional Diagnosis"
+  );
   const [complaints, setComplaints] = useState();
   const [gravida, setGravida] = useState("");
   const [parity, setParity] = useState({ Pa: "", Pb: "" });
@@ -77,6 +84,7 @@ const Prescription = ({ patientId, onClose }) => {
   ]);
   const [medicationAdvice, setMedicationAdvice] = useState("");
   const [dietAdvice, setDietAdvice] = useState("");
+  const [additionalAdvice, setAdditionalAdvice] = useState("");
   // helper: dedupe (case-insensitive) and sort lines alphabetically (case-insensitive)
   const dedupeAndSortLines = (text) => {
     if (!text) return "";
@@ -235,6 +243,7 @@ const Prescription = ({ patientId, onClose }) => {
             setLCB(r.LCB || "");
             setMOD(r.MOD || "");
           }
+          setAdditionalAdvice(r.additionalAdvice || "");
           setFollowUp(r.followUp);
           setDiagnosys(
             r.diagnosys || {
@@ -297,6 +306,7 @@ const Prescription = ({ patientId, onClose }) => {
               MOD: r.femaleTests?.MOD || "",
             },
             diagnosys: r.diagnosys || {},
+            additionalAdvice: r.additionalAdvice || "",
             followUp: r.followUp || "",
             medicineAdvice: Array.isArray(r.medicineAdvice)
               ? r.medicineAdvice
@@ -343,6 +353,7 @@ const Prescription = ({ patientId, onClose }) => {
           MOD: MOD || "",
         },
         diagnosys: diagnosys || {},
+        additionalAdvice: additionalAdvice || "",
         followUp: followUp || "",
         medicineAdvice: medicineAdvice || [],
         advice: currentAdvice,
@@ -368,6 +379,7 @@ const Prescription = ({ patientId, onClose }) => {
     testAdviceRows,
     medicationAdvice,
     dietAdvice,
+    additionalAdvice,
     followUp,
     POG,
     LCB,
@@ -918,6 +930,7 @@ const Prescription = ({ patientId, onClose }) => {
             medicalHistory,
             clinical_findings,
             diagnosys_heading,
+            additionalAdvice,
             followUp,
             presentingComplaints: complaints,
             Gravida: gravida,
@@ -964,6 +977,7 @@ const Prescription = ({ patientId, onClose }) => {
         diagnosys: diagnosys || {},
         medicineAdvice: selectedMedicines,
         advice: advSaved, // Contains selected tests
+        additionalAdvice: additionalAdvice || "",
         followUp: followUp || "",
       };
       setOriginalPayload(newSnap);
@@ -1073,7 +1087,9 @@ const Prescription = ({ patientId, onClose }) => {
                     )}
                     placeholder="P"
                   />
-                  <div style={{padding:"0.55rem", textAlign:"center"}}>+</div>
+                  <div style={{ padding: "0.55rem", textAlign: "center" }}>
+                    +
+                  </div>
                   <AutoSuggestInput
                     single
                     type="text"
@@ -1227,15 +1243,16 @@ const Prescription = ({ patientId, onClose }) => {
           </div>
           <div className="form-group">
             <label>BMI</label>
-            <input
-              value={diagnosys.BMI}
-              readOnly
-            />
+            <input value={diagnosys.BMI} readOnly />
           </div>
           <div className="form-group">
             <label>Others</label>
-            <input value={diagnosys.Others} 
-            onChange={(e) => setDiagnosys({ ...diagnosys, Others: e.target.value })} />
+            <input
+              value={diagnosys.Others}
+              onChange={(e) =>
+                setDiagnosys({ ...diagnosys, Others: e.target.value })
+              }
+            />
           </div>
         </div>
 
@@ -1260,27 +1277,28 @@ const Prescription = ({ patientId, onClose }) => {
               //   <input type="checkbox" />
               //   <span>{history}</span>
               // </div>
-              <button className="medicalHistory-btns"
-                onClick={()=>{
-                  setMedicalHistory(medicalHistory+history+",");
+              <button
+                className="medicalHistory-btns"
+                onClick={() => {
+                  setMedicalHistory(medicalHistory + history + ",");
                 }}
               >
                 {history}
               </button>
             ))}
           </div>
-            <input
-              placeholder="Enter medical history..."
-              value={medicalHistory}
-              onChange={(e) => setMedicalHistory(e.target.value)}
-            />
+          <input
+            placeholder="Enter medical history..."
+            value={medicalHistory}
+            onChange={(e) => setMedicalHistory(e.target.value)}
+          />
         </div>
         <div className="form-group">
           <label> Clinical Findings</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={clinical_findings}
-            onChange={(e)=>setClinical_findings(e.target.value)}
+            onChange={(e) => setClinical_findings(e.target.value)}
           />
         </div>
         <div>
@@ -1289,11 +1307,15 @@ const Prescription = ({ patientId, onClose }) => {
               <select
                 style={{ padding: "0", border: "none", fontSize: "1rem" }}
                 value={diagnosys_heading}
-                onChange={(e)=> setDiagnosys_heading(e.target.value)}
+                onChange={(e) => setDiagnosys_heading(e.target.value)}
               >
-                <option value="Provisional Diagnosis">Provisional Diagnosis</option>
+                <option value="Provisional Diagnosis">
+                  Provisional Diagnosis
+                </option>
                 <option value="Diagnosis">Diagnosis</option>
-                <option value="Diffential Diagnosis">Diffential Diagnosis</option>
+                <option value="Diffential Diagnosis">
+                  Diffential Diagnosis
+                </option>
               </select>
             </label>
             <div
@@ -1366,7 +1388,7 @@ const Prescription = ({ patientId, onClose }) => {
                         : item || "";
                     // Replace last partial token (if present) or append selected label as a new token.
                     // AutoSuggestInput already updated the value via onChange. Just ensure trailing comma and space.
-                    setInitialComplain(newVal.trim() );
+                    setInitialComplain(newVal.trim());
                     setComplaintSuggestions([]);
                     // track selected complaints list (preserve old behavior)
                     setSelectedComplaints((prev) => {
@@ -1703,16 +1725,16 @@ const Prescription = ({ patientId, onClose }) => {
                       }}
                     />
                     <button
-                    type="button"
-                    className="remove-btn"
-                    onClick={() => {
-                      const copy = [...medicineAdvice];
-                      copy.splice(idx, 1);
-                      setMedicineAdvice(copy);
-                    }}
-                  >
-                    Remove
-                  </button>
+                      type="button"
+                      className="remove-btn"
+                      onClick={() => {
+                        const copy = [...medicineAdvice];
+                        copy.splice(idx, 1);
+                        setMedicineAdvice(copy);
+                      }}
+                    >
+                      Remove
+                    </button>
                   </div>
                 ))}
                 <div className="medicine-actions">
@@ -1751,7 +1773,7 @@ const Prescription = ({ patientId, onClose }) => {
 
         <div>
           <div className="form-row" style={{ marginBottom: 12 }}>
-            {["Test Advice", "Additional Advice"].map((testType, index) => (
+            {["Test Advice"].map((testType, index) => (
               <label key={index} style={{ marginRight: "1rem" }}>
                 <input
                   type="checkbox"
@@ -1914,9 +1936,9 @@ const Prescription = ({ patientId, onClose }) => {
             </div>
           )}
           {/* Medication Advice Textarea */}
-          {selectedTestTypes.includes("Additional Advice") && (
+          {/* {selectedTestTypes.includes("Medication") && (
             <div className="form-group full-width">
-              <label>Additional Advice</label>
+              <label>Medication Advice</label>
               <textarea
                 value={medicationAdvice}
                 onChange={(e) => setMedicationAdvice(e.target.value)}
@@ -1924,7 +1946,7 @@ const Prescription = ({ patientId, onClose }) => {
                 rows={2}
               />
             </div>
-          )}
+          )} */}
           {/* Diet Advice Textarea */}
           {/* {selectedTestTypes.includes("Diet") && (
             <div className="form-group full-width">
@@ -1938,6 +1960,17 @@ const Prescription = ({ patientId, onClose }) => {
             </div>
           )} */}
         </div>
+
+        <div className="form-group full-width">
+          <label>Additional Advice</label>
+          <textarea
+            value={additionalAdvice}
+            onChange={(e) => setAdditionalAdvice(e.target.value)}
+            placeholder="Enter additional advice..."
+            rows={2}
+          />
+        </div>
+
         {/* <div className="form-row"> */}
         <div className="form-group" style={{ margin: "2rem 0" }}>
           <label>Next Follow-up Date</label>

@@ -391,11 +391,11 @@ const Preview = () => {
                 </div>
 
                 <div className="seal">
-                  {report?.advice?.medication && (
+                  {report?.additionalAdvice && (
                     <div className="advice-section">
                       <p>
                         <b>Additional Advice:</b>
-                        {report.advice.medication}
+                        {report.additionalAdvice}
                       </p>
                     </div>
                   )}
