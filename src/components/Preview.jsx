@@ -150,7 +150,7 @@ const Preview = () => {
       : null;
   const clinic = {
     name: doctor?.clinicName || doctor?.hospital || "",
-    address: doctor?.address || "N/A",
+    address: doctor?.qualifications || "MBBS",
     contact: doctor?.phone || doctor?.email || "",
   };
   const medicines = Array.isArray(report?.medicineAdvice)
@@ -187,7 +187,7 @@ const Preview = () => {
                       ? `Dr. ${doctor.firstName || ""} ${doctor.lastName || ""}`
                       : clinic.name || "Doctor"}
                   </h2>
-                  <p>{clinic.address}</p>
+                  <p className="Doc-qualifications">{clinic.address}</p>
                 </div>
               </div>
 

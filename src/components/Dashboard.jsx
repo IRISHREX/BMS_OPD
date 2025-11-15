@@ -232,14 +232,48 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    let filtered = appointments;
+    let filtered = (appointments || []).filter((appointment) => {
+      try {
+        // Filter by selected doctor
+        if (selectedDoctorId && appointment.doctorId !== selectedDoctorId) {
+          return false;
+        }
 
-    if (selectedDoctorId) {
-      filtered = filtered.filter(
-        (appointment) => appointment.doctorId === selectedDoctorId
-      );
-    }
+        const apptDate = new Date(appointment.appointment_date);
+        const apptYmd = apptDate.toLocaleDateString("en-CA");
+        const today = new Date();
+        const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const todayYmd = startOfToday.toLocaleDateString("en-CA");
 
+        // Filter by dropdown
+        if (filterOption === "Today" && apptYmd !== todayYmd) return false;
+        if (filterOption === "Old" && apptYmd >= todayYmd) return false;
+        if (filterOption === "Upcoming" && apptYmd <= todayYmd) return false;
+        if (filterOption === "Custom" && customStart && customEnd) {
+          const start = new Date(customStart + "T00:00:00");
+          const end = new Date(customEnd + "T23:59:59");
+          if (apptDate < start || apptDate > end) return false;
+        }
+
+        // Search term across name, phone and date
+        if (searchTerm && searchTerm.trim() !== "") {
+          const q = searchTerm.toLowerCase();
+          const name = (appointment.name || `${appointment.firstName || ""} ${appointment.lastName || ""}`).toLowerCase();
+          const phone = (appointment.phone || appointment.mobile || appointment.patientPhone || "").toString().toLowerCase();
+          const dateStr = (appointment.appointment_date || "").toString().toLowerCase();
+          if (!name.includes(q) && !phone.includes(q) && !dateStr.includes(q)) {
+            return false;
+          }
+        }
+
+        return true;
+      } catch (err) {
+        // If any error occurs during filtering (e.g., invalid date), include the item by default
+        return true;
+      }
+    });
+
+    // After all filters are applied, set the state
     setFilteredAppointments(filtered);
   }, [appointments, selectedDoctorId, searchTerm, filterOption, customStart, customEnd]);
 
@@ -471,8 +505,7 @@ const Dashboard = () => {
               </thead>
               <tbody>
                 {filteredAppointments && filteredAppointments.length > 0
-                    ? filteredAppointments.filter((appointment) => { try { const apptDate = new Date( appointment.appointment_date ); const apptYmd = apptDate.toLocaleDateString("en-CA")
-                       const today = new Date(); const startOfToday = new Date( today.getFullYear(), today.getMonth(), today.getDate() ); const todayYmd = startOfToday.toLocaleDateString("en-CA"); if (filterOption === "Today") { if (apptYmd !== todayYmd) return false; } else if (filterOption === "Old") { if (apptYmd >= todayYmd) return false; } else if (filterOption === "Upcoming") { if (apptYmd <= todayYmd) return false; } else if (filterOption === "Custom") { if (customStart && customEnd) { const start = new Date( customStart + "T00:00:00" ); const end = new Date(customEnd + "T23:59:59"); if (apptDate < start || apptDate > end) return false; } } if (searchTerm && searchTerm.trim() !== "") { const q = searchTerm.toLowerCase(); const name = ( appointment.name || `${appointment.firstName || ""} ${ appointment.lastName || "" }` ).toLowerCase(); const phone = ( appointment.phone || appointment.mobile || appointment.patientPhone || "" ) .toString() .toLowerCase(); const dateStr = ( appointment.appointment_date || "" ) .toString() .toLowerCase(); if ( !name.includes(q) && !phone.includes(q) && !dateStr.includes(q) ) { return false; } } return true; } catch (err) { return true; } }).map((appointment) => (
+                    ? filteredAppointments.map((appointment) => (
                         <tr key={appointment._id}>
                           <td>
                             <input

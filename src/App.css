@@ -329,7 +329,7 @@ body {
   .dashboard .banner:first-child .firstBox div { justify-content:center }
 }
 
-.sidebar { position:fixed; width:6.5rem; background:var(--sidebar-bg, transparent); display:flex; flex-direction:column; justify-content:center; top:0; left:0; height:100%; align-items:center; color:var(--text-main); padding:4.375rem 0; transition: 0.3s; }
+.sidebar { position:fixed; width:6.5rem; background:var(--sidebar-bg, var(--bg-card)); display:flex; flex-direction:column; justify-content:center; top:0; left:0; height:100%; align-items:center; color:var(--text-main); padding:4.375rem 0; transition: 0.3s; z-index:1100; }
 .sidebar svg { width:3.125rem; height:3.125rem; font-size:2.125rem }
 .sidebar svg:hover { background:var(--bg-card); color:var(--accent); border-radius:0.5rem; transition:0.3s; cursor:pointer }
 .sidebar .links { display:flex; flex-direction:column; gap:1.875rem }
@@ -354,6 +354,7 @@ body {
   border-radius: 0.5rem; /*8px*/
   justify-content: center;
   align-items: center;
+  z-index: 1101;
 }
 .wrapper .hamburger { display:block }
 .show { left: 0; transition: 0.3s }

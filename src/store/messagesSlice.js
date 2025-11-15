@@ -2,10 +2,17 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const messagesSlice = createSlice({
   name: 'messages',
-  initialState: { messages: [], counts: { total:0, read:0, unread:0 }, page:1, totalPages:1, loading:false, error:null },
+  initialState: { messages: [], doctors: [], counts: { total:0, read:0, unread:0 }, page:1, totalPages:1, loading:false, error:null },
   reducers: {
     fetchMessagesRequest(state, action) { state.loading = true; state.error = null; },
-    fetchMessagesSuccess(state, action) { state.loading = false; Object.assign(state, action.payload); },
+    fetchMessagesSuccess(state, action) {
+      state.loading = false;
+      state.messages = action.payload.messages;
+      state.doctors = action.payload.doctors || [];
+      state.counts = action.payload.counts;
+      state.page = action.payload.page;
+      state.totalPages = action.payload.totalPages;
+    },
     fetchMessagesFailure(state, action) { state.loading = false; state.error = action.payload; },
     setMessages: (state, action) => {
       state.messages = action.payload.messages;
