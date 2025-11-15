@@ -1,11 +1,8 @@
 import React, { useContext, useState } from "react";
 import { TiHome } from "react-icons/ti";
 import { RiLogoutBoxFill } from "react-icons/ri";
-import { AiFillMessage } from "react-icons/ai";
-import { BiBarChart } from "react-icons/bi";
+import { FaBell, FaRegFileAlt, FaUserMd, FaUserNurse, FaUserPlus } from "react-icons/fa";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { FaUserDoctor } from "react-icons/fa6";
-import { FaUserNurse, FaUserPlus } from "react-icons/fa";
 import { IoPersonAddSharp } from "react-icons/io5";
 // import { FaPrescription } from "react-icons/fa6";
 import { IoMdSettings } from "react-icons/io";
@@ -97,7 +94,7 @@ const Sidebar = () => {
         <div className="links">
           <TiHome onClick={gotoHomePage} />
           {/* Doctors & Admin can view doctors list */}
-          {(role === 'Admin' || role === 'Doctor') && <FaUserDoctor onClick={gotoDoctorsPage} />}
+          {(role === 'Admin' || role === 'Doctor') && <FaUserMd onClick={gotoDoctorsPage} title="Doctors" />}
           {/* Admin and Doctor can create compounder */}
           {(role === 'Admin' || role === 'Doctor') && (
             <>
@@ -108,8 +105,8 @@ const Sidebar = () => {
           {/* Only Admin can add new doctors */}
           {role === 'Admin' && <IoPersonAddSharp onClick={gotoAddNewDoctor} />}
           {/* Messages and Prescriptions available to Admin, Doctor, Compounder */}
-          {(["Admin","Doctor","Compounder"].includes(role)) && <AiFillMessage onClick={gotoMessagesPage} />}
-          {(["Admin","Doctor","Compounder"].includes(role)) && <BiBarChart onClick={gotoReportsPage} />}
+          {(["Admin","Doctor","Compounder"].includes(role)) && <FaBell onClick={gotoMessagesPage} title="Messages" />}
+          {(["Admin","Doctor","Compounder"].includes(role)) && <FaRegFileAlt onClick={gotoReportsPage} title="Reports" />}
           {/* {(["Admin","Doctor","Compounder"].includes(role)) && <FaPrescription onClick={prescriptionPage} />} */}
           {/* Settings: Admin and Doctor have access to settings */}
           {(["Admin","Doctor"].includes(role)) && <IoMdSettings onClick={gotoSettingsPage} />}

@@ -954,7 +954,8 @@ const Prescription = ({ patientId, onClose }) => {
           lastName: "Notification",
           email: doctorContact.includes("@") ? doctorContact : "",
           phone: doctorContact.includes("@") ? "01234567891" : doctorContact,
-          message: `Prescription completed for patient NIC: ${nic}`,
+          message: `Prescription completed for patient NIC: ${nic} -
+           🌐download link: ${window.location.origin}/preview/${patientId}`,
         });
       }
       toast.success("Prescription saved");

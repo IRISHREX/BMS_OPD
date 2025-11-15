@@ -42,7 +42,49 @@ const MessageCard = ({
           <span>{message.firstName} {message.lastName}</span>
           <span className="message-contact">{message.email} • {message.phone}</span>
         </div>
-        <p className="message-body">{message.message}</p>
+        <p className="message-body">
+          {(() => {
+            const text = message.message || '';
+            const elements = [];
+            const regex = /((?:https?:\/\/|www\.)[^\s]+)/gi;
+            let lastIndex = 0;
+            let match;
+
+            const pushText = (s) => {
+              if (!s) return;
+              const parts = s.split('\n');
+              parts.forEach((part, idx) => {
+                elements.push(part);
+                if (idx < parts.length - 1) {
+                  elements.push(<br key={`br-${elements.length}`} />);
+                }
+              });
+            };
+
+            while ((match = regex.exec(text)) !== null) {
+              const idx = match.index;
+              if (idx > lastIndex) {
+                pushText(text.substring(lastIndex, idx));
+              }
+              let url = match[0];
+              const href = /^https?:\/\//i.test(url) ? url : `http://${url}`;
+              elements.push(
+                <a key={`link-${elements.length}`} href={href} target="_blank" rel="noopener noreferrer">
+                  {match[0]}
+                </a>
+              );
+              lastIndex = idx + match[0].length;
+            }
+
+            if (lastIndex < text.length) {
+              pushText(text.substring(lastIndex));
+            }
+
+            // Fallback: if nothing parsed, show the raw text
+            if (elements.length === 0) return text;
+            return elements.map((el, i) => (typeof el === 'string' ? <span key={`t-${i}`}>{el}</span> : el));
+          })()}
+        </p>
         {message.recipient && (
           <p className="message-recipient">
             To: {message.recipient.firstName} {message.recipient.lastName}
