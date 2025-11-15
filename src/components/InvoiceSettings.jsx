@@ -12,6 +12,8 @@ const InvoiceSettings = () => {
   const [filters, setFilters] = useState({ patient:'', doctor:'', appointment:'', status:'' });
   const [form, setForm] = useState({ invoiceNumber: '', patient: '', appointment: '', doctor:'', items: [], tax:0, discount:0, dueDate: '', status: 'Pending' });
   const [editing, setEditing] = useState(null);
+  const [doctors, setDoctors] = useState([]);
+  const [dashboardUser, setDashboardUser] = useState(null);
 
   const fetchInvoices = async (opts={}) => {
     setLoading(true);
@@ -24,7 +26,42 @@ const InvoiceSettings = () => {
     finally { setLoading(false); }
   };
 
-  useEffect(()=>{ fetchInvoices({ page:1 }); }, []);
+  useEffect(() => {
+    // fetch current user
+    (async () => {
+      try {
+        const { data: userRes } = await api.get('/api/v1/user/dashboard/me');
+        setDashboardUser(userRes.user);
+      } catch (e) {
+        setDashboardUser(null);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    // load doctors for filter
+    (async () => {
+      try {
+        const { data } = await api.get("/api/v1/user/doctors");
+        let allDoctors = data.doctors || [];
+        // Role-based filtering
+        if (dashboardUser) {
+          if (dashboardUser.role === 'Doctor') {
+            allDoctors = allDoctors.filter(doc => doc._id === dashboardUser._id);
+            setFilters(f => ({ ...f, doctor: dashboardUser._id }));
+          } else if (dashboardUser.role === 'Compounder') {
+            allDoctors = allDoctors.filter(doc => (dashboardUser.assignedDoctors || []).includes(doc._id));
+            if (allDoctors.length > 0) setFilters(f => ({ ...f, doctor: allDoctors[0]._id }));
+          }
+        }
+        setDoctors(allDoctors);
+      } catch (e) {
+        setDoctors([]);
+      }
+    })();
+  }, [dashboardUser]);
+
+  useEffect(()=>{ fetchInvoices({ page:1 }); }, [filters.doctor]);
 
   const handleSearch = async () => { setPage(1); fetchInvoices({ page:1 }); };
 
@@ -98,7 +135,18 @@ const InvoiceSettings = () => {
           <div style={{ display:'flex', gap:8, marginBottom:8 }}>
             <input placeholder="Search q" value={query} onChange={e=>setQuery(e.target.value)} />
             <input placeholder="Patient ID" value={filters.patient} onChange={e=>setFilters({...filters, patient: e.target.value})} />
-            <input placeholder="Doctor ID" value={filters.doctor} onChange={e=>setFilters({...filters, doctor: e.target.value})} />
+            <label>Doctor:
+              <select
+                value={filters.doctor}
+                onChange={e => setFilters(f => ({ ...f, doctor: e.target.value }))}
+                disabled={dashboardUser && dashboardUser.role === 'Doctor'}
+              >
+                {dashboardUser && dashboardUser.role === 'Admin' && (
+                  <option value="">All</option>
+                )}
+                {doctors.map(d => <option key={d._id} value={d._id}>{d.firstName} {d.lastName}</option>)}
+              </select>
+            </label>
             <button onClick={handleSearch}>Search</button>
           </div>
           <div style={{ maxHeight: '60vh', overflowY: 'auto', border: '1px solid #eee', padding:8 }}>

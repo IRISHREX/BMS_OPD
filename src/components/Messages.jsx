@@ -229,6 +229,7 @@ import React, {
   
     return (
       <section className="messages-container">
+        <div className="messages-body">
         <div className="messages-header">
           <h1>Messages</h1>
           <button onClick={() => setShowComposeModal(true)} className="btn btn-primary">
@@ -294,6 +295,7 @@ import React, {
             <p>Try adjusting your filters or clearing the search.</p>
           </div>
         )}
+        </div>
       </section>
     );
   };

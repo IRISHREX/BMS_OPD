@@ -7,6 +7,7 @@ import api from "../utils/api";
 import { toast } from "react-toastify";
 import { GoCheckCircleFill } from "react-icons/go";
 import { AiFillCloseCircle } from "react-icons/ai";
+import { FaUserMd, FaUsers } from 'react-icons/fa';
 import Prescription from "./Prescription";
 import Modal from "react-modal";
 import { FaTrash } from "react-icons/fa";
@@ -30,6 +31,11 @@ const Dashboard = () => {
   const [doctors, setDoctors] = useState([]); // For total count card
   const [doctorFilterList, setDoctorFilterList] = useState([]); // For dropdown
   const [filteredAppointments, setFilteredAppointments] = useState([]);
+  
+  const fmt = (n) => {
+    const v = Number(n) || 0;
+    return v.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  };
   // Modal and prescription state
   const [prescriptionModalOpen, setPrescriptionModalOpen] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
@@ -57,6 +63,64 @@ const Dashboard = () => {
     window.addEventListener('appointments:updated', onUpdated);
     return () => window.removeEventListener('appointments:updated', onUpdated);
   }, []);
+
+  // Role-limited metrics
+  const metrics = React.useMemo(() => {
+    const now = new Date();
+    const todayYmd = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toLocaleDateString('en-CA');
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+    const getDoctorId = (appt) => {
+      if (!appt) return null;
+      if (appt.doctor && (appt.doctor._id || appt.doctor.id)) return String(appt.doctor._id || appt.doctor.id);
+      if (appt.doctorId) return String(appt.doctorId);
+      return null;
+    };
+
+    const isVisible = (appt) => {
+      if (!admin || !admin.role) return true;
+      if (admin.role === 'Admin') return true;
+      if (admin.role === 'Doctor') return String(getDoctorId(appt)) === String(admin._id);
+      if (admin.role === 'Compounder') {
+        const assigned = (admin.assignedDoctors || []).map(d => String(d._id || d));
+        return assigned.includes(String(getDoctorId(appt)));
+      }
+      return true;
+    };
+
+    let patientsToday = new Set();
+    let paidToday = 0;
+    let patientsMonth = new Set();
+    let paidMonth = 0;
+
+    (appointments || []).forEach((a) => {
+      try {
+        if (!isVisible(a)) return;
+        const d = new Date(a.appointment_date);
+        const ymd = d.toLocaleDateString('en-CA');
+        const price = Number(a.price || a.feesAmount || a.amount || 0) || 0;
+        const paid = String(a.paymentStatus || '').toLowerCase() === 'paid';
+
+        if (ymd === todayYmd) {
+          if (a.patientId) patientsToday.add(String(a.patientId));
+          if (paid) paidToday += price;
+        }
+
+        if (d >= monthStart && d <= monthEnd) {
+          if (a.patientId) patientsMonth.add(String(a.patientId));
+          if (paid) paidMonth += price;
+        }
+      } catch (e) {}
+    });
+
+    return {
+      patientsViewedToday: patientsToday.size,
+      paidToday,
+      patientsThisMonth: patientsMonth.size,
+      paidThisMonth: paidMonth,
+    };
+  }, [appointments, admin]);
 
   const handleUpdatePaymentStatus = async (appointmentId, paymentStatus) => {
     try {
@@ -310,8 +374,43 @@ const Dashboard = () => {
             <h3>{doctors.length}</h3>
           </div>
         </div>
+  {/* Role-based quick metrics */}
+  <div style={{ display: 'flex', gap: 12, margin: '16px 0', alignItems: 'stretch' }}>
+    <div style={{ display: 'flex', gap: 12, alignItems: 'center', padding: 16, background: 'linear-gradient(90deg,#f7f9ff,#eef6ff)', borderRadius: 12, boxShadow: '0 6px 18px rgba(6,30,70,0.06)', flex: 1 }}>
+      <div style={{ width: 64, height: 64, borderRadius: 12, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(6,30,70,0.08)' }}>
+        <FaUserMd size={28} color="#0859af" />
+      </div>
+      <div style={{ flex: 1 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <p style={{ margin: 0, color: '#0f1724', fontSize: 14, fontWeight: 600 }}>Patients Viewed Today</p>
+          <div style={{ color: '#22c55e', fontWeight: 700 }}>{metrics.patientsViewedToday}</div>
+        </div>
+        <div style={{ marginTop: 6, color: '#475569', fontSize: 13 }}>
+          <span style={{ marginRight: 8, color: '#64748b' }}>Paid today</span>
+          <strong style={{ color: '#0f1724' }}>₹{fmt(metrics.paidToday)}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div style={{ display: 'flex', gap: 12, alignItems: 'center', padding: 16, background: 'linear-gradient(90deg,#fff7f6,#fff1ef)', borderRadius: 12, boxShadow: '0 6px 18px rgba(70,6,6,0.04)', flex: 1 }}>
+      <div style={{ width: 64, height: 64, borderRadius: 12, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(70,6,6,0.04)' }}>
+        <FaUsers size={28} color="#b91c1c" />
+      </div>
+      <div style={{ flex: 1 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <p style={{ margin: 0, color: '#0f1724', fontSize: 14, fontWeight: 600 }}>Patients This Month</p>
+          <div style={{ color: '#b91c1c', fontWeight: 700 }}>{metrics.patientsThisMonth}</div>
+        </div>
+        <div style={{ marginTop: 6, color: '#475569', fontSize: 13 }}>
+          <span style={{ marginRight: 8, color: '#64748b' }}>Paid this month</span>
+          <strong style={{ color: '#0f1724' }}>₹{fmt(metrics.paidThisMonth)}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
   {/* Reports summary (today/month/total) */}
-  <Reports appointments={appointments} />
+  <Reports appointments={appointments} showSummary={false} />
 
         {/* Middle banner / navbar-like filter area */}
         <div className="banner middle-banner">

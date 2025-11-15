@@ -5,7 +5,7 @@ const formatCurrency = (v) => {
   return n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 };
 
-const Reports = ({ appointments = [] }) => {
+const Reports = ({ appointments = [], showSummary = true }) => {
   const now = new Date();
 
   const { todayCount, monthCount, todayPayments, monthPayments } = useMemo(() => {
@@ -44,6 +44,8 @@ const Reports = ({ appointments = [] }) => {
       monthPayments: mPay,
     };
   }, [appointments]);
+
+  if (!showSummary) return null;
 
   return (
     <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>

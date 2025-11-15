@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { useSelector } from 'react-redux';
 import api from "../utils/api";
 import "./ReportsPage.css";
 import ReportRow from "./ReportRow";
@@ -41,6 +42,7 @@ const ReportsPage = () => {
   const [groupBy, setGroupBy] = useState("day");
   const [doctorId, setDoctorId] = useState("");
   const [doctors, setDoctors] = useState([]);
+  const [dashboardUser, setDashboardUser] = useState(null);
   const [includeAppointments, setIncludeAppointments] = useState(true);
 
   const [totals, setTotals] = useState({ paid: 0, totalDue: 0, invoiced: 0 });
@@ -62,16 +64,39 @@ const ReportsPage = () => {
   const [playSettledSound] = useSound("/settled.mp3");
 
   useEffect(() => {
+    // fetch current user
+    (async () => {
+      try {
+        const { data: userRes } = await api.get('/api/v1/user/dashboard/me');
+        setDashboardUser(userRes.user);
+      } catch (e) {
+        setDashboardUser(null);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
     // load doctors for filter
     (async () => {
       try {
         const { data } = await api.get("/api/v1/user/doctors");
-        setDoctors(data.doctors || []);
+        let allDoctors = data.doctors || [];
+        // Role-based filtering
+        if (dashboardUser) {
+          if (dashboardUser.role === 'Doctor') {
+            allDoctors = allDoctors.filter(doc => doc._id === dashboardUser._id);
+            setDoctorId(dashboardUser._id);
+          } else if (dashboardUser.role === 'Compounder') {
+            allDoctors = allDoctors.filter(doc => (dashboardUser.assignedDoctors || []).includes(doc._id));
+            if (allDoctors.length > 0) setDoctorId(allDoctors[0]._id);
+          }
+        }
+        setDoctors(allDoctors);
       } catch (e) {
         setDoctors([]);
       }
     })();
-  }, []);
+  }, [dashboardUser]);
 
   const fetchSummary = async (opts = {}) => {
     setLoading(true);
@@ -395,8 +420,11 @@ const ReportsPage = () => {
                 <select
                   value={doctorId}
                   onChange={(e) => setDoctorId(e.target.value)}
+                  disabled={dashboardUser && dashboardUser.role === 'Doctor'}
                 >
-                  <option value="">All</option>
+                  {dashboardUser && dashboardUser.role === 'Admin' && (
+                    <option value="">All</option>
+                  )}
                   {doctors.map((d) => (
                     <option key={d._id} value={d._id}>
                       {d.firstName} {d.lastName}
@@ -452,19 +480,20 @@ const ReportsPage = () => {
             Paid: {fmt(totals.paid)} • Due: {fmt(totals.totalDue)}
           </small>
         </div>
-
-        <div className="card">
-          <p className="label">Patients This Period</p>
-          <h2 className="value">{patientsThisMonth}</h2>
-          <small>Total Appointments: {totalAppointments}</small>
-        </div>
-
-        <div className="card">
-          <p className="label">Groups</p>
-          <h2 className="value">{groups.length}</h2>
-          <small>Periods shown</small>
-        </div>
-
+        {dashboardUser && dashboardUser.role === 'Admin' && (
+          <>
+            <div className="card">
+              <p className="label">Patients This Period</p>
+              <h2 className="value">{patientsThisMonth}</h2>
+              <small>Total Appointments: {totalAppointments}</small>
+            </div>
+            <div className="card">
+              <p className="label">Groups</p>
+              <h2 className="value">{groups.length}</h2>
+              <small>Periods shown</small>
+            </div>
+          </>
+        )}
         <div className="card">
           <p className="label">Last Refreshed</p>
           <h2 className="value">{new Date().toLocaleDateString("CA")}</h2>
@@ -506,6 +535,7 @@ const ReportsPage = () => {
                 <th>AppointmentId</th>
                 <th>Date</th>
                 <th>Doctor</th>
+                <th>Patient</th>
                 <th>Amount</th>
                 <th>Paid</th>
                 <th>Due</th>
@@ -536,6 +566,13 @@ const ReportsPage = () => {
                           r.doctorId.lastName || ""
                         }`
                       : r.doctorId || ""}
+                  </td>
+                  <td>
+                    {r.patientId && (r.patientId.firstName || r.patientId.name)
+                      ? `${r.patientId.firstName || r.patientId.name} ${
+                          r.patientId.lastName || ""
+                        }`
+                      : r.patientId || ""}
                   </td>
                   <td>{fmt(r.amount)}</td>
                   <td>{fmt(r.paid || r.revenue)}</td>
@@ -597,7 +634,7 @@ const ReportsPage = () => {
               ))}
               {(!reportEntries || reportEntries.length === 0) && (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: "center", padding: 16 }}>
+                  <td colSpan={9} style={{ textAlign: "center", padding: 16 }}>
                     No report entries found
                   </td>
                 </tr>
