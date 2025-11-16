@@ -11,13 +11,12 @@ import api from "../utils/api";
 import { toast } from "react-toastify";
 import { Context } from "../main";
 import { useNavigate } from "react-router-dom";
+import RequirePermission from "./RequirePermission";
 
 const Sidebar = () => {
   const [show, setShow] = useState(false);
 
   const { isAuthenticated, setIsAuthenticated } = useContext(Context);
-  const { admin } = useContext(Context);
-  const role = admin?.role || admin?.userRole || 'Admin';
 
   const handleLogout = async () => {
     try {
@@ -49,41 +48,22 @@ const Sidebar = () => {
 
   const navigateTo = useNavigate();
 
-  const gotoHomePage = () => {
-    navigateTo("/");
+  const createNavAction = (path) => () => {
+    navigateTo(path);
     setShow(!show);
   };
-  const gotoDoctorsPage = () => {
-    navigateTo("/doctors");
-    setShow(!show);
+
+  const navActions = {
+    home: createNavAction("/"),
+    doctors: createNavAction("/doctors"),
+    messages: createNavAction("/messages"),
+    reports: createNavAction("/reports"),
+    addNewDoctor: createNavAction("/doctor/addnew"),
+    addNewHelper: createNavAction("/helper/addnew"),
+    compounders: createNavAction("/compounders"),
+    settings: createNavAction("/settings"),
   };
-  const gotoMessagesPage = () => {
-    navigateTo("/messages");
-    setShow(!show);
-  };
-  const gotoReportsPage = () => {
-    navigateTo('/reports');
-    setShow(!show);
-  }
-  const gotoAddNewDoctor = () => {
-    navigateTo("/doctor/addnew");
-    setShow(!show);
-  };
-  const gotoAddNewAdmin = () => {
-    navigateTo("/helper/addnew");
-    setShow(!show);
-  };
-  const gotoCompoundersPage = () => {
-    navigateTo('/compounders');
-    setShow(!show);
-  }
-  // const prescriptionPage = () => {
-  //   navigateTo("/prescription");
-  // }
-  const gotoSettingsPage = () => {
-    navigateTo("/settings");
-    setShow(!show);
-  }
+
 
   return (
     <>
@@ -92,25 +72,31 @@ const Sidebar = () => {
         className={show ? "show sidebar" : "sidebar"}
       >
         <div className="links">
-          <TiHome onClick={gotoHomePage} />
-          {/* Doctors & Admin can view doctors list */}
-          {(role === 'Admin' || role === 'Doctor') && <FaUserMd onClick={gotoDoctorsPage} title="Doctors" />}
-          {/* Admin and Doctor can create compounder */}
-          {(role === 'Admin' || role === 'Doctor') && (
-            <>
-              <FaUserPlus onClick={gotoAddNewAdmin} title="Create Compounder" />
-              <FaUserNurse onClick={gotoCompoundersPage} title="Compounders" />
-            </>
-          )}
-          {/* Only Admin can add new doctors */}
-          {role === 'Admin' && <IoPersonAddSharp onClick={gotoAddNewDoctor} />}
-          {/* Messages and Prescriptions available to Admin, Doctor, Compounder */}
-          {(["Admin","Doctor","Compounder"].includes(role)) && <FaBell onClick={gotoMessagesPage} title="Messages" />}
-          {(["Admin","Doctor","Compounder"].includes(role)) && <FaRegFileAlt onClick={gotoReportsPage} title="Reports" />}
-          {/* {(["Admin","Doctor","Compounder"].includes(role)) && <FaPrescription onClick={prescriptionPage} />} */}
-          {/* Settings: Admin and Doctor have access to settings */}
-          {(["Admin","Doctor"].includes(role)) && <IoMdSettings onClick={gotoSettingsPage} />}
-          <RiLogoutBoxFill onClick={handleLogout} />
+          <TiHome onClick={navActions.home} title="Dashboard" />
+          
+          <RequirePermission allowedRoles={["Admin", "Doctor"]}>
+            <FaUserMd onClick={navActions.doctors} title="Doctors" />
+          </RequirePermission>
+
+          <RequirePermission allowedRoles={["Admin", "Doctor"]}>
+            <FaUserPlus onClick={navActions.addNewHelper} title="Create Compounder" />
+            <FaUserNurse onClick={navActions.compounders} title="Compounders" />
+          </RequirePermission>
+
+          <RequirePermission allowedRoles={["Admin"]}>
+            <IoPersonAddSharp onClick={navActions.addNewDoctor} title="Add New Doctor" />
+          </RequirePermission>
+
+          <RequirePermission allowedRoles={["Admin", "Doctor", "Compounder"]}>
+            <FaBell onClick={navActions.messages} title="Messages" />
+            <FaRegFileAlt onClick={navActions.reports} title="Reports" />
+          </RequirePermission>
+
+          <RequirePermission allowedRoles={["Admin", "Doctor"]}>
+            <IoMdSettings onClick={navActions.settings} title="Settings" />
+          </RequirePermission>
+
+          <RiLogoutBoxFill onClick={handleLogout} title="Logout" />
         </div>
       </nav>
       <div
