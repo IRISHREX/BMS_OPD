@@ -66,9 +66,6 @@
   font-size: 2.2rem;
   min-width: 3rem;
 }
-.settings-card-body {
-  /* min-height: auto; */
-}
 .settings-card-body h3 {
   margin: 0 0 0.25rem 0;
   font-size: 1rem;
@@ -277,11 +274,96 @@
   width: 480px;
   height: 100%;
   background: var(--bg-card);
-  box-shadow: -4px 0 12px rgba(0,0,0,0.08);
+  box-shadow: -4px 0 12px rgba(0,0,0,0.15);
   padding: 20px;
   z-index: 1100;
   overflow-y: auto;
   transition: transform 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  resize: horizontal;
+  min-width: 350px;
+  max-width: 90vw;
+}
+
+/* Left edge drag handle for resizing */
+.edit-drawer::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  background: linear-gradient(90deg, rgba(79, 70, 229, 0.15), transparent);
+  transition: background 0.2s;
+}
+
+.edit-drawer:hover::before {
+  background: linear-gradient(90deg, rgba(79, 70, 229, 0.35), transparent);
+}
+
+.medicine-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.medicine-form label {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+  display: block;
+  font-size: 0.9rem;
+}
+
+.medicine-form input,
+.medicine-form textarea {
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #fff;
+}
+
+.medicine-form input:focus,
+.medicine-form textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.medicine-form h4 {
+  margin-top: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  font-size: 1rem;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.6rem;
+}
+
+.medicine-form > div[style*="display: flex"][style*="gap"] {
+  display: flex !important;
+  gap: 8px !important;
+  align-items: flex-start;
+  padding: 12px;
+  background: var(--bg-hover);
+  border-radius: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.medicine-form > div[style*="display: flex"][style*="gap"] input {
+  flex: 1;
+  min-width: 100px;
+}
+
+.medicine-form > div[style*="display: flex"][style*="gap"] button {
+  padding: 0.6rem 0.9rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* --- Responsive Design --- */

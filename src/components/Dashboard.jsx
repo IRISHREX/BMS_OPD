@@ -17,7 +17,7 @@ import { RiCalendarScheduleFill } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
 import { IoReceipt } from "react-icons/io5";
 import useSound from "use-sound";
-// import Doctors from "./Doctors";
+import "./Dashboard.css";
 
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
@@ -375,35 +375,35 @@ const Dashboard = () => {
           </div>
         </div>
   {/* Role-based quick metrics */}
-  <div style={{ display: 'flex', gap: 12, margin: '16px 0', alignItems: 'stretch' }}>
-    <div style={{ display: 'flex', gap: 12, alignItems: 'center', padding: 16, background: 'linear-gradient(90deg,#f7f9ff,#eef6ff)', borderRadius: 12, boxShadow: '0 6px 18px rgba(6,30,70,0.06)', flex: 1 }}>
-      <div style={{ width: 64, height: 64, borderRadius: 12, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(6,30,70,0.08)' }}>
+  <div className="dashboard-metrics-container">
+    <div className="dashboard-metric-card blue">
+      <div className="dashboard-metric-icon">
         <FaUserMd size={28} color="#0859af" />
       </div>
-      <div style={{ flex: 1 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <p style={{ margin: 0, color: '#0f1724', fontSize: 14, fontWeight: 600 }}>Patients Viewed Today</p>
-          <div style={{ color: '#22c55e', fontWeight: 700 }}>{metrics.patientsViewedToday}</div>
+      <div className="dashboard-metric-content">
+        <div className="dashboard-metric-header">
+          <p className="dashboard-metric-title">Patients Viewed Today</p>
+          <div className="dashboard-metric-value blue">{metrics.patientsViewedToday}</div>
         </div>
-        <div style={{ marginTop: 6, color: '#475569', fontSize: 13 }}>
-          <span style={{ marginRight: 8, color: '#64748b' }}>Paid today</span>
-          <strong style={{ color: '#0f1724' }}>₹{fmt(metrics.paidToday)}</strong>
+        <div className="dashboard-metric-footer">
+          <span className="dashboard-metric-footer-label">Paid today</span>
+          <strong className="dashboard-metric-footer-amount">₹{fmt(metrics.paidToday)}</strong>
         </div>
       </div>
     </div>
 
-    <div style={{ display: 'flex', gap: 12, alignItems: 'center', padding: 16, background: 'linear-gradient(90deg,#fff7f6,#fff1ef)', borderRadius: 12, boxShadow: '0 6px 18px rgba(70,6,6,0.04)', flex: 1 }}>
-      <div style={{ width: 64, height: 64, borderRadius: 12, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(70,6,6,0.04)' }}>
+    <div className="dashboard-metric-card red">
+      <div className="dashboard-metric-icon">
         <FaUsers size={28} color="#b91c1c" />
       </div>
-      <div style={{ flex: 1 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <p style={{ margin: 0, color: '#0f1724', fontSize: 14, fontWeight: 600 }}>Patients This Month</p>
-          <div style={{ color: '#b91c1c', fontWeight: 700 }}>{metrics.patientsThisMonth}</div>
+      <div className="dashboard-metric-content">
+        <div className="dashboard-metric-header">
+          <p className="dashboard-metric-title">Patients This Month</p>
+          <div className="dashboard-metric-value red">{metrics.patientsThisMonth}</div>
         </div>
-        <div style={{ marginTop: 6, color: '#475569', fontSize: 13 }}>
-          <span style={{ marginRight: 8, color: '#64748b' }}>Paid this month</span>
-          <strong style={{ color: '#0f1724' }}>₹{fmt(metrics.paidThisMonth)}</strong>
+        <div className="dashboard-metric-footer">
+          <span className="dashboard-metric-footer-label">Paid this month</span>
+          <strong className="dashboard-metric-footer-amount">₹{fmt(metrics.paidThisMonth)}</strong>
         </div>
       </div>
     </div>

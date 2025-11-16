@@ -1,0 +1,88 @@
+/* Dashboard.css - Modular styles for Dashboard component */
+
+.dashboard-metrics-container {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0;
+  align-items: stretch;
+}
+
+.dashboard-metric-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(6, 30, 70, 0.06);
+  flex: 1;
+}
+
+.dashboard-metric-card.blue {
+  background: linear-gradient(90deg, #f7f9ff, #eef6ff);
+}
+
+.dashboard-metric-card.red {
+  background: linear-gradient(90deg, #fff7f6, #fff1ef);
+  box-shadow: 0 6px 18px rgba(70, 6, 6, 0.04);
+}
+
+.dashboard-metric-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(6, 30, 70, 0.08);
+}
+
+.dashboard-metric-card.red .dashboard-metric-icon {
+  box-shadow: 0 4px 12px rgba(70, 6, 6, 0.04);
+}
+
+.dashboard-metric-content {
+  flex: 1;
+}
+
+.dashboard-metric-header {
+  display: flex;
+  justify-content: space--between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.dashboard-metric-title {
+  margin: 0;
+  color: #0f1724;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dashboard-metric-value {
+  font-weight: 700;
+}
+
+.dashboard-metric-value.blue {
+  color: #22c55e;
+}
+
+.dashboard-metric-value.red {
+  color: #b91c1c;
+}
+
+.dashboard-metric-footer {
+  margin-top: 6px;
+  color: #475569;
+  font-size: 13px;
+}
+
+.dashboard-metric-footer-label {
+  margin-right: 8px;
+  color: #64748b;
+}
+
+.dashboard-metric-footer-amount {
+  color: #0f1724;
+  font-weight: 600;
+}

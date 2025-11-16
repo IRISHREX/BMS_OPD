@@ -510,10 +510,13 @@ const Appointment = () => {
           </button>
         </div>
         <div className="  appointment-form">
-          <h2>Appointment</h2>
-          <div style={{ marginBottom: "0.5rem" }}>
+          <div className="appointment-header">
+            <img src="/logo.png" alt="PathologyLab Logo" className="appointment-logo" />
+            <h2>Appointment</h2>
+          </div>
+          <div className="mb-05rem">
             <small>Step {step} of 2</small>
-            <div style={{ float: "right" }}>
+            <div className="float-right">
               <small>Shortcut: Ctrl/Cmd+P to submit & download</small>
             </div>
           </div>
@@ -524,7 +527,7 @@ const Appointment = () => {
           >
             <div className="has-visited-box ">
               <div className="checkbox-container">
-                <p style={{ marginBottom: 0, fontSize: "1rem" }}>
+                <p className="font-1rem mb-0">
                   Have you visited before?
                 </p>
                 <input
@@ -548,7 +551,7 @@ const Appointment = () => {
               )} */}
             </div>
             {step === 1 && (
-              <div style={{position: "relative"}}>
+              <div className="position-relative">
                 {showPatientSuggestions &&
                       patientSuggestions &&
                       patientSuggestions.length > 0 && (
@@ -604,8 +607,8 @@ const Appointment = () => {
                                 setShowPatientSuggestions(false);
                               }}
                             >
-                              <div style={{ fontWeight: 600 }}>{p.name}</div>
-                              <div className="muted" style={{ fontSize: 13 }}>
+                              <div className="fw-600">{p.name}</div>
+                              <div className="muted font-13">
                                 {p.phone || p.email || p.profession || p.address || ""}
                               </div>
                             </div>
@@ -613,11 +616,11 @@ const Appointment = () => {
                         </div>
                     )}
                 <div className="lnr-input-box">
-                  <div style={{ flex:"1", width:"100%" }} ref={suggestRef}>
+                  <div className="flex-1 w-100" ref={suggestRef}>
                     <input
                       type="text"
                       placeholder="Full Name"
-                      style={{width:"100%"}}
+                      className="w-100"
                       value={name}
                       onChange={(e) => {
                         const v = e.target.value;
@@ -905,9 +908,9 @@ const Appointment = () => {
                   <b>Total: {price + doctorFee} Rs</b>
                 </div>
 
-                <div style={{ marginTop: "2rem" }}>
+                <div className="mt-2rem">
                   <div className="invoice-container">
-                    <div className="checkbox-container" style={{ marginTop: "1rem", padding:"0.5rem 0" }}>
+                    <div className="checkbox-container mt-1rem py-05rem">
                       <div className="pay-status-box">
                         <label htmlFor="">Payment Status: </label>
                         <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
@@ -950,28 +953,20 @@ const Appointment = () => {
         }}
       >
         <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
+          className="flex-jc-sb-ai-c"
         >
           <img
             src="/logo.png"
             alt="logo"
-            style={{ width: "80px", borderRadius: "50%" }}
+            className="w-80px br-50pct"
           />
-          <h2 style={{ margin: 0 }}>Appointment Invoice</h2>
+          <h2 className="m-0">Appointment Invoice</h2>
         </div>
         <hr />
         <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginTop: "1rem",
-          }}
+          className="flex-jc-sb-ai-c mt-1rem"
         >
-          <div style={{ flex: 1 }}>
+          <div className="flex-1">
             <h3>Patient Info</h3>
             <div>Name: {name}</div>
             <div>
@@ -993,11 +988,11 @@ const Appointment = () => {
                 onChange={(e) =>
                   setInvoiceFields((f) => ({ ...f, address: e.target.value }))
                 }
-                style={{ width: "80%" }}
+                className="w-80pct"
               />
             </div>
           </div>
-          <div style={{ flex: 1, textAlign: "right" }}>
+          <div className="flex-1 text-right">
             <h3>Doctor Info</h3>
             <div>
               Name: {doctorFirstName} {doctorLastName}
@@ -1005,7 +1000,7 @@ const Appointment = () => {
             <div>Department: {department}</div>
           </div>
         </div>
-        <div style={{ marginTop: "1rem" }}>
+        <div className="mt-1rem">
           <div>Appointment Date: {appointmentDate}</div>
           <div>
             Valid up to:{" "}
@@ -1019,7 +1014,7 @@ const Appointment = () => {
           </div>
         </div>
         <hr />
-        <div style={{ marginTop: "1rem", fontSize: "1.1rem" }}>
+        <div className="mt-1rem font-11rem">
           <div>
             Appointment Fee:{" "}
             <input
@@ -1031,7 +1026,7 @@ const Appointment = () => {
                   price: Number(e.target.value),
                 }))
               }
-              style={{ width: "80px" }}
+              className="w-80px"
             />{" "}
             Rs
           </div>
@@ -1046,7 +1041,7 @@ const Appointment = () => {
                   doctorFee: Number(e.target.value),
                 }))
               }
-              style={{ width: "80px" }}
+              className="w-80px"
             />{" "}
             Rs
           </div>
@@ -1067,14 +1062,14 @@ const Appointment = () => {
                     paymentStatus: e.target.value,
                   }))
                 }
-                style={{ marginLeft: "0.5rem" }}
+                className="ml-05rem"
               >
                 <option value="Pending">Pending</option>
                 <option value="Paid">Paid</option>
               </select>
           </div>
         </div>
-        <div style={{ marginTop: "2rem", textAlign: "right" }}>
+        <div className="mt-2rem text-right">
           <button
             onClick={() => {
               const doc = new jsPDF();

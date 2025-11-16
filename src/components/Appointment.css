@@ -10,12 +10,31 @@
     border-radius: 0.7rem;
 }
 
+.appointment-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.875rem;
+    position: relative;
+}
+
+.appointment-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
 h2 {
     color: #6D60AE;
     text-align: center;
     font-weight: 600;
     font-size: 1.5rem;
-    margin-bottom: 1.875rem; /* 30px */
+    margin-bottom: 0;
+    margin: 0;
 }
 
 form {
@@ -155,11 +174,50 @@ form textarea {
     align-items: center;
 }
 
+/* Utility classes for Appointment component modularity */
+.mb-05rem { margin-bottom: 0.5rem; }
+.float-right { float: right; }
+.font-1rem { font-size: 1rem; }
+.mb-0 { margin-bottom: 0; }
+.position-relative { position: relative; }
+.fw-600 { font-weight: 600; }
+.font-13 { font-size: 13px; }
+.flex-1 { flex: 1; }
+.w-100 { width: 100%; }
+.mt-2rem { margin-top: 2rem; }
+.mt-1rem { margin-top: 1rem; }
+.py-05rem { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.w-80px { width: 80px; }
+.br-50pct { border-radius: 50%; }
+.m-0 { margin: 0; }
+.w-80pct { width: 80%; }
+.text-right { text-align: right; }
+.flex-jc-sb-ai-c { display: flex; justify-content: space-between; align-items: center; }
+.ml-05rem { margin-left: 0.5rem; }
+.font-11rem { font-size: 1.1rem; }
+
+/* Logo utility class for responsive logo display */
+.logo-responsive {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
 /* ================== Responsive ================== */
 
 @media (min-width: 61.875rem) { /* 990px */
     .appointment-form, .back-btn-box {
         width: 80%;
+    }
+    .appointment-logo {
+        width: 100px;
+        height: 100px;
+    }
+    .appointment-header {
+        gap: 2rem;
     }
 }
 
@@ -196,7 +254,17 @@ form textarea {
         font-weight: 500;
         padding: 0.4375rem 1.25rem; /* 7px 20px */
         border-radius: 0.3125rem; /* 5px */
-    } 
+    }
+    .appointment-header {
+        gap: 1rem;
+    }
+    .appointment-logo {
+        width: 70px;
+        height: 70px;
+    }
+    h2 {
+        font-size: 1.3rem;
+    }
 }
 
 @media (max-width: 44.0625rem) { /* 705px */
@@ -220,6 +288,17 @@ form textarea {
     .appointment-form textarea {
         font-size: 0.8rem;
     }
+    .appointment-header {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .appointment-logo {
+        width: 65px;
+        height: 65px;
+    }
+    h2 {
+        font-size: 1.2rem;
+    }
 }
 
 @media (max-width: 30.3125rem) { /* 485px */
@@ -238,5 +317,17 @@ form textarea {
     .appointment-form input[type="search"] {
         width: 12rem; /* 192px */
         padding: 0.3125rem; /* 5px */
+    }
+    .appointment-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .appointment-logo {
+        width: 60px;
+        height: 60px;
+    }
+    h2 {
+        font-size: 1rem;
     }
 }

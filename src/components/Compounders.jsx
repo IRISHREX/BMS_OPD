@@ -9,6 +9,7 @@ import RequirePermission from "./RequirePermission";
 import UserCard from './UserCard';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDoctorsRequest } from '../store/doctorsSlice';
+import './Compounders.css';
 
 const Compounders = () => {
   const [compounders, setCompounders] = useState([]);
@@ -43,15 +44,15 @@ const Compounders = () => {
     <>
       <section className="page doctors">
         <h1>COMPOUNDERS</h1>
-        <form style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem', gap: '0.5rem' }} onSubmit={e => e.preventDefault()}>
+        <form className="compounders-search-form" onSubmit={e => e.preventDefault()}>
           <input
             type="text"
             placeholder="Search by name, phone, email..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #ccc', width: '250px' }}
+            className="compounders-search-input"
           />
-          <button type="button" style={{ background: '#271776ca', color: '#fff', border: 'none', borderRadius: '6px', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button type="button" className="compounders-search-btn">
             <FaSearch /> Search
           </button>
         </form>

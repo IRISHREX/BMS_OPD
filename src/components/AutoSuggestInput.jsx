@@ -106,10 +106,10 @@ export default function AutoSuggestInput({ value, onChange, suggestions = [], pl
               className={i === highlight ? "highlight" : ""}
               onMouseDown={() => selectSuggestion(it)}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="suggestion-item-display">
                 <span>{labelOf(it)}</span>
                 {(it && typeof it === 'object' && (it._score || it._matchedAll)) && (
-                  <small style={{ marginLeft: 8, color: it._matchedAll ? '#064e3b' : '#6b7280' }}>
+                  <small className={`suggestion-score ${it._matchedAll ? 'exact' : 'matched'}`}>
                     {it._matchedAll ? 'Exact' : `Score ${it._score || 0}`}
                   </small>
                 )}

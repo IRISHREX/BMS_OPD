@@ -36,3 +36,21 @@
   background: #e0e7ff;
   color: #1e293b;
 }
+
+.suggestion-item-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.suggestion-score {
+  margin-left: 8px;
+}
+
+.suggestion-score.exact {
+  color: #064e3b;
+}
+
+.suggestion-score.matched {
+  color: #6b7280;
+}

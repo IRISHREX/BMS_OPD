@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import AutoSuggestInput from './AutoSuggestInput';
 import api from '../utils/api';
+import './AutoSuggestInputforSymptom.css';
 
 const AutoSuggestInputforSymptom = ({ value, onChange, onSelect, placeholder }) => {
   const [symptomSuggestions, setSymptomSuggestions] = useState([]);
@@ -72,8 +73,8 @@ const AutoSuggestInputforSymptom = ({ value, onChange, onSelect, placeholder }) 
       />
       {diseaseSuggestions.length > 0 && (
         <div className="disease-suggestions-dropdown">
-          <p style={{ margin: '8px 0 4px', fontSize: '0.9rem', color: '#555', fontWeight: '600' }}>Suggested Diseases:</p>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          <p className="disease-suggestions-title">Suggested Diseases:</p>
+          <ul className="disease-suggestions-list">
             {diseaseSuggestions.map((disease, index) => (
               <li
                 key={index}
