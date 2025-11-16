@@ -1,9 +1,26 @@
 import React from "react";
 import "./presFormat.css";
+import api from "../utils/api";
 
-const PrescriptionFormat = () => {
+const PrescriptionFormat = React.forwardRef(({ doctor }, ref) => {
+  // Construct full image URLs
+  const headerImageUrl = doctor?.headerImage ? `${api.defaults.baseURL}${doctor.headerImage}` : null;
+  const signImageUrl = doctor?.signImage ? `${api.defaults.baseURL}${doctor.signImage}` : null;
+
   return (
-    <div className="pres-page">
+    <div className="pres-page" ref={ref}>
+      {/* The new header, which will be fixed and repeat on print */}
+      {headerImageUrl && (
+        <div className="prescription-header">
+          <img 
+            src={headerImageUrl} 
+            alt="Doctor Header" 
+            className="prescription-header-image"
+          />
+        </div>
+      )}
+
+      {/* Original hardcoded layout */}
       <div className="header">
         <div className="logo">
           <img src={"/logo.png"} alt="logo" />
@@ -84,11 +101,20 @@ const PrescriptionFormat = () => {
         </div>
       </div>
 
-      <div className="footer">
-        <p>For any concerns please contact the clinic. Contact: 3330333033</p>
+      {/* Conditional, printable footer */}
+      <div className="prescription-footer">
+        {signImageUrl ? (
+          <img 
+            src={signImageUrl} 
+            alt="Doctor Signature" 
+            className="prescription-footer-image"
+          />
+        ) : (
+          <p>For any concerns please contact the clinic. Contact: 3330333033</p>
+        )}
       </div>
     </div>
   );
-};
+});
 
 export default PrescriptionFormat;

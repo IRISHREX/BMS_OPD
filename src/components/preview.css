@@ -2,6 +2,42 @@
   margin-bottom: 1.1rem;
 }
 
+/* Style for the new preview header */
+.preview-header {
+  height: 25mm; /* Match the print height */
+  width: 100%;
+  background-color: #f8f9fa; /* A light background for the placeholder */
+  border-bottom: 1px dashed #dee2e6; /* A subtle border */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-header-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+
+/* Style for the new preview footer */
+.preview-footer {
+  height: 20mm; /* A reasonable height for a signature/footer */
+  width: 100%;
+  background-color: #f8f9fa;
+  border-top: 1px dashed #dee2e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto; /* Push to the bottom */
+}
+
+.preview-footer-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .fixed-area {
   min-height: 3.75rem; /* 60px */
   max-height: 7.5rem; /* 120px */

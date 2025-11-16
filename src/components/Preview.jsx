@@ -10,6 +10,7 @@ import { Context } from "../main";
 import PrescriptionFormat from "./PrescriptionFormat";
 import "./presFormat.css";
 import { PiPrescriptionBold } from "react-icons/pi";
+import api from "../utils/api";
 
 // Helper: format date
 const formatDate = (date) =>
@@ -31,6 +32,10 @@ const Preview = () => {
   const [editMode, setEditMode] = useState(false);
   const { isAuthenticated, admin } = useContext(Context);
   const navigate = useNavigate();
+
+  // Construct full image URLs
+  const headerImageUrl = doctor?.headerImage ? `${api.defaults.baseURL}${doctor.headerImage}` : null;
+  const signImageUrl = doctor?.signImage ? `${api.defaults.baseURL}${doctor.signImage}` : null;
 
   // Role check
   const canEdit = isAuthenticated && ["Admin", "Doctor"].includes(admin?.role);
@@ -177,7 +182,17 @@ const Preview = () => {
         <div className="prescription">
           <div className="presdownload" id="pdfDownload">
             <div className="pres-page">
-              <div className="header">
+            {/* Conditional header for preview */}
+            <div className="preview-header">
+              {headerImageUrl && (
+                <img 
+                  src={headerImageUrl} 
+                  alt="Doctor Header" 
+                  className="preview-header-image"
+                />
+              )}
+            </div>
+<div className="header">
                 <div className="logo">
                   <img src={"/Doctor_logo.svg"} alt="logo" />
                 </div>
@@ -421,11 +436,15 @@ const Preview = () => {
                 </div>
               </div>
 
-              <div className="footer">
-                <p>
-                  For any concerns please contact the clinic. Contact:{" "}
-                  {clinic?.contact}
-                </p>
+              {/* Conditional footer for preview */}
+              <div className="preview-footer">
+                {signImageUrl && (
+                  <img 
+                    src={signImageUrl} 
+                    alt="Doctor Signature" 
+                    className="preview-footer-image"
+                  />
+                )}
               </div>
             </div>
           </div>
