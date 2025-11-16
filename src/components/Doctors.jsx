@@ -16,34 +16,79 @@ const Doctors = () => {
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateFields, setUpdateFields] = useState({});
+  const [newDocAvatar, setNewDocAvatar] = useState(null);
+  const [newDocAvatarPreview, setNewDocAvatarPreview] = useState("");
+  const [newSignImage, setNewSignImage] = useState(null);
+  const [newSignImagePreview, setNewSignImagePreview] = useState("");
+  const [newHeaderImage, setNewHeaderImage] = useState(null);
+  const [newHeaderImagePreview, setNewHeaderImagePreview] = useState("");
   const { isAuthenticated } = useContext(Context);
   const dispatch = useDispatch();
   const storeDoctors = useSelector(s => s.doctors.doctors || []);
   const doctorsLoading = useSelector(s => s.doctors.loading);
 
   useEffect(() => {
-    // fetch on mount
     dispatch(fetchDoctorsRequest({ query: '' }));
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
-    // dispatch search request; saga debounces
     dispatch(fetchDoctorsRequest({ query: searchTerm }));
-  }, [searchTerm]);
+  }, [searchTerm, dispatch]);
 
-  // sync local doctors state from store to allow local filtering after fetch
   useEffect(() => {
     setDoctors(storeDoctors);
   }, [storeDoctors]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // No need to manually fetch, searchTerm change triggers useEffect
+  };
+
+  const handleUpdateSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    for (const key in updateFields) {
+      formData.append(key, updateFields[key]);
+    }
+    if (newDocAvatar) {
+      formData.append("docAvatar", newDocAvatar);
+    }
+    if (newSignImage) {
+      formData.append("signImage", newSignImage);
+    }
+    if (newHeaderImage) {
+      formData.append("headerImage", newHeaderImage);
+    }
+
+    try {
+      await api.put(`/api/v1/user/user/${selectedDoctor._id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      toast.success('Doctor updated');
+      setShowUpdateModal(false);
+      dispatch(fetchDoctorsRequest({ query: searchTerm }));
+    } catch (err) {
+      toast.error('Update failed');
+    }
+  };
+
+  const handleFileChange = (e, setFile, setPreview) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   if (!isAuthenticated) {
     return <Navigate to={"/login"} />;
   }
+
   return (
     <>
       <section className="page doctors">
@@ -85,6 +130,12 @@ const Doctors = () => {
                     consultationFee: u.consultationFee || 100,
                     qualifications: u.qualifications || ''
                   });
+                  setNewDocAvatar(null);
+                  setNewDocAvatarPreview("");
+                  setNewSignImage(null);
+                  setNewSignImagePreview("");
+                  setNewHeaderImage(null);
+                  setNewHeaderImagePreview("");
                   setShowUpdateModal(true);
                 }}
                 onDelete={async (u) => {
@@ -92,15 +143,7 @@ const Doctors = () => {
                     try {
                       await api.delete(`/api/v1/user/user/${u._id}`);
                       toast.success('Doctor deleted');
-                      // refresh doctors list from server
                       dispatch(fetchDoctorsRequest({ query: searchTerm }));
-                      await api.post('/api/v1/message/send', {
-                        firstName: u.firstName,
-                        lastName: u.lastName,
-                        email: 'Sohel.Islam@gmail.com',
-                        phone: u.phone,
-                        message: `Doctor ${u.firstName} ${u.lastName} deleted.`
-                      });
                     } catch (err) {
                       toast.error('Delete failed');
                     }
@@ -121,25 +164,7 @@ const Doctors = () => {
       >
         <h2>Update Doctor</h2>
         {selectedDoctor && (
-          <form onSubmit={async e => {
-            e.preventDefault();
-            try {
-              await api.put(`/api/v1/user/user/${selectedDoctor._id}`, updateFields);
-              toast.success('Doctor updated');
-              setShowUpdateModal(false);
-              // Send message to Sohel.Islam@gmail.com
-              await api.post('/api/v1/message/send', {
-                firstName: updateFields.firstName,
-                lastName: updateFields.lastName,
-                email: 'Sohel.Islam@gmail.com',
-                phone: updateFields.phone,
-                message: `Doctor ${updateFields.firstName} ${updateFields.lastName} updated.`
-              });
-              // Optionally refresh doctors list
-            } catch (err) {
-              toast.error('Update failed');
-            }
-          }}>
+          <form onSubmit={handleUpdateSubmit}>
             <label>First Name: <input type="text" value={updateFields.firstName} onChange={e => setUpdateFields(f => ({ ...f, firstName: e.target.value }))} /></label><br/>
             <label>Last Name: <input type="text" value={updateFields.lastName} onChange={e => setUpdateFields(f => ({ ...f, lastName: e.target.value }))} /></label><br/>
             <label>Email: <input type="email" value={updateFields.email} onChange={e => setUpdateFields(f => ({ ...f, email: e.target.value }))} /></label><br/>
@@ -150,6 +175,23 @@ const Doctors = () => {
             <label>Department: <input type="text" value={updateFields.doctorDepartment} onChange={e => setUpdateFields(f => ({ ...f, doctorDepartment: e.target.value }))} /></label><br/>
             <label>Qualifications: <input type="text" value={updateFields.qualifications} onChange={e => setUpdateFields(f => ({ ...f, qualifications: e.target.value }))} /></label><br/>
             <label>Consultation Fee: <input type="number" value={updateFields.consultationFee} onChange={e => setUpdateFields(f => ({ ...f, consultationFee: Number(e.target.value) }))} /></label><br/>
+            
+            <div>
+              <label>Doctor Avatar:</label>
+              <input type="file" onChange={e => handleFileChange(e, setNewDocAvatar, setNewDocAvatarPreview)} />
+              {newDocAvatarPreview && <img src={newDocAvatarPreview} alt="Avatar Preview" style={{ width: "100px", height: "100px" }} />}
+            </div>
+            <div>
+              <label>Signature Image:</label>
+              <input type="file" onChange={e => handleFileChange(e, setNewSignImage, setNewSignImagePreview)} />
+              {newSignImagePreview && <img src={newSignImagePreview} alt="Signature Preview" style={{ width: "100px", height: "100px" }} />}
+            </div>
+            <div>
+              <label>Header Image:</label>
+              <input type="file" onChange={e => handleFileChange(e, setNewHeaderImage, setNewHeaderImagePreview)} />
+              {newHeaderImagePreview && <img src={newHeaderImagePreview} alt="Header Preview" style={{ width: "100px", height: "100px" }} />}
+            </div>
+
             <button type="submit">Update</button>
             <button type="button" onClick={() => setShowUpdateModal(false)}>Cancel</button>
           </form>

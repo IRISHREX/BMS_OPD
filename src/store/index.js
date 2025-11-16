@@ -7,7 +7,14 @@ const sagaMiddleware = createSagaMiddleware();
 
 const store = configureStore({
   reducer: rootReducer,
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ thunk: false }).concat(sagaMiddleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ 
+    thunk: false,
+    serializableCheck: {
+      // Allow FormData and File objects in actions (used for image uploads)
+      ignoredActions: ['doctorCreate/createDoctorRequest'],
+      ignoredPaths: ['doctorCreate'],
+    }
+  }).concat(sagaMiddleware),
   devTools: process.env.NODE_ENV !== 'production',
 });
 

@@ -5,10 +5,12 @@ import { createDoctorRequest, createDoctorSuccess, createDoctorFailure } from '.
 
 function* createDoctorSaga(action) {
   try {
-    const formData = action.payload;
-    yield call(api.post, '/api/v1/user/doctor/addnew', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    // action.payload.formData is the FormData object built by the component
+    // FormData is kept local to saga and never stored in Redux state
+    const { formData } = action.payload;
+    
+    // Post with multipart/form-data (axios will set correct headers for FormData)
+    yield call(api.post, '/api/v1/user/doctor/addnew', formData);
     yield put(createDoctorSuccess());
     toast.success('Doctor created successfully');
   } catch (err) {

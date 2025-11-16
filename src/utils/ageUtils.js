@@ -39,10 +39,16 @@ export function formatAge(parts) {
   return `${plural(years, 'year', 'years')} ${plural(months, 'month', 'months')} ${plural(days, 'day', 'days')}`.trim();
 }
 
-// Backwards-compatible: returns formatted age string for display
+// Returns formatted age string for display
 export function dobToAge(dob) {
   const parts = dobToAgeParts(dob);
   return parts ? formatAge(parts) : '';
+}
+
+// Returns just the years (number) from DOB
+export function dobToAgeYears(dob) {
+  const parts = dobToAgeParts(dob);
+  return parts ? parts.years : 0;
 }
 
 export function ageToDob(age) {

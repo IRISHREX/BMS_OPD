@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Context } from "../main";
-import { dobToAge, ageToDob } from '../utils/ageUtils';
+import { dobToAgeYears, ageToDob } from '../utils/ageUtils';
 import { makeNIC } from '../utils/nicMaker';
 import { useDispatch, useSelector } from 'react-redux';
 import { createDoctorRequest, resetDoctorCreate } from '../store/doctorCreateSlice';
@@ -19,8 +19,13 @@ const AddNewDoctor = () => {
   const [gender, setGender] = useState("");
   const [password, setPassword] = useState("");
   const [doctorDepartment, setDoctorDepartment] = useState("");
+  const [qualifications, setQualifications] = useState("");
   const [docAvatar, setDocAvatar] = useState("");
   const [docAvatarPreview, setDocAvatarPreview] = useState("");
+  const [signImage, setSignImage] = useState("");
+  const [signImagePreview, setSignImagePreview] = useState("");
+  const [headerImage, setHeaderImage] = useState("");
+  const [headerImagePreview, setHeaderImagePreview] = useState("");
   const [age, setAge] = useState("");
 
   const navigateTo = useNavigate();
@@ -49,14 +54,43 @@ const AddNewDoctor = () => {
     };
   };
 
+  const handleSignImage = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      setSignImagePreview(reader.result);
+      setSignImage(file);
+    };
+  };
+
+  const handleHeaderImage = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      setHeaderImagePreview(reader.result);
+      setHeaderImage(file);
+    };
+  };
+
   const handleAddNewDoctor = async (e) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!firstName || !lastName || !email || !phone || !gender || !password || !doctorDepartment) {
+      toast.error("Please fill all required fields!");
+      return;
+    }
+    
     // Always recalculate NIC from phone and age
     const calculatedNic = makeNIC(phone, age);
     setNic(calculatedNic);
     // Always recalculate DOB from age
     const calculatedDob = ageToDob(age);
     setDob(calculatedDob);
+    
+    // Build FormData with files (FormData is non-serializable, so handle outside Redux)
     const formData = new FormData();
     formData.append("firstName", firstName);
     formData.append("lastName", lastName);
@@ -67,8 +101,13 @@ const AddNewDoctor = () => {
     formData.append("dob", calculatedDob);
     formData.append("gender", gender);
     formData.append("doctorDepartment", doctorDepartment);
-    formData.append("docAvatar", docAvatar);
-    dispatch(createDoctorRequest(formData));
+    if (qualifications) formData.append("qualifications", qualifications);
+    if (docAvatar) formData.append("docAvatar", docAvatar);
+    if (signImage) formData.append("signImage", signImage);
+    if (headerImage) formData.append("headerImage", headerImage);
+    
+    // Pass FormData directly to saga (bypasses Redux serialization check)
+    dispatch(createDoctorRequest({ formData }));
   };
 
   // Reset form and redirect on success
@@ -84,8 +123,13 @@ const AddNewDoctor = () => {
       setGender("");
       setPassword("");
       setDoctorDepartment("");
+      setQualifications("");
       setDocAvatar("");
       setDocAvatarPreview("");
+      setSignImage("");
+      setSignImagePreview("");
+      setHeaderImage("");
+      setHeaderImagePreview("");
       dispatch(resetDoctorCreate());
       setIsAuthenticated(true);
       navigateTo("/");
@@ -109,7 +153,17 @@ const AddNewDoctor = () => {
                 }
                 alt="Doctor Avatar"
               />
-              <input type="file" onChange={handleAvatar} />
+              <input type="file" onChange={handleAvatar} accept="image/*" />
+              <div style={{ marginTop: 8 }}>
+                <label style={{ display: 'block', marginBottom: 6 }}>Sign Image (optional)</label>
+                <input type="file" onChange={handleSignImage} accept="image/*" />
+                {signImagePreview && <img src={signImagePreview} alt="Sign Preview" style={{ width: 120, marginTop: 6 }} />}
+              </div>
+              <div style={{ marginTop: 8 }}>
+                <label style={{ display: 'block', marginBottom: 6 }}>Header Image (optional)</label>
+                <input type="file" onChange={handleHeaderImage} accept="image/*" />
+                {headerImagePreview && <img src={headerImagePreview} alt="Header Preview" style={{ width: 180, marginTop: 6 }} />}
+              </div>
             </div>
             <div>
               <input
@@ -165,9 +219,9 @@ const AddNewDoctor = () => {
                 value={dob}
                 onChange={e => {
                   setDob(e.target.value);
-                  const newAge = dobToAge(e.target.value);
-                  setAge(newAge);
-                  if (phone && newAge) setNic(makeNIC(phone, newAge));
+                  const newAgeYears = dobToAgeYears(e.target.value);
+                  setAge(newAgeYears);
+                  if (phone && newAgeYears) setNic(makeNIC(phone, newAgeYears));
                 }}
                 readOnly
                 style={{ background: '#f4f4f4', color: '#888' }}
@@ -213,6 +267,13 @@ const AddNewDoctor = () => {
                   );
                 })}
               </select>
+              <input
+                type="text"
+                placeholder="Qualifications (e.g., MBBS, MD)"
+                value={qualifications}
+                onChange={(e) => setQualifications(e.target.value)}
+                disabled={doctorCreate.creating}
+              />
               <button type="submit" disabled={doctorCreate.creating}>
                 {doctorCreate.creating ? 'Registering...' : 'Register New Doctor'}
               </button>
