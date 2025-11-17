@@ -23,7 +23,7 @@ const PrescriptionFormat = React.forwardRef(({ doctor }, ref) => {
       {/* Original hardcoded layout */}
       <div className="header">
         <div className="logo">
-          <img src={"/logo.png"} alt="logo" />
+          <img src={"/logo.svg"} alt="logo" />
         </div>
         <div className="Dr-detail">
           <h2>Doctor Stone</h2>

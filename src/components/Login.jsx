@@ -3,6 +3,15 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from "react-toastify";
 import { Context } from "../main";
+import {
+  LOGIN_LOGO_WIDTH,
+  LOGIN_LOGO_BORDER_RADIUS,
+  LOGIN_FORM_MARGIN,
+  LOGIN_RADIO_LABEL_MARGIN_RIGHT,
+  LOGIN_RADIO_LABEL_MARGIN_LEFT,
+  LOGIN_BUTTON_BORDER,
+  LOGIN_BUTTON_BORDER_RADIUS,
+} from "../utils/constants";
 import { loginRequest } from "../store/authSlice";
 
 const Login = () => {
@@ -40,43 +49,45 @@ const Login = () => {
   return (
     <>
       <section className="container form-component">
-        <img src="/logo.png" alt="logo" className="logo" style={{ width: "150px", borderRadius: "50%"}} />
+        <img src="/logo.svg" alt="logo" className="logo" style={{ width: `${LOGIN_LOGO_WIDTH}px`, borderRadius: LOGIN_LOGO_BORDER_RADIUS}} />
         <h1 className="form-title">WELCOME TO BIOMECASOFT</h1>
-  <p>Dashboard access for Admins and Doctors. Choose role then login.</p>
-        <form onSubmit={handleLogin}>
-          <input
-            type="text"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          {/* <input
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          /> */}
-          <div style={{ margin: '0.5rem 0' }}>
-            <label style={{ marginRight: '1rem' }}>
-              <input type="radio" name="role" value="Admin" checked={role === 'Admin'} onChange={() => setRole('Admin')} /> Admin
-            </label>
-            <label>
-              <input type="radio" name="role" value="Doctor" checked={role === 'Doctor'} onChange={() => setRole('Doctor')} /> Doctor
-            </label>
-            <label style={{ marginLeft: '1rem' }}>
-              <input type="radio" name="role" value="Compounder" checked={role === 'Compounder'} onChange={() => setRole('Compounder')} /> Compounder
-            </label>
-          </div>
-          <div style={{ justifyContent: "center", alignItems: "center" }}>
-            <button type="submit" style={{border:"1px solid grey", borderRadius:"0.5rem"}}>Login</button>
-          </div>
-        </form>
+        <p>Dashboard access for Admins and Doctors. Choose role then login.</p>
+        {auth.loading ? <div className="loader"></div> : (
+          <form onSubmit={handleLogin}>
+            <input
+              type="text"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            {/* <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            /> */}
+            <div style={{ margin: LOGIN_FORM_MARGIN }}>
+              <label style={{ marginRight: LOGIN_RADIO_LABEL_MARGIN_RIGHT }}>
+                <input type="radio" name="role" value="Admin" checked={role === 'Admin'} onChange={() => setRole('Admin')} /> Admin
+              </label>
+              <label>
+                <input type="radio" name="role" value="Doctor" checked={role === 'Doctor'} onChange={() => setRole('Doctor')} /> Doctor
+              </label>
+              <label style={{ marginLeft: LOGIN_RADIO_LABEL_MARGIN_LEFT }}>
+                <input type="radio" name="role" value="Compounder" checked={role === 'Compounder'} onChange={() => setRole('Compounder')} /> Compounder
+              </label>
+            </div>
+            <div style={{ justifyContent: "center", alignItems: "center" }}>
+              <button type="submit" style={{border: LOGIN_BUTTON_BORDER, borderRadius: LOGIN_BUTTON_BORDER_RADIUS}}>Login</button>
+            </div>
+          </form>
+        )}
       </section>
     </>
   );

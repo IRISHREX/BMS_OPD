@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchPreviewRequest, resetPreview } from "../store/previewSlice";
 import { dobToAge } from "../utils/ageUtils";
 import { Context } from "../main";
-import PrescriptionFormat from "./PrescriptionFormat";
 import "./presFormat.css";
 import { PiPrescriptionBold } from "react-icons/pi";
 import api from "../utils/api";
@@ -133,8 +132,7 @@ const Preview = () => {
   if (loading)
     return (
       <div className="prescription">
-        <div>Loading...</div>
-      </div>
+<span class="loader"></span>      </div>
     );
   if (error)
     return (
@@ -462,3 +460,4 @@ const Preview = () => {
 };
 
 export default Preview;
+
