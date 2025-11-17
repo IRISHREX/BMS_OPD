@@ -142,14 +142,14 @@ const AddNewDoctor = () => {
   return (
     <section className="page">
       <section className="container add-doctor-form">
-        <img src="/logo.png" alt="logo" className="logo" style={{ width: "150px", borderRadius: "50%"}}/>
+        <img src="/logo.svg" alt="logo" className="logo" style={{ width: "150px", borderRadius: "50%"}}/>
         <h1 className="form-title">REGISTER A NEW DOCTOR</h1>
         <form onSubmit={handleAddNewDoctor}>
           <div className="first-wrapper">
             <div>
               <img
                 src={
-                  docAvatarPreview ? `${docAvatarPreview}` : "/docHolder.jpg"
+                  docAvatarPreview ? `${docAvatarPreview}` : "/doc1.jpg"
                 }
                 alt="Doctor Avatar"
               />
@@ -287,3 +287,4 @@ const AddNewDoctor = () => {
 };
 
 export default AddNewDoctor;
+

@@ -116,8 +116,8 @@
 }
 
 /* A4 paper styling for clean print/PDF output */
-.a4-paper {
-  /* width: 100% !important;
+/* .a4-paper {
+  width: 100% !important;
   height: 100% !important;
   background: #fff !important;
   margin: 0 auto !important;
@@ -127,8 +127,8 @@
   border: none !important;
   overflow: visible !important;
   color: #111;
-  font-size: 12pt; */
-}
+  font-size: 12pt;
+} */
 
 .a4-paper .modern-header { grid-template-columns: 1.5fr 5rem 1fr; gap: 1rem; }
 .a4-paper .Dr-details h1 { font-size: 1.25rem; }
@@ -567,4 +567,17 @@ strong{
 @media (max-width: 43.75rem) { /* 700px */
   .header { grid-template-columns: 1fr 5rem 1fr; } /* 80px */
   .medic-header, .data-row { grid-template-columns: 2rem 1fr 4.375rem 3.75rem 5rem 3.75rem; } /* 32px 70px 60px 80px 60px */
+}
+
+.print-options {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.print-options label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }

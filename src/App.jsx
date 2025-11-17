@@ -30,6 +30,7 @@ import RequireAuth from "./components/RequireAuth";
 import InvoiceSettings from "./components/InvoiceSettings";
 import InvoicePage from "./components/InvoicePage";
 import ReportsPage from "./components/ReportsPage";
+import CyberPunk404 from "./components/ErrorPage";
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated, admin, setAdmin } =
@@ -127,6 +128,7 @@ const App = () => {
         } />
         <Route path="/preview/:patientId" element={<Preview />} />
         <Route path="/invoice/:invoiceId" element={<InvoicePage />} />
+        <Route path="*" element={<CyberPunk404 />} />
       </Routes>
       <ToastContainer position="top-center" />
     </Router>

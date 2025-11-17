@@ -20,6 +20,7 @@ import React, {
   import BulkActions from "./BulkActions";
   import Pagination from "./Pagination";
   import ComposeModal from "./ComposeModal";
+import { HEIGHT_MAX } from "../utils/constants";
   
   const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -269,8 +270,8 @@ import React, {
         </div>
   
         {loading ? (
-          <div className="loading-state">
-            <div className="loading-spinner"></div>
+          <div className="loading-state centered">
+            <span className="loader" style={{height:"3rem"}}></span>    
             <p>Loading Messages...</p>
           </div>
         ) : messages.length > 0 ? (
