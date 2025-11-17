@@ -153,7 +153,7 @@ const Prescription = ({ patientId, onClose }) => {
       // Calculate POG
       const today = new Date();
       const msPerDay = 1000 * 60 * 60 * 24;
-      const daysDifference = Math.floor((today - eddDate) / msPerDay);
+      const daysDifference = Math.floor((today - lmpDate) / msPerDay);
       const weeks = Math.floor(daysDifference / 7);
       const days = daysDifference % 7;
       setPOG(`${weeks} weeks, ${days} days`);
@@ -918,7 +918,7 @@ const Prescription = ({ patientId, onClose }) => {
         diagnosysHasContent;
       if (!hasContent) {
         toast.error(
-          "Please add at least one of: Diagnosis, medicines or advice before saving."
+          "Please add at least one of: Diagnosis, medicines or test advice before saving."
         );
         return;
       }
@@ -1963,11 +1963,11 @@ const Prescription = ({ patientId, onClose }) => {
         </div>
 
         <div className="form-group full-width">
-          <label>Additional Advice</label>
+          <label>Advice</label>
           <textarea
             value={additionalAdvice}
             onChange={(e) => setAdditionalAdvice(e.target.value)}
-            placeholder="Enter additional advice..."
+            placeholder="Enter advice..."
             rows={2}
           />
         </div>

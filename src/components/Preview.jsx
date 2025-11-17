@@ -246,6 +246,12 @@ const Preview = () => {
                       <b>Date: </b>
                       {formatDate(report?.createdAt || patient.updatedAt)}
                     </p>
+                    {report.diagnosys?.BMI && (
+                      <p>
+                        <b>BMI: </b>
+                        {report.diagnosys.BMI} kg/m²
+                      </p>
+                    )}
                     {report.diagnosys?.Weight && (
                       <p>
                         <b>Weight: </b>
@@ -326,28 +332,34 @@ const Preview = () => {
                       </p>
                     )}
                   </div>
-                  <p>
-                    <b>Presenting Complaints: </b>
-                    {report?.presentingComplaints || "N/A"}
-                  </p>
-                  <p>
-                    <b>Medical History: </b>
-                    {report?.medicalHistory
-                      ? report.medicalHistory.slice(
-                          report.medicalHistory.length - 1,
-                          report.medicalHistory.length
-                        ) === ","
+                  {report?.presentingComplaints && (
+                    <p>
+                      <b>Presenting Complaints: </b>
+                      {report?.presentingComplaints}
+                    </p>
+                  )}
+                  {report.medicalHistory && (
+                    <p>
+                      <b>Medical History: </b>
+                      {report?.medicalHistory
                         ? report.medicalHistory.slice(
-                            0,
+                            report.medicalHistory.length - 1,
+                            report.medicalHistory.length
+                          ) === ","
+                        ? report.medicalHistory.slice(
+                              0,
                             report.medicalHistory.length - 1
-                          )
+                            )
                         : report.medicalHistory
-                      : "N/A"}
-                  </p>
-                  <p>
-                    <b>Clinical Findings: </b>
-                    {report?.clinical_findings || "N/A"}
-                  </p>
+                        : ""}
+                    </p>
+                  )}
+                  {report?.clinical_findings && (
+                    <p>
+                      <b>Clinical Findings: </b>
+                      {report?.clinical_findings || ""}
+                    </p>
+                  )}
                   {report?.advice?.testAdvice?.length > 0 && (
                     <div className="advice-section">
                       <p className="investigation">

@@ -228,7 +228,7 @@ import React, {
     })();
   
     return (
-      <section className="messages-container">
+      <section className="messages-container page">
         <div className="messages-body">
         <div className="messages-header">
           <h1>Messages</h1>

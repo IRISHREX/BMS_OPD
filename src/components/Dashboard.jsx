@@ -431,6 +431,7 @@ const Dashboard = () => {
               value={selectedDoctorId}
               onChange={(e) => setSelectedDoctorId(e.target.value)}
               disabled={admin?.role === 'Doctor'}
+              style={{background:"#009688"}}
             >
               {admin?.role !== 'Doctor' && <option value="">All Doctors</option>}
               {doctorFilterList.map((doc) => (

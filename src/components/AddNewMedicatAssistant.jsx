@@ -74,8 +74,8 @@ const AddNewAdmin = () => {
   return (
     <section className="page">
       <section className="container form-component add-admin-form">
-      <img src="/logo.png" alt="logo" className="logo" style={{ width: "150px", borderRadius: "50%"}}/>
-  <h1 className="form-title">ADD NEW MEDICAL ASSISTANT</h1>
+        <img src="/logo.png" alt="logo" className="logo" style={{ width: "150px", borderRadius: "50%"}}/>
+        <h1 className="form-title">ADD NEW MEDICAL ASSISTANT</h1>
         <form onSubmit={handleAddNewAdmin}>
           <div>
             <input
@@ -165,7 +165,7 @@ const AddNewAdmin = () => {
           </div>
           <div style={{ justifyContent: "center", alignItems: "center" }}>
             <button type="submit" disabled={adminCreate.creating}>
-              {adminCreate.creating ? 'Creating...' : 'CREATE COMPOUNDER'}
+              {adminCreate.creating ? 'Creating...' : 'CREATE ASSISTANT'}
             </button>
             {adminCreate.error && <div className="error-message" style={{ color: 'red', marginTop: 8 }}>{adminCreate.error}</div>}
           </div>

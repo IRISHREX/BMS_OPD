@@ -43,7 +43,7 @@ const Compounders = () => {
   return (
     <>
       <section className="page doctors">
-        <h1>COMPOUNDERS</h1>
+        <h1>ASSISTANTS</h1>
         <form className="compounders-search-form" onSubmit={e => e.preventDefault()}>
           <input
             type="text"
@@ -103,7 +103,7 @@ const Compounders = () => {
               />
             ))
           ) : (
-            <h1>No Registered Compounders Found!</h1>
+            <h1>No Registered Assistants Found!</h1>
           )}
         </div>
       </section>

@@ -377,7 +377,7 @@ const MedicineSettings = () => {
         {/* Drawer for create/edit */}
         {drawerOpen && (
           <div className="edit-drawer">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',minHeight:"fit-content" }}>
               <h3 style={{ margin: 0 }}>{editingId ? 'Edit Medicine' : 'Add New Medicine'}</h3>
               <div>
                 <button className="clear-btn" onClick={() => { setDrawerOpen(false); setForm(emptyForm); setEditingId(null); setFocusedMedicineIndex(null); medicineRowRefs.current = {}; }}>Close</button>
@@ -424,7 +424,7 @@ const MedicineSettings = () => {
                     <input placeholder="Route" value={m.route} onChange={e => updateMedicineRow(idx, 'route', e.target.value)} />
                     <input placeholder="Duration" value={m.duration} onChange={e => updateMedicineRow(idx, 'duration', e.target.value)} />
                     <input placeholder="Notes" value={m.notes} onChange={e => updateMedicineRow(idx, 'notes', e.target.value)} />
-                    <button type="button" className="remove-btn" onClick={() => removeMedicineRow(idx)}>Remove</button>
+                    <button type="button" className="remove-btn" onClick={() => removeMedicineRow(idx)}><FaTrash/></button>
                   </div>
                 ))}
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -438,7 +438,7 @@ const MedicineSettings = () => {
                     <input placeholder="Type" value={t.testType} onChange={e => updateTestRow(idx, 'testType', e.target.value)} />
                     <input placeholder="Precautions" value={t.precautions} onChange={e => updateTestRow(idx, 'precautions', e.target.value)} />
                     <input placeholder="Date" type="date" value={t.testDate} onChange={e => updateTestRow(idx, 'testDate', e.target.value)} />
-                    <button type="button" className="remove-btn" onClick={() => removeTestRow(idx)}>Remove</button>
+                    <button type="button" className="remove-btn" onClick={() => removeTestRow(idx)}><FaTrash/></button>
                   </div>
                 ))}
                 <div style={{ display: 'flex', gap: 8 }}>

@@ -879,6 +879,7 @@ const Appointment = () => {
                   <select
                     value={department}
                     onChange={(e) => setDepartment(e.target.value)}
+                    disabled={dashboardUser && dashboardUser.role === "Doctor"}
                   >
                     {departmentsArray.map((depart) => (
                       <option value={depart} key={depart}>
