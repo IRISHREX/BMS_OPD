@@ -29,12 +29,14 @@ const Preview = () => {
   const loading = preview.loading;
   const error = preview.error;
   const [editMode, setEditMode] = useState(false);
+  const [printWithHeader, setPrintWithHeader] = useState(true);
+  const [printWithFooter, setPrintWithFooter] = useState(true);
   const { isAuthenticated, admin } = useContext(Context);
   const navigate = useNavigate();
 
   // Construct full image URLs
-  const headerImageUrl = doctor?.headerImage ? `${api.defaults.baseURL}${doctor.headerImage}` : null;
-  const signImageUrl = doctor?.signImage ? `${api.defaults.baseURL}${doctor.signImage}` : null;
+  const headerImageUrl = doctor?.headerImage ? `${api.defaults.baseURL}${doctor.headerImage}` : "/Header.png";
+  const signImageUrl = doctor?.signImage ? `${api.defaults.baseURL}${doctor.signImage}` : "/Footer.png";
 
   // Role check
   const canEdit = isAuthenticated && ["Admin", "Doctor"].includes(admin?.role);
@@ -180,29 +182,50 @@ const Preview = () => {
         <div className="prescription">
           <div className="presdownload" id="pdfDownload">
             <div className="pres-page">
-            {/* Conditional header for preview */}
-            <div className="preview-header">
-              {headerImageUrl && (
-                <img 
-                  src={headerImageUrl} 
-                  alt="Doctor Header" 
-                  className="preview-header-image"
-                />
-              )}
-            </div>
-<div className="header">
+            {printWithHeader ? (
+              <div>
+              <div className="preview-header">
+                {headerImageUrl && (
+                  <img
+                    src={headerImageUrl}
+                    alt="Doctor Header"
+                    className="preview-header-image"
+                  />
+                )}
+              </div>
+              <div className="header">
                 <div className="logo">
                   <img src={"/Doctor_logo.svg"} alt="logo" />
                 </div>
                 <div className="Dr-detail">
                   <h2>
                     {doctor
-                      ? `Dr. ${doctor.firstName || ""} ${doctor.lastName || ""}`
+                      ? `Dr. ${doctor.firstName || ""} ${
+                          doctor.lastName || ""
+                        }`
                       : clinic.name || "Doctor"}
                   </h2>
                   <p className="Doc-qualifications">{clinic.address}</p>
                 </div>
               </div>
+              </div>
+            ) : (
+              <div className="header">
+                <div className="logo">
+                  <img src={"/Doctor_logo.svg"} alt="logo" />
+                </div>
+                <div className="Dr-detail">
+                  <h2>
+                    {doctor
+                      ? `Dr. ${doctor.firstName || ""} ${
+                          doctor.lastName || ""
+                        }`
+                      : clinic.name || "Doctor"}
+                  </h2>
+                  <p className="Doc-qualifications">{clinic.address}</p>
+                </div>
+              </div>
+            )}
 
               <div className="main">
                 <div className="upper-box">
@@ -360,7 +383,7 @@ const Preview = () => {
                     </div>
                   )}
                   <p>
-                    <b>{report.diagnosys_heading ? report.diagnosys_heading : "Provisional Diagnosis"}: </b>
+                    <b>{report.diagnosys_heading ? report.diagnosys_heading : "Provisional Diagnosis"}: _</b>
                     {report?.initialComplain?.
                       slice(report.initialComplain.length - 1, report.initialComplain.length) === "," 
                       ? report.initialComplain.slice(0, report.initialComplain.length - 1) : report?.initialComplain || "N/A"}
@@ -435,6 +458,7 @@ const Preview = () => {
               </div>
 
               {/* Conditional footer for preview */}
+              {printWithFooter && (
               <div className="preview-footer">
                 {signImageUrl && (
                   <img 
@@ -444,7 +468,26 @@ const Preview = () => {
                   />
                 )}
               </div>
+              )}
             </div>
+          </div>
+          <div className="print-options">
+            <label>
+              <input
+                type="checkbox"
+                checked={printWithHeader}
+                onChange={(e) => setPrintWithHeader(e.target.checked)}
+              />
+              Print with Header
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={printWithFooter}
+                onChange={(e) => setPrintWithFooter(e.target.checked)}
+              />
+              Print with Footer
+            </label>
           </div>
           <div className="pdf-down-btn" onClick={downLoadPDF}>
             Download PDF
