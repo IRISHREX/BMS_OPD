@@ -134,7 +134,8 @@ const Preview = () => {
   if (loading)
     return (
       <div className="prescription">
-<span class="loader"></span>      </div>
+        <span class="loader" style={{height:"3rem"}}></span>      
+      </div>
     );
   if (error)
     return (
@@ -395,10 +396,10 @@ const Preview = () => {
                     </div>
                   )}
                   <p>
-                    <b>{report.diagnosys_heading ? report.diagnosys_heading : "Provisional Diagnosis"}: _</b>
+                    <b>{report.diagnosys_heading ? report.diagnosys_heading : "Provisional Diagnosis"}: </b>
                     {report?.initialComplain?.
                       slice(report.initialComplain.length - 1, report.initialComplain.length) === "," 
-                      ? report.initialComplain.slice(0, report.initialComplain.length - 1) : report?.initialComplain || "N/A"}
+                      ? report.initialComplain.slice(0, report.initialComplain.length - 1) : report?.initialComplain || ""}
                   </p>
                 </div>
 

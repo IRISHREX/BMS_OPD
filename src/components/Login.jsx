@@ -52,7 +52,7 @@ const Login = () => {
         <img src="/logo.svg" alt="logo" className="logo" style={{ width: `${LOGIN_LOGO_WIDTH}px`, borderRadius: LOGIN_LOGO_BORDER_RADIUS}} />
         <h1 className="form-title">WELCOME TO BIOMECASOFT</h1>
         <p>Dashboard access for Admins and Doctors. Choose role then login.</p>
-        {auth.loading ? <div className="loader"></div> : (
+        {auth.loading ? <div className="loader" style={{Height:"3rem"}}></div> : (
           <form onSubmit={handleLogin}>
             <input
               type="text"

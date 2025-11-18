@@ -7,6 +7,9 @@ import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./Prescription.css";
+import { IoIosCloseCircle } from "react-icons/io";
+import { FaSave } from "react-icons/fa";
+import { FaDownload } from "react-icons/fa";
 
 // Clean, single-component Prescription (5-step slider)
 const Prescription = ({ patientId, onClose }) => {
@@ -1792,14 +1795,14 @@ const Prescription = ({ patientId, onClose }) => {
               className="form-group full-width"
               style={{ overflowX: "auto", marginBottom: "2rem" }}
             >
-              <label>Test Advice</label>
+              <label>Test Name</label>
               <table className="test-advice-table">
                 <thead>
                   <tr>
                     <th></th>
-                    <th style={{ minWidth: "9rem", textAlign: "left" }}>
+                    {/* <th style={{ minWidth: "9rem", textAlign: "left" }}>
                       Test Name
-                    </th>
+                    </th> */}
                     <th></th>
                     {/* <th>Test Type</th>
                     <th>Precautions</th>
@@ -1991,13 +1994,12 @@ const Prescription = ({ patientId, onClose }) => {
 
       <div className="wizard-footer">
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <button
-            className="btn btn-primary"
+          <FaSave 
+            title="Save"
             onClick={() => handleSave(false)}
             disabled={!isDirty}
-          >
-            Save
-          </button>
+            style={{fontSize:"2rem", color:"#096dd9"}}
+          />
           <button
             className="btn btn-primary"
             onClick={() => handleSave(true)}
@@ -2012,9 +2014,12 @@ const Prescription = ({ patientId, onClose }) => {
           ) : (
             <span style={{ color: "#0f766e" }}>Saved</span>
           )}
-          <button className="btn clear-btn" onClick={handleClose}>
-            Close
-          </button>
+          <IoIosCloseCircle onClick={handleClose} 
+            title="Close"
+            style={{ cursor: "pointer", fontSize: "2rem", color: "crimson", 
+              position: "fixed", top: "3rem", right: "3.5rem"
+            }} 
+          />
         </div>
       </div>
     </div>

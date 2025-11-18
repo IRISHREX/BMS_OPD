@@ -164,7 +164,7 @@ body {
 .dashboard .banner:first-child { height: 35vh; display:flex; gap:1.25rem }
 .dashboard .banner:first-child .firstBox { flex:2; display:flex; align-items:center; border-radius:1.25rem; background:#b5b5ff; padding:1.25rem 1.25rem 0 0.625rem }
 .dashboard .banner:first-child .firstBox img { height:100%; flex:1 }
-.dashboard .banner:first-child .firstBox .content { flex:2; background-color: transparent; padding: 1.5rem; }
+.dashboard .banner:first-child .firstBox .content { flex:2; background-color: transparent; padding: 1.5rem; z-index: 0; }
 .dashboard .banner:first-child .firstBox .content div { display:flex; align-items:center; font-size:2.125rem; margin-bottom:0.75rem }
 .dashboard .banner:first-child .firstBox .content div p { margin-right:0.625rem; font-size:2.125rem }
 .dashboard .banner:first-child .firstBox .content div h5 { color:#ff008d }

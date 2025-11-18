@@ -268,9 +268,10 @@ const MedicineSettings = () => {
 
 
   return (
-    <section className="page">
+    <section className="page" style={{height:"100vh"}}>
       <>
-  <div className="settings-page medicine-page" style={{ padding: 20 }}>
+        {/* <div className="settings-page medicine-page" style={{ padding: 20 }}> */}
+          <div className="filter-search-box">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <button onClick={() => navigate(-1)} className="back-btn add-btn">← Go Back</button>
@@ -307,6 +308,7 @@ const MedicineSettings = () => {
               </select>
             </div>
             <button className="clear-btn" onClick={() => { setFilterTag(''); setFilterType(''); setFilterHasTest(''); }}>Reset Filters</button>
+          </div>
           </div>
 
           {/* Main content: list and pagination */}
@@ -364,7 +366,7 @@ const MedicineSettings = () => {
               <div className="footer-note">Showing page {page} of {totalPages}</div>
             </div>
           </main>
-        </div>
+        {/* </div> */}
 
         {/* View Details Modal */}
         {viewingAdvice && (
