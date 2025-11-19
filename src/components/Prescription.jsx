@@ -9,7 +9,8 @@ import { toast } from "react-toastify";
 import "./Prescription.css";
 import { IoIosCloseCircle } from "react-icons/io";
 import { FaSave } from "react-icons/fa";
-import { FaDownload } from "react-icons/fa";
+import { FaChevronDown } from "react-icons/fa";
+import { FaChevronUp } from "react-icons/fa";
 
 // Clean, single-component Prescription (5-step slider)
 const Prescription = ({ patientId, onClose }) => {
@@ -31,6 +32,10 @@ const Prescription = ({ patientId, onClose }) => {
   const [isFetchingComplaints, setIsFetchingComplaints] = useState(false);
   const [analyzeResult, setAnalyzeResult] = useState(null);
   const complainDebounceRef = React.useRef(null);
+  const [toggleOpen, setToggleOpen] = useState({
+    medicalHistory: false,
+    clinicalFindings: false,
+  });
 
   // Derived test suggestions (flatten testAdvice from advices)
   const testSuggestions = useMemo(() => {
@@ -1273,37 +1278,55 @@ const Prescription = ({ patientId, onClose }) => {
             placeholder="Enter presenting complaints..."
           />
         </div>
-        <div className="form-group full-width form-row">
-          <label>Medical History</label>
-          <div className="form-row">
-            {temp_medicalHistory.map((history, index) => (
-              // <div key={index} className="medHistory-checkboxes">
-              //   <input type="checkbox" />
-              //   <span>{history}</span>
-              // </div>
-              <button
-                className="medicalHistory-btns"
-                onClick={() => {
-                  setMedicalHistory(medicalHistory + history + ",");
-                }}
-              >
-                {history}
-              </button>
-            ))}
-          </div>
-          <input
-            placeholder="Enter medical history..."
-            value={medicalHistory}
-            onChange={(e) => setMedicalHistory(e.target.value)}
-          />
+        <div className="form-group full-width form-row toggle-section">
+          <label onClick={()=>{setToggleOpen({...toggleOpen, medicalHistory: !toggleOpen.medicalHistory})}} 
+            className="toggle-title"
+          >
+            Medical History
+            {toggleOpen.medicalHistory == true ? <FaChevronUp />: <FaChevronDown /> }
+          </label>
+          {toggleOpen.medicalHistory == true && (
+            <div className="form-group form-row toggle-content">
+              <div className="form-row">
+                {temp_medicalHistory.map((history, index) => (
+                  // <div key={index} className="medHistory-checkboxes">
+                  //   <input type="checkbox" />
+                  //   <span>{history}</span>
+                  // </div>
+                  <button
+                    className="medicalHistory-btns"
+                    onClick={() => {
+                      setMedicalHistory(medicalHistory + history + ",");
+                    }}
+                  >
+                    {history}
+                  </button>
+                ))}
+              </div>
+              <input
+                placeholder="Enter medical history..."
+                value={medicalHistory}
+                onChange={(e) => setMedicalHistory(e.target.value)}
+              />
+            </div>
+          )}
         </div>
-        <div className="form-group">
-          <label> Clinical Findings</label>
-          <input
-            type="text"
-            value={clinical_findings}
-            onChange={(e) => setClinical_findings(e.target.value)}
-          />
+        <div className="form-group toggle-section">
+          <label className="toggle-title"
+            onClick={()=>{setToggleOpen({...toggleOpen, clinicalFindings: !toggleOpen.clinicalFindings})}} 
+          > 
+            Clinical Findings
+            {toggleOpen.clinicalFindings == true ? <FaChevronUp />: <FaChevronDown /> }
+          </label>
+          {toggleOpen.clinicalFindings == true &&(
+            <div className="toggle-content form-group">
+              <input
+                type="text"
+                value={clinical_findings}
+                onChange={(e) => setClinical_findings(e.target.value)}
+              />
+            </div>
+          )}
         </div>
         <div>
           <div className="form-group full-width">
@@ -1998,7 +2021,7 @@ const Prescription = ({ patientId, onClose }) => {
             title="Save"
             onClick={() => handleSave(false)}
             disabled={!isDirty}
-            style={{fontSize:"2rem", color:"#096dd9"}}
+            style={{fontSize:"2rem", color:"#096dd9", cursor:"pointer"}}
           />
           <button
             className="btn btn-primary"
