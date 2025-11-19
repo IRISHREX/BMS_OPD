@@ -125,8 +125,8 @@ p,b{ color: black;}
 }
 .medicine-rows{
     display: grid;
-    grid-template-columns: 2.5rem 1fr 5.625rem 5rem 6.25rem 5.625rem; /* 40px 90px 80px 100px 90px */
-    gap: 0.2rem;
+    grid-template-columns: 2.5rem 5rem 1fr 5.625rem 5rem 6.25rem 5.625rem; /* 40px 90px 80px 100px 90px */
+    gap: 0.5rem;
     padding: 0.25rem;
 }
 .head-row {background: #c0c7cf;}

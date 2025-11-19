@@ -369,10 +369,12 @@ const Dashboard = () => {
             <p>Total Appointments</p>
             <h3>{appointments?.length}</h3>
           </div>
-          <div className="thirdBox">
-            <p>Registered Doctors</p>
-            <h3>{doctors.length}</h3>
-          </div>
+          <RequirePermission allowedRoles={["Admin"]}>
+            <div className="thirdBox">
+              <p>Registered Doctors</p>
+              <h3>{doctors.length}</h3>
+            </div>
+          </RequirePermission>
         </div>
   {/* Role-based quick metrics */}
   <div className="dashboard-metrics-container">
@@ -486,7 +488,7 @@ const Dashboard = () => {
               >
                 Book Appointment
               </button>
-              <RequirePermission allowedRoles={["Admin"]}>
+              <RequirePermission allowedRoles={["Admin","Doctor"]}>
                 <button
                   className="btn remove-btn"
                   onClick={handleBulkDelete}
@@ -503,7 +505,7 @@ const Dashboard = () => {
               <thead>
                 <tr>
                   <th>
-                    <input
+                    <input style={{marginRight:"0.3rem"}}
                       type="checkbox"
                       onChange={(e) => {
                         const filteredAppointments = (
@@ -584,8 +586,8 @@ const Dashboard = () => {
                         );
                       }}
                     />
+                    Sl
                   </th>
-                  <th>Sr. No.</th>
                   <th>Patient Name</th>
                   <th>Appointment Date</th>
                   {/* <th>Created By</th> */}
@@ -595,8 +597,10 @@ const Dashboard = () => {
                   {/* <th>Fees Amount</th> */}
                   <th>Payment Status</th>
                   <th>Status</th>
-                  <th>Doctor</th>
-                  <th>Department</th>
+                  <RequirePermission allowedRoles={["Admin"]}>
+                    <th>Doctor</th>
+                    <th>Department</th>
+                  </RequirePermission>
                   <th>Visited Before</th>
                   <th>Booked By</th>
                   <th>Prescription</th>
@@ -608,7 +612,7 @@ const Dashboard = () => {
                     ? filteredAppointments.map((appointment) => (
                         <tr key={appointment._id}>
                           <td>
-                            <input
+                            <input style={{marginRight:"0.3rem"}}
                               type="checkbox"
                               checked={selectedAppointments.includes(
                                 appointment._id
@@ -617,8 +621,8 @@ const Dashboard = () => {
                                 toggleSelectAppointment(appointment._id)
                               }
                             />
+                            {appointments.indexOf(appointment)}
                           </td>
-                          <td>{appointments.indexOf(appointment) + 1}</td>
                           <td>
                             {appointment.name ||
                               `${appointment.firstName} ${appointment.lastName}`}
@@ -689,8 +693,10 @@ const Dashboard = () => {
                               </option>
                             </select>
                           </td>
-                          <td>{`${appointment.doctor.firstName} ${appointment.doctor.lastName}`}</td>
-                          <td>{appointment.department}</td>
+                          <RequirePermission allowedRoles={["Admin"]}>
+                            <td>{`${appointment.doctor.firstName} ${appointment.doctor.lastName}`}</td>
+                            <td>{appointment.department}</td>
+                          </RequirePermission>
                           <td>
                             {appointment.hasVisited === true ? (
                               <GoCheckCircleFill className="green" />
@@ -750,7 +756,7 @@ const Dashboard = () => {
                               >
                                 <IoReceipt title="Invoice"/>
                               </button>
-                              <RequirePermission allowedRoles={["Admin"]}>
+                              <RequirePermission allowedRoles={["Admin","Doctor"]}>
                                 <button
                                   onClick={() =>
                                     handleDeleteAppointment(appointment._id)

@@ -1137,15 +1137,6 @@ const Prescription = ({ patientId, onClose }) => {
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label>POG</label>
-                <input
-                  type="text"
-                  value={POG}
-                  readOnly
-                  placeholder="Calculated from EDD"
-                />
-              </div>
-              <div className="form-group">
                 <label>LCB</label>
                 <input
                   type="text"
@@ -1160,6 +1151,15 @@ const Prescription = ({ patientId, onClose }) => {
                   <option value="NVD">NVD</option>
                   <option value="LUCS">LUCS</option>
                 </select>
+              </div>
+              <div className="form-group">
+                <label>POG</label>
+                <input
+                  type="text"
+                  value={POG}
+                  readOnly
+                  placeholder="Calculated from EDD"
+                />
               </div>
             </div>
           </>

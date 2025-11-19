@@ -411,6 +411,7 @@ const Preview = () => {
                   <div className="medic-details">
                     <div className="medicine-rows head-row">
                       <b>Sl</b>
+                      <b>Type</b>
                       <b>Medicine</b>
                       <b>Dose</b>
                       <b>Route</b>
@@ -423,8 +424,10 @@ const Preview = () => {
                           <div className="medicine-rows" key={med._id || idx}>
                             <p>{idx + 1}</p>
                             <p>
+                              {med.type && <span>{med.type} </span>}
+                            </p>
+                            <p>
                               {med.name || ""}
-                              {med.type && <span>({med.type}) </span>}
                             </p>
                             <p>{med.dose || ""}</p>
                             <p>{med.route || ""}</p>
@@ -443,7 +446,7 @@ const Preview = () => {
                   {report?.additionalAdvice && (
                     <div className="advice-section">
                       <p>
-                        <b>Additional Advice:</b>
+                        <b>Advice:</b>
                         {report.additionalAdvice}
                       </p>
                     </div>
