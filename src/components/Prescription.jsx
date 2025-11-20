@@ -51,6 +51,13 @@ const Prescription = ({ patientId, onClose }) => {
     });
     return Array.from(map.values());
   }, [symptomSuggestions]);
+  const [temp_complain, setTemp_complain] = useState([
+    "Fever",
+    "Cough",
+    "Headache",
+    "Body Pain",
+    "Cold",
+  ]);
   const [temp_medicalHistory, setTemp_medicalHistory] = useState([
     "HTN(Hypertension)",
     "T2DM(Type-2 Diabetes Mellitus)",
@@ -1060,7 +1067,7 @@ const Prescription = ({ patientId, onClose }) => {
 
       <div className="form-main">
         {gender.toLowerCase() === "female" && (
-          <>
+          <div className="form-group form-row toggle-content" style={{borderRadius:"0.5rem"}}>
             <div className="form-row">
               <div className="form-group">
                 <label>Gravida</label>
@@ -1162,8 +1169,9 @@ const Prescription = ({ patientId, onClose }) => {
                 />
               </div>
             </div>
-          </>
+          </div>
         )}
+        <div className="form-group form-row toggle-content" style={{borderRadius:"0.5rem"}}>
         <div className="form-row">
           <div className="form-group">
             <label>BP (mm of Hg)</label>
@@ -1221,7 +1229,7 @@ const Prescription = ({ patientId, onClose }) => {
             />
           </div>
         </div>
-        <div className="form-row" style={{ marginBottom: "2rem" }}>
+        <div className="form-row" >
           <div className="form-group">
             <label>Height (cm)</label>
             <input
@@ -1264,19 +1272,41 @@ const Prescription = ({ patientId, onClose }) => {
             />
           </div>
         </div>
+        </div>
 
-        <div className="form-group full-width">
-          <label>Presenting Complaints</label>
-          <AutoSuggestInputforSymptom
-            value={complaints || ""}
-            onChange={(e) => {
-              setComplaints(e.target.value);
-            }}
-            onSelect={(item, newValue) => {
-              setComplaints(newValue);
-            }}
-            placeholder="Enter presenting complaints..."
-          />
+        <div className="form-group full-width toggle-section">
+          <label className="toggle-title">Presenting Complaints</label>
+          <div className="form-group form-row toggle-content">
+            <div className="form-row">
+                {temp_complain.map((com) => (
+                  <button
+                    className={"medicalHistory-btns" + (complaints.includes(" " + com + ",") ? "-active": "")}
+                    onClick={() => {
+                      complaints.includes(" " + com + ",")
+                        ? setComplaints(
+                            complaints
+                              .replace(" " + com + ",", "")
+                          )
+                        : setComplaints(
+                            complaints + " " + com + ","
+                          );
+                    }}
+                  >
+                    {com}
+                  </button>
+                ))}
+            </div>
+            <AutoSuggestInputforSymptom
+              value={complaints || ""}
+              onChange={(e) => {
+                setComplaints(e.target.value);
+              }}
+              onSelect={(item, newValue) => {
+                setComplaints(newValue);
+              }}
+              placeholder="Enter presenting complaints..."
+            />
+          </div>
         </div>
         <div className="form-group full-width form-row toggle-section">
           <label onClick={()=>{setToggleOpen({...toggleOpen, medicalHistory: !toggleOpen.medicalHistory})}} 
@@ -1289,14 +1319,17 @@ const Prescription = ({ patientId, onClose }) => {
             <div className="form-group form-row toggle-content">
               <div className="form-row">
                 {temp_medicalHistory.map((history, index) => (
-                  // <div key={index} className="medHistory-checkboxes">
-                  //   <input type="checkbox" />
-                  //   <span>{history}</span>
-                  // </div>
                   <button
-                    className="medicalHistory-btns"
+                    className={"medicalHistory-btns" + (medicalHistory.includes(" " + history + ",") ? "-active": "")}
                     onClick={() => {
-                      setMedicalHistory(medicalHistory + history + ",");
+                      medicalHistory.includes(" " + history + ",")
+                        ? setMedicalHistory(
+                            medicalHistory
+                              .replace(" " + history + ",", "")
+                          )
+                        : setMedicalHistory(
+                            medicalHistory + " " + history + ","
+                          );
                     }}
                   >
                     {history}
@@ -1329,10 +1362,12 @@ const Prescription = ({ patientId, onClose }) => {
           )}
         </div>
         <div>
-          <div className="form-group full-width">
-            <label>
+          <div className="form-group full-width toggle-section">
+            <label >
               <select
-                style={{ padding: "0", border: "none", fontSize: "1rem" }}
+                // style={{ padding: "0", border: "none", fontSize: "1rem" }}
+                style={{ background:"#dae4f1", marginBottom:"0", borderRadius:"0.5rem 0.5rem 0 0", padding:"0.5rem 1rem", fontWeight:"600", color:"#1e293b"}}
+                className="toggle-title"
                 value={diagnosys_heading}
                 onChange={(e) => setDiagnosys_heading(e.target.value)}
               >
@@ -1345,6 +1380,9 @@ const Prescription = ({ patientId, onClose }) => {
                 </option>
               </select>
             </label>
+            <div className="form-group form-row toggle-content"
+             style={{borderRadius:"0 0.5rem 0.5rem 0.5rem"}}
+            >
             <div
               style={{
                 display: "flex",
@@ -1586,7 +1624,6 @@ const Prescription = ({ patientId, onClose }) => {
                 style={{
                   display: "flex",
                   gap: 8,
-                  marginTop: 8,
                   flexWrap: "wrap",
                 }}
               >
@@ -1595,7 +1632,8 @@ const Prescription = ({ patientId, onClose }) => {
                     key={i}
                     style={{
                       padding: "6px 10px",
-                      background: "#eef2ff",
+                      background: "#e8f2ff",
+                      border: "1px solid #dae4f1",
                       borderRadius: 6,
                     }}
                   >
@@ -1626,6 +1664,7 @@ const Prescription = ({ patientId, onClose }) => {
                 )}
               </div>
             </div>
+          </div>
           </div>
         </div>
 
@@ -1798,15 +1837,16 @@ const Prescription = ({ patientId, onClose }) => {
           </div>
         </div>
 
-        <div>
-          <div className="form-row" style={{ marginBottom: 12 }}>
+        <div className="toggle-section">
+          <div className="form-row" >
             {["Test Advice"].map((testType, index) => (
-              <label key={index} style={{ marginRight: "1rem" }}>
+              <label key={index} style={{ marginRight: "1rem" }} className="toggle-title">
                 <input
                   type="checkbox"
                   value={testType}
                   checked={selectedTestTypes.includes(testType)}
                   onChange={(e) => handleCheckboxToggle(e, testType)}
+                  style={{marginRight:"1rem"}}
                 />{" "}
                 {testType}
               </label>
@@ -1815,10 +1855,10 @@ const Prescription = ({ patientId, onClose }) => {
           {/* Test Advice Table */}
           {selectedTestTypes.includes("Test Advice") && (
             <div
-              className="form-group full-width"
-              style={{ overflowX: "auto", marginBottom: "2rem" }}
+              className="form-group full-width toggle-content"
+              style={{ overflowX: "auto", borderRadius:"0 0.5rem 0.5rem 0.5rem" }}
             >
-              <label>Test Name</label>
+              {/* <label>Test Name</label> */}
               <table className="test-advice-table">
                 <thead>
                   <tr>
@@ -1988,7 +2028,7 @@ const Prescription = ({ patientId, onClose }) => {
           )} */}
         </div>
 
-        <div className="form-group full-width">
+        <div className="form-group full-width toggle-content" style={{borderRadius:"0.5rem"}}>
           <label>Advice</label>
           <textarea
             value={additionalAdvice}
@@ -1999,7 +2039,7 @@ const Prescription = ({ patientId, onClose }) => {
         </div>
 
         {/* <div className="form-row"> */}
-        <div className="form-group" style={{ margin: "2rem 0" }}>
+        <div className="form-group toggle-content" style={{ borderRadius:"0.5rem" }}>
           <label>Next Follow-up Date</label>
           <input
             style={{ display: "flex", alignItems: "center" }}

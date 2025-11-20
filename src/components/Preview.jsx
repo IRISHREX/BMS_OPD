@@ -357,7 +357,17 @@ const Preview = () => {
                   {report?.presentingComplaints && (
                     <p>
                       <b>Presenting Complaints: </b>
-                      {report?.presentingComplaints}
+                      {report?.presentingComplaints
+                        ? report.presentingComplaints.slice(
+                            report.presentingComplaints.length - 1,
+                            report.presentingComplaints.length
+                          ) === ","
+                        ? report.presentingComplaints.slice(
+                              0,
+                            report.presentingComplaints.length - 1
+                            )
+                        : report.presentingComplaints
+                        : ""}
                     </p>
                   )}
                   {report.medicalHistory && (

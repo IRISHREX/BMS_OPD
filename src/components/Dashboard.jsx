@@ -504,7 +504,7 @@ const Dashboard = () => {
             <table>
               <thead>
                 <tr>
-                  <th>
+                  <th style={{textAlign:"left"}}>
                     <input style={{marginRight:"0.3rem"}}
                       type="checkbox"
                       onChange={(e) => {
@@ -611,7 +611,7 @@ const Dashboard = () => {
                 {filteredAppointments && filteredAppointments.length > 0
                     ? filteredAppointments.map((appointment) => (
                         <tr key={appointment._id}>
-                          <td>
+                          <td style={{textAlign:"left"}}>
                             <input style={{marginRight:"0.3rem"}}
                               type="checkbox"
                               checked={selectedAppointments.includes(

@@ -80,7 +80,7 @@ const Login = () => {
                 <input type="radio" name="role" value="Doctor" checked={role === 'Doctor'} onChange={() => setRole('Doctor')} /> Doctor
               </label>
               <label style={{ marginLeft: LOGIN_RADIO_LABEL_MARGIN_LEFT }}>
-                <input type="radio" name="role" value="Compounder" checked={role === 'Compounder'} onChange={() => setRole('Compounder')} /> Compounder
+                <input type="radio" name="role" value="Compounder" checked={role === 'Compounder'} onChange={() => setRole('Compounder')} /> Assistant
               </label>
             </div>
             <div style={{ justifyContent: "center", alignItems: "center" }}>
