@@ -399,7 +399,7 @@ body {
   align-items: center;
   z-index: 1101;
 }
-.wrapper .hamburger { display:block }
+.wrapper .hamburger { display:none }
 .show { left: 0; transition: 0.3s }
 @media (max-width: 485px) {
   .wrapper {
@@ -408,6 +408,7 @@ body {
     background-color: #3939d9f2;
     z-index: 1;
   }
+  .wrapper .hamburger{display: block; color: black;}
   
   .show {
     width: 80px;
