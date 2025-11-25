@@ -74,7 +74,7 @@ const Sidebar = () => {
         <div className="links">
           <TiHome onClick={navActions.home} title="Dashboard" />
           
-          <RequirePermission allowedRoles={["Admin", "Doctor"]}>
+          <RequirePermission allowedRoles={["Admin"]}>
             <FaUserMd onClick={navActions.doctors} title="Doctors" />
           </RequirePermission>
 
