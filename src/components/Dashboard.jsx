@@ -488,7 +488,7 @@ const Dashboard = () => {
               >
                 Book Appointment
               </button>
-              <RequirePermission allowedRoles={["Admin","Doctor"]}>
+              <RequirePermission allowedRoles={["Admin"]}>
                 <button
                   className="btn remove-btn"
                   onClick={handleBulkDelete}
@@ -586,7 +586,7 @@ const Dashboard = () => {
                         );
                       }}
                     />
-                    Sl
+                    SN
                   </th>
                   <th>Patient Name</th>
                   <th>Appointment Date</th>
@@ -621,7 +621,7 @@ const Dashboard = () => {
                                 toggleSelectAppointment(appointment._id)
                               }
                             />
-                            {appointments.indexOf(appointment)}
+                            {appointments.indexOf(appointment)+1}
                           </td>
                           <td>
                             {appointment.name ||
@@ -756,7 +756,7 @@ const Dashboard = () => {
                               >
                                 <IoReceipt title="Invoice"/>
                               </button>
-                              <RequirePermission allowedRoles={["Admin","Doctor"]}>
+                              <RequirePermission allowedRoles={["Admin"]}>
                                 <button
                                   onClick={() =>
                                     handleDeleteAppointment(appointment._id)

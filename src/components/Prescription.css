@@ -141,16 +141,20 @@
   .form-group textarea{ padding:0.55rem 0.75rem; border-radius:0.5rem; border:0.0625rem solid #dae4f1; background:#fff }
   .medicalHistory-btns{
     cursor: pointer;
-    padding:0.55rem 0.75rem; border-radius:0.5rem; border:0.0625rem solid #dae4f1;
+    padding:0.3rem 0.5rem; border-radius:0.3rem; border:0.0625rem solid #dae4f1;
     color: #334155;
     background-color: #e8f2ff;
   }
   .medicalHistory-btns-active { 
   cursor: pointer;
-  padding:0.55rem 0.75rem; border-radius:0.5rem;
+  padding:0.3rem 0.5rem; border-radius:0.3rem;
   color: #334155;
   background-color: #f0f9ff; 
   border: 1px solid #0ea5e9; 
+}
+.medicalHistory-btns:hover, .medicalHistory-btns-active:hover {
+  background-color: #e0f2fe;
+  border-color: #0284c7;
 }
 .form-control:focus, .form-group input:focus, label select:focus{ outline:none; border-color:var(--primary-2); box-shadow:0 8px 24px rgba(11,116,255,0.08) }
 
@@ -160,7 +164,7 @@
   .medicine-data{overflow-x: auto;}
   .medicines-list{ min-width: 56.25rem; display:flex; flex-direction:column; gap:0.6rem }
   .medicine-head{ min-width: 56.25rem; font-weight: 600; padding: 0.5rem 0;margin: 0.5rem 0; background: #dae4f1; border-radius: 0.5rem;}
-  .medicine-row{ display:grid; grid-template-columns: 2rem 1.5fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:0.5rem; }
+  .medicine-row{ display:grid; grid-template-columns: 2rem 1.5fr 1fr 1fr 1fr 1fr 1fr 1fr 4.5rem; gap:0.5rem; }
   .parity-box{display: flex; gap: 0.2rem; align-items: start;}
   .medHistory-checkboxes{
     display: flex;

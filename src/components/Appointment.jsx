@@ -511,7 +511,7 @@ const Appointment = () => {
         </div>
         <div className="  appointment-form">
           <div className="appointment-header">
-            <img src="/logo.png" alt="PathologyLab Logo" className="appointment-logo" />
+            {/* <img src="/logo.png" alt="PathologyLab Logo" className="appointment-logo" /> */}
             <h2>Appointment</h2>
           </div>
           <div className="mb-05rem">

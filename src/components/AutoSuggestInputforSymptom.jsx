@@ -2,11 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import AutoSuggestInput from './AutoSuggestInput';
 import api from '../utils/api';
 import './AutoSuggestInputforSymptom.css';
+import { useDispatch, useSelector } from 'react-redux';
+import {add,remove} from "../store/diagnosisSlice";
 
 const AutoSuggestInputforSymptom = ({ value, onChange, onSelect, placeholder }) => {
   const [symptomSuggestions, setSymptomSuggestions] = useState([]);
   const [diseaseSuggestions, setDiseaseSuggestions] = useState([]);
   const debounceRef = useRef(null);
+  const rDiagnosis = useSelector((state) => state.diagnosis.value);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (value) {
@@ -78,8 +82,10 @@ const AutoSuggestInputforSymptom = ({ value, onChange, onSelect, placeholder }) 
             {diseaseSuggestions.map((disease, index) => (
               <li
                 key={index}
-                className="disease-suggestion-item"
-                onClick={() => console.log(`Selected disease: ${disease}`)}
+                className={`disease-suggestion-item ${rDiagnosis.includes(disease)?'selected':''}`}
+                onClick={() =>{ 
+                  rDiagnosis.includes(disease) ? dispatch(remove(disease)) : dispatch(add(disease));
+                }}
               >
                 {disease}
               </li>

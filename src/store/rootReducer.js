@@ -7,6 +7,7 @@ import doctorCreateReducer from './doctorCreateSlice';
 import adminCreateReducer from './adminCreateSlice';
 import previewReducer from './previewSlice';
 import themeReducer from './themeSlice';
+import diagnosisReducer from './diagnosisSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   adminCreate: adminCreateReducer,
   preview: previewReducer,
   theme: themeReducer,
+  diagnosis: diagnosisReducer,
 });
 
 export default rootReducer;

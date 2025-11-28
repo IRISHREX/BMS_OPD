@@ -11,6 +11,8 @@ import { IoIosCloseCircle } from "react-icons/io";
 import { FaSave } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa";
 import { FaChevronUp } from "react-icons/fa";
+import { useSelector, useDispatch } from "react-redux";
+import { change } from "../store/diagnosisSlice";
 
 // Clean, single-component Prescription (5-step slider)
 const Prescription = ({ patientId, onClose }) => {
@@ -21,7 +23,9 @@ const Prescription = ({ patientId, onClose }) => {
   const [nic, setNic] = useState("");
   const [gender, setGender] = useState("");
   const [bookedBy, setBookedBy] = useState("");
+  const rDiagnosis = useSelector((state) => state.diagnosis.value);
   const [initialComplain, setInitialComplain] = useState("");
+  const dispatch = useDispatch();
   const symptomSuggestions = useSymptomSuggestions();
   const medSuggestions = useMedicineSuggestions();
   // server-driven complaint suggestions while typing
@@ -226,6 +230,7 @@ const Prescription = ({ patientId, onClose }) => {
         if (latest.result && latest.result.length) {
           const r = latest.result[0];
           setInitialComplain(r.initialComplain || "");
+          dispatch(change(r.initialComplain || ""));
           setMedicalHistory(r.medicalHistory || "");
           setClinical_findings(r.clinical_findings || "");
           setDiagnosys_heading(r.diagnosys_heading || "Provisional Diagnosis");
@@ -307,7 +312,8 @@ const Prescription = ({ patientId, onClose }) => {
             return r.advice;
           })();
           const payloadSnap = {
-            initialComplain: r.initialComplain || "",
+            // initialComplain: r.initialComplain || "",
+            initialComplain: rDiagnosis || "",
             medicalHistory: r.medicalHistory || "",
             clinical_findings: r.clinical_findings || "",
             diagnosys_heading: r.diagnosys_heading || "Provisional Diagnosis",
@@ -354,7 +360,8 @@ const Prescription = ({ patientId, onClose }) => {
         currentAdvice.medication = medicationAdvice;
       if (selectedTestTypes.includes("Diet")) currentAdvice.diet = dietAdvice;
       const currentSnap = {
-        initialComplain: initialComplain || "",
+        // initialComplain: initialComplain || "",
+        initialComplain: rDiagnosis || "",
         medicalHistory: medicalHistory || "",
         clinical_findings: clinical_findings || "",
         diagnosys_heading: diagnosys_heading || "Provisional Diagnosis",
@@ -826,6 +833,7 @@ const Prescription = ({ patientId, onClose }) => {
               frequency: m.frequency || t.frequency || "",
               route: m.route || "mouth",
               duration: m.duration || "",
+              notes: m.notes || "",
               selected: m.selected || false,
             });
           });
@@ -837,6 +845,7 @@ const Prescription = ({ patientId, onClose }) => {
             frequency: t.frequency || "",
             route: t.route || "mouth",
             duration: t.duration || "",
+            notes: t.notes || "",
             selected: t.selected || false,
           });
         }
@@ -977,7 +986,8 @@ const Prescription = ({ patientId, onClose }) => {
       // refresh original snapshot to current state
       const advSaved = adviceToSave;
       const newSnap = {
-        initialComplain: initialComplain || "",
+        // initialComplain: initialComplain || "",
+        initialComplain: rDiagnosis || "",
         medicalHistory: medicalHistory || "",
         clinical_findings: clinical_findings || "",
         diagnosys_heading: diagnosys_heading || "Provisional Diagnosis",
@@ -1041,6 +1051,10 @@ const Prescription = ({ patientId, onClose }) => {
       // console.log("Calculated BMI:", bmiValue);
     }
   }, [diagnosys.Height, diagnosys.Weight]);
+
+  // useEffect(() => {
+  //   dispatch(change(initialComplain));
+  // }, []);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -1137,8 +1151,9 @@ const Prescription = ({ patientId, onClose }) => {
                 <input
                   style={{ display: "flex", alignItems: "center" }}
                   type="date"
-                  readOnly
+                  // readOnly
                   value={EDD}
+                  onChange={(e)=> setEDD(e.target.value)}
                 />
               </div>
             </div>
@@ -1277,19 +1292,18 @@ const Prescription = ({ patientId, onClose }) => {
         <div className="form-group full-width toggle-section">
           <label className="toggle-title">Presenting Complaints</label>
           <div className="form-group form-row toggle-content">
-            <div className="form-row">
+            <div className="form-row" style={{gap:"0.5rem"}}>
                 {temp_complain.map((com) => (
                   <button
-                    className={"medicalHistory-btns" + (complaints.includes(" " + com + ",") ? "-active": "")}
+                    className={"medicalHistory-btns" + (complaints.includes(com) ? "-active": "")}
                     onClick={() => {
-                      complaints.includes(" " + com + ",")
-                        ? setComplaints(
-                            complaints
-                              .replace(" " + com + ",", "")
-                          )
-                        : setComplaints(
-                            complaints + " " + com + ","
-                          );
+                      complaints.includes(com + ", ")?
+                        setComplaints(complaints.replace(com + ", ", ""))
+                        : complaints.includes(com + ",")?
+                          setComplaints(complaints.replace(com + ",", ""))
+                        : complaints.includes(com)? 
+                          setComplaints(complaints.replace(com, ""))
+                      : setComplaints(complaints + com + ", ");
                     }}
                   >
                     {com}
@@ -1317,19 +1331,18 @@ const Prescription = ({ patientId, onClose }) => {
           </label>
           {toggleOpen.medicalHistory == true && (
             <div className="form-group form-row toggle-content">
-              <div className="form-row">
+              <div className="form-row" style={{gap:"0.5rem"}}>
                 {temp_medicalHistory.map((history, index) => (
                   <button
-                    className={"medicalHistory-btns" + (medicalHistory.includes(" " + history + ",") ? "-active": "")}
+                    className={"medicalHistory-btns" + (medicalHistory.includes(history) ? "-active": "")}
                     onClick={() => {
-                      medicalHistory.includes(" " + history + ",")
-                        ? setMedicalHistory(
-                            medicalHistory
-                              .replace(" " + history + ",", "")
-                          )
-                        : setMedicalHistory(
-                            medicalHistory + " " + history + ","
-                          );
+                      medicalHistory.includes(history + ", ")?
+                        setMedicalHistory(medicalHistory.replace(history + ", ", ""))
+                        : medicalHistory.includes(history + ",")?
+                          setMedicalHistory(medicalHistory.replace(history + ",", ""))
+                        : medicalHistory.includes(history)? 
+                          setMedicalHistory(medicalHistory.replace(history, ""))
+                      : setMedicalHistory(medicalHistory + history + ", ");
                     }}
                   >
                     {history}
@@ -1400,10 +1413,12 @@ const Prescription = ({ patientId, onClose }) => {
               >
                 <AutoSuggestInput
                   style={{ flex: 1 }}
-                  value={initialComplain}
+                  value={rDiagnosis}
+                  // value={initialComplain}
                   onChange={(e) => {
                     // allow manual typing to show in the input
-                    setInitialComplain(e.target.value);
+                    // setInitialComplain(e.target.value);
+                    dispatch(change(e.target.value));
                     setComplaintQuery(e.target.value);
                     // debounce server query (only for last token after last comma)
                     if (complainDebounceRef.current)
@@ -1680,6 +1695,7 @@ const Prescription = ({ patientId, onClose }) => {
                 <span>Route</span>
                 <span>Frequency</span>
                 <span>Duration</span>
+                <span>notes</span>
                 <span>Action</span>
               </div>
               <div className="medicines-list">
@@ -1721,6 +1737,7 @@ const Prescription = ({ patientId, onClose }) => {
                             frequency: item.frequency || copy[idx].frequency,
                             route: item.route || copy[idx].route,
                             duration: item.duration || copy[idx].duration,
+                            notes: item.notes || copy[idx].notes,
                             selected: item.selected || copy[idx].selected,
                           };
                         } else {
@@ -1786,6 +1803,20 @@ const Prescription = ({ patientId, onClose }) => {
                         copy[idx] = {
                           ...copy[idx],
                           duration: e.target.value,
+                        };
+                        setMedicineAdvice(copy);
+                      }}
+                    />
+                    <AutoSuggestInput
+                      single
+                      placeholder="Notes"
+                      value={m.notes || ""}
+                      suggestions={medSuggestions.lists.notes}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
+                        copy[idx] = {
+                          ...copy[idx],
+                          notes: e.target.value,
                         };
                         setMedicineAdvice(copy);
                       }}
