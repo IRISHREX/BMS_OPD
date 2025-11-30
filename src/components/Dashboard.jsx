@@ -505,6 +505,7 @@ const Dashboard = () => {
               <thead>
                 <tr>
                   <th style={{textAlign:"left"}}>
+                    <RequirePermission allowedRoles={["Admin"]}>
                     <input style={{marginRight:"0.3rem"}}
                       type="checkbox"
                       onChange={(e) => {
@@ -586,6 +587,7 @@ const Dashboard = () => {
                         );
                       }}
                     />
+                  </RequirePermission>
                     SN
                   </th>
                   <th>Patient Name</th>
@@ -612,15 +614,17 @@ const Dashboard = () => {
                     ? filteredAppointments.map((appointment) => (
                         <tr key={appointment._id}>
                           <td style={{textAlign:"left"}}>
-                            <input style={{marginRight:"0.3rem"}}
-                              type="checkbox"
-                              checked={selectedAppointments.includes(
-                                appointment._id
-                              )}
-                              onChange={() =>
-                                toggleSelectAppointment(appointment._id)
-                              }
-                            />
+                            <RequirePermission allowedRoles={["Admin"]}>
+                              <input style={{marginRight:"0.3rem"}}
+                                type="checkbox"
+                                checked={selectedAppointments.includes(
+                                  appointment._id
+                                )}
+                                onChange={() =>
+                                  toggleSelectAppointment(appointment._id)
+                                }
+                              />
+                            </RequirePermission>
                             {appointments.indexOf(appointment)+1}
                           </td>
                           <td>

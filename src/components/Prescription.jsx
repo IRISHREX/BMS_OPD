@@ -11,6 +11,7 @@ import { IoIosCloseCircle } from "react-icons/io";
 import { FaSave } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa";
 import { FaChevronUp } from "react-icons/fa";
+import { TbRefresh } from "react-icons/tb";
 import { useSelector, useDispatch } from "react-redux";
 import { change } from "../store/diagnosisSlice";
 
@@ -1081,7 +1082,10 @@ const Prescription = ({ patientId, onClose }) => {
 
       <div className="form-main">
         {gender.toLowerCase() === "female" && (
-          <div className="form-group form-row toggle-content" style={{borderRadius:"0.5rem"}}>
+          <div
+            className="form-group form-row toggle-content"
+            style={{ borderRadius: "0.5rem" }}
+          >
             <div className="form-row">
               <div className="form-group">
                 <label>Gravida</label>
@@ -1153,7 +1157,7 @@ const Prescription = ({ patientId, onClose }) => {
                   type="date"
                   // readOnly
                   value={EDD}
-                  onChange={(e)=> setEDD(e.target.value)}
+                  onChange={(e) => setEDD(e.target.value)}
                 />
               </div>
             </div>
@@ -1186,129 +1190,149 @@ const Prescription = ({ patientId, onClose }) => {
             </div>
           </div>
         )}
-        <div className="form-group form-row toggle-content" style={{borderRadius:"0.5rem"}}>
-        <div className="form-row">
-          <div className="form-group">
-            <label>BP (mm of Hg)</label>
-            <input
-              type="text"
-              placeholder="BP (e.g., 120/80 mmHg)"
-              maxLength={7}
-              value={diagnosys.BP}
-              onChange={(e) =>
-                setDiagnosys({ ...diagnosys, BP: e.target.value })
-              }
-            />
+        <div
+          className="form-group form-row toggle-content"
+          style={{ borderRadius: "0.5rem" }}
+        >
+          <div className="form-row">
+            <div className="form-group">
+              <label>BP (mm of Hg)</label>
+              <input
+                type="text"
+                placeholder="BP (e.g., 120/80 mmHg)"
+                maxLength={7}
+                value={diagnosys.BP}
+                onChange={(e) =>
+                  setDiagnosys({ ...diagnosys, BP: e.target.value })
+                }
+              />
+            </div>
+            <div className="form-group">
+              <label>PR (bpm)</label>
+              <input
+                type="number"
+                // placeholder="PR (bpm)"
+                min="20"
+                max="500"
+                value={diagnosys.PR}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setDiagnosys({ ...diagnosys, PR: v && v > 500 ? 500 : v });
+                }}
+              />
+            </div>
+            <div className="form-group">
+              <label>SPO2 (% in RA)</label>
+              <input
+                type="number"
+                // placeholder="SPO2 (%)"
+                min="0"
+                max="100"
+                inputMode="numeric"
+                value={diagnosys.SPO2}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setDiagnosys({ ...diagnosys, SPO2: v && v > 100 ? 100 : v });
+                }}
+              />
+            </div>
+            <div className="form-group">
+              <label>Temp (F)</label>
+              <input
+                type="number"
+                // placeholder="Temp (F)"
+                min="50"
+                max="200"
+                value={diagnosys.Temp}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setDiagnosys({ ...diagnosys, Temp: v && v > 200 ? 200 : v });
+                }}
+              />
+            </div>
           </div>
-          <div className="form-group">
-            <label>PR (bpm)</label>
-            <input
-              type="number"
-              // placeholder="PR (bpm)"
-              min="20"
-              max="500"
-              value={diagnosys.PR}
-              onChange={(e) => {
-                const v = e.target.value;
-                setDiagnosys({ ...diagnosys, PR: v && v > 500 ? 500 : v });
-              }}
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Height (cm)</label>
+              <input
+                type="number"
+                // placeholder="Height (cm)"
+                min="30"
+                max="250"
+                value={diagnosys.Height}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setDiagnosys({
+                    ...diagnosys,
+                    Height: v && v > 250 ? 250 : v,
+                  });
+                }}
+              />
+            </div>
+            <div className="form-group">
+              <label>Weight (kg)</label>
+              <input
+                type="number"
+                // placeholder="Weight (kg)"
+                min="1"
+                max="300"
+                value={diagnosys.Weight}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setDiagnosys({
+                    ...diagnosys,
+                    Weight: v && v > 300 ? 300 : v,
+                  });
+                }}
+              />
+            </div>
+            <div className="form-group">
+              <label>BMI</label>
+              <input value={diagnosys.BMI} readOnly />
+            </div>
+            <div className="form-group">
+              <label>Others</label>
+              <input
+                value={diagnosys.Others}
+                onChange={(e) =>
+                  setDiagnosys({ ...diagnosys, Others: e.target.value })
+                }
+              />
+            </div>
           </div>
-          <div className="form-group">
-            <label>SPO2 (% in RA)</label>
-            <input
-              type="number"
-              // placeholder="SPO2 (%)"
-              min="0"
-              max="100"
-              inputMode="numeric"
-              value={diagnosys.SPO2}
-              onChange={(e) => {
-                const v = e.target.value;
-                setDiagnosys({ ...diagnosys, SPO2: v && v > 100 ? 100 : v });
-              }}
-            />
-          </div>
-          <div className="form-group">
-            <label>Temp (F)</label>
-            <input
-              type="number"
-              // placeholder="Temp (F)"
-              min="50"
-              max="200"
-              value={diagnosys.Temp}
-              onChange={(e) => {
-                const v = e.target.value;
-                setDiagnosys({ ...diagnosys, Temp: v && v > 200 ? 200 : v });
-              }}
-            />
-          </div>
-        </div>
-        <div className="form-row" >
-          <div className="form-group">
-            <label>Height (cm)</label>
-            <input
-              type="number"
-              // placeholder="Height (cm)"
-              min="30"
-              max="250"
-              value={diagnosys.Height}
-              onChange={(e) => {
-                const v = e.target.value;
-                setDiagnosys({ ...diagnosys, Height: v && v > 250 ? 250 : v });
-              }}
-            />
-          </div>
-          <div className="form-group">
-            <label>Weight (kg)</label>
-            <input
-              type="number"
-              // placeholder="Weight (kg)"
-              min="1"
-              max="300"
-              value={diagnosys.Weight}
-              onChange={(e) => {
-                const v = e.target.value;
-                setDiagnosys({ ...diagnosys, Weight: v && v > 300 ? 300 : v });
-              }}
-            />
-          </div>
-          <div className="form-group">
-            <label>BMI</label>
-            <input value={diagnosys.BMI} readOnly />
-          </div>
-          <div className="form-group">
-            <label>Others</label>
-            <input
-              value={diagnosys.Others}
-              onChange={(e) =>
-                setDiagnosys({ ...diagnosys, Others: e.target.value })
-              }
-            />
-          </div>
-        </div>
         </div>
 
         <div className="form-group full-width toggle-section">
-          <label className="toggle-title">Presenting Complaints</label>
+          <label
+            className="toggle-title"
+            style={{ justifyContent: "start", gap: "0.5rem" }}
+          >
+            Presenting Complaints
+            <div className="refresh-btn">
+              <TbRefresh />
+            </div>
+          </label>
           <div className="form-group form-row toggle-content">
-            <div className="form-row" style={{gap:"0.5rem"}}>
-                {temp_complain.map((com) => (
-                  <button
-                    className={"medicalHistory-btns" + (complaints.includes(com) ? "-active": "")}
-                    onClick={() => {
-                      complaints.includes(com + ", ")?
-                        setComplaints(complaints.replace(com + ", ", ""))
-                        : complaints.includes(com + ",")?
-                          setComplaints(complaints.replace(com + ",", ""))
-                        : complaints.includes(com)? 
-                          setComplaints(complaints.replace(com, ""))
+            <div className="form-row" style={{ gap: "0.5rem" }}>
+              {temp_complain.map((com) => (
+                <button
+                  className={
+                    "medicalHistory-btns" +
+                    (complaints.includes(com) ? "-active" : "")
+                  }
+                  onClick={() => {
+                    complaints.includes(com + ", ")
+                      ? setComplaints(complaints.replace(com + ", ", ""))
+                      : complaints.includes(com + ",")
+                      ? setComplaints(complaints.replace(com + ",", ""))
+                      : complaints.includes(com)
+                      ? setComplaints(complaints.replace(com, ""))
                       : setComplaints(complaints + com + ", ");
-                    }}
-                  >
-                    {com}
-                  </button>
-                ))}
+                  }}
+                >
+                  {com}
+                </button>
+              ))}
             </div>
             <AutoSuggestInputforSymptom
               value={complaints || ""}
@@ -1323,26 +1347,43 @@ const Prescription = ({ patientId, onClose }) => {
           </div>
         </div>
         <div className="form-group full-width form-row toggle-section">
-          <label onClick={()=>{setToggleOpen({...toggleOpen, medicalHistory: !toggleOpen.medicalHistory})}} 
+          <label
+            onClick={() => {
+              setToggleOpen({
+                ...toggleOpen,
+                medicalHistory: !toggleOpen.medicalHistory,
+              });
+            }}
             className="toggle-title"
           >
             Medical History
-            {toggleOpen.medicalHistory == true ? <FaChevronUp />: <FaChevronDown /> }
+            {toggleOpen.medicalHistory == true ? (
+              <FaChevronUp />
+            ) : (
+              <FaChevronDown />
+            )}
           </label>
           {toggleOpen.medicalHistory == true && (
             <div className="form-group form-row toggle-content">
-              <div className="form-row" style={{gap:"0.5rem"}}>
+              <div className="form-row" style={{ gap: "0.5rem" }}>
                 {temp_medicalHistory.map((history, index) => (
                   <button
-                    className={"medicalHistory-btns" + (medicalHistory.includes(history) ? "-active": "")}
+                    className={
+                      "medicalHistory-btns" +
+                      (medicalHistory.includes(history) ? "-active" : "")
+                    }
                     onClick={() => {
-                      medicalHistory.includes(history + ", ")?
-                        setMedicalHistory(medicalHistory.replace(history + ", ", ""))
-                        : medicalHistory.includes(history + ",")?
-                          setMedicalHistory(medicalHistory.replace(history + ",", ""))
-                        : medicalHistory.includes(history)? 
-                          setMedicalHistory(medicalHistory.replace(history, ""))
-                      : setMedicalHistory(medicalHistory + history + ", ");
+                      medicalHistory.includes(history + ", ")
+                        ? setMedicalHistory(
+                            medicalHistory.replace(history + ", ", "")
+                          )
+                        : medicalHistory.includes(history + ",")
+                        ? setMedicalHistory(
+                            medicalHistory.replace(history + ",", "")
+                          )
+                        : medicalHistory.includes(history)
+                        ? setMedicalHistory(medicalHistory.replace(history, ""))
+                        : setMedicalHistory(medicalHistory + history + ", ");
                     }}
                   >
                     {history}
@@ -1358,13 +1399,23 @@ const Prescription = ({ patientId, onClose }) => {
           )}
         </div>
         <div className="form-group toggle-section">
-          <label className="toggle-title"
-            onClick={()=>{setToggleOpen({...toggleOpen, clinicalFindings: !toggleOpen.clinicalFindings})}} 
-          > 
+          <label
+            className="toggle-title"
+            onClick={() => {
+              setToggleOpen({
+                ...toggleOpen,
+                clinicalFindings: !toggleOpen.clinicalFindings,
+              });
+            }}
+          >
             Clinical Findings
-            {toggleOpen.clinicalFindings == true ? <FaChevronUp />: <FaChevronDown /> }
+            {toggleOpen.clinicalFindings == true ? (
+              <FaChevronUp />
+            ) : (
+              <FaChevronDown />
+            )}
           </label>
-          {toggleOpen.clinicalFindings == true &&(
+          {toggleOpen.clinicalFindings == true && (
             <div className="toggle-content form-group">
               <input
                 type="text"
@@ -1376,10 +1427,17 @@ const Prescription = ({ patientId, onClose }) => {
         </div>
         <div>
           <div className="form-group full-width toggle-section">
-            <label >
+            <label style={{ justifyContent: "start", gap: "0.5rem" }}>
               <select
                 // style={{ padding: "0", border: "none", fontSize: "1rem" }}
-                style={{ background:"#dae4f1", marginBottom:"0", borderRadius:"0.5rem 0.5rem 0 0", padding:"0.5rem 1rem", fontWeight:"600", color:"#1e293b"}}
+                style={{
+                  background: "#dae4f1",
+                  marginBottom: "0",
+                  borderRadius: "0.5rem 0.5rem 0 0",
+                  padding: "0.5rem 1rem",
+                  fontWeight: "600",
+                  color: "#1e293b",
+                }}
                 className="toggle-title"
                 value={diagnosys_heading}
                 onChange={(e) => setDiagnosys_heading(e.target.value)}
@@ -1392,294 +1450,206 @@ const Prescription = ({ patientId, onClose }) => {
                   Diffential Diagnosis
                 </option>
               </select>
-            </label>
-            <div className="form-group form-row toggle-content"
-             style={{borderRadius:"0 0.5rem 0.5rem 0.5rem"}}
-            >
-            <div
-              style={{
-                display: "flex",
-                gap: "0.5rem",
-                flexDirection: "column",
-              }}
-            >
               <div
-                style={{
-                  display: "flex",
-                  width: "100%",
-                  gap: "0.5rem",
-                  // alignItems: "center",
-                }}
-              >
-                <AutoSuggestInput
-                  style={{ flex: 1 }}
-                  value={rDiagnosis}
-                  // value={initialComplain}
-                  onChange={(e) => {
-                    // allow manual typing to show in the input
-                    // setInitialComplain(e.target.value);
-                    dispatch(change(e.target.value));
-                    setComplaintQuery(e.target.value);
-                    // debounce server query (only for last token after last comma)
-                    if (complainDebounceRef.current)
-                      clearTimeout(complainDebounceRef.current);
-                    complainDebounceRef.current = setTimeout(async () => {
-                      const val = e.target.value || "";
-                      // Token to search is the last part of the string after a comma, or the whole string if no comma.
-                      const lastToken = (val.split(",").pop() || "").trim();
-                      if (!lastToken) {
-                        setComplaintSuggestions([]);
-                        return;
-                      }
+                className="refresh-btn"
+                onClick={async () => {
+                  try {
+                    const rDiagnosis_arr = rDiagnosis.split(",");
+                    const rDiagnosis_arr_cln = rDiagnosis_arr.filter(
+                      (d) => d.trim() !== ""
+                    );
+
+                    const medicinesMap = new Map(); // Use Map with name as key for true deduplication
+
+                    // Fix: use for...of instead of .map() to properly await async calls
+                    for (const query of rDiagnosis_arr_cln) {
                       try {
-                        setIsFetchingComplaints(true);
+                        console.log("|", query.trim(), "|");
                         const { data } = await api.get(
                           `/api/v1/medical/suggestions/advices`,
-                          { params: { q: lastToken, limit: 100 } }
+                          { params: { q: query.trim(), limit: 20 } }
                         );
-                        // server returns advices
-                        setComplaintSuggestions(
-                          (data.advices || []).map((a) => ({
-                            ...a,
-                            label: a.name,
-                          }))
-                        );
+
+                        console.log(data.advices);
+
+                        // Flatten medicines into Map (deduplicate by medicine name)
+                        if (data.advices && Array.isArray(data.advices)) {
+                          data.advices.forEach((a) => {
+                            if (a.medicines && Array.isArray(a.medicines)) {
+                              a.medicines.forEach((med) => {
+                                // Use medicine name as key to prevent duplicates
+                                const key = (med.name || "")
+                                  .toLowerCase()
+                                  .trim();
+                                if (key && !medicinesMap.has(key)) {
+                                  medicinesMap.set(key, med);
+                                }
+                              });
+                            }
+                          });
+                        }
                       } catch (err) {
-                        setComplaintSuggestions([]);
-                      } finally {
-                        setIsFetchingComplaints(false);
+                        console.log(
+                          "Failed to fetch advices for query:",
+                          query,
+                          err
+                        );
                       }
-                    }, 280);
-                  }}
-                  suggestions={
-                    complaintSuggestions.length
-                      ? complaintSuggestions
-                      : symptomSuggestions
-                  }
-                  placeholder="Type to search complaints or symptoms..."
-                  onSelect={(item, newVal) => {
-                    // determine label
-                    const label =
-                      item && typeof item === "object"
-                        ? item.name ||
-                          (typeof newVal === "string" ? newVal : "")
-                        : typeof newVal === "string"
-                        ? newVal
-                        : item || "";
-                    // Replace last partial token (if present) or append selected label as a new token.
-                    // AutoSuggestInput already updated the value via onChange. Just ensure trailing comma and space.
-                    setInitialComplain(newVal.trim());
-                    setComplaintSuggestions([]);
-                    // track selected complaints list (preserve old behavior)
-                    setSelectedComplaints((prev) => {
-                      const names = new Set(
-                        (prev || []).map((p) => p.name || p)
-                      );
-                      if (item && typeof item === "object") {
-                        if (names.has(item.name)) return prev || [];
-                        return [...(prev || []), item];
-                      }
-                      if (names.has(label)) return prev || [];
-                      return [...(prev || []), label];
-                    });
-                    // append mapped items to medicines/tests/diet if item is object
-                    if (item && typeof item === "object")
-                      autoPopulateFromComplaint(item, true, true);
-                    else autoPopulateFromComplaint(label, false, true);
-                  }}
-                />
-                {/* <button
-                  type="button"
-                  className="icon-btn"
-                  title={autoPopulating ? "Populating..." : "Auto-populate"}
-                  style={{ minWidth: "fit-content", overflowY: "hidden" }}
-                  onClick={() =>
-                    autoPopulateFromComplaint(initialComplain, true)
-                  }
-                  disabled={
-                    !initialComplain || initialComplain.trim().length < 2
-                  }
-                >
-                  {autoPopulating ? "⏳" : "⚡"}
-                </button>
-                <button
-                  type="button"
-                  className="icon-btn secondary"
-                  title="Analyze"
-                  style={{ minWidth: "fit-content", overflowY: "hidden" }}
-                  onClick={async () => {
-                    // call analyze on selected complaints/symptoms
-                    const symptoms = selectedComplaints.length
-                      ? selectedComplaints.flatMap(
-                          (c) =>
-                            c.symptoms || (typeof c === "string" ? [c] : [])
-                        )
-                      : initialComplain
-                      ? [initialComplain]
-                      : [];
-                    try {
-                      const { data } = await api.post(
-                        `/api/v1/medical/analyze`,
-                        { symptoms }
-                      );
-                      setAnalyzeResult(data.suggested || null);
-                      if (data.suggested) {
-                        // apply suggested aggregated results (merge + normalize + dedupe)
-                        // medicines: normalize names and dedupe (case-insensitive)
-                        if (
-                          Array.isArray(data.suggested.medicines) &&
-                          data.suggested.medicines.length
-                        ) {
-                          setMedicineAdvice((prev) => {
-                            const seen = new Map();
-                            // add existing
-                            (prev || []).forEach((p) => {
-                              if (!p || !p.name) return;
-                              const key = (p.name || "").toLowerCase().trim();
-                              if (!seen.has(key)) {
-                                seen.set(key, {
-                                  name: (p.name || "").trim(),
-                                  type: p.type || "",
-                                  dose: p.dose || "",
-                                  frequency: p.frequency || "",
-                                  route: p.route || "",
-                                  duration: p.duration || "",
-                                  selected: p.selected || false,
-                                });
-                              }
-                            });
-                            // add suggested
-                            data.suggested.medicines.forEach((m) => {
-                              if (!m || !m.name) return;
-                              const nm =
-                                typeof m === "string" ? m : m.name || "";
-                              const key = (nm || "").toLowerCase().trim();
-                              if (!seen.has(key)) {
-                                seen.set(key, {
-                                  name: nm.trim(),
-                                  type: m.type || "",
-                                  dose: m.dose || "",
-                                  frequency: m.frequency || "",
-                                  route: m.route || "",
-                                  duration: m.duration || "",
-                                  selected: m.selected || false,
-                                });
-                              }
-                            });
-                            return Array.from(seen.values());
-                          });
-                        }
-                        // test advice: dedupe by testName
-                        if (
-                          Array.isArray(data.suggested.testAdvice) &&
-                          data.suggested.testAdvice.length
-                        ) {
-                          setTestAdviceRows((prev) => {
-                            const seen = new Map();
-                            (prev || []).forEach((p) => {
-                              if (p && p.testName)
-                                seen.set(
-                                  (p.testName || "").toLowerCase().trim(),
-                                  p
-                                );
-                            });
-                            data.suggested.testAdvice.forEach((t) => {
-                              if (t && t.testName)
-                                seen.set(
-                                  (t.testName || "").toLowerCase().trim(),
-                                  {
-                                    testName: (t.testName || "").trim(),
-                                    testType: t.testType || "",
-                                    precautions: t.precautions || "",
-                                    testDate: t.testDate || "",
-                                    selected: t.selected || false,
-                                  }
-                                );
-                            });
-                            return Array.from(seen.values());
-                          });
-                          setSelectedTestTypes((prev) =>
-                            Array.from(
-                              new Set([...(prev || []), "Test Advice"])
-                            )
-                          );
-                        }
-                        // medication advice (string): split lines, dedupe
-                        if (data.suggested.medication) {
-                          setMedicationAdvice((prev) =>
-                            dedupeAndSortLines(
-                              (prev || "") + "\n" + data.suggested.medication
-                            )
-                          );
-                          setSelectedTestTypes((prev) =>
-                            Array.from(new Set([...(prev || []), "Medication"]))
-                          );
-                        }
-                        // diet advice (string): split lines, dedupe
-                        if (data.suggested.diet) {
-                          setDietAdvice((prev) =>
-                            dedupeAndSortLines(
-                              (prev || "") + "\n" + data.suggested.diet
-                            )
-                          );
-                          setSelectedTestTypes((prev) =>
-                            Array.from(new Set([...(prev || []), "Diet"]))
-                          );
-                        }
-                      }
-                    } catch (err) {
-                      toast.error("Analysis failed");
                     }
-                  }}
-                >
-                  🔬
-                </button> */}
+
+                    // Convert Map back to array and update state
+                    const finalMedicines = Array.from(medicinesMap.values());
+                    console.log("Final medicines:", finalMedicines);
+                    setMedicineAdvice(finalMedicines);
+                  } catch (err) {
+                    console.log("Failed to process diagnoses");
+                  }
+                }}
+              >
+                <TbRefresh />
               </div>
+            </label>
+            <div
+              className="form-group form-row toggle-content"
+              style={{ borderRadius: "0 0.5rem 0.5rem 0.5rem" }}
+            >
               <div
                 style={{
                   display: "flex",
-                  gap: 8,
-                  flexWrap: "wrap",
+                  gap: "0.5rem",
+                  flexDirection: "column",
                 }}
               >
-                {(selectedComplaints || []).map((c, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      padding: "6px 10px",
-                      background: "#e8f2ff",
-                      border: "1px solid #dae4f1",
-                      borderRadius: 6,
+                <div
+                  style={{
+                    display: "flex",
+                    width: "100%",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <AutoSuggestInput
+                    style={{ flex: 1 }}
+                    value={rDiagnosis}
+                    // value={initialComplain}
+                    onChange={(e) => {
+                      // allow manual typing to show in the input
+                      // setInitialComplain(e.target.value);
+                      dispatch(change(e.target.value));
+                      setComplaintQuery(e.target.value);
+                      // debounce server query (only for last token after last comma)
+                      if (complainDebounceRef.current)
+                        clearTimeout(complainDebounceRef.current);
+                      complainDebounceRef.current = setTimeout(async () => {
+                        const val = e.target.value || "";
+                        // Token to search is the last part of the string after a comma, or the whole string if no comma.
+                        const lastToken = (val.split(",").pop() || "").trim();
+                        if (!lastToken) {
+                          setComplaintSuggestions([]);
+                          return;
+                        }
+                        try {
+                          setIsFetchingComplaints(true);
+                          const { data } = await api.get(
+                            `/api/v1/medical/suggestions/advices`,
+                            { params: { q: lastToken, limit: 100 } }
+                          );
+                          // server returns advices
+                          setComplaintSuggestions(
+                            (data.advices || []).map((a) => ({
+                              ...a,
+                              label: a.name,
+                            }))
+                          );
+                        } catch (err) {
+                          setComplaintSuggestions([]);
+                        } finally {
+                          setIsFetchingComplaints(false);
+                        }
+                      }, 280);
                     }}
-                  >
-                    <span>{typeof c === "string" ? c : c.name}</span>
-                    <button
-                      style={{ marginLeft: 8 }}
-                      className="remove-btn"
-                      onClick={() =>
-                        setSelectedComplaints((prev) =>
-                          prev.filter((_, idx) => idx !== i)
-                        )
-                      }
+                    suggestions={
+                      complaintSuggestions.length
+                        ? complaintSuggestions
+                        : symptomSuggestions
+                    }
+                    placeholder="Type to search complaints or symptoms..."
+                    onSelect={(item, newVal) => {
+                      // determine label
+                      const label =
+                        item && typeof item === "object"
+                          ? item.name ||
+                            (typeof newVal === "string" ? newVal : "")
+                          : typeof newVal === "string"
+                          ? newVal
+                          : item || "";
+                      // Replace last partial token (if present) or append selected label as a new token.
+                      // AutoSuggestInput already updated the value via onChange. Just ensure trailing comma and space.
+                      setInitialComplain(newVal.trim());
+                      setComplaintSuggestions([]);
+                      // track selected complaints list (preserve old behavior)
+                      setSelectedComplaints((prev) => {
+                        const names = new Set(
+                          (prev || []).map((p) => p.name || p)
+                        );
+                        if (item && typeof item === "object") {
+                          if (names.has(item.name)) return prev || [];
+                          return [...(prev || []), item];
+                        }
+                        if (names.has(label)) return prev || [];
+                        return [...(prev || []), label];
+                      });
+                      // append mapped items to medicines/tests/diet if item is object
+                      if (item && typeof item === "object")
+                        autoPopulateFromComplaint(item, true, true);
+                      else autoPopulateFromComplaint(label, false, true);
+                    }}
+                  />
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {(selectedComplaints || []).map((c, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        padding: "6px 10px",
+                        background: "#e8f2ff",
+                        border: "1px solid #dae4f1",
+                        borderRadius: 6,
+                      }}
                     >
-                      x
-                    </button>
-                  </div>
-                ))}
-                {analyzeResult && (
-                  <div
-                    style={{
-                      padding: "6px 10px",
-                      background: "#ecfdf5",
-                      borderRadius: 6,
-                    }}
-                  >
-                    <strong>Analyze applied</strong>
-                  </div>
-                )}
+                      <span>{typeof c === "string" ? c : c.name}</span>
+                      <button
+                        style={{ marginLeft: 8 }}
+                        className="remove-btn"
+                        onClick={() =>
+                          setSelectedComplaints((prev) =>
+                            prev.filter((_, idx) => idx !== i)
+                          )
+                        }
+                      >
+                        x
+                      </button>
+                    </div>
+                  ))}
+                  {analyzeResult && (
+                    <div
+                      style={{
+                        padding: "6px 10px",
+                        background: "#ecfdf5",
+                        borderRadius: 6,
+                      }}
+                    >
+                      <strong>Analyze applied</strong>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
           </div>
         </div>
 
@@ -1869,15 +1839,19 @@ const Prescription = ({ patientId, onClose }) => {
         </div>
 
         <div className="toggle-section">
-          <div className="form-row" >
+          <div className="form-row">
             {["Test Advice"].map((testType, index) => (
-              <label key={index} style={{ marginRight: "1rem" }} className="toggle-title">
+              <label
+                key={index}
+                style={{ marginRight: "1rem" }}
+                className="toggle-title"
+              >
                 <input
                   type="checkbox"
                   value={testType}
                   checked={selectedTestTypes.includes(testType)}
                   onChange={(e) => handleCheckboxToggle(e, testType)}
-                  style={{marginRight:"1rem"}}
+                  style={{ marginRight: "1rem" }}
                 />{" "}
                 {testType}
               </label>
@@ -1887,7 +1861,10 @@ const Prescription = ({ patientId, onClose }) => {
           {selectedTestTypes.includes("Test Advice") && (
             <div
               className="form-group full-width toggle-content"
-              style={{ overflowX: "auto", borderRadius:"0 0.5rem 0.5rem 0.5rem" }}
+              style={{
+                overflowX: "auto",
+                borderRadius: "0 0.5rem 0.5rem 0.5rem",
+              }}
             >
               {/* <label>Test Name</label> */}
               <table className="test-advice-table">
@@ -2059,7 +2036,10 @@ const Prescription = ({ patientId, onClose }) => {
           )} */}
         </div>
 
-        <div className="form-group full-width toggle-content" style={{borderRadius:"0.5rem"}}>
+        <div
+          className="form-group full-width toggle-content"
+          style={{ borderRadius: "0.5rem" }}
+        >
           <label>Advice</label>
           <textarea
             value={additionalAdvice}
@@ -2070,7 +2050,10 @@ const Prescription = ({ patientId, onClose }) => {
         </div>
 
         {/* <div className="form-row"> */}
-        <div className="form-group toggle-content" style={{ borderRadius:"0.5rem" }}>
+        <div
+          className="form-group toggle-content"
+          style={{ borderRadius: "0.5rem" }}
+        >
           <label>Next Follow-up Date</label>
           <input
             style={{ display: "flex", alignItems: "center" }}
@@ -2088,11 +2071,11 @@ const Prescription = ({ patientId, onClose }) => {
 
       <div className="wizard-footer">
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <FaSave 
+          <FaSave
             title="Save"
             onClick={() => handleSave(false)}
             disabled={!isDirty}
-            style={{fontSize:"2rem", color:"#096dd9", cursor:"pointer"}}
+            style={{ fontSize: "2rem", color: "#096dd9", cursor: "pointer" }}
           />
           <button
             className="btn btn-primary"
@@ -2108,11 +2091,17 @@ const Prescription = ({ patientId, onClose }) => {
           ) : (
             <span style={{ color: "#0f766e" }}>Saved</span>
           )}
-          <IoIosCloseCircle onClick={handleClose} 
+          <IoIosCloseCircle
+            onClick={handleClose}
             title="Close"
-            style={{ cursor: "pointer", fontSize: "2rem", color: "crimson", 
-              position: "fixed", top: "3rem", right: "3.5rem"
-            }} 
+            style={{
+              cursor: "pointer",
+              fontSize: "2rem",
+              color: "crimson",
+              position: "fixed",
+              top: "3rem",
+              right: "3.5rem",
+            }}
           />
         </div>
       </div>

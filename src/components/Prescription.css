@@ -156,6 +156,22 @@
   background-color: #e0f2fe;
   border-color: #0284c7;
 }
+
+.refresh-btn{
+  display: flex;
+  align-items: center;
+  background: #e0f2fe;
+  border: 1px solid #0284c7;
+  padding: 0.4rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  color: #0284c7;
+  box-shadow: 2px 2px 3px #bebebe,-2px -2px 3px #ffffff;
+}
+
+.refresh-btn:active{
+  box-shadow: -2px -2px 3px #bebebe,2px 2px 3px #ffffff;
+}
 .form-control:focus, .form-group input:focus, label select:focus{ outline:none; border-color:var(--primary-2); box-shadow:0 8px 24px rgba(11,116,255,0.08) }
 
 .full-width{ flex:2 }
