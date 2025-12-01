@@ -408,12 +408,39 @@ const MedicineSettings = () => {
                 <label>Type</label>
                 <input name="type" value={form.type} onChange={handleChange} placeholder="Antibiotic, Analgesic..." />
 
-                <label>Route</label>
+                <label>Effected Area</label>
                 <input name="route" value={form.route} onChange={handleChange} placeholder="oral, iv, topical..." />
 
                 <label>Description</label>
                 <textarea name="desese_description" value={form.desese_description} onChange={handleChange} rows={4} />
 
+                <div style={{ display: 'flex', gap: '1rem', margin: '1rem 0' }}>
+                  <div style={{ flex: 1 }}>
+                    <label> 🔎 Add Medicine by Name</label>
+                    <MedicineSearch
+                      searchBy="name"
+                      onSelect={(medicine) => {
+                        // Add the selected medicine to the form's medicines array
+                        setForm(prev => ({
+                          ...prev,
+                          medicines: [...(prev.medicines || []), { ...medicine, selected: true }]
+                        }));
+                      }}
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label>🔍 Add Medicine by Composition</label>
+                    <MedicineSearch
+                      onSelect={(medicine) => {
+                        // Add the selected medicine to the form's medicines array
+                        setForm(prev => ({
+                          ...prev,
+                          medicines: [...(prev.medicines || []), { ...medicine, selected: true }]
+                        }));
+                      }}
+                    />
+                  </div>
+                </div>
                 {/* Structured nested fields */}
                 <h4>Structured Medicines (optional)</h4>
                 {(form.medicines || []).map((m, idx) => (
@@ -431,24 +458,8 @@ const MedicineSettings = () => {
                       flexWrap: 'wrap'
                     }}
                   >
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      <input placeholder="Name" value={m.name} onChange={e => updateMedicineRow(idx, 'name', e.target.value)} />
-                      <button type="button" className="clear-btn" style={{ padding: '4px 8px' }} onClick={() => {
-                        // open a small composition-based search and let user pick a medicine to populate this row
-                        // We reuse MedicineSearch component below; clicking will focus its internal input
-                        const el = document.getElementById(`medicine-search-${idx}`);
-                        if (el) el.querySelector('input')?.focus();
-                      }}>Suggest</button>
-                    </div>
-
-                    <input placeholder="Type" value={m.type} onChange={e => updateMedicineRow(idx, 'type', e.target.value)} />
-                    <input placeholder="Dose" value={m.dose} onChange={e => updateMedicineRow(idx, 'dose', e.target.value)} />
-                    <input placeholder="Freq" value={m.frequency} onChange={e => updateMedicineRow(idx, 'frequency', e.target.value)} />
-                    <input placeholder="Route" value={m.route} onChange={e => updateMedicineRow(idx, 'route', e.target.value)} />
-                    <input placeholder="Duration" value={m.duration} onChange={e => updateMedicineRow(idx, 'duration', e.target.value)} />
-                    <input placeholder="Notes" value={m.notes} onChange={e => updateMedicineRow(idx, 'notes', e.target.value)} />
-
-                    <div id={`medicine-search-${idx}`} style={{ minWidth: 260, flex: '0 0 260px' }}>
+                      <div id={`medicine-search-${idx}`} style={{ minWidth: 260, flex: '0 0 260px' }}>
+                        <div style={{ marginBottom: 4, fontSize: '0.85rem', fontWeight: 600 }}>🔍 Search by composition & Suggest</div>
                       <MedicineSearch
                         // default searchBy composition (can also support name if needed)
                         onSelect={(medicine) => {
@@ -463,40 +474,30 @@ const MedicineSettings = () => {
                         }}
                       />
                     </div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <input placeholder="Name" name="Medicine Name" value={m.name} onChange={e => updateMedicineRow(idx, 'name', e.target.value)} />
+                      {/* <button type="button" className="clear-btn" style={{ padding: '4px 8px' }} onClick={() => {
+                        // open a small composition-based search and let user pick a medicine to populate this row
+                        // We reuse MedicineSearch component below; clicking will focus its internal input
+                        const el = document.getElementById(`medicine-search-${idx}`);
+                        if (el) el.querySelector('input')?.focus();
+                      }}>Suggest</button> */}
+                    </div>
+
+                    <input placeholder="Type" name="type" value={m.type} onChange={e => updateMedicineRow(idx, 'type', e.target.value)} />
+                    <input placeholder="Dose" name="dose" value={m.dose} onChange={e => updateMedicineRow(idx, 'dose', e.target.value)} />
+                    <input placeholder="Freq" name="frequency" value={m.frequency} onChange={e => updateMedicineRow(idx, 'frequency', e.target.value)} />
+                    <input placeholder="Route" name="route" value={m.route} onChange={e => updateMedicineRow(idx, 'route', e.target.value)} />
+                    <input placeholder="Duration" name="duration" value={m.duration} onChange={e => updateMedicineRow(idx, 'duration', e.target.value)} />
+                    <input placeholder="Notes" name="notes" value={m.notes} onChange={e => updateMedicineRow(idx, 'notes', e.target.value)} />
+
+                   
 
                     <button type="button" className="remove-btn" onClick={() => removeMedicineRow(idx)}><FaTrash/></button>
                   </div>
                 ))}
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button type="button" className="add-btn" onClick={addMedicineRow}>Add Medicine Row</button>
-                </div>
-
-                <div style={{ display: 'flex', gap: '1rem', margin: '1rem 0' }}>
-                  <div style={{ flex: 1 }}>
-                    <label>Add Medicine by Name</label>
-                    <MedicineSearch
-                      searchBy="name"
-                      onSelect={(medicine) => {
-                        // Add the selected medicine to the form's medicines array
-                        setForm(prev => ({
-                          ...prev,
-                          medicines: [...(prev.medicines || []), { ...medicine, selected: true }]
-                        }));
-                      }}
-                    />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <label>Add Medicine by Composition</label>
-                    <MedicineSearch
-                      onSelect={(medicine) => {
-                        // Add the selected medicine to the form's medicines array
-                        setForm(prev => ({
-                          ...prev,
-                          medicines: [...(prev.medicines || []), { ...medicine, selected: true }]
-                        }));
-                      }}
-                    />
-                  </div>
                 </div>
 
                 <h4>Structured Test Advice (optional)</h4>

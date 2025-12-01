@@ -10,6 +10,7 @@ import {
 } from '../store/medicineSlice';
 import MedicineForm from './MedicineForm';
 import { FaSearch } from "./DoctorIcons";
+import './MedicineStore.css';
 
 const MedicineStore = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -46,17 +47,6 @@ const MedicineStore = () => {
     setIsEditing(false);
   };
 
-  const handleSave = () => {
-    if (isEditing) {
-      dispatch(updateMedicineRequest(currentMedicine));
-      toast.success("Medicine updated successfully!");
-    } else {
-      dispatch(addMedicineRequest(currentMedicine));
-      toast.success("Medicine added successfully!");
-    }
-    handleCloseModal();
-  };
-  
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this medicine?")) {
       dispatch(deleteMedicineRequest(id));
@@ -65,57 +55,116 @@ const MedicineStore = () => {
   };
 
   return (
-    <section className="page">
-      <h1>Medicine Store</h1>
-      <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem', gap: '0.5rem' }}>
-        <input
-          type="text"
-          placeholder="Search by name..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #ccc', width: '250px' }}
-        />
-        <button type="submit" style={{ background: '#271776ca', color: '#fff', border: 'none', borderRadius: '6px', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <FaSearch /> Search
-        </button>
-        <button type="button" onClick={() => handleOpenModal()} style={{ background: '#271776ca', color: '#fff', border: 'none', borderRadius: '6px', padding: '0.5rem 1rem' }}>
-          Add Medicine
-        </button>
-      </form>
-      <div className="banner">
+    <section className="medicine-store-page">
+      <div className="medicine-store-header">
+        <h1>Medicine Store</h1>
+        <p className="subtitle">Manage your medicine inventory</p>
+      </div>
+
+      <div className="search-bar-container">
+        <form onSubmit={handleSearch} className="search-form">
+          <div className="search-input-wrapper">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by medicine name..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          <button type="submit" className="btn btn-search">
+            Search
+          </button>
+          <button type="button" onClick={() => handleOpenModal()} className="btn btn-add">
+            + Add Medicine
+          </button>
+        </form>
+      </div>
+
+      <div className="medicines-container">
         {loading ? (
-          <p>Loading...</p>
+          <div className="loading-state">
+            <div className="spinner"></div>
+            <p>Loading medicines...</p>
+          </div>
         ) : medicines && medicines.length > 0 ? (
-          medicines.map((medicine) => (
-            <div key={medicine._id} className="card">
-              <h3>{medicine.name}</h3>
-              <p><strong>Composition:</strong> {medicine.composition}</p>
-              <p><strong>Price:</strong> {medicine.price}</p>
-              <p><strong>Description:</strong> {medicine.description}</p>
-              <button onClick={() => handleOpenModal(medicine)}>Edit</button>
-              <button onClick={() => handleDelete(medicine._id)}>Delete</button>
-            </div>
-          ))
+          <div className="medicines-grid">
+            {medicines.map((medicine) => (
+              <div key={medicine._id} className="medicine-card">
+                <div className="medicine-card-header">
+                  <h3 className="medicine-name">{medicine.name}</h3>
+                  {medicine.price && (
+                    <span className="medicine-price">₹{medicine.price}</span>
+                  )}
+                </div>
+                
+                <div className="medicine-card-body">
+                  {medicine.composition && (
+                    <div className="medicine-detail">
+                      <span className="detail-label">Composition:</span>
+                      <span className="detail-value">{medicine.composition}</span>
+                    </div>
+                  )}
+                  
+                  {medicine.description && (
+                    <div className="medicine-detail">
+                      <span className="detail-label">Description:</span>
+                      <p className="detail-description">{medicine.description}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="medicine-card-footer">
+                  <button 
+                    onClick={() => handleOpenModal(medicine)} 
+                    className="btn btn-edit"
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(medicine._id)} 
+                    className="btn btn-delete"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
-          <h1>No Medicines Found!</h1>
+          <div className="empty-state">
+            <svg className="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <h2>No Medicines Found</h2>
+            <p>Try adjusting your search or add a new medicine to get started</p>
+            <button onClick={() => handleOpenModal()} className="btn btn-add">
+              + Add Your First Medicine
+            </button>
+          </div>
         )}
       </div>
+
       <Modal
         isOpen={showModal}
         onRequestClose={handleCloseModal}
         contentLabel={isEditing ? "Edit Medicine" : "Add Medicine"}
-        style={{ overlay: { zIndex: 1000 }, content: { maxWidth: '500px', margin: 'auto', borderRadius: '12px', padding: '2rem' } }}
+        className="medicine-modal"
+        overlayClassName="medicine-modal-overlay"
       >
-        <h2>{isEditing ? "Edit Medicine" : "Add Medicine"}</h2>
+        <div className="modal-header">
+          <h2>{isEditing ? "Edit Medicine" : "Add New Medicine"}</h2>
+          <button className="close-btn" onClick={handleCloseModal}>&times;</button>
+        </div>
+        <div className="modal-body">
           {currentMedicine && (
-            // Use the reusable MedicineForm component for a professional add/edit form
             <MedicineForm
               initialData={currentMedicine}
-              submitLabel={isEditing ? 'Update' : 'Add'}
+              submitLabel={isEditing ? 'Update Medicine' : 'Add Medicine'}
               onCancel={handleCloseModal}
               onSave={(data) => {
                 if (isEditing) {
-                  // include id for update
                   dispatch(updateMedicineRequest({ id: currentMedicine._id || currentMedicine.id, ...data }));
                   toast.success('Medicine updated successfully!');
                 } else {
@@ -126,6 +175,7 @@ const MedicineStore = () => {
               }}
             />
           )}
+        </div>
       </Modal>
     </section>
   );

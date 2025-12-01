@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import './MedicineForm.css';
 
-// Reusable form for creating/updating a Medicine
-// Fields: name, composition (comma separated), type, dose, frequency, route, duration, notes
 const MedicineForm = ({ initialData = {}, onSave, onCancel, submitLabel = 'Save' }) => {
   const [form, setForm] = useState({
     name: '',
-    composition: '', // internal representation as comma-separated string
+    composition: '',
     type: '',
     dose: '',
     frequency: '',
@@ -19,7 +18,9 @@ const MedicineForm = ({ initialData = {}, onSave, onCancel, submitLabel = 'Save'
     if (!initialData) return;
     setForm({
       name: initialData.name || '',
-      composition: Array.isArray(initialData.composition) ? initialData.composition.join(', ') : (initialData.composition || ''),
+      composition: Array.isArray(initialData.composition) 
+        ? initialData.composition.join(', ') 
+        : (initialData.composition || ''),
       type: initialData.type || '',
       dose: initialData.dose || '',
       frequency: initialData.frequency || '',
@@ -29,12 +30,18 @@ const MedicineForm = ({ initialData = {}, onSave, onCancel, submitLabel = 'Save'
     });
   }, [initialData]);
 
-  const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
 
   const handleSubmit = (e) => {
     e && e.preventDefault();
-    // normalize composition into array of trimmed strings
-    const compositionArray = String(form.composition || '').split(',').map(s => s.trim()).filter(Boolean);
+    
+    const compositionArray = String(form.composition || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+    
     const payload = {
       name: (form.name || '').trim(),
       composition: compositionArray,
@@ -45,60 +52,123 @@ const MedicineForm = ({ initialData = {}, onSave, onCancel, submitLabel = 'Save'
       duration: (form.duration || '').trim(),
       notes: (form.notes || '').trim(),
     };
-    if (!payload.name) return alert('Name is required');
+    
+    if (!payload.name) {
+      alert('Name is required');
+      return;
+    }
+    
     if (onSave) onSave(payload);
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <label>
-        Name *
-        <input name="name" value={form.name} onChange={handleChange} required />
-      </label>
-
-      <label>
-        Composition (comma separated)
-        <input name="composition" value={form.composition} onChange={handleChange} placeholder="paracetamol, caffeine" />
-      </label>
-
-      <div style={{ display: 'flex', gap: 8 }}>
-        <label style={{ flex: 1 }}>
-          Type
-          <input name="type" value={form.type} onChange={handleChange} />
+    <div className="medicine-form-container">
+      <div className="form-group full-width">
+        <label className="form-label">
+          Medicine Name <span className="required">*</span>
         </label>
-        <label style={{ flex: 1 }}>
-          Dose
-          <input name="dose" value={form.dose} onChange={handleChange} />
-        </label>
+        <input
+          className="form-input"
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          placeholder="Enter medicine name"
+          required
+        />
       </div>
 
-      <div style={{ display: 'flex', gap: 8 }}>
-        <label style={{ flex: 1 }}>
-          Frequency
-          <input name="frequency" value={form.frequency} onChange={handleChange} />
+      <div className="form-group full-width">
+        <label className="form-label">
+          Composition
+          <span className="helper-text">(comma separated)</span>
         </label>
-        <label style={{ flex: 1 }}>
-          Route
-          <input name="route" value={form.route} onChange={handleChange} />
-        </label>
+        <input
+          className="form-input"
+          name="composition"
+          value={form.composition}
+          onChange={handleChange}
+          placeholder="e.g., paracetamol, caffeine"
+        />
       </div>
 
-      <div style={{ display: 'flex', gap: 8 }}>
-        <label style={{ flex: 1 }}>
-          Duration
-          <input name="duration" value={form.duration} onChange={handleChange} />
-        </label>
-        <label style={{ flex: 1 }}>
-          Notes
-          <input name="notes" value={form.notes} onChange={handleChange} />
-        </label>
+      <div className="form-row">
+        <div className="form-group">
+          <label className="form-label">Type</label>
+          <input
+            className="form-input"
+            name="type"
+            value={form.type}
+            onChange={handleChange}
+            placeholder="e.g., Tablet"
+          />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Dose</label>
+          <input
+            className="form-input"
+            name="dose"
+            value={form.dose}
+            onChange={handleChange}
+            placeholder="e.g., 500mg"
+          />
+        </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 6 }}>
-        <button type="button" className="clear-btn" onClick={onCancel}>Cancel</button>
-        <button type="submit" className="add-btn">{submitLabel}</button>
+      <div className="form-row">
+        <div className="form-group">
+          <label className="form-label">Frequency</label>
+          <input
+            className="form-input"
+            name="frequency"
+            value={form.frequency}
+            onChange={handleChange}
+            placeholder="e.g., Twice daily"
+          />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Route</label>
+          <input
+            className="form-input"
+            name="route"
+            value={form.route}
+            onChange={handleChange}
+            placeholder="e.g., Oral"
+          />
+        </div>
       </div>
-    </form>
+
+      <div className="form-row">
+        <div className="form-group">
+          <label className="form-label">Duration</label>
+          <input
+            className="form-input"
+            name="duration"
+            value={form.duration}
+            onChange={handleChange}
+            placeholder="e.g., 7 days"
+          />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Notes</label>
+          <input
+            className="form-input"
+            name="notes"
+            value={form.notes}
+            onChange={handleChange}
+            placeholder="Additional notes"
+          />
+        </div>
+      </div>
+
+      <div className="form-actions">
+        <button type="button" className="btn-cancel" onClick={onCancel}>
+          Cancel
+        </button>
+        <button type="button" className="btn-submit" onClick={handleSubmit}>
+          {submitLabel}
+        </button>
+      </div>
+    </div>
   );
 };
 
