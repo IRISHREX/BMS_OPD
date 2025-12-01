@@ -6,6 +6,7 @@ import messagesSaga from './messagesSaga';
 import doctorCreateWatcher from './doctorCreateSaga';
 import adminCreateWatcher from './adminCreateSaga';
 import previewWatcher from './previewSaga';
+import medicineSaga from './medicineSaga';
 
 export default function* rootSaga() {
   yield all([
@@ -16,5 +17,6 @@ export default function* rootSaga() {
     doctorCreateWatcher(),
     adminCreateWatcher(),
     previewWatcher(),
+    medicineSaga(),
   ]);
 }

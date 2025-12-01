@@ -4,7 +4,7 @@ import { RiLogoutBoxFill } from "react-icons/ri";
 import { FaBell, FaRegFileAlt, FaUserMd, FaUserNurse, FaUserPlus } from "react-icons/fa";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoPersonAddSharp } from "react-icons/io5";
-// import { FaPrescription } from "react-icons/fa6";
+import { FaPrescription } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
 
 import api from "../utils/api";

@@ -30,6 +30,7 @@ import RequireAuth from "./components/RequireAuth";
 import InvoiceSettings from "./components/InvoiceSettings";
 import InvoicePage from "./components/InvoicePage";
 import ReportsPage from "./components/ReportsPage";
+import MedicineStore from "./components/MedicineStore";
 import CyberPunk404 from "./components/ErrorPage";
 
 const App = () => {
@@ -89,6 +90,11 @@ const App = () => {
         <Route path="/compounders" element={
           <RequireAuth allowedRoles={["Admin","Doctor"]}>
             <Compounders />
+          </RequireAuth>
+        } />
+        <Route path="/medicines" element={
+          <RequireAuth allowedRoles={["Admin","Doctor","Compounder"]}>
+            <MedicineStore />
           </RequireAuth>
         } />
         <Route path="/settings" element={

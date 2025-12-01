@@ -8,6 +8,7 @@ import adminCreateReducer from './adminCreateSlice';
 import previewReducer from './previewSlice';
 import themeReducer from './themeSlice';
 import diagnosisReducer from './diagnosisSlice';
+import medicineReducer from './medicineSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   preview: previewReducer,
   theme: themeReducer,
   diagnosis: diagnosisReducer,
+  medicines: medicineReducer,
 });
 
 export default rootReducer;

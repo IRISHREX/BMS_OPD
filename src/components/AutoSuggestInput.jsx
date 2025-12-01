@@ -106,13 +106,14 @@ export default function AutoSuggestInput({ value, onChange, suggestions = [], pl
               className={i === highlight ? "highlight" : ""}
               onMouseDown={() => selectSuggestion(it)}
             >
-              <div className="suggestion-item-display">
-                <span>{labelOf(it)}</span>
-                {(it && typeof it === 'object' && (it._score || it._matchedAll)) && (
-                  <small className={`suggestion-score ${it._matchedAll ? 'exact' : 'matched'}`}>
-                    {it._matchedAll ? 'Exact' : `Score ${it._score || 0}`}
-                  </small>
-                )}
+              <div className="suggestion-item-display" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <strong style={{ fontSize: '0.95rem' }}>{it?.name || labelOf(it)}</strong>
+                  <span style={{ fontSize: '0.95rem', opacity: 0.8, marginLeft: 8 }}>▾</span>
+                </div>
+                <div style={{ fontSize: '0.82rem', color: '#6b7280' }}>
+                  {(Array.isArray(it?.composition) ? it.composition.join(', ') : (it?.composition || it?.label || ''))}
+                </div>
               </div>
             </li>
           ))}
