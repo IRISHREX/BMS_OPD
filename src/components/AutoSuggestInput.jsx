@@ -20,7 +20,9 @@ export default function AutoSuggestInput({ value, onChange, suggestions = [], pl
   const labelOf = (item) => {
     if (item == null) return '';
     if (typeof item === 'string') return item;
-    return item.name || item.label || item.value || String(item);
+    // Prefer `label` (may contain name + composition) so client-side
+    // filtering matches composition tokens too.
+    return item.label || item.name || item.value || String(item);
   };
 
   useEffect(() => {
