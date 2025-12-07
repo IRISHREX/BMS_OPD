@@ -7,11 +7,13 @@ import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./Prescription.css";
-import { IoIosCloseCircle } from "react-icons/io";
+import { addMedicineRequest } from "../store/medicineSlice";
+import { IoIosClose, IoIosCloseCircle, IoIosCloseCircleOutline } from "react-icons/io";
 import { FaSave } from "react-icons/fa";
+import { BsPrinter, BsTrash } from "react-icons/bs";
 import { FaChevronDown } from "react-icons/fa";
 import { FaChevronUp } from "react-icons/fa";
-import { TbRefresh } from "react-icons/tb";
+import { TbLoader3, TbRefresh } from "react-icons/tb";
 import { useSelector, useDispatch } from "react-redux";
 import { change } from "../store/diagnosisSlice";
 
@@ -1624,15 +1626,20 @@ const Prescription = ({ patientId, onClose }) => {
                     >
                       <span>{typeof c === "string" ? c : c.name}</span>
                       <button
-                        style={{ marginLeft: 8 }}
+                        type="button"
                         className="remove-btn"
+                        style={{
+                          marginLeft: 8,
+                          display: "inline-flex",
+                          alignItems: "center",
+                        }}
                         onClick={() =>
                           setSelectedComplaints((prev) =>
                             prev.filter((_, idx) => idx !== i)
                           )
                         }
                       >
-                        x
+                        <BsTrash />
                       </button>
                     </div>
                   ))}
@@ -1791,17 +1798,32 @@ const Prescription = ({ patientId, onClose }) => {
                         setMedicineAdvice(copy);
                       }}
                     />
-                    <button
-                      type="button"
-                      className="remove-btn"
-                      onClick={() => {
-                        const copy = [...medicineAdvice];
-                        copy.splice(idx, 1);
-                        setMedicineAdvice(copy);
-                      }}
-                    >
-                      Remove
-                    </button>
+                    <div className="medicine-actions">
+                      <button
+                        type="button"
+                        className="remove-btn"
+                        onClick={() => {
+                          const copy = [...medicineAdvice];
+                          copy.splice(idx, 1);
+                          setMedicineAdvice(copy);
+                        }}
+                      >
+                        <BsTrash />
+                      </button>
+                      {m.name && !medSuggestions.medicines.find(med => med.name.toLowerCase() === m.name.toLowerCase()) && (
+                        <button
+                          type="button"
+                          className="save-btn"
+                          title="Save this medicine to the database"
+                          onClick={() => {
+                            dispatch(addMedicineRequest({ name: m.name }));
+                            toast.success(`Medicine "${m.name}" saved!`);
+                          }}
+                        >
+                          <FaSave />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
                 <div className="medicine-actions">
@@ -1953,7 +1975,7 @@ const Prescription = ({ patientId, onClose }) => {
                             setTestAdviceRows(copy);
                           }}
                         >
-                          Remove
+                          <BsTrash />
                         </button>
                       </td>
                       {/* <td>
@@ -2082,25 +2104,32 @@ const Prescription = ({ patientId, onClose }) => {
             onClick={() => handleSave(true)}
             disabled={!isDirty}
           >
-            Save & Print
+            <BsPrinter/>
           </button>
         </div>
         <div className="cross-box">
           {isDirty ? (
-            <span style={{ color: "#b45309" }}>Unsaved changes</span>
+            <span style={{
+              cursor: "pointer",
+              fontSize: "2rem",
+              color: "#e3ea20ff",
+              position: "fixed",
+              top: "0.2rem",
+              right: "3.5rem",
+            }}><TbLoader3/></span>
           ) : (
             <span style={{ color: "#0f766e" }}>Saved</span>
           )}
-          <IoIosCloseCircle
+          <IoIosCloseCircleOutline
             onClick={handleClose}
             title="Close"
             style={{
               cursor: "pointer",
               fontSize: "2rem",
-              color: "crimson",
+              color: "#f03368ff",
               position: "fixed",
-              top: "3rem",
-              right: "3.5rem",
+              top: "0.2rem",
+              left: "3.5rem",
             }}
           />
         </div>
