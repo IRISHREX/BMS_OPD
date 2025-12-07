@@ -52,8 +52,8 @@ const InvoiceViewer = ({ invoiceId, isOpen, onClose }) => {
                 {invoice.patient?.phone ? `, Phone: ${invoice.patient.phone}` : ''}
               </div>
             </div>
-            <div style={{ marginBottom: 8 }}><b>Date:</b> {invoice.issuedAt ? String(invoice.issuedAt).substring(0, 10) : (invoice.date ? String(invoice.date).substring(0, 10) : '-')}</div>
-            <div style={{ marginBottom: 8 }}><b>Status:</b> {invoice.status || '-'}</div>
+            <div style={{ marginBottom: 8 }}><b>Date:</b> {invoice.issuedAt ? new Date(invoice.issuedAt).toLocaleDateString() : (invoice.date ? new Date(invoice.date).toLocaleDateString() : '-')}</div>
+            <div style={{ marginBottom: 8 }}><b>Status:</b> <span style={{ padding: '2px 8px', background: '#f0f0f0', borderRadius: 4 }}>{invoice.status || '-'}</span></div>
             <div style={{ marginBottom: 8 }}><b>Items:</b>
               <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 8 }}>
                 <thead>
@@ -78,16 +78,16 @@ const InvoiceViewer = ({ invoiceId, isOpen, onClose }) => {
                 </tbody>
               </table>
             </div>
-            <div style={{ marginBottom: 8 }}><b>Subtotal:</b> {invoice.subtotal || invoice.total || 0}</div>
-            <div style={{ marginBottom: 8 }}><b>Tax:</b> {invoice.tax || 0}</div>
-            <div style={{ marginBottom: 8 }}><b>Discount:</b> {invoice.discount || 0}</div>
-            <div style={{ marginBottom: 8, fontWeight: 'bold', fontSize: 18 }}><b>Total:</b> {invoice.total || invoice.subtotal || 0}</div>
+            <div style={{ marginBottom: 8 }}><b>Subtotal:</b> {(Number(invoice.subtotal) || 0).toFixed(2)}</div>
+            <div style={{ marginBottom: 8 }}><b>Tax:</b> {(Number(invoice.tax) || 0).toFixed(2)}</div>
+            <div style={{ marginBottom: 8 }}><b>Discount:</b> {(Number(invoice.discount) || 0).toFixed(2)}</div>
+            <div style={{ marginBottom: 8, fontWeight: 'bold', fontSize: 18 }}><b>Total:</b> {(Number(invoice.total) || 0).toFixed(2)}</div>
             <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
               <button onClick={download} style={{ padding: '8px 20px', background: '#0859af', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Download</button>
               <button onClick={() => { if (window.history.length > 1) window.history.back(); else if (onClose) onClose(); }} style={{ padding: '8px 20px', background: '#eee', color: '#222', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Close</button>
             </div>
           </div>
-        ) : <div>Loading...</div>}
+        ) : <div><span className="loader"></span></div>}
       </div>
     </Modal>
   );

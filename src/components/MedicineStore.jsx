@@ -97,7 +97,7 @@ const MedicineStore = () => {
       <div className="medicines-container">
         {loading ? (
           <div className="loading-state">
-            <div className="spinner"></div>
+            <span className="loader"></span>
             <p>Loading medicines...</p>
           </div>
         ) : medicines && medicines.length > 0 ? (

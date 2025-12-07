@@ -323,7 +323,7 @@ const MedicineSettings = () => {
               {loading ? (
                 Array.from({ length: 6 }).map((_, idx) => (
                   <div key={`ph-${idx}`} className="medicine-list-item-skeleton">
-                    <div className="muted">Loading...</div>
+                    <div className="muted"><span className="loader"></span></div>
                   </div>
                 ))
               ) : (
@@ -407,7 +407,7 @@ const MedicineSettings = () => {
             }))}
           />
         )}
-        <footer className="settings-footer">PathologyLab Dashboard • © {new Date().getFullYear()}</footer>
+        <footer className="settings-footer">OPD Dashboard • © {new Date().getFullYear()}</footer>
       </>
     </section>
   );

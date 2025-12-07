@@ -9,8 +9,8 @@ const InvoiceSettings = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [total, setTotal] = useState(0);
-  const [filters, setFilters] = useState({ patient:'', doctor:'', appointment:'', status:'' });
-  const [form, setForm] = useState({ invoiceNumber: '', patient: '', appointment: '', doctor:'', items: [], tax:0, discount:0, dueDate: '', status: 'Pending' });
+  const [filters, setFilters] = useState({ patient:'', doctor:'', appointment:'', status:'', start: '', end: '' });
+  const [form, setForm] = useState({ invoiceNumber: '', patient: '', appointment: '', doctor:'', items: [], tax:0, discount:0, dueDate: '', status: 'Unpaid', notes: '' });
   const [editing, setEditing] = useState(null);
   const [doctors, setDoctors] = useState([]);
   const [dashboardUser, setDashboardUser] = useState(null);
@@ -21,6 +21,7 @@ const InvoiceSettings = () => {
       const params = { page: opts.page || page, limit: opts.limit || limit, q: query, ...filters };
       const { data } = await api.get('/api/v1/invoice', { params });
       setInvoices(data.invoices || []);
+      // backend returns invoices list; compute total locally when not provided
       setTotal(data.total || (data.invoices || []).length);
   } catch (e) { alert('Failed to load invoices'); }
     finally { setLoading(false); }
@@ -61,13 +62,18 @@ const InvoiceSettings = () => {
     })();
   }, [dashboardUser]);
 
-  useEffect(()=>{ fetchInvoices({ page:1 }); }, [filters.doctor]);
+  useEffect(()=>{ fetchInvoices({ page:1 }); }, [filters.doctor, filters.status, filters.start, filters.end]);
 
   const handleSearch = async () => { setPage(1); fetchInvoices({ page:1 }); };
 
   const handleCreateOrUpdate = async () => {
     try {
-      const payload = { ...form };
+      // ensure numeric values and valid items; include computed totals
+      const payload = { ...form, tax: Number(form.tax || 0), discount: Number(form.discount || 0) };
+      // compute subtotal and total from items to send to backend (backend will normalize too)
+      const computedSubtotal = (payload.items || []).reduce((s, it) => s + (Number(it.total) || (Number(it.quantity || 0) * Number(it.unitPrice || 0)) ), 0);
+      payload.subtotal = computedSubtotal;
+      payload.total = Math.max(0, computedSubtotal + Number(payload.tax || 0) - Number(payload.discount || 0));
       if (editing) {
         const { data } = await api.put(`/api/v1/invoice/${editing}`, payload);
         setInvoices(prev => prev.map(i => (i._id === data.invoice._id ? data.invoice : i)));
@@ -78,15 +84,54 @@ const InvoiceSettings = () => {
         setInvoices(prev => [data.invoice, ...prev]);
         alert('Invoice created');
       }
-      setForm({ invoiceNumber: '', patient: '', appointment: '', doctor:'', items: [], tax:0, discount:0, dueDate: '', status: 'Pending' });
+      setForm({ invoiceNumber: '', patient: '', appointment: '', doctor:'', items: [], tax:0, discount:0, dueDate: '', status: 'Unpaid', notes: '' });
   } catch (e) { alert('Failed to save invoice'); }
   };
 
   const handleEdit = (inv) => {
     setEditing(inv._id || inv.id);
-    setForm({ invoiceNumber: inv.invoiceNumber || '', patient: inv.patient?._id || inv.patient || '', appointment: inv.appointment?._id || inv.appointment || '', doctor: inv.doctor?._id || inv.doctor || '', items: inv.items || [], tax: inv.tax||0, discount: inv.discount||0, dueDate: inv.dueDate||'', status: inv.status||'Pending' });
+    const items = (inv.items || []).map(it => ({
+      description: it.description || '',
+      quantity: Number(it.quantity || 1),
+      unitPrice: Number(it.unitPrice || it.price || 0),
+      total: Number(it.total != null ? it.total : (Number(it.quantity || 1) * Number(it.unitPrice || it.price || 0))),
+      _id: it._id || String(Math.random()).slice(2)
+    }));
+    setForm({ invoiceNumber: inv.invoiceNumber || '', patient: inv.patient?._id || inv.patient || '', appointment: inv.appointment?._id || inv.appointment || '', doctor: inv.doctor?._id || inv.doctor || '', items, tax: inv.tax||0, discount: inv.discount||0, dueDate: inv.dueDate||'', status: inv.status||'Unpaid' });
     window.scrollTo({ top:0, behavior:'smooth' });
   };
+
+  const addItem = () => {
+    setForm(f => ({ ...f, items: [ ...(f.items || []), { description: '', quantity: 1, unitPrice: 0, total: 0, _id: String(Date.now()) } ] }));
+  };
+
+  const updateItem = (index, field, value) => {
+    setForm(f => {
+      const items = (f.items || []).map((it, i) => {
+        if (i !== index) return it;
+        const updated = { ...it };
+        if (field === 'description') updated.description = value;
+        else if (field === 'quantity') updated.quantity = Number(value || 0);
+        else if (field === 'unitPrice') updated.unitPrice = Number(value || 0);
+        // recalc total when qty or unitPrice changes
+        if (field === 'quantity' || field === 'unitPrice') {
+          updated.total = Number(updated.quantity || 0) * Number(updated.unitPrice || 0);
+        }
+        return updated;
+      });
+      return { ...f, items };
+    });
+  };
+
+  const removeItem = (index) => {
+    setForm(f => ({ ...f, items: (f.items || []).filter((_, i) => i !== index) }));
+  };
+
+  const computedSubtotal = useMemo(() => {
+    return (form.items || []).reduce((s, it) => s + (Number(it.total) || (Number(it.quantity || 0) * Number(it.unitPrice || 0)) ), 0);
+  }, [form.items]);
+
+  const computedTotal = useMemo(() => Math.max(0, computedSubtotal + Number(form.tax || 0) - Number(form.discount || 0)), [computedSubtotal, form.tax, form.discount]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete invoice?')) return;
@@ -117,15 +162,71 @@ const InvoiceSettings = () => {
             <input placeholder="Patient ID" value={form.patient} onChange={e=>setForm({...form, patient: e.target.value})} />
             <input placeholder="Appointment ID (optional)" value={form.appointment} onChange={e=>setForm({...form, appointment: e.target.value})} />
             <input placeholder="Doctor ID (optional)" value={form.doctor} onChange={e=>setForm({...form, doctor: e.target.value})} />
-            <textarea placeholder="Items JSON" value={JSON.stringify(form.items)} onChange={e=>{ try { setForm({...form, items: JSON.parse(e.target.value)}); } catch(err){} }} rows={4} />
+            <div style={{ border: '1px solid #e8e8e8', padding: 8, borderRadius: 6 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+                <div style={{ fontWeight:600 }}>Items</div>
+                <div>
+                  <button onClick={addItem} style={{ padding: '6px 10px' }}>+ Add Item</button>
+                </div>
+              </div>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 8 }}>
+                <thead>
+                  <tr style={{ textAlign: 'left', borderBottom: '1px solid #f0f0f0' }}>
+                    <th style={{ padding: '6px' }}>Description</th>
+                    <th style={{ padding: '6px', width: 80 }}>Qty</th>
+                    <th style={{ padding: '6px', width: 120 }}>Unit Price</th>
+                    <th style={{ padding: '6px', width: 120 }}>Total</th>
+                    <th style={{ padding: '6px', width: 60 }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(form.items || []).length === 0 && (
+                    <tr><td colSpan={5} style={{ padding: 8, textAlign: 'center', color:'#666' }}>No items added</td></tr>
+                  )}
+                  {(form.items || []).map((it, idx) => (
+                    <tr key={it._id || idx}>
+                      <td style={{ padding: 6 }}>
+                        <input value={it.description} onChange={e=>updateItem(idx, 'description', e.target.value)} style={{ width: '100%' }} />
+                      </td>
+                      <td style={{ padding: 6 }}>
+                        <input type="number" min={0} value={it.quantity} onChange={e=>updateItem(idx, 'quantity', e.target.value)} style={{ width: '100%' }} />
+                      </td>
+                      <td style={{ padding: 6 }}>
+                        <input type="number" min={0} value={it.unitPrice} onChange={e=>updateItem(idx, 'unitPrice', e.target.value)} style={{ width: '100%' }} />
+                      </td>
+                      <td style={{ padding: 6, textAlign: 'right' }}>{(Number(it.total) || 0).toFixed(2)}</td>
+                      <td style={{ padding: 6 }}>
+                        <button onClick={()=>removeItem(idx)} style={{ color:'#c00' }}>Remove</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <input placeholder="Notes (optional)" value={form.notes} onChange={e=>setForm({...form, notes: e.target.value})} />
             <div style={{ display:'grid',gridTemplateColumns:'150px 100px 100px', gap:8, width:'100%' }}>
               <input placeholder="Due Date" type='date' value={form.dueDate} onChange={e=>setForm({...form, dueDate: e.target.value})} />
               <input placeholder="Tax" value={form.tax} onChange={e=>setForm({...form, tax: Number(e.target.value)})} />
               <input placeholder="Discount" value={form.discount} onChange={e=>setForm({...form, discount: Number(e.target.value)})} />
             </div>
-            <div style={{ display:'flex', gap:8 }}>
-              <button onClick={handleCreateOrUpdate}>{editing ? 'Update' : 'Create'}</button>
-              {editing && <button onClick={()=>{ setEditing(null); setForm({ invoiceNumber: '', patient: '', appointment: '', doctor:'', items: [], tax:0, discount:0, dueDate: '', status: 'Pending' }); }}>Cancel</button>}
+            <label style={{ marginTop: 6 }}>Status:
+              <select value={form.status} onChange={e=>setForm({...form, status: e.target.value})}>
+                <option value="Unpaid">Unpaid</option>
+                <option value="Partial">Partial</option>
+                <option value="Paid">Paid</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </label>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:8 }}>
+              <div style={{ fontSize:14 }}>
+                <div>Subtotal: <strong>{computedSubtotal.toFixed(2)}</strong></div>
+                <div>Tax: <strong>{Number(form.tax || 0).toFixed(2)}</strong> • Discount: <strong>{Number(form.discount || 0).toFixed(2)}</strong></div>
+                <div style={{ marginTop:6, fontSize:16 }}>Total: <strong>{computedTotal.toFixed(2)}</strong></div>
+              </div>
+              <div style={{ display:'flex', gap:8 }}>
+                <button onClick={handleCreateOrUpdate}>{editing ? 'Update' : 'Create'}</button>
+                {editing && <button onClick={()=>{ setEditing(null); setForm({ invoiceNumber: '', patient: '', appointment: '', doctor:'', items: [], tax:0, discount:0, dueDate: '', status: 'Unpaid', notes: '' }); }}>Cancel</button>}
+              </div>
             </div>
           </div>
         </div>
