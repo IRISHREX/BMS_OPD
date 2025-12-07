@@ -7,6 +7,9 @@ import {
   addMedicineRequest,
   addMedicineSuccess,
   addMedicineFailure,
+  addMedicinesRequest,
+  addMedicinesSuccess,
+  addMedicinesFailure,
   updateMedicineRequest,
   updateMedicineSuccess,
   updateMedicineFailure,
@@ -43,6 +46,16 @@ function* addMedicineSaga(action) {
   }
 }
 
+function* addMedicinesSaga(action) {
+  try {
+    yield call(api.post, '/api/v1/medicine/add/bulk', action.payload);
+    yield put(addMedicinesSuccess());
+    yield put(fetchMedicinesRequest());
+  } catch (err) {
+    yield put(addMedicinesFailure(err?.response?.data?.message || err.message || 'Failed to add medicines'));
+  }
+}
+
 function* updateMedicineSaga(action) {
   try {
     const { id, ...data } = action.payload;
@@ -67,6 +80,7 @@ function* deleteMedicineSaga(action) {
 export default function* medicineSaga() {
   yield debounce(300, fetchMedicinesRequest.type, fetchMedicinesSaga);
   yield takeLatest(addMedicineRequest.type, addMedicineSaga);
+  yield takeLatest(addMedicinesRequest.type, addMedicinesSaga);
   yield takeLatest(updateMedicineRequest.type, updateMedicineSaga);
   yield takeLatest(deleteMedicineRequest.type, deleteMedicineSaga);
 }

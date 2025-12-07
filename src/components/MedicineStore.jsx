@@ -6,10 +6,12 @@ import { toast } from "react-toastify";
 import {
   fetchMedicinesRequest,
   addMedicineRequest,
+  addMedicinesRequest,
   updateMedicineRequest,
   deleteMedicineRequest,
 } from '../store/medicineSlice';
 import MedicineForm from './MedicineForm';
+import BulkMedicineForm from './BulkMedicineForm';
 import { FaSearch } from "./DoctorIcons";
 import { FaTrash } from 'react-icons/fa6';
 import { FaPen } from 'react-icons/fa';
@@ -19,6 +21,7 @@ import './MedicineStore.css';
 const MedicineStore = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentMedicine, setCurrentMedicine] = useState(null);
   const dispatch = useDispatch();
@@ -50,6 +53,14 @@ const MedicineStore = () => {
     setShowModal(false);
     setCurrentMedicine(null);
     setIsEditing(false);
+  };
+
+  const handleOpenBulkModal = () => {
+    setShowBulkModal(true);
+  };
+
+  const handleCloseBulkModal = () => {
+    setShowBulkModal(false);
   };
 
   const handleDelete = (id) => {
@@ -90,6 +101,9 @@ const MedicineStore = () => {
           </button>
           <button type="button" onClick={() => handleOpenModal()} className="btn btn-add">
             + Add Medicine
+          </button>
+          <button type="button" onClick={handleOpenBulkModal} className="btn btn-add">
+            + Add Bulk Medicines
           </button>
         </form>
       </div>
@@ -194,6 +208,31 @@ const MedicineStore = () => {
         </div>
         
       </Modal>
+
+      <Modal
+        isOpen={showBulkModal}
+        onRequestClose={handleCloseBulkModal}
+        contentLabel="Add Bulk Medicines"
+        className="medicine-modal"
+        overlayClassName="medicine-modal-overlay"
+      >
+        <div className="modal-header">
+          <h2>Add Bulk Medicines</h2>
+          <button className="close-btn" onClick={handleCloseBulkModal}>&times;</button>
+        </div>
+        <div className="modal-body">
+          <BulkMedicineForm
+            submitLabel="Add Medicines"
+            onCancel={handleCloseBulkModal}
+            onSave={(data) => {
+              dispatch(addMedicinesRequest(data));
+              toast.success('Medicines added successfully!');
+              handleCloseBulkModal();
+            }}
+          />
+        </div>
+      </Modal>
+
       </div>
     </section>
   );
