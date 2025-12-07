@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
+import './Settings.css';
 import Modal from 'react-modal';
 import { toast } from 'react-toastify';
 
@@ -53,9 +54,9 @@ const InvoiceViewer = ({ invoiceId, isOpen, onClose }) => {
               </div>
             </div>
             <div style={{ marginBottom: 8 }}><b>Date:</b> {invoice.issuedAt ? new Date(invoice.issuedAt).toLocaleDateString() : (invoice.date ? new Date(invoice.date).toLocaleDateString() : '-')}</div>
-            <div style={{ marginBottom: 8 }}><b>Status:</b> <span style={{ padding: '2px 8px', background: '#f0f0f0', borderRadius: 4 }}>{invoice.status || '-'}</span></div>
+            <div style={{ marginBottom: 8 }}><b>Status:</b> <span className={invoice.status === 'Paid' ? 'badge-status badge-paid' : invoice.status === 'Partial' ? 'badge-status badge-partial' : invoice.status === 'Cancelled' ? 'badge-status badge-cancelled' : 'badge-status badge-unpaid'}>{invoice.status || '-'}</span></div>
             <div style={{ marginBottom: 8 }}><b>Items:</b>
-              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 8 }}>
+              <table className="invoice-items-table" style={{ marginTop: 8 }}>
                 <thead>
                   <tr style={{ background: '#f5f5f5' }}>
                     <th style={{ textAlign: 'left', padding: '4px 8px' }}>Description</th>
@@ -83,8 +84,8 @@ const InvoiceViewer = ({ invoiceId, isOpen, onClose }) => {
             <div style={{ marginBottom: 8 }}><b>Discount:</b> {(Number(invoice.discount) || 0).toFixed(2)}</div>
             <div style={{ marginBottom: 8, fontWeight: 'bold', fontSize: 18 }}><b>Total:</b> {(Number(invoice.total) || 0).toFixed(2)}</div>
             <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
-              <button onClick={download} style={{ padding: '8px 20px', background: '#0859af', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Download</button>
-              <button onClick={() => { if (window.history.length > 1) window.history.back(); else if (onClose) onClose(); }} style={{ padding: '8px 20px', background: '#eee', color: '#222', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Close</button>
+              <button className="btn btn-primary" onClick={download}>Download</button>
+              <button className="btn btn-ghost" onClick={() => { if (window.history.length > 1) window.history.back(); else if (onClose) onClose(); }}>Close</button>
             </div>
           </div>
         ) : <div><span className="loader"></span></div>}

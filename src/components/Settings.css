@@ -325,6 +325,49 @@
   gap: 1.2rem;
 }
 
+/* --- Invoice Form & Table Styles --- */
+.invoice-form-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+   
+}
+
+.invoice-form-card h3 { margin-top: 0; color: var(--text-primary); }
+
+.invoice-input { width: 100%; padding: 0.6rem 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.95rem; }
+.invoice-input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(79,70,229,0.06); }
+
+.invoice-items-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.invoice-items-table th, .invoice-items-table td { padding: 8px 10px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+.invoice-items-table thead th { color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; text-align: left; }
+.invoice-items-table tbody td input { width: 100%; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-color); }
+.invoice-items-table tbody td .small-number { width: 80px; }
+
+.invoice-summary { display:flex; flex-direction:column; gap:6px; color:var(--text-primary); }
+
+/* Button system (more granular) */
+.btn { padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; border: 1px solid transparent; transition: all 0.12s ease; }
+.btn-primary { background: linear-gradient(90deg,var(--primary-color),var(--primary-hover)); color: #fff; border-color: rgba(0,0,0,0.04); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.btn-ghost { background: transparent; color: var(--text-primary); border: 1px solid var(--border-color); }
+.btn-danger { background: var(--danger-bg); color: var(--danger-color); border: 1px solid rgba(220,38,38,0.06); }
+.btn-small { padding: 6px 8px; border-radius: 6px; font-size: 0.9rem; }
+.btn-icon { width: 36px; height: 36px; display:inline-flex; align-items:center; justify-content:center; border-radius:8px; }
+
+.badge-status { display:inline-block; padding:4px 8px; border-radius:999px; font-weight:700; font-size:0.8rem; color:#fff; }
+.badge-unpaid { background:#f97316; } /* orange */
+.badge-partial { background:#f59e0b; } /* amber */
+.badge-paid { background:#10b981; } /* green */
+.badge-cancelled { background:#6b7280; } /* gray */
+
+/* Small utility */
+.muted { color: var(--text-muted); }
+
+
 .medicine-form label {
   font-weight: 600;
   color: var(--text-primary);
