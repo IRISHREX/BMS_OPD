@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import Modal from "react-modal";
 import { toast } from "react-toastify";
 import {
@@ -10,6 +11,9 @@ import {
 } from '../store/medicineSlice';
 import MedicineForm from './MedicineForm';
 import { FaSearch } from "./DoctorIcons";
+import { FaTrash } from 'react-icons/fa6';
+import { FaPen } from 'react-icons/fa';
+import { FaArrowLeft } from 'react-icons/fa';
 import './MedicineStore.css';
 
 const MedicineStore = () => {
@@ -20,6 +24,7 @@ const MedicineStore = () => {
   const dispatch = useDispatch();
   const medicines = useSelector(state => state.medicines.medicines);
   const loading = useSelector(state => state.medicines.loading);
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(fetchMedicinesRequest({ name: searchTerm }));
@@ -56,9 +61,16 @@ const MedicineStore = () => {
 
   return (
     <section className="medicine-store-page">
-      <div className="medicine-store-header">
-        <h1>Medicine Store</h1>
-        <p className="subtitle">Manage your medicine inventory</p>
+      <div className="medicine-store-content">
+      <div className="medicine-store-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button className="back-btn clear-btn" onClick={() => navigate('/settings/medicine') } style={{ padding: '6px 10px' }}>
+            <FaArrowLeft style={{ marginRight: 6, color: '#25780eff' }} /> Back
+          </button>
+          <div>
+            <h1 style={{ margin: 0 , color: '#c4e7eeff', position: 'relative'}}>Medicine Store</h1>
+          </div>
+        </div>
       </div>
 
       <div className="search-bar-container">
@@ -116,17 +128,21 @@ const MedicineStore = () => {
                 </div>
 
                 <div className="medicine-card-footer">
-                  <button 
-                    onClick={() => handleOpenModal(medicine)} 
-                    className="btn btn-edit"
+                  <button
+                    title="Edit"
+                    onClick={() => handleOpenModal(medicine)}
+                    className="icon-btn secondary"
+                    aria-label={`Edit ${medicine.name}`}
                   >
-                    Edit
+                    <FaPen />
                   </button>
-                  <button 
-                    onClick={() => handleDelete(medicine._id)} 
-                    className="btn btn-delete"
+                  <button
+                    title="Delete"
+                    onClick={() => handleDelete(medicine._id)}
+                    className="icon-btn remove-btn"
+                    aria-label={`Delete ${medicine.name}`}
                   >
-                    Delete
+                    <FaTrash />
                   </button>
                 </div>
               </div>
@@ -176,7 +192,9 @@ const MedicineStore = () => {
             />
           )}
         </div>
+        
       </Modal>
+      </div>
     </section>
   );
 };

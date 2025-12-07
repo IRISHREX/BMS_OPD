@@ -9,7 +9,7 @@ import { FaEye, FaPen } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa6";
 import MedicineDrawer from './MedicineDrawer';
 import useSound from "use-sound";
-import MedicineStore from "./MedicineStore";
+// MedicineStore moved to its own page at /medicines
 
 const emptyForm = {
   name: "",
@@ -42,7 +42,7 @@ const MedicineSettings = () => {
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
-  const [showMedicineStore, setShowMedicineStore] = useState(false);
+  // `MedicineStore` is now a separate page at `/medicines`.
   const searchRef = useRef();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [focusedMedicineIndex, setFocusedMedicineIndex] = useState(null);
@@ -287,7 +287,7 @@ const MedicineSettings = () => {
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <input className="search-input" placeholder="Search by name, symptom or type" value={search} onChange={e => setSearch(e.target.value)} style={{ minWidth: 280 }} />
               <button className="add-btn" onClick={() => { setForm(emptyForm); setEditingId(null); setDrawerOpen(true); }}>Create Medical Advice</button>
-              <button className="clear-btn" onClick={() => setShowMedicineStore(s => !s)} style={{ marginLeft: 8 }}>{showMedicineStore ? 'Hide Medicines' : 'Manage Medicines'}</button>
+              <button className="clear-btn" onClick={() => navigate('/medicines')} style={{ marginLeft: 8 }}>Manage Medicines</button>
             </div>
           </div>
 
@@ -318,13 +318,7 @@ const MedicineSettings = () => {
 
           {/* Main content: list and pagination */}
           <main style={{ flex: 1, marginTop: '1rem' }}>
-            {/* Embedded MedicineStore for CRUD/search */}
-            {showMedicineStore && (
-              <div style={{ marginBottom: 16, padding: 12, background: '#fff', borderRadius: 8 }}>
-                <h3 style={{ marginTop: 0 }}>Medicines Catalog</h3>
-                <MedicineStore />
-              </div>
-            )}
+            {/* `MedicineStore` moved to separate page — use Manage Medicines button above to open */}
             <div className="medicine-list-container">
               {loading ? (
                 Array.from({ length: 6 }).map((_, idx) => (
