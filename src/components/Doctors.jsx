@@ -9,12 +9,14 @@ import UserCard from './UserCard';
 import RequirePermission from "./RequirePermission";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDoctorsRequest } from '../store/doctorsSlice';
+import CapacitySchedulerForm from "./CapacitySchedulerForm";
 
 const Doctors = () => {
   const [doctors, setDoctors] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [updateFields, setUpdateFields] = useState({});
   const [newDocAvatar, setNewDocAvatar] = useState(null);
   const [newDocAvatarPreview, setNewDocAvatarPreview] = useState("");
@@ -115,7 +117,10 @@ const Doctors = () => {
                   <div key="dept"><strong>Dept:</strong> {element.doctorDepartment}</div>,
                   <div key="qual"><strong>Qualifications:</strong> {element?.qualifications || 'N/A'}</div>
                 ]}
-                onView={(u) => setSelectedDoctor(u)}
+                onView={(u) => {
+                  setSelectedDoctor(u);
+                  setShowViewModal(true);
+                }}
                 onEdit={(u) => {
                   setSelectedDoctor(u);
                   setUpdateFields({
@@ -195,6 +200,98 @@ const Doctors = () => {
             <button type="submit">Update</button>
             <button type="button" onClick={() => setShowUpdateModal(false)}>Cancel</button>
           </form>
+        )}
+      </Modal>
+
+      {/* View Modal with Capacity Scheduler */}
+      <Modal
+        isOpen={showViewModal}
+        onRequestClose={() => setShowViewModal(false)}
+        contentLabel="Doctor Profile"
+        style={{ 
+          overlay: { zIndex: 1000 }, 
+          content: { 
+            maxWidth: '600px', 
+            margin: 'auto', 
+            borderRadius: '12px', 
+            padding: '2rem',
+            maxHeight: '90vh',
+            overflow: 'auto'
+          } 
+        }}
+      >
+        {selectedDoctor && (
+          <div>
+            <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>
+              👨‍⚕️ {selectedDoctor.firstName} {selectedDoctor.lastName}
+            </h2>
+            
+            <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid #eee', paddingBottom: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div>
+                  <span style={{ fontWeight: 600, color: '#271776' }}>Email:</span> {selectedDoctor.email}
+                </div>
+                <div>
+                  <span style={{ fontWeight: 600, color: '#271776' }}>Phone:</span> {selectedDoctor.phone}
+                </div>
+                <div>
+                  <span style={{ fontWeight: 600, color: '#271776' }}>NIC:</span> {selectedDoctor.nic}
+                </div>
+                <div>
+                  <span style={{ fontWeight: 600, color: '#271776' }}>Gender:</span> {selectedDoctor.gender}
+                </div>
+                <div>
+                  <span style={{ fontWeight: 600, color: '#271776' }}>Department:</span> {selectedDoctor.doctorDepartment}
+                </div>
+                <div>
+                  <span style={{ fontWeight: 600, color: '#271776' }}>DOB:</span> {selectedDoctor.dob ? selectedDoctor.dob.substring(0,10) : 'N/A'}
+                </div>
+                {selectedDoctor.consultationFee && (
+                  <div>
+                    <span style={{ fontWeight: 600, color: '#271776' }}>Consultation Fee:</span> Rs. {selectedDoctor.consultationFee}
+                  </div>
+                )}
+                {selectedDoctor.qualifications && (
+                  <div>
+                    <span style={{ fontWeight: 600, color: '#271776' }}>Qualifications:</span> {selectedDoctor.qualifications}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Capacity Scheduler Form for Admin */}
+            <RequirePermission allowedRoles={["Admin"]}>
+              <div style={{ 
+                background: '#f8f9fa', 
+                padding: '1.5rem', 
+                borderRadius: '8px',
+                marginBottom: '1.5rem'
+              }}>
+                <CapacitySchedulerForm 
+                  doctorId={selectedDoctor._id}
+                  allowAdminSelfManagement={false}
+                />
+              </div>
+            </RequirePermission>
+
+            <button 
+              type="button" 
+              onClick={() => setShowViewModal(false)}
+              style={{
+                width: '100%',
+                padding: '0.75rem 1.5rem',
+                background: '#271776',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Close
+            </button>
+          </div>
         )}
       </Modal>
     </>

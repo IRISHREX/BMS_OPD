@@ -3,7 +3,7 @@ import InvoiceViewer from './InvoiceViewer';
 import Reports from './Reports';
 import { Context } from "../main";
 import { Navigate, useNavigate } from "react-router-dom";
-import api from "../utils/api";
+import api, { rescheduleAppointment } from "../utils/api";
 import { toast } from "react-toastify";
 import { GoCheckCircleFill } from "react-icons/go";
 import { AiFillCloseCircle } from "react-icons/ai";
@@ -17,6 +17,8 @@ import { RiCalendarScheduleFill } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
 import { IoReceipt } from "react-icons/io5";
 import useSound from "use-sound";
+import RescheduleModal from "./RescheduleModal";
+import DashboardSlotChecker from "./DashboardSlotChecker";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -42,6 +44,10 @@ const Dashboard = () => {
   const [selectedPatientData, setSelectedPatientData] = useState(null);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [activeInvoice, setActiveInvoice] = useState(null);
+  const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+  const [selectedAppointmentToReschedule, setSelectedAppointmentToReschedule] = useState(null);
+  const [isRescheduling, setIsRescheduling] = useState(false);
+  const [slotCheckerOpen, setSlotCheckerOpen] = useState(false);
 
   const { isAuthenticated, admin } = useContext(Context);
   // Note: Sound file should be in the `public` directory.
@@ -295,6 +301,42 @@ const Dashboard = () => {
     setSelectedPatientData(null);
   };
 
+  const handleRescheduleClick = (appointment) => {
+    setSelectedAppointmentToReschedule(appointment);
+    setRescheduleModalOpen(true);
+  };
+
+  const handleRescheduleConfirm = async (appointmentId, newDate) => {
+    setIsRescheduling(true);
+    try {
+      const response = await rescheduleAppointment(appointmentId, newDate);
+      toast.success("Appointment rescheduled successfully!");
+      setRescheduleModalOpen(false);
+      setSelectedAppointmentToReschedule(null);
+      // Refresh appointments list
+      const fetchAppointments = async () => {
+        try {
+          const { data } = await api.get("/api/v1/appointment/getall");
+          setAppointments(data.appointments);
+        } catch (error) {
+          console.error("Error fetching appointments:", error);
+        }
+      };
+      fetchAppointments();
+    } catch (error) {
+      console.error("Error rescheduling appointment:", error);
+      const errorMessage = error?.message || "Failed to reschedule appointment";
+      toast.error(errorMessage);
+    } finally {
+      setIsRescheduling(false);
+    }
+  };
+
+  const closeRescheduleModal = () => {
+    setRescheduleModalOpen(false);
+    setSelectedAppointmentToReschedule(null);
+  };
+
   useEffect(() => {
     let filtered = (appointments || []).filter((appointment) => {
       try {
@@ -487,6 +529,17 @@ const Dashboard = () => {
                 onClick={() => navigate("/add-appointment")}
               >
                 Book Appointment
+              </button>
+              <button
+                className="btn"
+                onClick={() => setSlotCheckerOpen(true)}
+                style={{
+                  background: "#0ae9f9ff",
+                  color: "white",
+                  marginLeft: "0.5rem"
+                }}
+              >
+                View Slots
               </button>
               <RequirePermission allowedRoles={["Admin"]}>
                 <button
@@ -714,6 +767,8 @@ const Dashboard = () => {
                               : appointment.patientId || "-"}
                           </td>
                           <td>
+                                                          <RequirePermission allowedRoles={["Admin", "Doctor"]}>
+
                             <button
                               className="btn btn-primary"
                               onClick={() =>
@@ -722,6 +777,7 @@ const Dashboard = () => {
                             >
                               Prescription
                             </button>
+                                                          </RequirePermission>
                           </td>
                           <td>
                             <div className="td-btn-container">
@@ -733,8 +789,10 @@ const Dashboard = () => {
                                   color: "#0859afff",
                                   cursor: "pointer",
                                 }}
+                                onClick={() => handleRescheduleClick(appointment)}
+                                title="Reschedule"
                               >
-                                <RiCalendarScheduleFill title="Reschedule"/>
+                                <RiCalendarScheduleFill />
                               </button>
                               <button
                                 style={{
@@ -779,7 +837,13 @@ const Dashboard = () => {
                           </td>
                         </tr>
                       ))
-                    : "No Appointments Found!"}
+                    : (
+                      <tr>
+                        <td colSpan="100%" style={{ textAlign: "center", padding: "2rem" }}>
+                          No Appointments Found!
+                        </td>
+                      </tr>
+                    )}
               </tbody>
             </table>
           </div>
@@ -872,6 +936,23 @@ const Dashboard = () => {
               onClose={closePrescriptionModal}
             />
           </Modal>
+
+          {/* Reschedule modal */}
+          {selectedAppointmentToReschedule && (
+            <RescheduleModal
+              isOpen={rescheduleModalOpen}
+              onClose={closeRescheduleModal}
+              appointment={selectedAppointmentToReschedule}
+              onSave={handleRescheduleConfirm}
+              isLoading={isRescheduling}
+            />
+          )}
+
+          {/* Slot Checker Modal */}
+          <DashboardSlotChecker
+            isOpen={slotCheckerOpen}
+            onClose={() => setSlotCheckerOpen(false)}
+          />
         </div>
       </section>
     </>

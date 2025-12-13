@@ -4,6 +4,13 @@ import "./Settings.css";
 
 const settings = [
   {
+    id: "profile",
+    name: "My Profile",
+    icon: "👤",
+    description: "View your profile, change password and account details.",
+    route: "/settings/profile",
+  },
+  {
     id: "medicine",
     name: "Medicine Settings",
     icon: "💊",

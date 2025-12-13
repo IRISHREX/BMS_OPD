@@ -69,10 +69,12 @@
 
 .dashboard-metric-value.blue {
   color: #22c55e;
+  padding: 0.5em;
 }
 
 .dashboard-metric-value.red {
   color: #b91c1c;
+  padding: 0.5em;
 }
 
 .dashboard-metric-footer {

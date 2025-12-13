@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
+import ForgottenPassword from "./components/ForgottenPassword";
 import Appoinment from "./components/Appointment"
 import AddNewDoctor from "./components/AddNewDoctor";
 import Messages from "./components/Messages";
@@ -22,6 +23,7 @@ import "./App.css";
 import Prescription from "./components/Prescription";
 import Preview from "./components/Preview";
 import Settings from "./components/Settings";
+import Profile from "./components/Profile";
 import MedicineSettings from "./components/MedicineSettings";
 import RoleSettings from "./components/RoleSettings";
 import ThemeSettings from "./components/ThemeSettings";
@@ -57,6 +59,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/forgotten-password" element={<ForgottenPassword />} />
         <Route path="/add-appointment" element={
           <RequireAuth allowedRoles={["Admin","Doctor"]}>
             <Appoinment />
@@ -98,8 +101,13 @@ const App = () => {
           </RequireAuth>
         } />
         <Route path="/settings" element={
-          <RequireAuth allowedRoles={["Admin","Doctor"]}>
+          <RequireAuth allowedRoles={["Admin","Doctor","Compounder"]}>
             <Settings />
+          </RequireAuth>
+        } />
+        <Route path="/settings/profile" element={
+          <RequireAuth allowedRoles={["Admin","Doctor","Compounder"]}>
+            <Profile />
           </RequireAuth>
         } />
         <Route path="/reports" element={

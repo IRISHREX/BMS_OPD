@@ -86,6 +86,21 @@ const Login = () => {
             <div style={{ justifyContent: "center", alignItems: "center" }}>
               <button type="submit" style={{border: LOGIN_BUTTON_BORDER, borderRadius: LOGIN_BUTTON_BORDER_RADIUS}}>Login</button>
             </div>
+            <div style={{ marginTop: "1rem", textAlign: "center" }}>
+              <p>
+                Forgot your password?{" "}
+                <span
+                  onClick={() => navigateTo('/forgotten-password')}
+                  style={{
+                    color: "#007bff",
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                  }}
+                >
+                  Click here
+                </span>
+              </p>
+            </div>
           </form>
         )}
       </section>
