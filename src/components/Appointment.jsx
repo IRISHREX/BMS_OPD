@@ -10,7 +10,6 @@ import {
   formatAge,
   ageToDob,
 } from "../utils/ageUtils";
-import { makeNIC } from "../utils/nicMaker.js";
 import { toast } from "react-toastify";
 import "./Appointment.css";
 import { useNavigate } from "react-router-dom";

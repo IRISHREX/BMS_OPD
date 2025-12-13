@@ -34,8 +34,16 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
       const ninetyDaysLater = new Date();
       ninetyDaysLater.setDate(ninetyDaysLater.getDate() + 90);
 
-      const startDate = today.toISOString().split("T")[0];
-      const endDate = ninetyDaysLater.toISOString().split("T")[0];
+      // Use local date without timezone conversion
+      const getDateString = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      const startDate = getDateString(today);
+      const endDate = getDateString(ninetyDaysLater);
 
       const { data } = await api.get(`/api/v1/capacity-scheduler`, {
         params: {
@@ -126,13 +134,19 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
 
   const getMinDate = () => {
     const today = new Date();
-    return today.toISOString().split("T")[0];
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   const getMaxDate = () => {
     const maxDate = new Date();
     maxDate.setDate(maxDate.getDate() + 90);
-    return maxDate.toISOString().split("T")[0];
+    const year = maxDate.getFullYear();
+    const month = String(maxDate.getMonth() + 1).padStart(2, '0');
+    const day = String(maxDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   const formatDate = (dateStr) => {

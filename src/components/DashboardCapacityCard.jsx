@@ -19,8 +19,16 @@ const DashboardCapacityCard = ({ doctorId, doctorName }) => {
       const fourteenDaysLater = new Date();
       fourteenDaysLater.setDate(fourteenDaysLater.getDate() + 14);
 
-      const startDate = today.toISOString().split("T")[0];
-      const endDate = fourteenDaysLater.toISOString().split("T")[0];
+      // Use local date without timezone conversion
+      const getDateString = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      const startDate = getDateString(today);
+      const endDate = getDateString(fourteenDaysLater);
 
       const { data } = await api.get(`/api/v1/capacity-scheduler`, {
         params: {
@@ -65,8 +73,12 @@ const DashboardCapacityCard = ({ doctorId, doctorName }) => {
   };
 
   const getTodayCapacity = () => {
-    const today = new Date().toISOString().split("T")[0];
-    return capacities.find((c) => c.serviceDate === today);
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`;
+    return capacities.find((c) => c.serviceDate === todayStr);
   };
 
   const todayCapacity = getTodayCapacity();

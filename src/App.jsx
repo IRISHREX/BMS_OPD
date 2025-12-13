@@ -61,7 +61,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/forgotten-password" element={<ForgottenPassword />} />
         <Route path="/add-appointment" element={
-          <RequireAuth allowedRoles={["Admin","Doctor"]}>
+          <RequireAuth allowedRoles={["Admin","Doctor","Compounder"]}>
             <Appoinment />
           </RequireAuth>
         } />

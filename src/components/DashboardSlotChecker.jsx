@@ -74,8 +74,16 @@ const DashboardSlotChecker = ({ isOpen, onClose }) => {
         0
       );
 
-      const startDate = monthStart.toISOString().split("T")[0];
-      const endDate = monthEnd.toISOString().split("T")[0];
+      // Use local date without timezone conversion
+      const getDateString = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      const startDate = getDateString(monthStart);
+      const endDate = getDateString(monthEnd);
 
       const { data } = await api.get("/api/v1/capacity-scheduler", {
         params: {
@@ -97,7 +105,11 @@ const DashboardSlotChecker = ({ isOpen, onClose }) => {
   };
 
   const getCapacityForDate = (date) => {
-    const dateStr = date.toISOString().split("T")[0];
+    // Use local date without timezone conversion
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
     return capacities.find((c) => c.serviceDate === dateStr);
   };
 
@@ -134,7 +146,11 @@ const DashboardSlotChecker = ({ isOpen, onClose }) => {
   };
 
   const handleDateClick = (date) => {
-    const dateStr = date.toISOString().split("T")[0];
+    // Use local date without timezone conversion
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
     const capacity = getCapacityForDate(date);
 
     setSelectedDateInfo({
