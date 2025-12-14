@@ -1692,20 +1692,37 @@ const Prescription = ({ patientId, onClose }) => {
                         }}
                       />
                     </div>
-                      <div className="medicine-name-container">
-                        <AutoSuggestInput
-                          name="name"
-                          value={m.name}
-                          onChange={(e) => handleMedicineChange(index, e)}
-                          onSuggestionClick={(suggestion) =>
-                            handleSuggestionClick(index, suggestion)
-                          }
-                          suggestions={medSuggestions.medicines}
-                          displayKey="name"
-                          placeholder="Medicine Name"
-                          className="medicine-name-input"
-                        />
-                      </div>
+                    <AutoSuggestInput
+                      single
+                      placeholder="Name"
+                      value={m.name || ""}
+                      suggestions={medSuggestions.medicines}
+                      onChange={(e) => {
+                        const copy = [...medicineAdvice];
+                        copy[idx] = { ...copy[idx], name: e.target.value };
+                        setMedicineAdvice(copy);
+                      }}
+                      onSelect={(item, label) => {
+                        // item can be medicine object (from useMedicineSuggestions) or string
+                        const copy = [...medicineAdvice];
+                        if (item && typeof item === "object") {
+                          copy[idx] = {
+                            ...copy[idx],
+                            name: item.name || label || copy[idx].name,
+                            type: item.type || copy[idx].type,
+                            dose: item.dose || copy[idx].dose,
+                            frequency: item.frequency || copy[idx].frequency,
+                            route: item.route || copy[idx].route,
+                            duration: item.duration || copy[idx].duration,
+                            notes: item.notes || copy[idx].notes,
+                            selected: item.selected || copy[idx].selected,
+                          };
+                        } else {
+                          copy[idx] = { ...copy[idx], name: label || item };
+                        }
+                        setMedicineAdvice(copy);
+                      }}
+                    />
                     <AutoSuggestInput
                       single
                       placeholder="Type"
@@ -1793,6 +1810,19 @@ const Prescription = ({ patientId, onClose }) => {
                       >
                         <BsTrash />
                       </button>
+                      {m.name && !medSuggestions.medicines.find(med => med.name.toLowerCase() === m.name.toLowerCase()) && (
+                        <button
+                          type="button"
+                          className="save-btn"
+                          title="Save this medicine to the database"
+                          onClick={() => {
+                            dispatch(addMedicineRequest({ name: m.name }));
+                            toast.success(`Medicine "${m.name}" saved!`);
+                          }}
+                        >
+                          <FaSave />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
