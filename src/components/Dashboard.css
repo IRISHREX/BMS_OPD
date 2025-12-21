@@ -92,3 +92,12 @@
   color: #0f1724;
   font-weight: 600;
 }
+
+.expand-btn {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+}

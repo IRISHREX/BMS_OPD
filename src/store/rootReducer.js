@@ -9,6 +9,7 @@ import previewReducer from './previewSlice';
 import themeReducer from './themeSlice';
 import diagnosisReducer from './diagnosisSlice';
 import medicineReducer from './medicineSlice';
+import diseaseReducer from './diseaseSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   theme: themeReducer,
   diagnosis: diagnosisReducer,
   medicines: medicineReducer,
+  disease: diseaseReducer,
 });
 
 export default rootReducer;

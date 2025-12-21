@@ -4,10 +4,12 @@ import api from '../utils/api';
 import './AutoSuggestInputforSymptom.css';
 import { useDispatch, useSelector } from 'react-redux';
 import {add,remove} from "../store/diagnosisSlice";
+import { changeSdisease } from '../store/diseaseSlice';
 
 const AutoSuggestInputforSymptom = ({ value, onChange, onSelect, placeholder }) => {
   const [symptomSuggestions, setSymptomSuggestions] = useState([]);
   const [diseaseSuggestions, setDiseaseSuggestions] = useState([]);
+  const suggestedDisease = useSelector((state) => state.disease.value);
   const debounceRef = useRef(null);
   const rDiagnosis = useSelector((state) => state.diagnosis.value);
   const dispatch = useDispatch();
@@ -56,11 +58,13 @@ const AutoSuggestInputforSymptom = ({ value, onChange, onSelect, placeholder }) 
         const { data } = await api.get(`/api/v1/medical/advance-search-symptoms`, {
           params: { query }
         });
-        setDiseaseSuggestions(data.results || []);
+        dispatch(changeSdisease(data.results || []));
+        // setDiseaseSuggestions(data.results || []);
         console.log("Suggested Diseases:", data.results || []);
       } catch (error) {
         console.error("Error fetching disease suggestions:", error);
-        setDiseaseSuggestions([]);
+        dispatch(changeSdisease([]));
+        // setDiseaseSuggestions([]);
       }
     }
   };
@@ -75,11 +79,12 @@ const AutoSuggestInputforSymptom = ({ value, onChange, onSelect, placeholder }) 
         getSuggestions={getSuggestions}
         placeholder={placeholder || "Enter presenting complaints..."}
       />
-      {diseaseSuggestions.length > 0 && (
+      {suggestedDisease.length > 0 && (
+      // {diseaseSuggestions.length > 0 && (
         <div className="disease-suggestions-dropdown">
           <p className="disease-suggestions-title">Suggested Diseases:</p>
           <ul className="disease-suggestions-list">
-            {diseaseSuggestions.map((disease, index) => (
+            {suggestedDisease.map((disease, index) => (
               <li
                 key={index}
                 className={`disease-suggestion-item ${rDiagnosis.includes(disease)?'selected':''}`}

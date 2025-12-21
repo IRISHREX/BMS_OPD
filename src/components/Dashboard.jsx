@@ -20,6 +20,7 @@ import useSound from "use-sound";
 import RescheduleModal from "./RescheduleModal";
 import DashboardSlotChecker from "./DashboardSlotChecker";
 import "./Dashboard.css";
+import { RiExpandHorizontalSFill } from "react-icons/ri";
 
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
@@ -48,6 +49,7 @@ const Dashboard = () => {
   const [selectedAppointmentToReschedule, setSelectedAppointmentToReschedule] = useState(null);
   const [isRescheduling, setIsRescheduling] = useState(false);
   const [slotCheckerOpen, setSlotCheckerOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const { isAuthenticated, admin } = useContext(Context);
   // Note: Sound file should be in the `public` directory.
@@ -643,21 +645,25 @@ const Dashboard = () => {
                   </RequirePermission>
                     SN
                   </th>
-                  <th>Patient Name</th>
-                  <th>Appointment Date</th>
+                  <th>Name</th>
+                  <th style={{position:"relative"}}>Date
+                    <button className="expand-btn" onClick={()=>setIsExpanded(!isExpanded)}>
+                      <RiExpandHorizontalSFill />
+                    </button>
+                  </th>
                   {/* <th>Created By</th> */}
-                  <th>Phone</th>
-                  <th>Gender</th>
+                  {isExpanded && <th>Phone</th>}
+                  {isExpanded && <th>Gender</th>}
                   {/* <th>Payment Mode</th> */}
                   {/* <th>Fees Amount</th> */}
-                  <th>Payment Status</th>
-                  <th>Status</th>
+                  {isExpanded && <th>Payment Status</th>}
+                  {isExpanded && <th>Status</th>}
                   <RequirePermission allowedRoles={["Admin"]}>
-                    <th>Doctor</th>
-                    <th>Department</th>
+                    {isExpanded && <th>Doctor</th>}
+                    {isExpanded && <th>Department</th>}
                   </RequirePermission>
-                  <th>Visited Before</th>
-                  <th>Booked By</th>
+                  {isExpanded && <th>Visited Before</th>}
+                  {isExpanded && <th>Booked By</th>}
                   <th>Prescription</th>
                   <th>Actions</th>
                 </tr>
@@ -688,11 +694,11 @@ const Dashboard = () => {
                             {appointment.appointment_date.substring(0, 10)}
                           </td>
                           {/* <td>{appointment?.booked_by || "You"}</td> */}
-                          <td>{appointment.phone || appointment.mobile}</td>
-                          <td>{appointment.gender}</td>
+                          {isExpanded && <td>{appointment.phone || appointment.mobile}</td>}
+                          {isExpanded && <td>{appointment.gender}</td>}
                           {/* <td>{appointment.paymentMode || "Cash"}</td> */}
                           {/* <td>{appointment.price || appointment.feesAmount || "0"}</td> */}
-                          <td style={{minWidth: "6.5rem"}}>
+                          {isExpanded && <td style={{minWidth: "6.5rem"}}>
                             <select value={appointment.paymentStatus || 'Pending'} 
                               onChange={(e) => handleUpdatePaymentStatus(appointment._id, e.target.value)}
                               className={
@@ -706,8 +712,8 @@ const Dashboard = () => {
                               {/* <option value="Accepted">Accepted</option> */}
                               <option value="Paid" className="value-completed">Paid</option>
                             </select>
-                          </td>
-                          <td style={{minWidth: "8rem"}}>
+                          </td>}
+                          {isExpanded && <td style={{minWidth: "8rem"}}>
                             <select
                               className={
                                 appointment.status === "Pending"
@@ -749,25 +755,25 @@ const Dashboard = () => {
                                 Completed
                               </option>
                             </select>
-                          </td>
+                          </td>}
                           <RequirePermission allowedRoles={["Admin"]}>
-                            <td>{`${appointment.doctor.firstName} ${appointment.doctor.lastName}`}</td>
-                            <td>{appointment.department}</td>
+                            {isExpanded && <td>{`${appointment.doctor.firstName} ${appointment.doctor.lastName}`}</td>}
+                            {isExpanded && <td>{appointment.department}</td>}
                           </RequirePermission>
-                          <td>
+                          {isExpanded && <td>
                             {appointment.hasVisited === true ? (
                               <GoCheckCircleFill className="green" />
                             ) : (
                               <AiFillCloseCircle className="red" />
                             )}
-                          </td>
-                          <td>
+                          </td>}
+                          {isExpanded && <td>
                             {appointment.book_by_name
                               ? appointment.book_by_name
                               : appointment.patientId || "-"}
-                          </td>
+                          </td>}
                           <td>
-                                                          <RequirePermission allowedRoles={["Admin", "Doctor"]}>
+                            <RequirePermission allowedRoles={["Admin", "Doctor"]}>
 
                             <button
                               className="btn btn-primary"
@@ -777,7 +783,7 @@ const Dashboard = () => {
                             >
                               Prescription
                             </button>
-                                                          </RequirePermission>
+                            </RequirePermission>
                           </td>
                           <td>
                             <div className="td-btn-container">

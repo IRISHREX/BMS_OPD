@@ -16,6 +16,7 @@ import { FaChevronUp } from "react-icons/fa";
 import { TbLoader3, TbRefresh } from "react-icons/tb";
 import { useSelector, useDispatch } from "react-redux";
 import { change } from "../store/diagnosisSlice";
+import { changeSdisease } from "../store/diseaseSlice";
 
 // Clean, single-component Prescription (5-step slider)
 const Prescription = ({ patientId, onClose }) => {
@@ -76,7 +77,7 @@ const Prescription = ({ patientId, onClose }) => {
   const [diagnosys_heading, setDiagnosys_heading] = useState(
     "Provisional Diagnosis"
   );
-  const [complaints, setComplaints] = useState();
+  const [complaints, setComplaints] = useState("");
   const [gravida, setGravida] = useState("");
   const [parity, setParity] = useState({ Pa: "", Pb: "" });
   const [LMP, setLMP] = useState("");
@@ -1085,11 +1086,11 @@ const Prescription = ({ patientId, onClose }) => {
       <div className="form-main">
         {gender.toLowerCase() === "female" && (
           <div
-            className="form-group form-row toggle-content"
+            className="pres-form-group pres-form-row toggle-content"
             style={{ borderRadius: "0.5rem" }}
           >
-            <div className="form-row">
-              <div className="form-group">
+            <div className="pres-form-row">
+              <div className="pres-form-group">
                 <label>Gravida</label>
                 <AutoSuggestInput
                   single
@@ -1105,7 +1106,7 @@ const Prescription = ({ patientId, onClose }) => {
                   placeholder="G"
                 />
               </div>
-              <div className="form-group">
+              <div className="pres-form-group">
                 <label>Parity</label>
                 <div className="parity-box">
                   <AutoSuggestInput
@@ -1143,7 +1144,7 @@ const Prescription = ({ patientId, onClose }) => {
                   />
                 </div>
               </div>
-              <div className="form-group">
+              <div className="pres-form-group">
                 <label>LMP</label>
                 <input
                   style={{ display: "flex", alignItems: "center" }}
@@ -1152,7 +1153,7 @@ const Prescription = ({ patientId, onClose }) => {
                   onChange={(e) => setLMP(e.target.value)}
                 />
               </div>
-              <div className="form-group">
+              <div className="pres-form-group">
                 <label>EDD</label>
                 <input
                   style={{ display: "flex", alignItems: "center" }}
@@ -1163,8 +1164,8 @@ const Prescription = ({ patientId, onClose }) => {
                 />
               </div>
             </div>
-            <div className="form-row">
-              <div className="form-group">
+            <div className="pres-form-row">
+              <div className="pres-form-group">
                 <label>LCB</label>
                 <input
                   type="text"
@@ -1172,7 +1173,7 @@ const Prescription = ({ patientId, onClose }) => {
                   onChange={(e) => setLCB(e.target.value)}
                 />
               </div>
-              <div className="form-group">
+              <div className="pres-form-group">
                 <label>MOD</label>
                 <select value={MOD} onChange={(e) => setMOD(e.target.value)}>
                   <option value="">Select MOD</option>
@@ -1180,7 +1181,7 @@ const Prescription = ({ patientId, onClose }) => {
                   <option value="LUCS">LUCS</option>
                 </select>
               </div>
-              <div className="form-group">
+              <div className="pres-form-group">
                 <label>POG</label>
                 <input
                   type="text"
@@ -1193,11 +1194,11 @@ const Prescription = ({ patientId, onClose }) => {
           </div>
         )}
         <div
-          className="form-group form-row toggle-content"
+          className="pres-form-group pres-form-row toggle-content"
           style={{ borderRadius: "0.5rem" }}
         >
-          <div className="form-row">
-            <div className="form-group">
+          <div className="pres-form-row">
+            <div className="pres-form-group">
               <label>BP (mm of Hg)</label>
               <input
                 type="text"
@@ -1209,7 +1210,7 @@ const Prescription = ({ patientId, onClose }) => {
                 }
               />
             </div>
-            <div className="form-group">
+            <div className="pres-form-group">
               <label>PR (bpm)</label>
               <input
                 type="number"
@@ -1223,7 +1224,7 @@ const Prescription = ({ patientId, onClose }) => {
                 }}
               />
             </div>
-            <div className="form-group">
+            <div className="pres-form-group">
               <label>SPO2 (% in RA)</label>
               <input
                 type="number"
@@ -1238,7 +1239,7 @@ const Prescription = ({ patientId, onClose }) => {
                 }}
               />
             </div>
-            <div className="form-group">
+            <div className="pres-form-group">
               <label>Temp (F)</label>
               <input
                 type="number"
@@ -1253,8 +1254,8 @@ const Prescription = ({ patientId, onClose }) => {
               />
             </div>
           </div>
-          <div className="form-row">
-            <div className="form-group">
+          <div className="pres-form-row">
+            <div className="pres-form-group">
               <label>Height (cm)</label>
               <input
                 type="number"
@@ -1271,7 +1272,7 @@ const Prescription = ({ patientId, onClose }) => {
                 }}
               />
             </div>
-            <div className="form-group">
+            <div className="pres-form-group">
               <label>Weight (kg)</label>
               <input
                 type="number"
@@ -1288,11 +1289,11 @@ const Prescription = ({ patientId, onClose }) => {
                 }}
               />
             </div>
-            <div className="form-group">
+            <div className="pres-form-group">
               <label>BMI</label>
               <input value={diagnosys.BMI} readOnly />
             </div>
-            <div className="form-group">
+            <div className="pres-form-group">
               <label>Others</label>
               <input
                 value={diagnosys.Others}
@@ -1304,18 +1305,61 @@ const Prescription = ({ patientId, onClose }) => {
           </div>
         </div>
 
-        <div className="form-group full-width toggle-section">
+        <div className="pres-form-group full-width toggle-section">
           <label
             className="toggle-title"
             style={{ justifyContent: "start", gap: "0.5rem" }}
           >
             Presenting Complaints
-            <div className="refresh-btn">
+            <div className="refresh-btn"
+              onClick={async () => {
+                  try {
+                    const complaints_arr = complaints.split(",");
+                    const complaints_arr_cln = complaints_arr.filter(
+                      (c) => c.trim() !== ""
+                    );
+
+                    const diseases=[]; 
+                    const uniqueDiseases = [];
+
+                    for (const query of complaints_arr_cln) {
+                      try {
+                        // console.log("|", query.trim(), "|");
+                        const { data } = await api.get(
+                          `/api/v1/medical/advance-search-symptoms`, {
+                          params: { query }
+                        });
+                        diseases.push(...data.results);
+                        console.log(data.results);
+
+                      } catch (err) {
+                        console.log(
+                          "Failed to fetch advices for query:",
+                          query,
+                          err
+                        );
+                      }
+                    }
+                    // console.log("Diseases fetched:", diseases);
+
+                    for (const d of diseases) {
+                      if(!uniqueDiseases.includes(d)){
+                        uniqueDiseases.push(d);
+                      }
+                    }
+                    // console.log("Unique Diseases:", uniqueDiseases);
+                    dispatch(changeSdisease(uniqueDiseases));
+
+                  } catch (err) {
+                    console.log("Failed to process diagnoses");
+                  }
+                }}
+            >
               <TbRefresh />
             </div>
           </label>
-          <div className="form-group form-row toggle-content">
-            <div className="form-row" style={{ gap: "0.5rem" }}>
+          <div className="pres-form-group pres-form-row toggle-content">
+            <div className="pres-form-row" style={{ gap: "0.5rem" }}>
               {temp_complain.map((com) => (
                 <button
                   className={
@@ -1348,7 +1392,7 @@ const Prescription = ({ patientId, onClose }) => {
             />
           </div>
         </div>
-        <div className="form-group full-width form-row toggle-section">
+        <div className="pres-form-group full-width pres-form-row toggle-section">
           <label
             onClick={() => {
               setToggleOpen({
@@ -1366,8 +1410,8 @@ const Prescription = ({ patientId, onClose }) => {
             )}
           </label>
           {toggleOpen.medicalHistory == true && (
-            <div className="form-group form-row toggle-content">
-              <div className="form-row" style={{ gap: "0.5rem" }}>
+            <div className="pres-form-group pres-form-row toggle-content">
+              <div className="pres-form-row" style={{ gap: "0.5rem" }}>
                 {temp_medicalHistory.map((history, index) => (
                   <button
                     className={
@@ -1400,7 +1444,7 @@ const Prescription = ({ patientId, onClose }) => {
             </div>
           )}
         </div>
-        <div className="form-group toggle-section">
+        <div className="pres-form-group toggle-section">
           <label
             className="toggle-title"
             onClick={() => {
@@ -1418,7 +1462,7 @@ const Prescription = ({ patientId, onClose }) => {
             )}
           </label>
           {toggleOpen.clinicalFindings == true && (
-            <div className="toggle-content form-group">
+            <div className="toggle-content pres-form-group">
               <input
                 type="text"
                 value={clinical_findings}
@@ -1428,7 +1472,7 @@ const Prescription = ({ patientId, onClose }) => {
           )}
         </div>
         <div>
-          <div className="form-group full-width toggle-section">
+          <div className="pres-form-group full-width toggle-section">
             <label style={{ justifyContent: "start", gap: "0.5rem" }}>
               <select
                 // style={{ padding: "0", border: "none", fontSize: "1rem" }}
@@ -1512,7 +1556,7 @@ const Prescription = ({ patientId, onClose }) => {
               </div>
             </label>
             <div
-              className="form-group form-row toggle-content"
+              className="pres-form-group pres-form-row toggle-content"
               style={{ borderRadius: "0 0.5rem 0.5rem 0.5rem" }}
             >
               <div
@@ -1661,7 +1705,7 @@ const Prescription = ({ patientId, onClose }) => {
         </div>
 
         <div>
-          <div className="form-group full-width medicine-section">
+          <div className="pres-form-group full-width medicine-section">
             <label>Medicine Advice</label>
             <div className="medicine-data">
               <div className="medicine-head medicine-row">
@@ -1861,7 +1905,7 @@ const Prescription = ({ patientId, onClose }) => {
         </div>
 
         <div className="toggle-section">
-          <div className="form-row">
+          <div className="pres-form-row">
             {["Test Advice"].map((testType, index) => (
               <label
                 key={index}
@@ -1882,7 +1926,7 @@ const Prescription = ({ patientId, onClose }) => {
           {/* Test Advice Table */}
           {selectedTestTypes.includes("Test Advice") && (
             <div
-              className="form-group full-width toggle-content"
+              className="pres-form-group full-width toggle-content"
               style={{
                 overflowX: "auto",
                 borderRadius: "0 0.5rem 0.5rem 0.5rem",
@@ -2034,7 +2078,7 @@ const Prescription = ({ patientId, onClose }) => {
           )}
           {/* Medication Advice Textarea */}
           {/* {selectedTestTypes.includes("Medication") && (
-            <div className="form-group full-width">
+            <div className="pres-form-group full-width">
               <label>Medication Advice</label>
               <textarea
                 value={medicationAdvice}
@@ -2046,7 +2090,7 @@ const Prescription = ({ patientId, onClose }) => {
           )} */}
           {/* Diet Advice Textarea */}
           {/* {selectedTestTypes.includes("Diet") && (
-            <div className="form-group full-width">
+            <div className="pres-form-group full-width">
               <label>Diet Advice</label>
               <textarea
                 value={dietAdvice}
@@ -2059,7 +2103,7 @@ const Prescription = ({ patientId, onClose }) => {
         </div>
 
         <div
-          className="form-group full-width toggle-content"
+          className="pres-form-group full-width toggle-content"
           style={{ borderRadius: "0.5rem" }}
         >
           <label>Advice</label>
@@ -2071,9 +2115,9 @@ const Prescription = ({ patientId, onClose }) => {
           />
         </div>
 
-        {/* <div className="form-row"> */}
+        {/* <div className="pres-form-row"> */}
         <div
-          className="form-group toggle-content"
+          className="pres-form-group toggle-content"
           style={{ borderRadius: "0.5rem" }}
         >
           <label>Next Follow-up Date</label>

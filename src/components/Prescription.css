@@ -135,11 +135,11 @@
 .form-step.full-step .right{ display:none }
   .form-step .right{ background: #fbfdff; padding:1rem; border-radius:0.5rem; border:0.0625rem solid #eef3fb }
 
-.form-row{ display:flex; gap:1rem; flex-wrap:wrap; }
-  .form-group{ flex:1; min-width:10rem; display:flex; flex-direction:column; }
-  .form-group label, label select { font-weight:600; margin-bottom:0.35rem; color:#334155 }
-  .form-control, .form-group input, .form-group select, 
-  .form-group textarea{ padding:0.55rem 0.75rem; border-radius:0.5rem; border:0.0625rem solid #dae4f1; background:#fff }
+.pres-form-row{ display:flex; gap:1rem; flex-wrap:wrap; }
+  .pres-form-group{ flex:1; min-width:10rem; display:flex; flex-direction:column; }
+  .pres-form-group label, label select { font-weight:600; margin-bottom:0.35rem; color:#334155 }
+  .form-control, .pres-form-group input, .pres-form-group select, 
+  .pres-form-group textarea{ padding:0.55rem 0.75rem; border-radius:0.5rem; border:0.0625rem solid #dae4f1; background:#fff }
   .medicalHistory-btns{
     cursor: pointer;
     padding:0.3rem 0.5rem; border-radius:0.3rem; border:0.0625rem solid #dae4f1;
@@ -173,7 +173,7 @@
 .refresh-btn:active{
   box-shadow: -2px -2px 3px #bebebe,2px 2px 3px #ffffff;
 }
-.form-control:focus, .form-group input:focus, label select:focus{ outline:none; border-color:var(--primary-2); box-shadow:0 8px 24px rgba(11,116,255,0.08) }
+.form-control:focus, .pres-form-group input:focus, label select:focus{ outline:none; border-color:var(--primary-2); box-shadow:0 8px 24px rgba(11,116,255,0.08) }
 
 .full-width{ flex:2 }
 
@@ -261,7 +261,7 @@
     /* .medicines-list{ gap: 1rem;}
     .medicine-input-outer-box{ grid-template-columns: 1fr 1fr 1fr; } */
     .progressbar{ overflow-x:auto }
-    .form-control, .form-group input, .form-group select{ font-size:0.875rem }
+    .form-control, .pres-form-group input, .pres-form-group select{ font-size:0.875rem }
   }
   /* @media (max-width: 41rem){
     .medicine-input-outer-box{ grid-template-columns: 1fr 1fr; }
