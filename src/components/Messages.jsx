@@ -183,18 +183,22 @@ import { HEIGHT_MAX } from "../utils/constants";
     };
   
     const deleteMessages = async (ids) => {
-      if (ids.length === 0) return toast.info("No messages selected");
-      if (!window.confirm(`Delete ${ids.length} message(s)?`)) return;
-  
-      try {
-        await api.post(`/api/v1/message/bulk-delete`, { ids });
-        snackbar.success("Delete complete");
-        playDeleteSound?.();
-        setSelected([]);
-        fetchMessages();
-      } catch (err) {
-        snackbar.error("Delete failed");
+      if (ids.length === 0) {
+        snackbar.info("No messages selected");
+        return;
       }
+    
+      snackbar.confirm(`Delete ${ids.length} message(s)?`, async () => {
+        try {
+          await api.post(`/api/v1/message/bulk-delete`, { ids });
+          snackbar.success("Delete complete");
+          playDeleteSound?.();
+          setSelected([]);
+          fetchMessages();
+        } catch (err) {
+          snackbar.error("Delete failed");
+        }
+      });
     };
   
     const handleReply = async (originalMessage, replyText) => {

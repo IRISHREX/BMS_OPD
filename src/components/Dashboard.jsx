@@ -12,7 +12,7 @@ import Prescription from "./Prescription";
 import Modal from "react-modal";
 import { FaTrash } from "react-icons/fa";
 import RequirePermission from "./RequirePermission";
-import { MdOutlineContentPasteSearch } from "react-icons/md";
+import { MdOutlineContentPasteSearch, MdOutlineDelete, MdSchedule } from "react-icons/md";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
 import { IoReceipt } from "react-icons/io5";
@@ -22,6 +22,7 @@ import DashboardSlotChecker from "./DashboardSlotChecker";
 import { playSaveSound, playLoadSound, playDeleteSound } from '../utils/soundUtils';
 import "./Dashboard.css";
 import { RiExpandHorizontalSFill } from "react-icons/ri";
+import { FaPrescriptionBottleMedical } from "react-icons/fa6";
 
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
@@ -53,6 +54,7 @@ const Dashboard = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const { isAuthenticated, admin } = useContext(Context);
+  const snackbar = useSnackbar();
   // Note: Sound file should be in the `public` directory.
   const [playDeleteSound] = useSound("/delete.mp3");
   const [playSettledSound] = useSound("/settled.mp3");
@@ -143,12 +145,12 @@ const Dashboard = () => {
         setAppointments((prev) => prev.map(a => a._id === appointmentId ? { ...a, paymentStatus: paymentStatus } : a));
       }
       playSaveSound();
-      toast.success(data.message || 'Payment status updated');
+      snackbar.success(data.message || 'Payment status updated');
       if (paymentStatus === "Paid") {
         playSettledSound();
       }
     } catch (e) {
-      toast.error(e?.response?.data?.message || 'Failed to update payment status');
+      snackbar.error(e?.response?.data?.message || 'Failed to update payment status');
     }
   };
 
@@ -179,7 +181,7 @@ const Dashboard = () => {
           }
         }
       } catch (error) {
-        toast.error(error.response?.data?.message || "Failed to fetch doctors");
+        snackbar.error(error.response?.data?.message || "Failed to fetch doctors");
         setDoctors([]);
         setDoctorFilterList([]);
       }
@@ -191,37 +193,39 @@ const Dashboard = () => {
 
   // Delete single appointment by ID
   const handleDeleteAppointment = async (id) => {
-    if (!window.confirm("Delete this appointment?")) return;
-    try {
-      await api.delete(`/api/v1/appointment/delete/${id}`);
-      setAppointments((prev) => prev.filter((a) => a._id !== id));
-      setSelectedAppointments((prev) => prev.filter((x) => x !== id));
-      playDeleteSound();
-      toast.success("Appointment deleted");
-    } catch (err) {
-      toast.error("Delete failed");
-    }
+    snackbar.confirm("Delete this appointment?", async () => {
+      try {
+        await api.delete(`/api/v1/appointment/delete/${id}`);
+        setAppointments((prev) => prev.filter((a) => a._id !== id));
+        setSelectedAppointments((prev) => prev.filter((x) => x !== id));
+        playDeleteSound();
+        snackbar.success("Appointment deleted");
+      } catch (err) {
+        snackbar.error("Delete failed");
+      }
+    });
   };
 
   // Bulk delete selected appointments
   const handleBulkDelete = async () => {
-    if (selectedAppointments.length === 0)
-      return toast.info("No appointments selected");
-    if (!window.confirm(`Delete ${selectedAppointments.length} appointments?`))
-      return;
-    try {
-      await api.post(`/api/v1/appointment/bulk-delete`, {
-        ids: selectedAppointments,
-      });
-      setAppointments((prev) =>
-        prev.filter((a) => !selectedAppointments.includes(a._id))
-      );
-      setSelectedAppointments([]);
-      playDeleteSound();
-      toast.success("Bulk delete complete");
-    } catch (err) {
-      toast.error("Bulk delete failed");
+    if (selectedAppointments.length === 0) {
+      return snackbar.info("No appointments selected");
     }
+    snackbar.confirm(`Delete ${selectedAppointments.length} appointments?`, async () => {
+      try {
+        await api.post(`/api/v1/appointment/bulk-delete`, {
+          ids: selectedAppointments,
+        });
+        setAppointments((prev) =>
+          prev.filter((a) => !selectedAppointments.includes(a._id))
+        );
+        setSelectedAppointments([]);
+        playDeleteSound();
+        snackbar.success("Bulk delete complete");
+      } catch (err) {
+        snackbar.error("Bulk delete failed");
+      }
+    });
   };
 
   // Toggle select for bulk delete
@@ -242,12 +246,12 @@ const Dashboard = () => {
         setAppointments((prev) => prev.map((a) => (a._id === appointmentId ? updatedAppt : a)));
       }
       playSaveSound();
-      toast.success(data.message || 'Status updated');
+      snackbar.success(data.message || 'Status updated');
       if (updatedAppt && updatedAppt.paymentStatus === "Paid") {
         playSettledSound();
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      snackbar.error(error.response.data.message);
     }
   };
 
@@ -276,14 +280,14 @@ const Dashboard = () => {
       }
   // extracted invoices from API response
       if (!invoices || invoices.length === 0) {
-        toast.info("No invoice found for this appointment");
+        snackbar.info("No invoice found for this appointment");
         return;
       }
       setInvoicesList(invoices);
       setShowInvoicesModal(true);
       setSelectedInvoiceId(null);
     } catch (e) {
-      toast.error("Failed to fetch invoice for appointment");
+      snackbar.error("Failed to fetch invoice for appointment");
     }
   };
 
@@ -296,7 +300,7 @@ const Dashboard = () => {
       setPrescriptionModalOpen(true);
     } catch (error) {
       setSelectedPatientData(null);
-      toast.error("Failed to fetch patient data");
+      snackbar.error("Failed to fetch patient data");
     }
   };
 
@@ -315,7 +319,7 @@ const Dashboard = () => {
     setIsRescheduling(true);
     try {
       const response = await rescheduleAppointment(appointmentId, newDate);
-      toast.success("Appointment rescheduled successfully!");
+      snackbar.success("Appointment rescheduled successfully!");
       setRescheduleModalOpen(false);
       setSelectedAppointmentToReschedule(null);
       // Refresh appointments list
@@ -331,7 +335,7 @@ const Dashboard = () => {
     } catch (error) {
       console.error("Error rescheduling appointment:", error);
       const errorMessage = error?.message || "Failed to reschedule appointment";
-      toast.error(errorMessage);
+      snackbar.error(errorMessage);
     } finally {
       setIsRescheduling(false);
     }
@@ -533,7 +537,7 @@ const Dashboard = () => {
                 className="btn add-btn"
                 onClick={() => navigate("/add-appointment")}
               >
-                Book Appointment
+                < FaPrescriptionBottleMedical /> Book Appointment
               </button>
               <button
                 className="btn"
@@ -544,7 +548,7 @@ const Dashboard = () => {
                   marginLeft: "0.5rem"
                 }}
               >
-                View Slots
+               <MdSchedule/> View Slots
               </button>
               <RequirePermission allowedRoles={["Admin"]}>
                 <button
@@ -552,7 +556,7 @@ const Dashboard = () => {
                   onClick={handleBulkDelete}
                   disabled={selectedAppointments.length === 0}
                 >
-                  Delete Selected ({selectedAppointments.length})
+                 <MdOutlineDelete/> Delete Selected ({selectedAppointments.length})
                 </button>
               </RequirePermission>
             </div>

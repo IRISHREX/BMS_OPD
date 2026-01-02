@@ -8,8 +8,9 @@ import { fetchPreviewRequest, resetPreview } from "../store/previewSlice";
 import { dobToAge } from "../utils/ageUtils";
 import { Context } from "../main";
 import "./presFormat.css";
-import { PiPrescriptionBold } from "react-icons/pi";
+import { PiPrescriptionBold, PiPrinter } from "react-icons/pi";
 import api from "../utils/api";
+import { BsDownload } from "react-icons/bs";
 
 // Helper: format date
 const formatDate = (date) =>
@@ -515,8 +516,13 @@ const Preview = () => {
               Print with Footer
             </label>
           </div>
-          <div className="pdf-down-btn" onClick={downLoadPDF}>
-            Download PDF
+          <div className="preview-actions">
+            <div className="pdf-down-btn" onClick={downLoadPDF}>
+              <BsDownload/>
+            </div>
+            <div className="pdf-down-btn" onClick={() => window.print()}>
+              <PiPrinter/>
+            </div>
           </div>
         </div>
       ) : (
