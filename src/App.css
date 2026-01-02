@@ -716,14 +716,14 @@ input[type="time"]:before {
   --sidebar-bg: var(--bg-card);
 }
 .theme-cyberpunk {
-  --bg-main: #0f1021;
+  --bg-main: linear-gradient(135deg, #f35f02, #9c07f2, #24243e);
   --bg-card: #232946;
   --accent: #ff008d;
   --btn-gradient: linear-gradient(140deg,#ff008d,#00fff7);
   --text-main: #fff;
   --text-accent: #ff008d;
   --app-font: 'Orbitron, sans-serif';
-  --sidebar-bg: rgba(20,15,40,0.6);
+  --sidebar-bg: linear-gradient(135deg, rgba(246, 8, 167, 0.8) 0%, rgba(252, 211, 8, 0.8) 100%);
 }
 .theme-blackpink {
   --bg-main: #1a001a;

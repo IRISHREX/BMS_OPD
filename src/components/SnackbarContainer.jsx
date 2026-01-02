@@ -31,6 +31,12 @@ const SnackbarContainer = () => {
         borderColor: '#1d4ed8',
         lightBg: '#eff6ff',
       },
+      confirmation: {
+        icon: '?',
+        bgColor: '#6b7280',
+        borderColor: '#4b5563',
+        lightBg: '#f3f4f6',
+      },
     };
     return configs[type] || configs.info;
   };
@@ -39,6 +45,34 @@ const SnackbarContainer = () => {
     <div className="snackbar-container">
       {snackbars.map((snackbar) => {
         const config = getTypeConfig(snackbar.type);
+
+        if (snackbar.type === 'confirmation') {
+          return (
+            <div
+              key={snackbar.id}
+              className="snackbar-item"
+              style={{
+                background: config.lightBg,
+                borderLeft: `4px solid ${config.bgColor}`,
+              }}
+            >
+              <div className="snackbar-content">
+                <span
+                  className="snackbar-icon"
+                  style={{ color: config.bgColor }}
+                >
+                  {config.icon}
+                </span>
+                <span className="snackbar-message">{snackbar.message}</span>
+                <div className="snackbar-confirmation-buttons">
+                  <button onClick={snackbar.onConfirm}>Yes</button>
+                  <button onClick={snackbar.onCancel}>No</button>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
         return (
           <div
             key={snackbar.id}
@@ -46,7 +80,7 @@ const SnackbarContainer = () => {
             style={{
               background: config.lightBg,
               borderLeft: `4px solid ${config.bgColor}`,
-              animation: 'slideIn 0.3s ease-out forwards',
+              animation: 'slideIn 0.2s ease-out forwards',
             }}
           >
             <div className="snackbar-content">
@@ -69,7 +103,7 @@ const SnackbarContainer = () => {
               className="snackbar-progress"
               style={{
                 background: config.bgColor,
-                animation: 'progress 4s linear forwards',
+                animation: 'progress 1s linear forwards',
               }}
             />
           </div>

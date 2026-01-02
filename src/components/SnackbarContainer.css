@@ -121,6 +121,27 @@
   }
 }
 
+.snackbar-confirmation-buttons {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.snackbar-confirmation-buttons button {
+  background: transparent;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  transition: background-color 0.2s;
+}
+
+.snackbar-confirmation-buttons button:hover {
+  background-color: #f0f0f0;
+}
+
 /* Responsive design */
 @media (max-width: 640px) {
   .snackbar-container {

@@ -40,6 +40,23 @@ export const SnackbarProvider = ({ children }) => {
     error: (message, duration = 4000) => showSnackbar(message, 'error', duration),
     warning: (message, duration = 4000) => showSnackbar(message, 'warning', duration),
     info: (message, duration = 3000) => showSnackbar(message, 'info', duration),
+    confirm: (message, onConfirm, onCancel) => {
+      const id = Date.now();
+      const newSnackbar = {
+        id,
+        message,
+        type: 'confirmation',
+        onConfirm: () => {
+          onConfirm();
+          removeSnackbar(id);
+        },
+        onCancel: () => {
+          if (onCancel) onCancel();
+          removeSnackbar(id);
+        },
+      };
+      setSnackbars(prev => [...prev, newSnackbar]);
+    },
   };
 
   return (

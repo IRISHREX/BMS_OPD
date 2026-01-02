@@ -21,6 +21,7 @@ import { changeSdisease } from "../store/diseaseSlice";
 
 // Clean, single-component Prescription (5-step slider)
 const Prescription = ({ patientId, onClose }) => {
+  const snackbar = useSnackbar();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
@@ -420,7 +421,7 @@ const Prescription = ({ patientId, onClose }) => {
         const { data } = await api.get(`/api/v1/user/doctors/list`);
         setDoctorsList(data.doctors || []);
       } catch (e) {
-        toast.error(
+        snackbar.error(
           e?.response?.data?.message || "Failed to save prescription"
         );
       }
@@ -946,7 +947,7 @@ const Prescription = ({ patientId, onClose }) => {
         Object.keys(adviceToSave).length > 0 ||
         diagnosysHasContent;
       if (!hasContent) {
-        toast.error(
+        snackbar.error(
           "Please add at least one of: Diagnosis, medicines or test advice before saving."
         );
         return;
@@ -988,7 +989,7 @@ const Prescription = ({ patientId, onClose }) => {
         });
       }
       playSaveSound();
-      toast.success("Prescription saved");
+      snackbar.success("Prescription saved");
       // refresh original snapshot to current state
       const advSaved = adviceToSave;
       const newSnap = {
@@ -1021,16 +1022,18 @@ const Prescription = ({ patientId, onClose }) => {
         if (onClose) onClose();
       }
     } catch (e) {
-      toast.error("Failed to save prescription or notify doctor.");
+      snackbar.error("Failed to save prescription or notify doctor.");
     }
   }
 
   const handleClose = () => {
     if (isDirty) {
-      if (!window.confirm("You have unsaved changes. Discard and close?"))
-        return;
+      snackbar.confirm("You have unsaved changes. Discard and close?", () => {
+        if (onClose) onClose();
+      });
+    } else {
+      if (onClose) onClose();
     }
-    if (onClose) onClose();
   };
 
   // const nextStep = () =>
@@ -1863,7 +1866,7 @@ const Prescription = ({ patientId, onClose }) => {
                           title="Save this medicine to the database"
                           onClick={() => {
                             dispatch(addMedicineRequest({ name: m.name }));
-                            toast.success(`Medicine "${m.name}" saved!`);
+                            snackbar.success(`Medicine "${m.name}" saved!`);
                           }}
                         >
                           <FaSave />
