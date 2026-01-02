@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import { Context } from "../main";
 import {
   LOGIN_LOGO_WIDTH,
@@ -15,6 +15,7 @@ import {
 import { loginRequest } from "../store/authSlice";
 
 const Login = () => {
+  const snackbar = useSnackbar();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -38,7 +39,7 @@ const Login = () => {
       navigateTo('/');
     }
     if (auth.error) {
-      toast.error(auth.error);
+      snackbar.error(auth.error);
     }
   }, [auth.isAuthenticated, auth.error]);
 

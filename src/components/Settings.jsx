@@ -25,9 +25,9 @@ const settings = [
     route: "/settings/roles",
   },
   {
-    id: "theme",
-    name: "Theme Settings",
-    icon: "🎨",
+    id: "general",
+    name: "General Settings",
+    icon: "🏥",
     description: "Customize the dashboard appearance and theme.",
     route: "/settings/theme",
   },

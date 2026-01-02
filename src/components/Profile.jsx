@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import api from "../utils/api";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -111,6 +111,7 @@ const PasswordChangeModal = ({ isOpen, onClose, onSubmit, loading, passwordForm,
 };
 
 const Profile = () => {
+  const snackbar = useSnackbar();
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -144,7 +145,7 @@ const Profile = () => {
           }
         }
       } catch (error) {
-        toast.error(error?.response?.data?.message || "Failed to load user details");
+        snackbar.error(error?.response?.data?.message || "Failed to load user details");
       } finally {
         setLoading(false);
       }
@@ -180,17 +181,17 @@ const Profile = () => {
     e.preventDefault();
 
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
-      toast.error("Please fill all password fields!");
+      snackbar.error("Please fill all password fields!");
       return;
     }
 
     if (passwordForm.newPassword.length < 8) {
-      toast.error("New password must be at least 8 characters long!");
+      snackbar.error("New password must be at least 8 characters long!");
       return;
     }
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error("New passwords don't match!");
+      snackbar.error("New passwords don't match!");
       return;
     }
 
@@ -202,7 +203,7 @@ const Profile = () => {
       });
 
       if (response.data.success) {
-        toast.success("Password changed successfully!");
+        snackbar.success("Password changed successfully!");
         setPasswordForm({
           currentPassword: "",
           newPassword: "",
@@ -211,7 +212,7 @@ const Profile = () => {
         setPasswordModalOpen(false);
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to change password");
+      snackbar.error(error?.response?.data?.message || "Failed to change password");
     } finally {
       setPasswordLoading(false);
     }

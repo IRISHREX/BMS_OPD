@@ -1,9 +1,11 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import api from '../utils/api';
+import { playSaveSound, playLoadSound } from '../utils/soundUtils';
 import { fetchMessagesRequest, fetchMessagesSuccess, fetchMessagesFailure } from './messagesSlice';
 
 function* fetchMessagesSaga(action) {
   try {
+    playLoadSound();
     const { q = '', page = 1, limit = 10, doctorId, filterOption, customStart, customEnd, email } = action.payload || {};
     const params = { limit, page };
     if (q) params.q = q;

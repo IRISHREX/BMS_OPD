@@ -1,9 +1,11 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import api from '../utils/api';
+import { playSaveSound, playLoadSound } from '../utils/soundUtils';
 import { fetchPreviewRequest, fetchPreviewSuccess, fetchPreviewFailure } from './previewSlice';
 
 function* fetchPreviewSaga(action) {
   try {
+    playLoadSound();
     const { patientId } = action.payload;
   const { data: ad } = yield call(api.get, `/api/v1/appointment/patient/${patientId}`);
     const appts = ad.appointments || [];

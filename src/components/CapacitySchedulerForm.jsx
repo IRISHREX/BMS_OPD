@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import api from "../utils/api";
 import { Context } from "../main";
 import "./CapacitySchedulerForm.css";
 
 const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) => {
+  const snackbar = useSnackbar();
   const { admin } = useContext(Context);
   const [capacities, setCapacities] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -57,7 +58,7 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
         setCapacities(data.data || []);
       }
     } catch (error) {
-      toast.error("Failed to load capacity schedule");
+      snackbar.error("Failed to load capacity schedule");
     } finally {
       setLoading(false);
     }
@@ -67,12 +68,12 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
     e.preventDefault();
 
     if (!selectedDate || !capacity) {
-      toast.error("Please select a date and enter capacity!");
+      snackbar.error("Please select a date and enter capacity!");
       return;
     }
 
     if (capacity < 1 || capacity > 100) {
-      toast.error("Capacity must be between 1 and 100!");
+      snackbar.error("Capacity must be between 1 and 100!");
       return;
     }
 
@@ -87,7 +88,7 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
       });
 
       if (response.data.success) {
-        toast.success("Capacity schedule updated successfully!");
+        snackbar.success("Capacity schedule updated successfully!");
         setSelectedDate("");
         setCapacity("20");
         setNotes("");
@@ -95,7 +96,7 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
         fetchCapacities();
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to set capacity");
+      snackbar.error(error?.response?.data?.message || "Failed to set capacity");
     } finally {
       setFormLoading(false);
     }
@@ -108,11 +109,11 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
       );
 
       if (response.data.success) {
-        toast.success(`Marked as ${!currentStatus ? "working" : "non-working"} day`);
+        snackbar.success(`Marked as ${!currentStatus ? "working" : "non-working"} day`);
         fetchCapacities();
       }
     } catch (error) {
-      toast.error("Failed to update working day status");
+      snackbar.error("Failed to update working day status");
     }
   };
 

@@ -1,7 +1,7 @@
 import api from "../utils/api";
 import Modal from "react-modal";
 import React, { useContext, useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import { Context } from "../main";
 import { Navigate } from "react-router-dom";
 import { FaSearch } from "./DoctorIcons";
@@ -9,9 +9,11 @@ import UserCard from './UserCard';
 import RequirePermission from "./RequirePermission";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDoctorsRequest } from '../store/doctorsSlice';
+import { playSaveSound, playLoadSound, playDeleteSound } from '../utils/soundUtils';
 import CapacitySchedulerForm from "./CapacitySchedulerForm";
 
 const Doctors = () => {
+  const snackbar = useSnackbar();
   const [doctors, setDoctors] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -67,11 +69,12 @@ const Doctors = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      toast.success('Doctor updated');
+      playSaveSound();
+      snackbar.success('Doctor updated');
       setShowUpdateModal(false);
       dispatch(fetchDoctorsRequest({ query: searchTerm }));
     } catch (err) {
-      toast.error('Update failed');
+      snackbar.error('Update failed');
     }
   };
 
@@ -147,10 +150,11 @@ const Doctors = () => {
                   if(window.confirm('Are you sure you want to delete this doctor?')) {
                     try {
                       await api.delete(`/api/v1/user/user/${u._id}`);
-                      toast.success('Doctor deleted');
+                      playDeleteSound();
+                      snackbar.success('Doctor deleted');
                       dispatch(fetchDoctorsRequest({ query: searchTerm }));
                     } catch (err) {
-                      toast.error('Delete failed');
+                      snackbar.error('Delete failed');
                     }
                   }
                 }}

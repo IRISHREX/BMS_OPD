@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import api from "../utils/api";
 import "./DoctorCapacitySettings.css";
 
 const DoctorCapacitySettings = ({ doctorId }) => {
+  const snackbar = useSnackbar();
   const [capacities, setCapacities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
@@ -38,7 +39,7 @@ const DoctorCapacitySettings = ({ doctorId }) => {
         setCapacities(data.capacities || []);
       }
     } catch (error) {
-      toast.error("Failed to load capacities");
+      snackbar.error("Failed to load capacities");
     } finally {
       setLoading(false);
     }
@@ -48,12 +49,12 @@ const DoctorCapacitySettings = ({ doctorId }) => {
     e.preventDefault();
 
     if (!selectedDate || !maxCapacity) {
-      toast.error("Please select a date and enter max capacity!");
+      snackbar.error("Please select a date and enter max capacity!");
       return;
     }
 
     if (maxCapacity < 1 || maxCapacity > 100) {
-      toast.error("Capacity must be between 1 and 100!");
+      snackbar.error("Capacity must be between 1 and 100!");
       return;
     }
 
@@ -65,13 +66,13 @@ const DoctorCapacitySettings = ({ doctorId }) => {
       });
 
       if (response.data.success) {
-        toast.success("Capacity set successfully!");
+        snackbar.success("Capacity set successfully!");
         setSelectedDate("");
         setMaxCapacity("10");
         fetchCapacities();
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to set capacity");
+      snackbar.error(error?.response?.data?.message || "Failed to set capacity");
     } finally {
       setFormLoading(false);
     }

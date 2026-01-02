@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Modal from "react-modal";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import {
   fetchMedicinesRequest,
   addMedicineRequest,
@@ -19,6 +19,7 @@ import { FaArrowLeft } from 'react-icons/fa';
 import './MedicineStore.css';
 
 const MedicineStore = () => {
+  const snackbar = useSnackbar();
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
@@ -66,7 +67,7 @@ const MedicineStore = () => {
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this medicine?")) {
       dispatch(deleteMedicineRequest(id));
-      toast.success("Medicine deleted successfully!");
+      snackbar.success("Medicine deleted successfully!");
     }
   };
 
@@ -196,10 +197,10 @@ const MedicineStore = () => {
               onSave={(data) => {
                 if (isEditing) {
                   dispatch(updateMedicineRequest({ id: currentMedicine._id || currentMedicine.id, ...data }));
-                  toast.success('Medicine updated successfully!');
+                  snackbar.success('Medicine updated successfully!');
                 } else {
                   dispatch(addMedicineRequest(data));
-                  toast.success('Medicine added successfully!');
+                  snackbar.success('Medicine added successfully!');
                 }
                 handleCloseModal();
               }}
@@ -226,7 +227,7 @@ const MedicineStore = () => {
             onCancel={handleCloseBulkModal}
             onSave={(data) => {
               dispatch(addMedicinesRequest(data));
-              toast.success('Medicines added successfully!');
+              snackbar.success('Medicines added successfully!');
               handleCloseBulkModal();
             }}
           />

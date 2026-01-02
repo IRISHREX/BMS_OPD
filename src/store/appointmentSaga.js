@@ -1,8 +1,9 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import api from '../utils/api';
-import { toast } from 'react-toastify';
+import { snackbar } from '../utils/notificationUtils';
 import { createAppointmentRequest, createAppointmentSuccess, createAppointmentFailure } from './appointmentSlice';
 import { saveBlobFromResponse } from '../utils/download';
+import { playSaveSound, playLoadSound } from '../utils/soundUtils';
 
 function* createAppointmentSaga(action) {
   try {
@@ -14,13 +15,15 @@ function* createAppointmentSaga(action) {
     if (download) {
       yield call(saveBlobFromResponse, response);
       yield put(createAppointmentSuccess({ message: 'Appointment created (downloaded)' }));
-      toast.success('Appointment created and invoice downloaded');
+      playSaveSound();
+      snackbar.success('Appointment created and invoice downloaded');
     } else {
       const data = response.data;
       // prefer the server-returned appointment object as the canonical created record
       const payload = { appointment: data.appointment || data, message: data.message };
       yield put(createAppointmentSuccess(payload));
-      toast.success(data.message || 'Appointment created');
+      playSaveSound();
+      snackbar.success(data.message || 'Appointment created');
       // Invoice creation is handled by the backend now; no client-side auto-create.
       // If client requested appointment to be marked Paid on creation, settle invoices now so payments are recorded
       try {
@@ -29,7 +32,7 @@ function* createAppointmentSaga(action) {
           if (apptId) {
             yield call(api.post, `/api/v1/invoice/appointment/${apptId}/settle`);
             // refresh or notify user
-            toast.success('Appointment invoices settled');
+            snackbar.success('Appointment invoices settled');
           }
         }
       } catch (e) {
@@ -39,7 +42,8 @@ function* createAppointmentSaga(action) {
   } catch (err) {
     const msg = err?.response?.data?.message || err.message || 'Appointment failed';
     yield put(createAppointmentFailure(msg));
-    toast.error(msg);
+    snackbar.error(msg);
+    playLoadSound();
   }
 }
 

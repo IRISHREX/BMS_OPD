@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
 import './Settings.css';
 import Modal from 'react-modal';
-import { toast } from 'react-toastify';
+import { useSnackbar } from '../context/SnackbarContext';
 
 const InvoiceViewer = ({ invoiceId, isOpen, onClose }) => {
+  const snackbar = useSnackbar();
   const [invoice, setInvoice] = useState(null);
 
   useEffect(() => {
@@ -19,7 +20,7 @@ const InvoiceViewer = ({ invoiceId, isOpen, onClose }) => {
         if (Array.isArray(inv)) inv = inv[0];
         setInvoice(inv);
       } catch (e) {
-        toast.error(e?.response?.data?.message || 'Failed to load invoice');
+        snackbar.error(e?.response?.data?.message || 'Failed to load invoice');
         setInvoice(null);
       }
     })();
@@ -34,7 +35,7 @@ const InvoiceViewer = ({ invoiceId, isOpen, onClose }) => {
       a.download = `${invoice?.invoiceNumber || invoice?._id || 'invoice'}.html`;
       a.click();
     } catch (e) {
-      toast.error(e?.response?.data?.message || 'Download failed');
+      snackbar.error(e?.response?.data?.message || 'Download failed');
       alert('Download failed');
     }
   };

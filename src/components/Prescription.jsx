@@ -5,7 +5,8 @@ import useSymptomSuggestions from "./useSymptomSuggestions";
 import useMedicineSuggestions from "./useMedicineSuggestions";
 import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
+import { playSaveSound } from "../utils/soundUtils";
 import "./Prescription.css";
 import { addMedicineRequest } from "../store/medicineSlice";
 import { IoIosClose, IoIosCloseCircle, IoIosCloseCircleOutline } from "react-icons/io";
@@ -986,6 +987,7 @@ const Prescription = ({ patientId, onClose }) => {
            🌐download link: ${window.location.origin}/preview/${patientId}`,
         });
       }
+      playSaveSound();
       toast.success("Prescription saved");
       // refresh original snapshot to current state
       const advSaved = adviceToSave;

@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import api from '../utils/api';
-import { toast } from 'react-toastify';
+import { useSnackbar } from '../context/SnackbarContext';
+import { playSaveSound, playLoadSound } from '../utils/soundUtils';
 
 const ComposeModal = ({ onClose, doctors, user }) => {
+  const snackbar = useSnackbar();
   const [recipient, setRecipient] = useState('');
   const [message, setMessage] = useState('');
 
   const handleSend = async () => {
     if (!recipient || !message) {
-      return toast.error('Please select a recipient and write a message.');
+      return snackbar.error('Please select a recipient and write a message.');
     }
     try {
+      playLoadSound();
       await api.post('/api/v1/message/send', {
         firstName: user.firstName,
         lastName: user.lastName,
@@ -19,10 +22,12 @@ const ComposeModal = ({ onClose, doctors, user }) => {
         message,
         recipient,
       });
-      toast.success('Message sent successfully!');
+      playSaveSound();
+      snackbar.success('Message sent successfully!');
       onClose();
     } catch (error) {
-      toast.error('Failed to send message. Please try again.');
+      snackbar.error('Failed to send message. Please try again.');
+      playLoadSound();
     }
   };
 

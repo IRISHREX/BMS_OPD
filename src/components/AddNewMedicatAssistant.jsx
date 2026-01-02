@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../main";
 import { Navigate, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import api from "../utils/api";
 import { useDispatch, useSelector } from 'react-redux';
 import { createAdminRequest, resetAdminCreate } from '../store/adminCreateSlice';
 
 const AddNewAdmin = () => {
+  const snackbar = useSnackbar();
   const { isAuthenticated, setIsAuthenticated, admin } = useContext(Context);
 
   const [firstName, setFirstName] = useState("");
@@ -30,7 +31,7 @@ const AddNewAdmin = () => {
         } catch (err) {
         // show friendly message
          console.log("Error fetching doctors for assignment",err);
-        if (typeof toast !== 'undefined') toast.error('Failed to fetch doctors for assignment');
+        snackbar.error('Failed to fetch doctors for assignment');
       }
     };
     if (role === 'Doctor' && admin?._id) {
