@@ -15,9 +15,9 @@ import Doctors from "./components/Doctors";
 import Compounders from "./components/Compounders";
 import { Context } from "./main";
 import api from "./utils/api";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "./components/Sidebar";
+import { SnackbarProvider } from "./context/SnackbarContext";
+import SnackbarContainer from "./components/SnackbarContainer";
 import AddNewAdmin from "./components/AddNewMedicatAssistant";
 import "./App.css";
 import Prescription from "./components/Prescription";
@@ -26,7 +26,7 @@ import Settings from "./components/Settings";
 import Profile from "./components/Profile";
 import MedicineSettings from "./components/MedicineSettings";
 import RoleSettings from "./components/RoleSettings";
-import ThemeSettings from "./components/ThemeSettings";
+import GeneralSettings from "./components/ThemeSettings";
 import AdvancedSettings from "./components/AdvancedSettings";
 import RequireAuth from "./components/RequireAuth";
 import InvoiceSettings from "./components/InvoiceSettings";
@@ -54,8 +54,9 @@ const App = () => {
   }, [isAuthenticated]);
 
   return (
-    <Router>
-      <Sidebar />
+    <SnackbarProvider>
+      <Router>
+        <Sidebar />
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/login" element={<Login />} />
@@ -132,7 +133,7 @@ const App = () => {
         } />
         <Route path="/settings/theme" element={
           <RequireAuth allowedRoles={["Admin","Doctor"]}>
-            <ThemeSettings />
+            <GeneralSettings />
           </RequireAuth>
         } />
         <Route path="/settings/advanced" element={
@@ -144,8 +145,9 @@ const App = () => {
         <Route path="/invoice/:invoiceId" element={<InvoicePage />} />
         <Route path="*" element={<CyberPunk404 />} />
       </Routes>
-      <ToastContainer position="top-center" />
-    </Router>
+      <SnackbarContainer />
+      </Router>
+    </SnackbarProvider>
   );
 };
 

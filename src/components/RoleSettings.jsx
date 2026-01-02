@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { FaTrashAlt } from "./RoleIcons";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import "./Settings.css";
 
 const ROLE_OPTIONS = ["Admin", "Doctor", "Compounder", "Patient"];
 
 // Change Password Modal Component
 const ChangePasswordModal = ({ isOpen, userId, userName, onClose, onSuccess }) => {
+  const snackbar = useSnackbar();
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -16,7 +17,7 @@ const ChangePasswordModal = ({ isOpen, userId, userName, onClose, onSuccess }) =
     e.preventDefault();
 
     if (!newPassword || newPassword.length < 8) {
-      toast.error("Password must be at least 8 characters long!");
+      snackbar.error("Password must be at least 8 characters long!");
       return;
     }
 
@@ -28,13 +29,13 @@ const ChangePasswordModal = ({ isOpen, userId, userName, onClose, onSuccess }) =
       });
 
       if (response.data.success) {
-        toast.success("Password changed successfully!");
+        snackbar.success("Password changed successfully!");
         setNewPassword("");
         onSuccess();
         onClose();
       }
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to change password");
+      snackbar.error(err?.response?.data?.message || "Failed to change password");
     } finally {
       setLoading(false);
     }
@@ -133,6 +134,7 @@ const ChangePasswordModal = ({ isOpen, userId, userName, onClose, onSuccess }) =
 };
 
 const RoleSettings = () => {
+  const snackbar = useSnackbar();
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -151,7 +153,7 @@ const RoleSettings = () => {
   const { data } = await api.get(`/api/v1/user/all`);
       setUsers(data.users || []);
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to load users");
+      snackbar.error(err?.response?.data?.message || "Failed to load users");
     } finally {
       setLoading(false);
     }
@@ -173,10 +175,10 @@ const RoleSettings = () => {
   const handleRoleChange = async (userId, newRole) => {
     try {
   await api.put(`/api/v1/user/role/${userId}`, { role: newRole });
-      toast.success("Role updated");
+      snackbar.success("Role updated");
       setUsers((prev) => prev.map(u => u._id === userId ? { ...u, role: newRole } : u));
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Failed to update role');
+      snackbar.error(err?.response?.data?.message || 'Failed to update role');
     }
   };
 
@@ -242,10 +244,10 @@ const RoleSettings = () => {
                             if(window.confirm('Are you sure you want to delete this user?')) {
                               try {
                                 await api.delete(`/api/v1/user/user/${u._id}`);
-                                toast.success('User deleted');
+                                snackbar.success('User deleted');
                                 setUsers(users.filter(user => user._id !== u._id));
                               } catch (err) {
-                                toast.error('Delete failed');
+                                snackbar.error('Delete failed');
                               }
                             }
                           }}

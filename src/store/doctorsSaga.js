@@ -1,9 +1,11 @@
 import { call, put, takeLatest, debounce } from 'redux-saga/effects';
 import api from '../utils/api';
+import { playSaveSound, playLoadSound } from '../utils/soundUtils';
 import { fetchDoctorsRequest, fetchDoctorsSuccess, fetchDoctorsFailure } from './doctorsSlice';
 
 function* fetchDoctorsSaga(action) {
   try {
+    playLoadSound();
     const { query } = action.payload || {};
     if (query && query.trim() !== '') {
       const { data } = yield call(api.get, `/api/v1/user/doctor/search?query=${encodeURIComponent(query)}`);

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import api from '../utils/api';
+import { playSaveSound, playLoadSound, playDeleteSound } from '../utils/soundUtils';
 import './Settings.css';
 
 const InvoiceSettings = () => {
@@ -86,11 +87,13 @@ const InvoiceSettings = () => {
       payload.total = Math.max(0, computedSubtotal + Number(payload.tax || 0) - Number(payload.discount || 0));
       if (editing) {
         const { data } = await api.put(`/api/v1/invoice/${editing}`, payload);
+        playSaveSound();
         setInvoices(prev => prev.map(i => (i._id === data.invoice._id ? data.invoice : i)));
         setEditing(null);
         alert('Invoice updated');
       } else {
         const { data } = await api.post('/api/v1/invoice', payload);
+        playSaveSound();
         setInvoices(prev => [data.invoice, ...prev]);
         alert('Invoice created');
       }
@@ -147,7 +150,7 @@ const InvoiceSettings = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete invoice?')) return;
-  try { await api.delete(`/api/v1/invoice/${id}`); setInvoices(prev => prev.filter(i => i._id !== id && i.id !== id)); alert('Deleted'); } catch(e){ alert('Delete failed'); }
+  try { await api.delete(`/api/v1/invoice/${id}`); playDeleteSound(); setInvoices(prev => prev.filter(i => i._id !== id && i.id !== id)); alert('Deleted'); } catch(e){ alert('Delete failed'); }
   };
 
   const fetchByAppointment = async (appointmentId) => {
@@ -155,7 +158,7 @@ const InvoiceSettings = () => {
   };
 
   const handleUpdateByAppointment = async (appointmentId, partial) => {
-  try { const { data } = await api.put(`/api/v1/invoice/appointment/${appointmentId}`, partial); alert(`Updated ${data.updatedCount} invoices`); return data; } catch(e){ alert('Update by appointment failed'); }
+  try { playLoadSound(); const { data } = await api.put(`/api/v1/invoice/appointment/${appointmentId}`, partial); playSaveSound(); alert(`Updated ${data.updatedCount} invoices`); return data; } catch(e){ alert('Update by appointment failed'); playLoadSound(); }
   };
 
   const stats = useMemo(()=>({}), []);

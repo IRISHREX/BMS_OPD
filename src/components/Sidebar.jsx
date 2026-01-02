@@ -8,12 +8,13 @@ import { FaPrescription } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
 
 import api from "../utils/api";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import { Context } from "../main";
 import { useNavigate } from "react-router-dom";
 import RequirePermission from "./RequirePermission";
 
 const Sidebar = () => {
+  const snackbar = useSnackbar();
   const [show, setShow] = useState(false);
 
   const { isAuthenticated, setIsAuthenticated } = useContext(Context);
@@ -26,7 +27,7 @@ const Sidebar = () => {
 
       // 1. Update React state
       setIsAuthenticated(false);
-      toast.success(res.data.message);
+      snackbar.success(res.data.message);
 
       // 2. Clear local storage and session storage
       localStorage.clear();
@@ -41,7 +42,7 @@ const Sidebar = () => {
       setIsAuthenticated(false);
       localStorage.clear();
       sessionStorage.clear();
-      toast.error(err?.response?.data?.message || 'Logout failed');
+      snackbar.error(err?.response?.data?.message || 'Logout failed');
       window.location.href = "/login";
     }
   };

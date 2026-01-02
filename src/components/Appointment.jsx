@@ -10,11 +10,12 @@ import {
   formatAge,
   ageToDob,
 } from "../utils/ageUtils";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import "./Appointment.css";
 import { useNavigate } from "react-router-dom";
 
 const Appointment = () => {
+  const snackbar = useSnackbar();
   const navigate = useNavigate();
   const [name, setName] = useState("");
   // const [email, setEmail] = useState("");
@@ -113,7 +114,7 @@ const Appointment = () => {
         const { data } = await api.get(`/api/v1/user/doctors`);
         setDoctors(data.doctors || []);
       } catch (err) {
-        toast.error(err?.response?.data?.message || "Failed to fetch doctors");
+        snackbar.error(err?.response?.data?.message || "Failed to fetch doctors");
       }
     };
     fetchDoctors();
@@ -380,7 +381,7 @@ const Appointment = () => {
       };
       // payload prepared for appointment creation
       if (!canBook)
-        return toast.error(
+        return snackbar.error(
           "Only Admin/Doctor/Compounder may create appointments. Please login to dashboard."
         );
       // debug: log payload being dispatched so we can confirm data sent
@@ -394,7 +395,7 @@ const Appointment = () => {
       // Let saga handle success. Saga will toast. We listen to appointmentState below to reset.
     } catch (error) {
       // show friendly error to user
-      toast.error(
+      snackbar.error(
         error?.response?.data?.message || "An error occurred. Please try again."
       );
     }
@@ -428,7 +429,7 @@ const Appointment = () => {
   }, [appointmentState.lastCreated]);
 
   const handlePrefillFromVisited = async () => {
-    if (!searchNameOrPhone) return toast.error("Enter name or phone to search");
+    if (!searchNameOrPhone) return snackbar.error("Enter name or phone to search");
     try {
       const q = encodeURIComponent(searchNameOrPhone);
       // use api helper (axios instance) instead of undefined globals
@@ -460,10 +461,10 @@ const Appointment = () => {
         setAddress(appt.address || "");
         setDepartment(appt.department || department);
         if (appt.doctorId) set_id(appt.doctorId);
-        toast.success("Prefilled from previous appointment");
+        snackbar.success("Prefilled from previous appointment");
       }
     } catch (err) {
-      toast.error(
+      snackbar.error(
         err?.response?.data?.message || "No previous appointment found"
       );
     }
@@ -576,7 +577,7 @@ const Appointment = () => {
                                 cursor: "pointer",
                               }}
                               onClick={() => {
-                                toast.success("Prefilled existing patient");
+                                snackbar.success("Prefilled existing patient");
                                 // autofill fields
                                 setName(p.name || "");
                                 setPhone(p.phone || "");

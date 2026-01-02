@@ -1,7 +1,7 @@
 import api from "../utils/api";
 import Modal from "react-modal";
 import React, { useContext, useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import { Context } from "../main";
 import { Navigate } from "react-router-dom";
 import { FaSearch } from "./DoctorIcons";
@@ -9,9 +9,11 @@ import RequirePermission from "./RequirePermission";
 import UserCard from './UserCard';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDoctorsRequest } from '../store/doctorsSlice';
+import { playSaveSound, playLoadSound, playDeleteSound } from '../utils/soundUtils';
 import './Compounders.css';
 
 const Compounders = () => {
+  const snackbar = useSnackbar();
   const [compounders, setCompounders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selected, setSelected] = useState(null);
@@ -26,7 +28,7 @@ const Compounders = () => {
         const { data } = await api.get('/api/v1/user/compounders');
         setCompounders(data.compounders || []);
         } catch (err) {
-        toast.error(err?.response?.data?.message || 'Failed to fetch compounders');
+        snackbar.error(err?.response?.data?.message || 'Failed to fetch compounders');
       }
     };
     fetchCompounders();
@@ -91,12 +93,13 @@ const Compounders = () => {
                   if(window.confirm('Are you sure you want to delete this compounder?')) {
                     try {
                       await api.delete(`/api/v1/user/user/${u._id}`);
-                      toast.success('Compounder deleted');
+                      playDeleteSound();
+                      snackbar.success('Compounder deleted');
                       // refetch
                       const { data } = await api.get('/api/v1/user/compounders');
                       setCompounders(data.compounders || []);
                     } catch (err) {
-                      toast.error('Delete failed');
+                      snackbar.error('Delete failed');
                     }
                   }
                 }}
@@ -115,12 +118,13 @@ const Compounders = () => {
             e.preventDefault();
             try {
               await api.put(`/api/v1/user/user/${selected._id}`, updateFields);
-              toast.success('Compounder updated');
+              playSaveSound();
+              snackbar.success('Compounder updated');
               setShowUpdateModal(false);
               const { data } = await api.get('/api/v1/user/compounders');
               setCompounders(data.compounders || []);
             } catch (err) {
-              toast.error('Update failed');
+              snackbar.error('Update failed');
             }
           }}>
             <label>First Name: <input type="text" value={updateFields.firstName} onChange={e => setUpdateFields(f => ({ ...f, firstName: e.target.value }))} /></label><br/>

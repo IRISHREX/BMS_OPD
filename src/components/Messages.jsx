@@ -5,13 +5,14 @@ import React, {
     useMemo,
     useCallback,
   } from "react";
-  import { toast } from "react-toastify";
+  import { useSnackbar } from "../context/SnackbarContext";
   import { Navigate } from "react-router-dom";
   import { useDispatch, useSelector } from "react-redux";
   import useSound from "use-sound";
   
   import { Context } from "../main";
   import api from "../utils/api";
+  import { playSaveSound, playLoadSound } from '../utils/soundUtils';
   import { fetchMessagesRequest } from "../store/messagesSlice";
   import "./Messages.css";
   
@@ -39,6 +40,7 @@ import { HEIGHT_MAX } from "../utils/constants";
   };
   
   const Messages = () => {
+    const snackbar = useSnackbar();
     // Context provider uses `admin` as the dashboard user object in main.jsx
     // Normalize it here as `user` for existing component code.
     const { isAuthenticated, admin: user } = useContext(Context);
@@ -87,7 +89,7 @@ import { HEIGHT_MAX } from "../utils/constants";
             setFilters((prev) => ({ ...prev, doctorId: user._id }));
           }
         } catch (error) {
-          toast.error("Failed to fetch doctors");
+          snackbar.error("Failed to fetch doctors");
         }
       };
 
@@ -171,11 +173,12 @@ import { HEIGHT_MAX } from "../utils/constants";
   
       try {
         await api.post(`/api/v1/message/bulk-update`, { ids, read });
-        toast.success(`Marked as ${action}`);
+        playSaveSound();
+        snackbar.success(`Marked as ${action}`);
         setSelected([]);
         fetchMessages();
       } catch (err) {
-        toast.error(`Failed to mark as ${action}`);
+        snackbar.error(`Failed to mark as ${action}`);
       }
     };
   
@@ -185,12 +188,12 @@ import { HEIGHT_MAX } from "../utils/constants";
   
       try {
         await api.post(`/api/v1/message/bulk-delete`, { ids });
-        toast.success("Delete complete");
+        snackbar.success("Delete complete");
         playDeleteSound?.();
         setSelected([]);
         fetchMessages();
       } catch (err) {
-        toast.error("Delete failed");
+        snackbar.error("Delete failed");
       }
     };
   
@@ -204,10 +207,10 @@ import { HEIGHT_MAX } from "../utils/constants";
           message: `Re: ${originalMessage.message}\n\n${replyText}`,
           recipient: originalMessage.recipient?._id || allDoctors[0]?._id,
         });
-        toast.success('Reply sent!');
+        snackbar.success('Reply sent!');
         fetchMessages();
       } catch (error) {
-        toast.error('Failed to send reply.');
+        snackbar.error('Failed to send reply.');
       }
     };
   

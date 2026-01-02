@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
+import { playSaveSound, playLoadSound, playDeleteSound } from '../utils/soundUtils';
 import "./Settings.css";
 import MedicineCard from "./MedicineCard";
 import MedicineSearch from "./MedicineSearch";
@@ -33,6 +34,7 @@ const emptyForm = {
 
 const MedicineSettings = () => {
   const navigate = useNavigate();
+  const snackbar = useSnackbar();
   const [medicines, setMedicines] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -55,6 +57,7 @@ const MedicineSettings = () => {
 
   const [playDeleteSound] = useSound("/delete.mp3");
   const [playSettledSound] = useSound("/settled.mp3");
+  const [playLoadingSound] = useSound("/mech_loading.mp3");
 
   useEffect(() => {
     fetchMedicines();
@@ -90,6 +93,7 @@ const MedicineSettings = () => {
     setLoading(true);
     setError("");
     try {
+      playLoadSound();
   const { data } = await api.get(`/api/v1/medical/`, { params: { page, limit: 10 } });
       setMedicines(data.advices || []);
       setPage(data.page || 1);
@@ -104,6 +108,7 @@ const MedicineSettings = () => {
   const searchMedicines = async (q) => {
     setLoading(true);
     try {
+      playLoadSound();
   const { data } = await api.get(`/api/v1/medical/search`, { params: { q, page: 1, limit: 10 } });
       setMedicines(data.advices || []);
       setPage(data.page || 1);
@@ -126,8 +131,10 @@ const MedicineSettings = () => {
       const params = { page: p, limit: 10 };
       if (search) params.q = search;
   const { data } = await api.get(search ? `/api/v1/medical/search` : `/api/v1/medical/`, { params });
+
       setMedicines(data.advices || []);
       setTotalPages(data.totalPages || 1);
+      playLoadingSound();
     } catch (err) {
       setError('Failed to load page');
     } finally {
@@ -178,12 +185,13 @@ const MedicineSettings = () => {
       };
       if (editingId) {
   await api.put(`/api/v1/medical/${editingId}`, payload);
-        toast.success("Medical advice updated successfully!");
+        playSaveSound();
+        snackbar.success("Medical advice updated successfully!");
       } else {
   await api.post(`/api/v1/medical/`, payload);
-        toast.success("Medical advice created successfully!");
+        playSaveSound();
+        snackbar.success("Medical advice created successfully!");
       }
-      playSettledSound();
       setForm(emptyForm);
   setEditingId(null);
   // clear focused medicine selection and refs after save
@@ -191,7 +199,7 @@ const MedicineSettings = () => {
   medicineRowRefs.current = {};
       await fetchMedicines();
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to save medical advice");
+      snackbar.error(err?.response?.data?.message || "Failed to save medical advice");
     } finally {
       setSaving(false);
     }
@@ -250,10 +258,10 @@ const MedicineSettings = () => {
     try {
   await api.delete(`/api/v1/medical/${id}`);
       playDeleteSound();
-      toast.success("Deleted successfully.");
+      snackbar.success("Deleted successfully.");
       setMedicines(prev => prev.filter(p => p._id !== id));
     } catch (e) {
-      toast.error(e?.response?.data?.message || "Failed to delete");
+      snackbar.error(e?.response?.data?.message || "Failed to delete");
     }
   };
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import api from "../utils/api";
 import {
   LOGIN_LOGO_WIDTH,
@@ -10,6 +10,7 @@ import {
 } from "../utils/constants";
 
 const ForgottenPassword = () => {
+  const snackbar = useSnackbar();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,12 +24,12 @@ const ForgottenPassword = () => {
     e.preventDefault();
 
     if (!firstName || !lastName || !email || !phone || !dob) {
-      toast.error("Please fill all fields!");
+      snackbar.error("Please fill all fields!");
       return;
     }
 
     if (phone.length < 10 || phone.length > 11) {
-      toast.error("Phone number must be 10-11 digits!");
+      snackbar.error("Phone number must be 10-11 digits!");
       return;
     }
 
@@ -46,7 +47,7 @@ const ForgottenPassword = () => {
       );
 
       if (response.data.success) {
-        toast.success("Password reset request sent to admin for verification!");
+        snackbar.success("Password reset request sent to admin for verification!");
         // Reset form
         setFirstName("");
         setLastName("");
@@ -60,7 +61,7 @@ const ForgottenPassword = () => {
       }
     } catch (error) {
       const message = error.response?.data?.message || "Failed to send password reset request";
-      toast.error(message);
+      snackbar.error(message);
     } finally {
       setLoading(false);
     }

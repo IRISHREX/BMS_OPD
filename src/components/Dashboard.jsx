@@ -4,7 +4,7 @@ import Reports from './Reports';
 import { Context } from "../main";
 import { Navigate, useNavigate } from "react-router-dom";
 import api, { rescheduleAppointment } from "../utils/api";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import { GoCheckCircleFill } from "react-icons/go";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { FaUserMd, FaUsers } from 'react-icons/fa';
@@ -19,6 +19,7 @@ import { IoReceipt } from "react-icons/io5";
 import useSound from "use-sound";
 import RescheduleModal from "./RescheduleModal";
 import DashboardSlotChecker from "./DashboardSlotChecker";
+import { playSaveSound, playLoadSound, playDeleteSound } from '../utils/soundUtils';
 import "./Dashboard.css";
 import { RiExpandHorizontalSFill } from "react-icons/ri";
 
@@ -141,6 +142,7 @@ const Dashboard = () => {
       } else {
         setAppointments((prev) => prev.map(a => a._id === appointmentId ? { ...a, paymentStatus: paymentStatus } : a));
       }
+      playSaveSound();
       toast.success(data.message || 'Payment status updated');
       if (paymentStatus === "Paid") {
         playSettledSound();
@@ -194,8 +196,8 @@ const Dashboard = () => {
       await api.delete(`/api/v1/appointment/delete/${id}`);
       setAppointments((prev) => prev.filter((a) => a._id !== id));
       setSelectedAppointments((prev) => prev.filter((x) => x !== id));
-      toast.success("Appointment deleted");
       playDeleteSound();
+      toast.success("Appointment deleted");
     } catch (err) {
       toast.error("Delete failed");
     }
@@ -215,8 +217,8 @@ const Dashboard = () => {
         prev.filter((a) => !selectedAppointments.includes(a._id))
       );
       setSelectedAppointments([]);
-      toast.success("Bulk delete complete");
       playDeleteSound();
+      toast.success("Bulk delete complete");
     } catch (err) {
       toast.error("Bulk delete failed");
     }
@@ -239,6 +241,7 @@ const Dashboard = () => {
       if (updatedAppt) {
         setAppointments((prev) => prev.map((a) => (a._id === appointmentId ? updatedAppt : a)));
       }
+      playSaveSound();
       toast.success(data.message || 'Status updated');
       if (updatedAppt && updatedAppt.paymentStatus === "Paid") {
         playSettledSound();

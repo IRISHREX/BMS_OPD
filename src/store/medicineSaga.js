@@ -1,5 +1,6 @@
 import { call, put, takeLatest, debounce } from 'redux-saga/effects';
 import api from '../utils/api';
+import { playSaveSound, playLoadSound } from '../utils/soundUtils';
 import {
   fetchMedicinesRequest,
   fetchMedicinesSuccess,
@@ -39,6 +40,7 @@ function* fetchMedicinesSaga(action) {
 function* addMedicineSaga(action) {
   try {
     yield call(api.post, '/api/v1/medicine/add', action.payload);
+    playSaveSound();
     yield put(addMedicineSuccess());
     yield put(fetchMedicinesRequest());
   } catch (err) {
@@ -49,6 +51,7 @@ function* addMedicineSaga(action) {
 function* addMedicinesSaga(action) {
   try {
     yield call(api.post, '/api/v1/medicine/add/bulk', action.payload);
+    playSaveSound();
     yield put(addMedicinesSuccess());
     yield put(fetchMedicinesRequest());
   } catch (err) {
@@ -60,6 +63,7 @@ function* updateMedicineSaga(action) {
   try {
     const { id, ...data } = action.payload;
     yield call(api.put, `/api/v1/medicine/update/${id}`, data);
+    playSaveSound();
     yield put(updateMedicineSuccess());
     yield put(fetchMedicinesRequest());
   } catch (err) {
@@ -70,6 +74,7 @@ function* updateMedicineSaga(action) {
 function* deleteMedicineSaga(action) {
   try {
     yield call(api.delete, `/api/v1/medicine/delete/${action.payload}`);
+    playSaveSound();
     yield put(deleteMedicineSuccess());
     yield put(fetchMedicinesRequest());
   } catch (err) {

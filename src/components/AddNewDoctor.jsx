@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import { Context } from "../main";
 import { dobToAgeYears, ageToDob } from '../utils/ageUtils';
 import { makeNIC } from '../utils/nicMaker';
@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createDoctorRequest, resetDoctorCreate } from '../store/doctorCreateSlice';
 
 const AddNewDoctor = () => {
+  const snackbar = useSnackbar();
   const { isAuthenticated, setIsAuthenticated } = useContext(Context);
 
   const [firstName, setFirstName] = useState("");
@@ -79,7 +80,7 @@ const AddNewDoctor = () => {
     
     // Validate required fields
     if (!firstName || !lastName || !email || !phone || !gender || !password || !doctorDepartment) {
-      toast.error("Please fill all required fields!");
+      snackbar.error("Please fill all required fields!");
       return;
     }
     
