@@ -648,7 +648,8 @@ body {
   div:first-child
   input:file-selector-button {
   position: absolute;
-  width: 100%;
+  height: 80%;
+  width: 80%;
 }
 .add-doctor-form form .first-wrapper div:last-child {
   flex: 2;
