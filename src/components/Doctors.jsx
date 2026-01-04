@@ -9,12 +9,11 @@ import UserCard from './UserCard';
 import RequirePermission from "./RequirePermission";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDoctorsRequest } from '../store/doctorsSlice';
-import { playSaveSound, playLoadSound, playDeleteSound } from '../utils/soundUtils';
+import { playSaveSound, playDeleteSound } from '../utils/soundUtils';
 import CapacitySchedulerForm from "./CapacitySchedulerForm";
 
 const Doctors = () => {
   const snackbar = useSnackbar();
-  const [doctors, setDoctors] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -32,16 +31,8 @@ const Doctors = () => {
   const doctorsLoading = useSelector(s => s.doctors.loading);
 
   useEffect(() => {
-    dispatch(fetchDoctorsRequest({ query: '' }));
-  }, [dispatch]);
-
-  useEffect(() => {
     dispatch(fetchDoctorsRequest({ query: searchTerm }));
   }, [searchTerm, dispatch]);
-
-  useEffect(() => {
-    setDoctors(storeDoctors);
-  }, [storeDoctors]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -111,8 +102,10 @@ const Doctors = () => {
           </button>
         </form>
         <div className="banner">
-          {doctors && doctors.length > 0 ? (
-            doctors.map((element) => (
+          {doctorsLoading ? (
+            <span className="loader"></span>
+          ) : storeDoctors && storeDoctors.length > 0 ? (
+            storeDoctors.map((element) => (
               <UserCard
                 key={element._id}
                 user={element}
@@ -146,8 +139,8 @@ const Doctors = () => {
                   setNewHeaderImagePreview("");
                   setShowUpdateModal(true);
                 }}
-                onDelete={async (u) => {
-                  if(window.confirm('Are you sure you want to delete this doctor?')) {
+                onDelete={(u) => {
+                  snackbar.confirm('Are you sure you want to delete this doctor?', async () => {
                     try {
                       await api.delete(`/api/v1/user/user/${u._id}`);
                       playDeleteSound();
@@ -156,7 +149,7 @@ const Doctors = () => {
                     } catch (err) {
                       snackbar.error('Delete failed');
                     }
-                  }
+                  });
                 }}
               />
             ))
