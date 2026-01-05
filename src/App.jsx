@@ -34,6 +34,7 @@ import InvoicePage from "./components/InvoicePage";
 import ReportsPage from "./components/ReportsPage";
 import MedicineStore from "./components/MedicineStore";
 import CyberPunk404 from "./components/ErrorPage";
+import DoctorDashboard from "./components/DoctorDashboard";
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated, admin, setAdmin } =
@@ -89,6 +90,11 @@ const App = () => {
         <Route path="/doctors" element={
           <RequireAuth allowedRoles={["Admin","Doctor"]}>
             <Doctors />
+          </RequireAuth>
+        } />
+        <Route path="/doctor-dashboard" element={
+          <RequireAuth allowedRoles={["Admin", "Doctor"]}>
+            <DoctorDashboard />
           </RequireAuth>
         } />
         <Route path="/compounders" element={
