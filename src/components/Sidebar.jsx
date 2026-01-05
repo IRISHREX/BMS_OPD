@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { TiHome } from "react-icons/ti";
 import { RiLogoutBoxFill } from "react-icons/ri";
-import { FaBell, FaRegFileAlt, FaUserMd, FaUserNurse, FaUserPlus } from "react-icons/fa";
+import { FaBell, FaRegFileAlt, FaUserMd, FaUserNurse, FaUserPlus, FaChartBar } from "react-icons/fa";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoPersonAddSharp } from "react-icons/io5";
 import { FaPrescription } from "react-icons/fa";
@@ -57,6 +57,7 @@ const Sidebar = () => {
   const navActions = {
     home: createNavAction("/"),
     doctors: createNavAction("/doctors"),
+    "doctor-dashboard": createNavAction("/doctor-dashboard"),
     messages: createNavAction("/messages"),
     reports: createNavAction("/reports"),
     addNewDoctor: createNavAction("/doctor/addnew"),
@@ -75,6 +76,10 @@ const Sidebar = () => {
         <div className="links">
           <TiHome onClick={navActions.home} title="Dashboard" />
           
+          <RequirePermission allowedRoles={["Admin", "Doctor"]}>
+            <FaChartBar onClick={navActions['doctor-dashboard']} title="Doctor Dashboard" />
+          </RequirePermission>
+
           <RequirePermission allowedRoles={["Admin"]}>
             <FaUserMd onClick={navActions.doctors} title="Doctors" />
           </RequirePermission>
