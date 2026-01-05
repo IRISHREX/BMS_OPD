@@ -134,26 +134,26 @@ const MedicineDrawer = ({
           <label>Diet (text)</label>
           <textarea name="diet" value={form.diet} onChange={handleChange} rows={2} />
 
-          <label>Aliases (comma separated)</label>
-          <input name="aliases" value={form.aliases} onChange={handleChange} />
+          {/* <label>Aliases (comma separated)</label>
+          <input name="aliases" value={form.aliases} onChange={handleChange} /> */}
 
           <label>Tags (comma separated)</label>
           <input name="tags" value={form.tags} onChange={handleChange} />
 
-          <label>Follow-up days</label>
+          {/* <label>Follow-up days</label>
           <input name="followupDays" value={form.followupDays} onChange={handleChange} type="number" />
 
           <label>Follow-up note</label>
-          <input name="followupNote" value={form.followupNote} onChange={handleChange} />
+          <input name="followupNote" value={form.followupNote} onChange={handleChange} /> */}
 
-          <label>Default Dose</label>
+          {/* <label>Default Dose</label>
           <input name="dose" value={form.dose} onChange={handleChange} />
 
           <label>Default Frequency</label>
           <input name="frequency" value={form.frequency} onChange={handleChange} />
 
           <label>Default Duration</label>
-          <input name="duration" value={form.duration} onChange={handleChange} />
+          <input name="duration" value={form.duration} onChange={handleChange} /> */}
 
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
             <button className="add-btn" type="submit" disabled={saving}>{saving ? 'Saving...' : (editingId ? 'Update' : 'Create')}</button>
