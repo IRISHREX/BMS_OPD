@@ -12,6 +12,8 @@ import { useSnackbar } from "../context/SnackbarContext";
 import { Context } from "../main";
 import { useNavigate } from "react-router-dom";
 import RequirePermission from "./RequirePermission";
+import { IoIosPersonAdd } from "react-icons/io";
+
 
 const Sidebar = () => {
   const snackbar = useSnackbar();
@@ -90,7 +92,7 @@ const Sidebar = () => {
 
           <RequirePermission allowedRoles={["Admin", "Doctor"]}>
             <FaUserNurse onClick={navActions.compounders} title="Compounders" />
-            <FaUserPlus onClick={navActions.addNewHelper} title="Create Compounder" />
+            <IoIosPersonAdd onClick={navActions.addNewHelper} title="Create Compounder" />
           </RequirePermission>
 
           <RequirePermission allowedRoles={["Admin", "Doctor", "Compounder"]}>

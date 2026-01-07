@@ -4,7 +4,7 @@ const CreateReferralTab = ({ referralForm, setReferralForm, setActiveTab }) => {
   return (
     <div className="tab-content">
       <div className="form-component">
-        <form>
+        <form className='create_referral_form'>
           <h2>Create Referral Request</h2>
           
           <div className="form-section">

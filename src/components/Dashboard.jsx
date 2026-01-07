@@ -23,6 +23,8 @@ import { playSaveSound, playLoadSound, playDeleteSound } from '../utils/soundUti
 import "./Dashboard.css";
 import { RiExpandHorizontalSFill } from "react-icons/ri";
 import { FaPrescriptionBottleMedical } from "react-icons/fa6";
+import { IoIosShareAlt } from "react-icons/io";
+import CreateReferralTab from "./tabs/CreateReferralTab"
 
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
@@ -831,6 +833,19 @@ const Dashboard = () => {
                               >
                                 <IoReceipt title="Invoice"/>
                               </button>
+                              {/* 06-01-26 */}
+                          <button
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#686868",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => navigate(`/referral/${appointment.referralId}`)}
+                          >
+                            <IoIosShareAlt title="Referral"/>
+                          </button>
+                          {/* 06-01-26 */}
                               <RequirePermission allowedRoles={["Admin"]}>
                                 <button
                                   onClick={() =>
