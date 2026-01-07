@@ -296,8 +296,8 @@ form {
   gap: 1rem;
 }
 
-input[type="text"],
-input[type="password"] {
+.login-form input[type="text"],
+.login-form input[type="password"] {
   padding: 0.875rem 1rem;
   border: 1.5px solid rgba(255, 215, 0, 0.3);
   border-radius: 8px;
@@ -308,21 +308,21 @@ input[type="password"] {
   transition: all 0.3s ease;
 }
 
-input[type="text"]::placeholder,
-input[type="password"]::placeholder {
+.login-form input[type="text"]::placeholder,
+.login-form input[type="password"]::placeholder {
   color: #718096;
 }
 
-input[type="text"]:focus,
-input[type="password"]:focus {
+.login-form input[type="text"]:focus,
+.login-form input[type="password"]:focus {
   outline: none;
   border-color: #ffd700;
   background: rgba(26, 31, 58, 0.95);
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
 }
 
-input[type="text"]:hover,
-input[type="password"]:hover {
+.login-form input[type="text"]:hover,
+.login-form input[type="password"]:hover {
   border-color: rgba(255, 215, 0, 0.5);
 }
 
@@ -523,8 +523,8 @@ input[type="password"]:hover {
     justify-content: center;
   }
 
-  input[type="text"],
-  input[type="password"] {
+  .login-form input[type="text"],
+  .login-form input[type="password"] {
     font-size: 16px; /* Prevents zoom on iOS */
   }
 

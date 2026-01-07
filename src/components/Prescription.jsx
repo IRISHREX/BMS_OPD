@@ -1459,7 +1459,7 @@ const Prescription = ({ patientId, onClose }) => {
               });
             }}
           >
-            Clinical Findings
+            On Examination
             {toggleOpen.clinicalFindings == true ? (
               <FaChevronUp />
             ) : (

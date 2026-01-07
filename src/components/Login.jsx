@@ -96,7 +96,7 @@ const Login = () => {
         <p>Dashboard access for Admins and Doctors. Choose role then login.</p>
         
         {auth.loading ? <div className="login-loader" style={{ width: "3rem", height: "3rem" }}></div> : (
-          <form onSubmit={handleLogin}>
+          <form className="login-form" onSubmit={handleLogin}>
             <input
               type="text"
               placeholder="Email"
