@@ -53,6 +53,12 @@
   margin-bottom: 1.5rem;
   color: #0f172a;
 }
+.pres-header .sub-header{
+  font-size: 0.6rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  color: #475569;
+}
 
 .form-title{
   font-size: 1.5rem;
@@ -231,6 +237,12 @@
     background: #eef0f2be;
     border: 1px solid #ddd;
     border-radius: 0 0 0.5rem 0.5rem;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .toggle-section .OE-label{
+    margin-bottom: 0.35rem;
   }
 
   .clear-btn{ background:#fff; border:0.0625rem solid #e6eef8; padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer }

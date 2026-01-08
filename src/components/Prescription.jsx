@@ -9,7 +9,11 @@ import { useSnackbar } from "../context/SnackbarContext";
 import { playSaveSound } from "../utils/soundUtils";
 import "./Prescription.css";
 import { addMedicineRequest } from "../store/medicineSlice";
-import { IoIosClose, IoIosCloseCircle, IoIosCloseCircleOutline } from "react-icons/io";
+import {
+  IoIosClose,
+  IoIosCloseCircle,
+  IoIosCloseCircleOutline,
+} from "react-icons/io";
 import { FaSave } from "react-icons/fa";
 import { BsPrinter, BsTrash } from "react-icons/bs";
 import { FaChevronDown } from "react-icons/fa";
@@ -27,7 +31,9 @@ const Prescription = ({ patientId, onClose }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [appointmentId, setAppointmentId] = useState("");
   const [nic, setNic] = useState("");
+  const [name, setName] = useState("");
   const [gender, setGender] = useState("");
+  const [age, setAge] = useState("");
   const [bookedBy, setBookedBy] = useState("");
   const rDiagnosis = useSelector((state) => state.diagnosis.value);
   const [initialComplain, setInitialComplain] = useState("");
@@ -75,7 +81,27 @@ const Prescription = ({ patientId, onClose }) => {
     "Thyroid",
   ]);
   const [medicalHistory, setMedicalHistory] = useState("");
-  const [clinical_findings, setClinical_findings] = useState("");
+  const [clinical_findings, setClinical_findings] = useState({
+    patientCondition: {
+      c1: "",
+      c2: "",
+      c3: "",
+      c4: "",
+    },
+    polar: "",
+    icterus: "",
+    edema: "",
+    cyanosis: "",
+    clubbing: "",
+    lymph_nodes: "",
+    chest: "",
+    cvs: "",
+    per_abdomen: {
+      pt: "",
+      pv: "",
+    },
+    others: "",
+  });
   const [diagnosys_heading, setDiagnosys_heading] = useState(
     "Provisional Diagnosis"
   );
@@ -229,7 +255,9 @@ const Prescription = ({ patientId, onClose }) => {
         const latest = appointments[0];
         setAppointmentId(latest._id);
         setNic(latest.nic || "");
+        setName(latest.name || "");
         setGender(latest.gender || "");
+        setAge(latest.age || "");
         setBookedBy(latest.bookedBy || "");
         setComplaints(latest.result[0]?.presentingComplaints || "");
         setDoctorId(latest.doctorId || "");
@@ -238,7 +266,29 @@ const Prescription = ({ patientId, onClose }) => {
           setInitialComplain(r.initialComplain || "");
           dispatch(change(r.initialComplain || ""));
           setMedicalHistory(r.medicalHistory || "");
-          setClinical_findings(r.clinical_findings || "");
+          setClinical_findings(
+            r.clinical_findings || {
+              patientCondition: {
+                c1: "",
+                c2: "",
+                c3: "",
+                c4: "",
+              },
+              polar: "",
+              icterus: "",
+              edema: "",
+              cyanosis: "",
+              clubbing: "",
+              lymph_nodes: "",
+              chest: "",
+              cvs: "",
+              per_abdomen: {
+                pt: "",
+                pv: "",
+              },
+              others: "",
+            }
+          );
           setDiagnosys_heading(r.diagnosys_heading || "Provisional Diagnosis");
           if (r.femaleTests) {
             setGravida(r.femaleTests.Gravida || "");
@@ -321,7 +371,27 @@ const Prescription = ({ patientId, onClose }) => {
             // initialComplain: r.initialComplain || "",
             initialComplain: rDiagnosis || "",
             medicalHistory: r.medicalHistory || "",
-            clinical_findings: r.clinical_findings || "",
+            clinical_findings: r.clinical_findings || {
+              patientCondition: {
+                c1: "",
+                c2: "",
+                c3: "",
+                c4: "",
+              },
+              polar: "",
+              icterus: "",
+              edema: "",
+              cyanosis: "",
+              clubbing: "",
+              lymph_nodes: "",
+              chest: "",
+              cvs: "",
+              per_abdomen: {
+                pt: "",
+                pv: "",
+              },
+              others: "",
+            },
             diagnosys_heading: r.diagnosys_heading || "Provisional Diagnosis",
             femaleTests: {
               Gravida: r.femaleTests?.Gravida || r.gravida || "",
@@ -369,7 +439,27 @@ const Prescription = ({ patientId, onClose }) => {
         // initialComplain: initialComplain || "",
         initialComplain: rDiagnosis || "",
         medicalHistory: medicalHistory || "",
-        clinical_findings: clinical_findings || "",
+        clinical_findings: clinical_findings || {
+          patientCondition: {
+            c1: "",
+            c2: "",
+            c3: "",
+            c4: "",
+          },
+          polar: "",
+          icterus: "",
+          edema: "",
+          cyanosis: "",
+          clubbing: "",
+          lymph_nodes: "",
+          chest: "",
+          cvs: "",
+          per_abdomen: {
+            pt: "",
+            pv: "",
+          },
+          others: "",
+        },
         diagnosys_heading: diagnosys_heading || "Provisional Diagnosis",
         femaleTests: {
           Gravida: gravida || "",
@@ -996,7 +1086,27 @@ const Prescription = ({ patientId, onClose }) => {
         // initialComplain: initialComplain || "",
         initialComplain: rDiagnosis || "",
         medicalHistory: medicalHistory || "",
-        clinical_findings: clinical_findings || "",
+        clinical_findings: clinical_findings || {
+          patientCondition: {
+            c1: "",
+            c2: "",
+            c3: "",
+            c4: "",
+          },
+          polar: "",
+          icterus: "",
+          edema: "",
+          cyanosis: "",
+          clubbing: "",
+          lymph_nodes: "",
+          chest: "",
+          cvs: "",
+          per_abdomen: {
+            pt: "",
+            pv: "",
+          },
+          others: "",
+        },
         diagnosys_heading: diagnosys_heading || "Provisional Diagnosis",
         femaleTests: {
           Gravida: gravida || "",
@@ -1072,7 +1182,12 @@ const Prescription = ({ patientId, onClose }) => {
   return (
     // <section className="main">
     <div className=" content-box" ref={rootRef}>
-      <div className="header pres-header">Prescription</div>
+      <div className="pres-header">
+        Prescription
+        <p className="sub-header">
+          {name} | {gender} | {age}years
+        </p>
+      </div>
       <div
         className="shortcuts-hint"
         style={{
@@ -1316,49 +1431,50 @@ const Prescription = ({ patientId, onClose }) => {
             style={{ justifyContent: "start", gap: "0.5rem" }}
           >
             Presenting Complaints
-            <div className="refresh-btn"
+            <div
+              className="refresh-btn"
               onClick={async () => {
-                  try {
-                    const complaints_arr = complaints.split(",");
-                    const complaints_arr_cln = complaints_arr.filter(
-                      (c) => c.trim() !== ""
-                    );
+                try {
+                  const complaints_arr = complaints.split(",");
+                  const complaints_arr_cln = complaints_arr.filter(
+                    (c) => c.trim() !== ""
+                  );
 
-                    const diseases=[]; 
-                    const uniqueDiseases = [];
+                  const diseases = [];
+                  const uniqueDiseases = [];
 
-                    for (const query of complaints_arr_cln) {
-                      try {
-                        // console.log("|", query.trim(), "|");
-                        const { data } = await api.get(
-                          `/api/v1/medical/advance-search-symptoms`, {
-                          params: { query }
-                        });
-                        diseases.push(...data.results);
-                        console.log(data.results);
-
-                      } catch (err) {
-                        console.log(
-                          "Failed to fetch advices for query:",
-                          query,
-                          err
-                        );
-                      }
+                  for (const query of complaints_arr_cln) {
+                    try {
+                      // console.log("|", query.trim(), "|");
+                      const { data } = await api.get(
+                        `/api/v1/medical/advance-search-symptoms`,
+                        {
+                          params: { query },
+                        }
+                      );
+                      diseases.push(...data.results);
+                      console.log(data.results);
+                    } catch (err) {
+                      console.log(
+                        "Failed to fetch advices for query:",
+                        query,
+                        err
+                      );
                     }
-                    // console.log("Diseases fetched:", diseases);
-
-                    for (const d of diseases) {
-                      if(!uniqueDiseases.includes(d)){
-                        uniqueDiseases.push(d);
-                      }
-                    }
-                    // console.log("Unique Diseases:", uniqueDiseases);
-                    dispatch(changeSdisease(uniqueDiseases));
-
-                  } catch (err) {
-                    console.log("Failed to process diagnoses");
                   }
-                }}
+                  // console.log("Diseases fetched:", diseases);
+
+                  for (const d of diseases) {
+                    if (!uniqueDiseases.includes(d)) {
+                      uniqueDiseases.push(d);
+                    }
+                  }
+                  // console.log("Unique Diseases:", uniqueDiseases);
+                  dispatch(changeSdisease(uniqueDiseases));
+                } catch (err) {
+                  console.log("Failed to process diagnoses");
+                }
+              }}
             >
               <TbRefresh />
             </div>
@@ -1467,12 +1583,287 @@ const Prescription = ({ patientId, onClose }) => {
             )}
           </label>
           {toggleOpen.clinicalFindings == true && (
-            <div className="toggle-content pres-form-group">
-              <input
-                type="text"
-                value={clinical_findings}
-                onChange={(e) => setClinical_findings(e.target.value)}
-              />
+            <div className="toggle-content ">
+              <div className="pres-form-row">
+                <label>Patient is</label>
+              </div>
+              <div className="pres-form-row">
+                <div className="pres-form-group">
+                  <select
+                    value={clinical_findings.patientCondition.c1}
+                    onChange={(e) => {
+                      setClinical_findings({
+                        ...clinical_findings,
+                        patientCondition: {
+                          ...clinical_findings.patientCondition,
+                          c1: e.target.value,
+                        },
+                      });
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="Alert">Alert</option>
+                  </select>
+                </div>
+                <div className="pres-form-group">
+                  <select
+                    value={clinical_findings.patientCondition.c2}
+                    onChange={(e) => {
+                      setClinical_findings({
+                        ...clinical_findings,
+                        patientCondition: {
+                          ...clinical_findings.patientCondition,
+                          c2: e.target.value,
+                        },
+                      });
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="Conscious">Conscious</option>
+                    <option value="Semi conscious">Semi conscious</option>
+                    <option value="Unconscious">Unconscious</option>
+                  </select>
+                </div>
+                <div className="pres-form-group">
+                  <select
+                    value={clinical_findings.patientCondition.c3}
+                    onChange={(e) => {
+                      setClinical_findings({
+                        ...clinical_findings,
+                        patientCondition: {
+                          ...clinical_findings.patientCondition,
+                          c3: e.target.value,
+                        },
+                      });
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="Co-operative">Co-operative</option>
+                    <option value="Confused">Confused</option>
+                    <option value="Drowsy">Drowsy</option>
+                  </select>
+                </div>
+                <div className="pres-form-group">
+                  <select
+                    value={clinical_findings.patientCondition.c4}
+                    onChange={(e) => {
+                      setClinical_findings({
+                        ...clinical_findings,
+                        patientCondition: {
+                          ...clinical_findings.patientCondition,
+                          c4: e.target.value,
+                        },
+                      });
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="Active">Active</option>
+                    <option value="Looking Toxic">Looking Toxic</option>
+                    <option value="Ill-looking">Ill-looking</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pres-form-row">
+                <div className="pres-form-group">
+                  <label className="OE-label">Polar</label>
+                  <select
+                    value={clinical_findings.polar}
+                    onChange={(e) => {
+                      setClinical_findings({...clinical_findings, polar: e.target.value});
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="Absent">Absent</option>
+                    <option value="Mild">Mild</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="Severe">Severe</option>
+                  </select>
+                </div>
+                <div className="pres-form-group">
+                  <label className="OE-label">Icterus</label>
+                  <select
+                    value={clinical_findings.icterus}
+                    onChange={(e) => {
+                      setClinical_findings({...clinical_findings, icterus: e.target.value});
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="Absent">Absent</option>
+                    <option value="Mild">Mild</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="Severe">Severe</option>
+                  </select>
+                </div>
+                <div className="pres-form-group">
+                  <label className="OE-label">Edema</label>
+                  <select
+                    value={clinical_findings.edema}
+                    onChange={(e) => {
+                      setClinical_findings({...clinical_findings, edema: e.target.value});
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="Absent">Absent</option>
+                    <option value="Present">Present</option>
+                    <option value="B/L Pedal">B/L Pedal</option>
+                  </select>
+                </div>
+                <div className="pres-form-group">
+                  <label className="OE-label">Cyanosis</label>
+                  <select
+                    value={clinical_findings.cyanosis}
+                    onChange={(e) => {
+                      setClinical_findings({...clinical_findings, cyanosis: e.target.value});
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="Absent">Absent</option>
+                    <option value="Present">Present</option>
+                  </select>
+                </div>
+                <div className="pres-form-group">
+                  <label className="OE-label">Clubbing</label>
+                  <select
+                    value={clinical_findings.clubbing}
+                    onChange={(e) => {
+                      setClinical_findings({...clinical_findings, clubbing: e.target.value});
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="Absent">Absent</option>
+                    <option value="Present">Present</option>
+                  </select>
+                </div>
+                <div className="pres-form-group">
+                  <label className="OE-label">Lymph Nodes</label>
+                  <select
+                    value={clinical_findings.lymph_nodes}
+                    onChange={(e) => {
+                      setClinical_findings({...clinical_findings, lymph_nodes: e.target.value});
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="Not Palpable">Not Palpable</option>
+                    <option value="Palpable">Palpable</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pres-form-row">
+                <div className="pres-form-group">
+                  <label className="OE-label">Chest</label>
+                  <select
+                    value={clinical_findings.chest}
+                    onChange={(e) => {
+                      setClinical_findings({...clinical_findings, chest: e.target.value});
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="B/L VBS">B/L VBS</option>
+                    <option value="Wheeze">Wheeze</option>
+                    <option value="Crepitations">Crepitations</option>
+                    <option value="Rhonchi/Wheeze">Rhonchi/Wheeze</option>
+                  </select>
+                </div>
+                <div className="pres-form-group">
+                  <label className="OE-label">CVS</label>
+                  <select
+                    value={clinical_findings.cvs}
+                    onChange={(e) => {
+                      setClinical_findings({...clinical_findings, cvs: e.target.value});
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="S1,S2 normal">S1,S2 normal</option>
+                    <option value="Mid-Diastolic murmur">
+                      Mid-Diastolic murmur
+                    </option>
+                    <option value="Pansystolic murmur">
+                      Pansystolic murmur
+                    </option>
+                    <option value="Mid-systolic murmur">
+                      Mid-systolic murmur
+                    </option>
+                    <option value="Systolic murmur">Systolic murmur</option>
+                    <option value="Diastolic murmur">Diastolic murmur</option>
+                  </select>
+                </div>
+                <div className="pres-form-group">
+                  <label className="OE-label">Per Abdomen</label>
+                  <div className="pres-form-row">
+                    <div className="pres-form-group">
+                      <select
+                        value={clinical_findings.per_abdomen.pt}
+                        onChange={(e) => {
+                          setClinical_findings({...clinical_findings, per_abdomen: {
+                            ...clinical_findings.per_abdomen, pt: e.target.value
+                          }});
+                        }}
+                      >
+                        <option value="">Select</option>
+                        <option value="Soft, Nontender">Soft, Nontender</option>
+                        <option value="Tender">Tender</option>
+                      </select>
+                    </div>
+                    <div className="pres-form-group">
+                      {clinical_findings.per_abdomen.pt !== "Tender" ? (
+                      <select
+                        value={clinical_findings.per_abdomen.pv}
+                        onChange={(e) => {
+                          setClinical_findings({...clinical_findings, per_abdomen: {
+                            ...clinical_findings.per_abdomen, pv: e.target.value
+                          }});
+                        }}
+                      >
+                        <option value="">Select</option>
+                        <option value="No Organomegaly">No Organomegaly</option>
+                        <option value="Hepatomegaly">Hepatomegaly</option>
+                        <option value="Spleenomegaly">Spleenomegaly</option>
+                        <option value="Hepatospleenomegaly">
+                          Hepatospleenomegaly
+                        </option>
+                        </select>
+                          
+                      ) :(
+                      <select
+                        value={clinical_findings.per_abdomen.pv}
+                        onChange={(e) => {
+                          setClinical_findings({...clinical_findings, per_abdomen: {
+                            ...clinical_findings.per_abdomen, pv: e.target.value
+                          }});
+                        }}
+                      >
+                        {/* for Tender  */}
+                        <option value="">Select</option>
+                        <option value="Epigastric">Epigastric</option>
+                        <option value="hypogastric">hypogastric</option>
+                        <option value="Umbilical">Umbilical</option>
+                        <option value="RUQ">RUQ</option>
+                        <option value="LUQ">LUQ</option>
+                        <option value="RIF">RIF</option>
+                        <option value="LIF">LIF</option>
+                        <option value="Rt. Lumber">Rt. Lumber</option>
+                        <option value="Lt. Lumber">Lt. Lumber</option>
+                        <option value="Both Lumber">Both Lumber</option>
+                        <option value="Lower Abd.">Lower Abd.</option>
+                        <option value="Upper Abd.">Upper Abd.</option>
+                      </select>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pres-form-row">
+                <div className="pres-form-group">
+                  <label className="OE-label">Others</label>
+                  <input type="text" 
+                    value={clinical_findings.others}
+                    onChange={(e)=>setClinical_findings({...clinical_findings, others: e.target.value})}
+                  />
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -1859,19 +2250,23 @@ const Prescription = ({ patientId, onClose }) => {
                       >
                         <BsTrash />
                       </button>
-                      {m.name && !medSuggestions.medicines.find(med => med.name.toLowerCase() === m.name.toLowerCase()) && (
-                        <button
-                          type="button"
-                          className="save-btn"
-                          title="Save this medicine to the database"
-                          onClick={() => {
-                            dispatch(addMedicineRequest({ name: m.name }));
-                            snackbar.success(`Medicine "${m.name}" saved!`);
-                          }}
-                        >
-                          <FaSave />
-                        </button>
-                      )}
+                      {m.name &&
+                        !medSuggestions.medicines.find(
+                          (med) =>
+                            med.name.toLowerCase() === m.name.toLowerCase()
+                        ) && (
+                          <button
+                            type="button"
+                            className="save-btn"
+                            title="Save this medicine to the database"
+                            onClick={() => {
+                              dispatch(addMedicineRequest({ name: m.name }));
+                              snackbar.success(`Medicine "${m.name}" saved!`);
+                            }}
+                          >
+                            <FaSave />
+                          </button>
+                        )}
                     </div>
                   </div>
                 ))}
@@ -2153,19 +2548,23 @@ const Prescription = ({ patientId, onClose }) => {
             onClick={() => handleSave(true)}
             disabled={!isDirty}
           >
-            <BsPrinter/>
+            <BsPrinter />
           </button>
         </div>
         <div className="cross-box">
           {isDirty ? (
-            <span style={{
-              cursor: "pointer",
-              fontSize: "2rem",
-              color: "#e3ea20ff",
-              position: "fixed",
-              top: "0.2rem",
-              right: "3.5rem",
-            }}><TbLoader3/></span>
+            <span
+              style={{
+                cursor: "pointer",
+                fontSize: "2rem",
+                color: "#e3ea20ff",
+                position: "fixed",
+                top: "0.2rem",
+                right: "3.5rem",
+              }}
+            >
+              <TbLoader3 />
+            </span>
           ) : (
             <span style={{ color: "#0f766e" }}>Saved</span>
           )}
