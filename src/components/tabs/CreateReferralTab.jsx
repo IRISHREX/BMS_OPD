@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-const CreateReferralTab = ({ referralForm, setReferralForm, setActiveTab }) => {
+const CreateReferralTab = ({ referralForm, setReferralForm, setActiveTab, onSubmit }) => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Referral Form Data:', referralForm);
+    if (onSubmit) {
+      onSubmit(referralForm);
+    } else {
+      alert('Referral submitted successfully!');
+      if (setActiveTab) setActiveTab('tracking');
+    }
+  };
+
   return (
     <div className="tab-content">
       <div className="form-component">
-        <form className='create_referral_form'>
+        <form className='create_referral_form' onSubmit={handleSubmit}>
           <h2>Create Referral Request</h2>
           
           <div className="form-section">
@@ -32,7 +43,7 @@ const CreateReferralTab = ({ referralForm, setReferralForm, setActiveTab }) => {
                 <label>Gender *</label>
                 <select 
                   value={referralForm.gender}
-                  onChange={(e) => setReferralForm({...referralForm, gender: e.target.value})}
+                  onChange={(e) => setReferralForm({...referralForm, gender: e.target.value.toLowerCase()})}
                 >
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -103,21 +114,20 @@ const CreateReferralTab = ({ referralForm, setReferralForm, setActiveTab }) => {
           <div className="form-section">
             <h4>Attachments</h4>
             <div className="file-upload">
-              <button className="btn">Upload Reports</button>
+              <button type="button" className="btn">Upload Reports</button>
               <span className="file-info">PDF, JPG, PNG (Max 10MB)</span>
             </div>
           </div>
 
           <div className="button-group">
-            <button className="btn" onClick={() => setActiveTab('query')}>
-              Back
-            </button>
+            {setActiveTab && (
+              <button type="button" className="btn" onClick={() => setActiveTab('query')}>
+                Back
+              </button>
+            )}
             <button 
+              type="submit"
               className="btn"
-              onClick={() => {
-                alert('Referral submitted successfully!');
-                setActiveTab('tracking');
-              }}
             >
               Submit Referral
             </button>
