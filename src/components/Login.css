@@ -464,7 +464,8 @@ form {
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 1.5rem auto;
-  display: inline-block;
+  /* display: inline-block; */
+  display: block;
 }
 
 @keyframes spin {
