@@ -6,7 +6,7 @@ import CreateReferralTab from "./tabs/CreateReferralTab";
 import TrackReferralsTab from "./tabs/TrackReferralsTab";
 
 const DoctorDashboard = () => {
-  const [activeTab, setActiveTab] = useState("search");
+  const [activeTab, setActiveTab] = useState("referral");
   const [searchFilters, setSearchFilters] = useState({
     location: "",
     specialty: "",
@@ -89,6 +89,13 @@ const DoctorDashboard = () => {
       rating: 4.2,
     },
   ];
+  const renderReferralTab = () => (
+    <CreateReferralTab
+      referralForm={referralForm}
+      setReferralForm={setReferralForm}
+      setActiveTab={setActiveTab}
+    />
+  );
 
   const renderSearchTab = () => (
     <SearchHospitalsTab
@@ -109,13 +116,6 @@ const DoctorDashboard = () => {
     />
   );
 
-  const renderReferralTab = () => (
-    <CreateReferralTab
-      referralForm={referralForm}
-      setReferralForm={setReferralForm}
-      setActiveTab={setActiveTab}
-    />
-  );
 
   const renderTrackingTab = () => <TrackReferralsTab referrals={referrals} />;
 
