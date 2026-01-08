@@ -1,6 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const SearchHospitalsTab = ({ searchFilters, setSearchFilters, hospitals, setSelectedHospital, setActiveTab }) => {
+const SearchHospitalsTab = ({ searchFilters, setSearchFilters, hospitals, setSelectedHospitals, setActiveTab, onHospitalSelect, loading = false }) => {
+  const [selected, setSelected] = useState([]);
+
+  const handleHospitalSelect = (hospital) => {
+    const hospitalId = hospital._id || hospital.id;
+    const isAlreadySelected = selected.some(h => (h._id || h.id) === hospitalId);
+    let updatedSelected;
+
+    if (isAlreadySelected) {
+      updatedSelected = selected.filter(h => (h._id || h.id) !== hospitalId);
+    } else {
+      updatedSelected = [...selected, hospital];
+    }
+
+    setSelected(updatedSelected);
+    setSelectedHospitals(updatedSelected);
+
+    // If in referral workflow and hospital selected, log it
+    if (onHospitalSelect && updatedSelected.length > 0) {
+      console.log('Selected Hospitals:', updatedSelected);
+    }
+  };
+
+  const handleProceed = () => {
+    if (selected.length > 0) {
+      if (onHospitalSelect) {
+        // Multi-step referral workflow
+        onHospitalSelect(selected);
+      } else {
+        // Normal dashboard workflow
+        setActiveTab('query');
+      }
+    } else {
+      alert('Please select at least one hospital');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="tab-content">
+        <div className="form-component">
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <p>Loading hospitals...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="tab-content">
       <div className="form-component">
@@ -51,39 +99,81 @@ const SearchHospitalsTab = ({ searchFilters, setSearchFilters, hospitals, setSel
           </div>
         </form>
         
-        <div className="doctors banner">
-          {hospitals.map(hospital => (
-            <div key={hospital.id} className="card">
-              <div className="doc-card-header">
-                <div>
-                  <h4>{hospital.name}</h4>
-                  <p>{hospital.location} • {hospital.specialty}</p>
-                </div>
-                <div className="rating-badge">{hospital.rating} ★</div>
-              </div>
-              <div className="doc-card-details">
-                <div className="detail-item">
-                  <span>Available Beds:</span>
-                  <span>{hospital.beds}</span>
-                </div>
-                <div className="detail-item">
-                  <span>ICU Beds:</span>
-                  <span>{hospital.icu}</span>
-                </div>
-                {hospital.nabh && <span className="badge nabh-badge">NABH</span>}
-              </div>
-              <button 
-                className="btn"
-                onClick={() => {
-                  setSelectedHospital(hospital);
-                  setActiveTab('query');
-                }}
-              >
-                Query Availability
-              </button>
-            </div>
-          ))}
+        <div style={{ marginTop: '20px', marginBottom: '10px' }}>
+          <p style={{ fontSize: '14px', color: '#666' }}>
+            {hospitals.length === 0 ? 'No hospitals available' : `Found: ${hospitals.length} hospital${hospitals.length !== 1 ? 's' : ''} | Selected: ${selected.length}`}
+          </p>
         </div>
+
+        <div className="doctors banner">
+          {hospitals.length === 0 ? (
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem', color: '#999' }}>
+              No hospitals available
+            </div>
+          ) : (
+            hospitals.map(hospital => {
+              const isSelected = selected.some(h => (h._id || h.id) === (hospital._id || hospital.id));
+              return (
+                <div 
+                  key={hospital._id || hospital.id} 
+                  className="card"
+                  style={{
+                    border: isSelected ? '3px solid #4CAF50' : '1px solid #ddd',
+                    backgroundColor: isSelected ? '#f0f8f0' : '#fff',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                  }}
+                  onClick={() => handleHospitalSelect(hospital)}
+                >
+                  <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+                    <input 
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => handleHospitalSelect(hospital)}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                    />
+                  </div>
+
+                  <div className="doc-card-header">
+                    <div>
+                      <h4>{hospital.name}</h4>
+                      <p>{hospital.address} {hospital.city ? `• ${hospital.city}` : ''}</p>
+                      {hospital.features?.specialty?.length > 0 && (
+                        <p style={{ fontSize: '0.8rem', color: '#999' }}>{hospital.features.specialty.join(', ')}</p>
+                      )}
+                    </div>
+                    <div className="rating-badge">{hospital.rating || 0} ★</div>
+                  </div>
+                  <div className="doc-card-details">
+                    <div className="detail-item">
+                      <span>Available Beds:</span>
+                      <span>{hospital.features?.bedCount || 0}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span>ICU Beds:</span>
+                      <span>{hospital.features?.icuBedCount || 0}</span>
+                    </div>
+                    {hospital.features?.nabh && <span className="badge nabh-badge">NABH</span>}
+                    {hospital.active && <span className="badge" style={{ backgroundColor: '#10b981', color: '#fff' }}>Active</span>}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {selected.length > 0 && (
+          <div className="button-group" style={{ marginTop: '20px' }}>
+            <button 
+              className="btn"
+              onClick={handleProceed}
+            >
+              Proceed to Query Resources ({selected.length} selected)
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

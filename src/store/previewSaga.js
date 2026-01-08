@@ -6,8 +6,24 @@ import { fetchPreviewRequest, fetchPreviewSuccess, fetchPreviewFailure } from '.
 function* fetchPreviewSaga(action) {
   try {
     playLoadSound();
-    const { patientId } = action.payload;
-  const { data: ad } = yield call(api.get, `/api/v1/appointment/patient/${patientId}`);
+    let { patientId, appointmentId } = action.payload;
+    
+    // If appointmentId is provided instead of patientId, fetch the appointment first
+    if (appointmentId && !patientId) {
+      try {
+        const { data: appointmentData } = yield call(api.get, `/api/v1/appointment/getall`);
+        const allAppointments = appointmentData.appointments || [];
+        const targetAppointment = allAppointments.find(apt => apt._id === appointmentId);
+        if (targetAppointment) {
+          patientId = targetAppointment.patientId;
+        }
+      } catch (e) {
+        // If fetching all appointments fails, we'll proceed with the appointmentId as patientId
+        patientId = appointmentId;
+      }
+    }
+
+    const { data: ad } = yield call(api.get, `/api/v1/appointment/patient/${patientId}`);
     const appts = ad.appointments || [];
     let patient = null;
     let doctor = null;
