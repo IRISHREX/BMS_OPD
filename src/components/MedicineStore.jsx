@@ -17,6 +17,9 @@ import { FaTrash } from 'react-icons/fa6';
 import { FaPen } from 'react-icons/fa';
 import { FaArrowLeft } from 'react-icons/fa';
 import './MedicineStore.css';
+import { MdOutlineAddShoppingCart } from "react-icons/md";
+import { FiSearch } from "react-icons/fi";
+import { HiOutlineViewGridAdd } from "react-icons/hi";
 
 const MedicineStore = () => {
   const snackbar = useSnackbar();
@@ -98,13 +101,16 @@ const MedicineStore = () => {
             />
           </div>
           <button type="submit" className="btn btn-search">
-            Search
+            <FiSearch title="Search" />
+            {/* Search */}
           </button>
           <button type="button" onClick={() => handleOpenModal()} className="btn btn-add">
-            + Add Medicine
+            <MdOutlineAddShoppingCart title="Add Medicines" />
+            {/* + Add Medicine */}
           </button>
           <button type="button" onClick={handleOpenBulkModal} className="btn btn-add">
-            + Add Bulk Medicines
+            <HiOutlineViewGridAdd title="Add Bulk Medicines" />
+            {/* + Add Bulk Medicines */}
           </button>
         </form>
       </div>

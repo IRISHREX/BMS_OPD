@@ -190,7 +190,8 @@ body {
     border-radius: 0;
   }
   .page {
-    padding: 2.5rem 1.25rem;
+    /* padding: 2.5rem 1.25rem; */
+    padding: 1.25rem 1.25rem 2.5rem ;
   }
 }
 @media (max-width: 30.3125rem) {
@@ -296,6 +297,10 @@ body {
 .form-component .wrapper .banner:last-child img {
   max-width: 28.125rem;
 }
+/* RK */
+.form-component.add-admin-form{
+  background-color: #fff;
+}
 @media (max-width: 55.5rem) {
   /*888px*/
   .form-component {
@@ -352,7 +357,7 @@ body {
   flex: 1;
 }
 .dashboard .banner:first-child .firstBox .content {
-  flex: 2;
+  /* flex: 2; */
   background-color: transparent;
   padding: 1.5rem;
   z-index: 0;
@@ -362,6 +367,7 @@ body {
   align-items: center;
   font-size: 2.125rem;
   margin-bottom: 0.75rem;
+  flex-wrap: wrap;
 }
 .dashboard .banner:first-child .firstBox .content div p {
   margin-right: 0.625rem;
@@ -713,14 +719,6 @@ body {
   gap: 1.875rem;
 }
 
-@media (max-width: 485px) {
-  .sidebar {
-    width: 4rem;
-    background: #3939d9f2;
-    z-index: 1;
-  }
-}
-
 .wrapper {
   padding: 5px;
   width: 3.125rem;
@@ -746,16 +744,30 @@ body {
   left: 0;
   transition: 0.3s;
 }
+
 @media (max-width: 485px) {
+  .sidebar {
+    width: 4rem;
+    background: #3939d9f2;
+    z-index: 1;
+  }
+  /* }
+@media (max-width: 485px) { */
   .wrapper {
     left: 12px;
     font-size: 1.5rem;
     background-color: #3939d9f2;
     z-index: 1;
+    width: 100%;
+    left: 0;
+    top: 0;
+    border-radius: 0;
+    justify-content: flex-start;
+    padding-inline: 20px;
   }
   .wrapper .hamburger {
     display: block;
-    color: black;
+    color: #fff;
   }
 
   .show {
@@ -1006,8 +1018,8 @@ body {
 .add-doctor-form form select,
 .add-doctor-form form textarea {
   flex: 1;
-  font-size: 24px;
-  padding: 10px 10px 10px 40px;
+  font-size: 16px;
+  padding: 10px 10px 10px 20px;
   border-radius: 7px;
   border: 1px solid gray;
 }
@@ -1018,9 +1030,11 @@ body {
   width: fit-content;
   border: none;
   border-radius: 8px;
-  font-size: 24px;
+  /* font-size: 24px; */
   margin-bottom: 30px;
   background: linear-gradient(140deg, #9083d5, #271776ca);
+  font-size: 16px;
+  margin-inline: auto;
 }
 @media (max-width: 945px) {
   .add-doctor-form form .first-wrapper {

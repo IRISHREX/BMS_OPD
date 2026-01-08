@@ -35,7 +35,8 @@ import ReportsPage from "./components/ReportsPage";
 import MedicineStore from "./components/MedicineStore";
 import CyberPunk404 from "./components/ErrorPage";
 import DoctorDashboard from "./components/DoctorDashboard";
-import CreateReferralTab from "./components/tabs/CreateReferralTab"
+import CreateReferralTab from "./components/tabs/CreateReferralTab";
+import ReferralPage from "./components/ReferralPage";
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated, admin, setAdmin } =
@@ -150,7 +151,7 @@ const App = () => {
         } />
         <Route path="/preview/:patientId" element={<Preview />} />
         <Route path="/invoice/:invoiceId" element={<InvoicePage />} />
-        <Route path="/referral/:referralId" element={<CreateReferralTab />} />
+        <Route path="/referral/:referralId" element={<ReferralPage />} />
         <Route path="*" element={<CyberPunk404 />} />
       </Routes>
       <SnackbarContainer />
