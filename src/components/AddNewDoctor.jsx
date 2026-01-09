@@ -2,10 +2,13 @@ import React, { useContext, useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useSnackbar } from "../context/SnackbarContext";
 import { Context } from "../main";
-import { dobToAgeYears, ageToDob } from '../utils/ageUtils';
-import { makeNIC } from '../utils/nicMaker';
-import { useDispatch, useSelector } from 'react-redux';
-import { createDoctorRequest, resetDoctorCreate } from '../store/doctorCreateSlice';
+import { dobToAgeYears, ageToDob } from "../utils/ageUtils";
+import { makeNIC } from "../utils/nicMaker";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  createDoctorRequest,
+  resetDoctorCreate,
+} from "../store/doctorCreateSlice";
 
 const AddNewDoctor = () => {
   const snackbar = useSnackbar();
@@ -31,7 +34,7 @@ const AddNewDoctor = () => {
 
   const navigateTo = useNavigate();
   const dispatch = useDispatch();
-  const doctorCreate = useSelector(s => s.doctorCreate);
+  const doctorCreate = useSelector((s) => s.doctorCreate);
 
   const departmentsArray = [
     "Pediatrics",
@@ -77,20 +80,28 @@ const AddNewDoctor = () => {
 
   const handleAddNewDoctor = async (e) => {
     e.preventDefault();
-    
+
     // Validate required fields
-    if (!firstName || !lastName || !email || !phone || !gender || !password || !doctorDepartment) {
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !phone ||
+      !gender ||
+      !password ||
+      !doctorDepartment
+    ) {
       snackbar.error("Please fill all required fields!");
       return;
     }
-    
+
     // Always recalculate NIC from phone and age
     const calculatedNic = makeNIC(phone, age);
     setNic(calculatedNic);
     // Always recalculate DOB from age
     const calculatedDob = ageToDob(age);
     setDob(calculatedDob);
-    
+
     // Build FormData with files (FormData is non-serializable, so handle outside Redux)
     const formData = new FormData();
     formData.append("firstName", firstName);
@@ -106,7 +117,7 @@ const AddNewDoctor = () => {
     if (docAvatar) formData.append("docAvatar", docAvatar);
     if (signImage) formData.append("signImage", signImage);
     if (headerImage) formData.append("headerImage", headerImage);
-    
+
     // Pass FormData directly to saga (bypasses Redux serialization check)
     dispatch(createDoctorRequest({ formData }));
   };
@@ -143,27 +154,58 @@ const AddNewDoctor = () => {
   return (
     <section className="page">
       <section className="container add-doctor-form">
-        <img src="/logo.svg" alt="logo" className="logo" style={{ width: "150px", borderRadius: "50%"}}/>
+        <img
+          src="/logo.svg"
+          alt="logo"
+          className="logo"
+          style={{ 
+            width: "150px", 
+            height: "150px",
+            borderRadius: "50%",
+            objectFit: "cover" }}
+        />
         <h1 className="form-title">REGISTER A NEW DOCTOR</h1>
         <form onSubmit={handleAddNewDoctor}>
           <div className="first-wrapper">
             <div>
               <img
-                src={
-                  docAvatarPreview ? `${docAvatarPreview}` : "/doc1.jpg"
-                }
+                src={docAvatarPreview ? `${docAvatarPreview}` : "/doc1.jpg"}
                 alt="Doctor Avatar"
               />
               <input type="file" onChange={handleAvatar} accept="image/*" />
               <div style={{ marginTop: 8 }}>
-                <label style={{ display: 'block', marginBottom: 6 }}>Sign Image (optional)</label>
-                <input type="file" onChange={handleSignImage} accept="image/*" />
-                {signImagePreview && <img src={signImagePreview} alt="Sign Preview" style={{ width: 120, marginTop: 6 }} />}
+                <label style={{ display: "block", marginBottom: 6 }}>
+                  Sign Image (optional)
+                </label>
+                <input
+                  type="file"
+                  onChange={handleSignImage}
+                  accept="image/*"
+                />
+                {signImagePreview && (
+                  <img
+                    src={signImagePreview}
+                    alt="Sign Preview"
+                    style={{ width: 120, marginTop: 6 }}
+                  />
+                )}
               </div>
               <div style={{ marginTop: 8 }}>
-                <label style={{ display: 'block', marginBottom: 6 }}>Header Image (optional)</label>
-                <input type="file" onChange={handleHeaderImage} accept="image/*" />
-                {headerImagePreview && <img src={headerImagePreview} alt="Header Preview" style={{ width: 180, marginTop: 6 }} />}
+                <label style={{ display: "block", marginBottom: 6 }}>
+                  Header Image (optional)
+                </label>
+                <input
+                  type="file"
+                  onChange={handleHeaderImage}
+                  accept="image/*"
+                />
+                {headerImagePreview && (
+                  <img
+                    src={headerImagePreview}
+                    alt="Header Preview"
+                    style={{ width: 180, marginTop: 6 }}
+                  />
+                )}
               </div>
             </div>
             <div>
@@ -194,9 +236,10 @@ const AddNewDoctor = () => {
                 type="number"
                 placeholder="Mobile Number"
                 value={phone}
-                onChange={e => {
+                onChange={(e) => {
                   setPhone(e.target.value);
-                  if (e.target.value && age) setNic(makeNIC(e.target.value, age));
+                  if (e.target.value && age)
+                    setNic(makeNIC(e.target.value, age));
                 }}
                 disabled={doctorCreate.creating}
               />
@@ -206,7 +249,7 @@ const AddNewDoctor = () => {
                 value={age}
                 min={0}
                 max={120}
-                onChange={e => {
+                onChange={(e) => {
                   const val = e.target.value;
                   setAge(val);
                   setDob(ageToDob(val));
@@ -218,14 +261,14 @@ const AddNewDoctor = () => {
                 type="date"
                 placeholder="Date of Birth"
                 value={dob}
-                onChange={e => {
+                onChange={(e) => {
                   setDob(e.target.value);
                   const newAgeYears = dobToAgeYears(e.target.value);
                   setAge(newAgeYears);
                   if (phone && newAgeYears) setNic(makeNIC(phone, newAgeYears));
                 }}
                 readOnly
-                style={{ background: '#f4f4f4', color: '#888' }}
+                style={{ background: "#f4f4f4", color: "#888" }}
                 disabled={doctorCreate.creating}
               />
               <input
@@ -233,7 +276,7 @@ const AddNewDoctor = () => {
                 placeholder="NIC (auto)"
                 value={nic}
                 readOnly
-                style={{ background: '#f4f4f4', color: '#888' }}
+                style={{ background: "#f4f4f4", color: "#888" }}
                 disabled={doctorCreate.creating}
               />
               <select
@@ -276,9 +319,18 @@ const AddNewDoctor = () => {
                 disabled={doctorCreate.creating}
               />
               <button type="submit" disabled={doctorCreate.creating}>
-                {doctorCreate.creating ? 'Registering...' : 'Register New Doctor'}
+                {doctorCreate.creating
+                  ? "Registering..."
+                  : "Register New Doctor"}
               </button>
-              {doctorCreate.error && <div className="error-message" style={{ color: 'red', marginTop: 8 }}>{doctorCreate.error}</div>}
+              {doctorCreate.error && (
+                <div
+                  className="error-message"
+                  style={{ color: "red", marginTop: 8 }}
+                >
+                  {doctorCreate.error}
+                </div>
+              )}
             </div>
           </div>
         </form>
@@ -288,4 +340,3 @@ const AddNewDoctor = () => {
 };
 
 export default AddNewDoctor;
-

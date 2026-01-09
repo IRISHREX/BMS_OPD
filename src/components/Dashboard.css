@@ -6,7 +6,7 @@
   margin: 16px 0;
   align-items: stretch;
 }
-@media (max-width:700px) {
+@media (max-width: 700px) {
   .dashboard-metrics-container {
     flex-direction: column;
   }
@@ -101,4 +101,26 @@
   top: 0.8rem;
   right: 0;
   color: coral;
+}
+
+/* RK */
+/* RK */
+.doctors-body, .compounder-body {
+  background: #e2e8f0;
+  padding: 16px 24px;
+  box-shadow: 0 2px 10px #0000000d;
+}
+.dashboard-title-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+.doctors-body form{
+  flex-direction: row;
+}
+.doctors-body form, .compounder-body form {
+    flex-direction: row;
+    width: 40%;
+    margin-left: auto;
 }
