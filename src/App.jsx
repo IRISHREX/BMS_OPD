@@ -37,6 +37,7 @@ import CyberPunk404 from "./components/ErrorPage";
 import DoctorDashboard from "./components/DoctorDashboard";
 import CreateReferralTab from "./components/tabs/CreateReferralTab";
 import ReferralPage from "./components/ReferralPage";
+import HeaderFooterCreator from "./components/HeaderFooterCreator";
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated, admin, setAdmin } =
@@ -147,6 +148,11 @@ const App = () => {
         <Route path="/settings/advanced" element={
           <RequireAuth allowedRoles={["Admin"]}>
             <AdvancedSettings />
+          </RequireAuth>
+        } />
+        <Route path="/settings/header-footer" element={
+          <RequireAuth allowedRoles={["Admin","Doctor"]}>
+            <HeaderFooterCreator />
           </RequireAuth>
         } />
         <Route path="/preview/:patientId" element={<Preview />} />
