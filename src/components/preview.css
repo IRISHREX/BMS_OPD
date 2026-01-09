@@ -16,7 +16,7 @@
 .preview-header-image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: fill;
 }
 
 
@@ -35,7 +35,7 @@
 .preview-footer-image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: fill;
 }
 
 .fixed-area {
@@ -70,7 +70,7 @@
   align-items: center;
   justify-content: center;
   font-family: 'Roboto', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  padding: 2.5rem 0;
+  padding: 0.2rem 0;
   background: #f3f6fa;
 }
 
