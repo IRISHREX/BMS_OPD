@@ -187,12 +187,13 @@ body {
 @media (max-width: 485px) {
   /*1208px*/
   .page {
-    margin-left: 0;
+    margin-left: 4rem;
     border-radius: 0;
-  }
-  .page {
+  /* }
+  .page { */
     /* padding: 2.5rem 1.25rem; */
     padding: 1.25rem 1.25rem 2.5rem;
+    width: calc(100% - 4rem);
   }
 }
 @media (max-width: 30.3125rem) {

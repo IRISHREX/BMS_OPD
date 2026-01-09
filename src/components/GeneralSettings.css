@@ -112,4 +112,10 @@
     font-size: 0.8rem;
     flex: 1;
   }
+  .general-settings-header-footer-section .page {
+    padding-inline: 0;
+  }
+  .settings-page {
+    margin: 0;
+  }
 }
