@@ -21,7 +21,6 @@
 
 .settings-page {
   margin: 2rem auto;
-  padding: 1.5rem 2rem;
 }
 .settings-page h2{
   margin: 0.5rem auto;
@@ -38,13 +37,11 @@
   color: var(--text-secondary);
 }
 .settings-grid {
-  padding: 0.5rem 0;
   display: grid;
   /* keep cards a comfortable max width so the grid group can stay centered */
   grid-template-columns: repeat(auto-fit, minmax(13.75rem, 16.25rem)); /* 220px -> 13.75rem, 260px -> 16.25rem */
   gap: 1rem;
   max-width: 68.75rem; /* 1100px */
-  margin: 0 auto; /* center the grid container */
   justify-content: center; /* center any leftover space */
 }
 .settings-card {

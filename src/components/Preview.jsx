@@ -186,30 +186,15 @@ const Preview = () => {
             <div className="pres-page">
             {printWithHeader ? (
               <div>
-              <div className="preview-header">
-                {headerImageUrl && (
-                  <img
-                    src={headerImageUrl}
-                    alt="Doctor Header"
-                    className="preview-header-image"
-                  />
-                )}
-              </div>
-              <div className="header">
-                <div className="logo">
-                  <img src={"/Doctor_logo.svg"} alt="logo" />
+                <div className="preview-header">
+                  {headerImageUrl && (
+                    <img
+                      src={headerImageUrl}
+                      alt="Doctor Header"
+                      className="preview-header-image"
+                    />
+                  )}
                 </div>
-                <div className="Dr-detail">
-                  <h2>
-                    {doctor
-                      ? `Dr. ${doctor.firstName || ""} ${
-                          doctor.lastName || ""
-                        }`
-                      : clinic.name || "Doctor"}
-                  </h2>
-                  <p className="Doc-qualifications">{clinic.address}</p>
-                </div>
-              </div>
               </div>
             ) : (
               <div className="header">
@@ -233,36 +218,41 @@ const Preview = () => {
                 <div className="upper-box">
                   <div>
                     <p>
+                      <b>{`${patient.name}, ` || `${patient?.firstName} ${patient?.lastName}, `}</b>
+                      {patient.gender+', '}
+                      {patient.dob
+                        ? dobToAge(patient.dob)
+                        : patient.age
+                        ? `${patient.age} years`
+                        : ""},
+                        +91{patient.phone}
+                    </p>
+                    <p>
                       <b>ID: </b>
                       {patient.nic}
                     </p>
-                    <p>
-                      <b>Name: </b>
-                      {patient.name ||
-                        `${patient?.firstName} ${patient?.lastName}`}
-                    </p>
-                    <p>
+                    {/* <p>
                       <b>Address: </b>
                       {patient.address}
-                    </p>
-                    <p>
+                    </p> */}
+                    {/* <p>
                       <b>Phone No: </b>
                       {patient.phone}
-                    </p>
-                    <p>
+                    </p> */}
+                    {/* <p>
                       <b>Gender: </b>
                       {patient.gender}
-                    </p>
+                    </p> */}
                   </div>
                   <div className="mid">
-                    <p>
+                    {/* <p>
                       <b>Age: </b>
                       {patient.dob
                         ? dobToAge(patient.dob)
                         : patient.age
                         ? `${patient.age} years`
                         : ""}
-                    </p>
+                    </p> */}
                   </div>
                   <div className="right">
                     <p>
@@ -389,8 +379,29 @@ const Preview = () => {
                   )}
                   {report?.clinical_findings && (
                     <p>
-                      <b>Clinical Findings: </b>
-                      {report?.clinical_findings || ""}
+                      <b>On Examination: </b>
+                      Patient is {report?.clinical_findings?.patientCondition.c1 &&
+                      report?.clinical_findings?.patientCondition.c1+','}
+                      {report?.clinical_findings?.patientCondition.c2 && report?.clinical_findings?.patientCondition.c2+', '}
+                      {report?.clinical_findings?.patientCondition.c3 && report?.clinical_findings?.patientCondition.c3+', '}
+                      {report?.clinical_findings?.patientCondition.c4 && report?.clinical_findings?.patientCondition.c4+'.'}
+                      <p>
+                        {report?.clinical_findings?.polar && <span>{`Polar-${report?.clinical_findings?.polar}, `}</span>}
+                        {report?.clinical_findings?.icterus && <span>{`Icterus-${report?.clinical_findings?.icterus}, `}</span>}
+                        {report?.clinical_findings?.edema && <span>{`Edema-${report?.clinical_findings?.edema}, `}</span>}
+                        {report?.clinical_findings?.cyanosis && <span>{`Cyanosis-${report?.clinical_findings?.cyanosis}, `}</span>}
+                        {report?.clinical_findings?.clubbing && <span>{`Clubbing-${report?.clinical_findings?.clubbing}, `}</span>}
+                        {report?.clinical_findings?.lymph_nodes && <span>{`Lymph Nodes-${report?.clinical_findings?.lymph_nodes}`}</span>}
+                      </p>
+                      <p>
+                        {report?.clinical_findings?.chest && <span>{`Chest-${report?.clinical_findings?.chest}, `}</span>}
+                        {report?.clinical_findings?.cvs && <span>{`CVS-${report?.clinical_findings?.cvs}, `}</span>}
+                        {report?.clinical_findings?.per_abdomen.pt && <span>{`Per Abdomen-${report?.clinical_findings?.per_abdomen.pt},`}</span>}
+                        {report?.clinical_findings?.per_abdomen.pv && <span>{`${report?.clinical_findings?.per_abdomen.pv}`}</span>}
+                      </p>
+                      <p>
+                        {report?.clinical_findings?.others && <span>{`Others-${report?.clinical_findings?.others}`}</span>}
+                      </p>
                     </p>
                   )}
                   {report?.advice?.testAdvice?.length > 0 && (

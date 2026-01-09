@@ -841,7 +841,7 @@ const Dashboard = () => {
                               color: "#686868",
                               cursor: "pointer",
                             }}
-                            onClick={() => navigate(`/referral/${appointment.referralId}`)}
+                            onClick={() => navigate(`/referral/${appointment._id}`)}
                           >
                             <IoIosShareAlt title="Referral"/>
                           </button>

@@ -1,7 +1,7 @@
 .pres-page{
     width: 100%;
     min-height: 74.9375rem; /* 1199px */
-    padding: 1rem 2rem 0 2rem;
+    /* padding: 1rem 2rem 0 2rem; */
     display: grid;
     grid-template-rows: auto 1fr auto;
 }
