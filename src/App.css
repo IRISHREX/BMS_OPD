@@ -191,7 +191,7 @@ body {
   .page {
     margin-left: 4rem;
     border-radius: 0;
-  /* }
+    /* }
   .page { */
     /* padding: 2.5rem 1.25rem; */
     padding: 1.25rem 1.25rem 2.5rem;
@@ -985,7 +985,7 @@ body {
 }
 .add-doctor-form form {
   width: 100%;
-  padding: 0 1rem;
+  padding: 0 1rem 30px;
 }
 .add-doctor-form img {
   margin-top: 1rem;
@@ -1018,7 +1018,7 @@ body {
 .add-doctor-form form .first-wrapper div:last-child {
   flex: 2;
   display: flex;
-  gap: 30px;
+  /* gap: 30px; */
   flex-direction: column;
 }
 .add-doctor-form form input,
@@ -1038,10 +1038,19 @@ body {
   border: none;
   border-radius: 8px;
   /* font-size: 24px; */
-  margin-bottom: 30px;
+  /* margin-bottom: 30px; */
   background: linear-gradient(140deg, #9083d5, #271776ca);
   font-size: 16px;
   margin-inline: auto;
+}
+/* RK */
+.form-field-wrap.left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-field-wrap.right {
+    gap: 26px;
 }
 @media (max-width: 945px) {
   .add-doctor-form form .first-wrapper {

@@ -167,7 +167,7 @@ const AddNewDoctor = () => {
         <h1 className="form-title">REGISTER A NEW DOCTOR</h1>
         <form onSubmit={handleAddNewDoctor}>
           <div className="first-wrapper">
-            <div>
+            <div className="form-field-wrap left" >
               <img
                 src={docAvatarPreview ? `${docAvatarPreview}` : "/doc1.jpg"}
                 alt="Doctor Avatar"
@@ -208,7 +208,7 @@ const AddNewDoctor = () => {
                 )}
               </div>
             </div>
-            <div>
+            <div className="form-field-wrap right" >
               <input
                 type="text"
                 placeholder="First Name"
