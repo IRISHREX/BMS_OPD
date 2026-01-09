@@ -49,6 +49,8 @@ body {
   position: relative;
   display: inline-block;
   --base-color: #f6f9fa; /*use your base color*/
+  overflow: hidden;
+  margin-inline: auto;
 }
 .loader::before {
   content: "";
@@ -707,7 +709,7 @@ body {
   width: 3rem;
   height: 3rem;
   font-size: 2rem;
-  padding: 6px;
+  padding: 8px;
 }
 .sidebar svg:hover {
   background: var(--bg-card);

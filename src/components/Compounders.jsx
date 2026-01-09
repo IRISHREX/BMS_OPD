@@ -27,6 +27,8 @@ const Compounders = () => {
   const { isAuthenticated } = useContext(Context);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  // const storeCompounders = useSelector((s) => s.compounders.compounders || []);
+  // const compoundersLoading = useSelector((s) => s.compounders.loading);
 
   useEffect(() => {
     const fetchCompounders = async () => {
@@ -153,7 +155,11 @@ const Compounders = () => {
                 />
               ))
             ) : (
-              <h1>No Registered Assistants Found!</h1>
+              <div>
+                <span className="loader"></span>
+                <h1>No Registered Assistants Found!</h1>
+              </div>
+              
             )}
           </div>
         </div>
