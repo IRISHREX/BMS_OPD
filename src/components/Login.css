@@ -280,6 +280,10 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+.login-form-container .form-title {
+    background: linear-gradient(135deg, #ffffffe6, #01106ce6);
+    -webkit-background-clip: text;
+}
 
 .login-form-container > p {
   color: #a0aec0;

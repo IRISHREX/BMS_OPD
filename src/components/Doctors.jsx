@@ -12,6 +12,8 @@ import { fetchDoctorsRequest } from "../store/doctorsSlice";
 import { playSaveSound, playDeleteSound } from "../utils/soundUtils";
 import CapacitySchedulerForm from "./CapacitySchedulerForm";
 import { useNavigate } from "react-router-dom";
+import { MdAdd } from "react-icons/md";
+
 
 const Doctors = () => {
   const snackbar = useSnackbar();
@@ -126,6 +128,7 @@ const Doctors = () => {
               // onClick={navActions['doctor-dashboard']}
               onClick={handleRedirect}
             >
+              <MdAdd />
               Add New Doctors
             </button>
           </div>
