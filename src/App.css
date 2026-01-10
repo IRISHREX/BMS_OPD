@@ -41,6 +41,7 @@ body {
   border-top-left-radius: 3.125rem; /*50px*/
   border-bottom-left-radius: 3.125rem; /*50px*/
   transition: background 0.3s;
+  width: calc(100% - 6.5rem);
 }
 .loader {
   width: 60px;
@@ -48,6 +49,8 @@ body {
   position: relative;
   display: inline-block;
   --base-color: #f6f9fa; /*use your base color*/
+  overflow: hidden;
+  margin-inline: auto;
 }
 .loader::before {
   content: "";
@@ -186,12 +189,13 @@ body {
 @media (max-width: 485px) {
   /*1208px*/
   .page {
-    margin-left: 0;
+    margin-left: 4rem;
     border-radius: 0;
-  }
-  .page {
+    /* }
+  .page { */
     /* padding: 2.5rem 1.25rem; */
-    padding: 1.25rem 1.25rem 2.5rem ;
+    padding: 1.25rem 1.25rem 2.5rem;
+    width: calc(100% - 4rem);
   }
 }
 @media (max-width: 30.3125rem) {
@@ -204,7 +208,7 @@ body {
 }
 .form-title {
   font-size: 1.75rem;
-  color: #111;
+  color: #0a0e27e6;
   margin-bottom: 1.875rem;
 }
 .form-component {
@@ -298,7 +302,7 @@ body {
   max-width: 28.125rem;
 }
 /* RK */
-.form-component.add-admin-form{
+.form-component.add-admin-form {
   background-color: #fff;
 }
 @media (max-width: 55.5rem) {
@@ -702,9 +706,10 @@ body {
   transition: 0.3s;
 }
 .sidebar svg {
-  width: 3.125rem;
-  height: 3.125rem;
-  font-size: 2.125rem;
+  width: 3rem;
+  height: 3rem;
+  font-size: 2rem;
+  padding: 8px;
 }
 .sidebar svg:hover {
   background: var(--bg-card);
@@ -717,6 +722,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.875rem;
+  height: 100%;
+  justify-content: space-between;
 }
 
 .wrapper {
@@ -778,7 +785,7 @@ body {
 
 .doctors h1 {
   color: #3939d9f2;
-  margin-bottom: 30px;
+  /* margin-bottom: 30px; */
   font-size: 2.3rem;
 }
 @media (max-width: 485px) {
@@ -978,7 +985,7 @@ body {
 }
 .add-doctor-form form {
   width: 100%;
-  padding: 0 1rem;
+  padding: 0 1rem 30px;
 }
 .add-doctor-form img {
   margin-top: 1rem;
@@ -1011,7 +1018,7 @@ body {
 .add-doctor-form form .first-wrapper div:last-child {
   flex: 2;
   display: flex;
-  gap: 30px;
+  /* gap: 30px; */
   flex-direction: column;
 }
 .add-doctor-form form input,
@@ -1031,10 +1038,19 @@ body {
   border: none;
   border-radius: 8px;
   /* font-size: 24px; */
-  margin-bottom: 30px;
+  /* margin-bottom: 30px; */
   background: linear-gradient(140deg, #9083d5, #271776ca);
   font-size: 16px;
   margin-inline: auto;
+}
+/* RK */
+.form-field-wrap.left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-field-wrap.right {
+    gap: 26px;
 }
 @media (max-width: 945px) {
   .add-doctor-form form .first-wrapper {

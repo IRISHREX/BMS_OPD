@@ -99,6 +99,11 @@
   .general-settings-nav-bar .general-nav-item.active {
     min-width: auto;
   }
+  .general-settings-header-footer-section .page{
+    margin-left: 0;
+    padding: 0;
+    width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -111,5 +116,11 @@
     padding: 10px 12px;
     font-size: 0.8rem;
     flex: 1;
+  }
+  .general-settings-header-footer-section .page {
+    padding-inline: 0;
+  }
+  .settings-page {
+    margin: 0;
   }
 }

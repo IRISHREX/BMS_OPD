@@ -281,7 +281,7 @@
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  align-items: center;
+  /* align-items: center; */
 }
 
 .detail-item span:first-child {

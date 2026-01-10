@@ -1,19 +1,25 @@
 /* Medicine Store Page */
 .medicine-store-page {
-  margin: 2rem auto;
-  padding: 5rem;
-
+  margin: 2rem auto 0;
+  padding-block: 1.25rem 0;
+  padding-inline: 7rem 0;
 }
 .medicine-store-content {
-  margin-left: 2rem;
+  /* margin-left: 2rem; */
   background-color: #cbd5e1;
+  box-sizing: border-box;
+  width: 100%;
 }
 .medicine-store-header {
   margin-bottom: 1.5rem;
   position: fixed;
   top: 0;
   /* left: 5rem; */
-  
+  width: calc(100% - 7rem);
+  background: #4343db;
+  right: 0;
+  padding: 10px 0;
+  z-index: 9999;
 }
 
 .medicine-store-header h1 {
@@ -31,10 +37,10 @@
 
 /* Search Bar */
 .search-bar-container {
-  position: absolute;
+  /* position: absolute;
   top: 2.8rem;
   left: 7rem;
-  right: 0;
+  right: 0; */
   padding: 1rem 1rem;
   z-index: 1000;
   background: #f8f1f1;
@@ -101,17 +107,43 @@
   white-space: nowrap;
 }
 
-.btn-search { background: var(--primary-color, #271776); color: #fff; }
-.btn-search:hover { background: var(--primary-hover, #4338ca); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(79,70,229,0.12); }
+.btn-search {
+  background: var(--primary-color, #271776);
+  color: #fff;
+}
+.btn-search:hover {
+  background: var(--primary-hover, #4338ca);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.12);
+}
 
-.btn-add { background: var(--primary-color, #271776); color: #fff; }
-.btn-add:hover { background: var(--primary-hover, #4338ca); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(79,70,229,0.12); }
+.btn-add {
+  background: var(--primary-color, #271776);
+  color: #fff;
+}
+.btn-add:hover {
+  background: var(--primary-hover, #4338ca);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.12);
+}
 
 /* keep textual edit/delete styles for fallbacks but prefer icon buttons */
-.btn-edit { background: var(--secondary-color, #3b82f6); color: #fff; flex: 1; }
-.btn-edit:hover { background: var(--primary-hover, #2563eb); }
-.btn-delete { background: var(--danger-color, #ef4444); color: #fff; flex: 1; }
-.btn-delete:hover { background: #dc2626; }
+.btn-edit {
+  background: var(--secondary-color, #3b82f6);
+  color: #fff;
+  flex: 1;
+}
+.btn-edit:hover {
+  background: var(--primary-hover, #2563eb);
+}
+.btn-delete {
+  background: var(--danger-color, #ef4444);
+  color: #fff;
+  flex: 1;
+}
+.btn-delete:hover {
+  background: #dc2626;
+}
 
 /* Loading State */
 .loading-state {
@@ -134,15 +166,16 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Medicines Grid */
 .medicines-container {
   min-height: 400px;
-  margin-top: 8rem;
-  padding: 0 5rem;
-  
+  margin-top: 4rem;
+  padding: 0 5rem 2rem;
 }
 
 .medicines-grid {
@@ -241,7 +274,10 @@
 }
 
 /* Icon button sizing for card footer (icons defined in global Settings.css) */
-.medicine-card-footer .icon-btn { width: 36px; height: 36px; }
+.medicine-card-footer .icon-btn {
+  width: 36px;
+  height: 36px;
+}
 
 /* Empty State */
 .empty-state {
@@ -385,7 +421,10 @@
   }
 
   /* icon buttons stack neatly on small screens */
-  .medicine-card-footer .icon-btn { width: 40px; height: 40px; }
+  .medicine-card-footer .icon-btn {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 /* Back button style - consistent with Settings.css buttons */
@@ -401,4 +440,6 @@
   background: var(--bg-card, #fff);
   color: var(--text-secondary, #64748b);
 }
-.back-btn:hover { background: var(--bg-hover, #f1f5f9); }
+.back-btn:hover {
+  background: var(--bg-hover, #f1f5f9);
+}

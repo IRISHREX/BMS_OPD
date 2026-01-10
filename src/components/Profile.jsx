@@ -7,7 +7,14 @@ import "./Profile.css";
 import CapacitySchedulerForm from "./CapacitySchedulerForm";
 
 // Password Change Modal Component
-const PasswordChangeModal = ({ isOpen, onClose, onSubmit, loading, passwordForm, setPasswordForm }) => {
+const PasswordChangeModal = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  loading,
+  passwordForm,
+  setPasswordForm,
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -37,8 +44,10 @@ const PasswordChangeModal = ({ isOpen, onClose, onSubmit, loading, passwordForm,
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 style={{ marginTop: 0, marginBottom: "1.5rem" }}>🔐 Change Password</h2>
-        
+        <h2 style={{ marginTop: 0, marginBottom: "1.5rem" }}>
+          🔐 Change Password
+        </h2>
+
         <form onSubmit={onSubmit}>
           <div className="form-group">
             <label htmlFor="currentPassword">Current Password</label>
@@ -47,7 +56,12 @@ const PasswordChangeModal = ({ isOpen, onClose, onSubmit, loading, passwordForm,
               type="password"
               placeholder="Enter your current password"
               value={passwordForm.currentPassword}
-              onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+              onChange={(e) =>
+                setPasswordForm({
+                  ...passwordForm,
+                  currentPassword: e.target.value,
+                })
+              }
               required
             />
           </div>
@@ -59,7 +73,12 @@ const PasswordChangeModal = ({ isOpen, onClose, onSubmit, loading, passwordForm,
               type="password"
               placeholder="Enter new password (minimum 8 characters)"
               value={passwordForm.newPassword}
-              onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+              onChange={(e) =>
+                setPasswordForm({
+                  ...passwordForm,
+                  newPassword: e.target.value,
+                })
+              }
               required
             />
           </div>
@@ -71,22 +90,27 @@ const PasswordChangeModal = ({ isOpen, onClose, onSubmit, loading, passwordForm,
               type="password"
               placeholder="Confirm your new password"
               value={passwordForm.confirmPassword}
-              onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+              onChange={(e) =>
+                setPasswordForm({
+                  ...passwordForm,
+                  confirmPassword: e.target.value,
+                })
+              }
               required
             />
           </div>
 
           <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="password-submit-btn"
               style={{ flex: 1 }}
             >
               {loading ? "Changing..." : "Change Password"}
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={onClose}
               disabled={loading}
               style={{
@@ -118,7 +142,7 @@ const Profile = () => {
   const [accountAge, setAccountAge] = useState(null);
   const [calendarDate, setCalendarDate] = useState(() => new Date());
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
-  
+
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -134,7 +158,7 @@ const Profile = () => {
         if (response.data.success) {
           const user = response.data.user;
           setUserDetails(user);
-          
+
           // Only set calendar date if createdAt exists and is valid
           if (user.createdAt) {
             const createdDate = new Date(user.createdAt);
@@ -145,7 +169,9 @@ const Profile = () => {
           }
         }
       } catch (error) {
-        snackbar.error(error?.response?.data?.message || "Failed to load user details");
+        snackbar.error(
+          error?.response?.data?.message || "Failed to load user details"
+        );
       } finally {
         setLoading(false);
       }
@@ -180,7 +206,11 @@ const Profile = () => {
   const handlePasswordChange = async (e) => {
     e.preventDefault();
 
-    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+    if (
+      !passwordForm.currentPassword ||
+      !passwordForm.newPassword ||
+      !passwordForm.confirmPassword
+    ) {
       snackbar.error("Please fill all password fields!");
       return;
     }
@@ -212,7 +242,9 @@ const Profile = () => {
         setPasswordModalOpen(false);
       }
     } catch (error) {
-      snackbar.error(error?.response?.data?.message || "Failed to change password");
+      snackbar.error(
+        error?.response?.data?.message || "Failed to change password"
+      );
     } finally {
       setPasswordLoading(false);
     }
@@ -242,7 +274,7 @@ const Profile = () => {
     <section className="page">
       <div className="profile-page">
         <h2>Profile Settings</h2>
-        
+
         <div className="profile-container">
           {/* User Details Section */}
           <div className="profile-section user-details-section">
@@ -266,16 +298,24 @@ const Profile = () => {
               </div>
               <div className="detail-item">
                 <label>Role</label>
-                <p className="badge" style={{ 
-                  background: userDetails.role === 'Admin' ? '#ff6b6b' : 
-                               userDetails.role === 'Doctor' ? '#4ecdc4' : 
-                               userDetails.role === 'Compounder' ? '#45b7d1' : '#95a5a6',
-                  color: 'white',
-                  padding: '0.25rem 0.75rem',
-                  borderRadius: '20px',
-                  display: 'inline-block',
-                  fontSize: '0.875rem'
-                }}>
+                <p
+                  className="badge"
+                  style={{
+                    background:
+                      userDetails.role === "Admin"
+                        ? "#ff6b6b"
+                        : userDetails.role === "Doctor"
+                        ? "#4ecdc4"
+                        : userDetails.role === "Compounder"
+                        ? "#45b7d1"
+                        : "#95a5a6",
+                    color: "white",
+                    padding: "0.25rem 0.75rem",
+                    borderRadius: "20px",
+                    display: "inline-block",
+                    fontSize: "0.875rem",
+                  }}
+                >
                   {userDetails.role}
                 </p>
               </div>
@@ -300,32 +340,58 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Account Age Section */}
-          <div className="profile-section account-age-section">
-            <h3>📅 Account Age</h3>
-            <div className="account-age-display">
-              <div className="age-item">
-                <span className="age-number">{accountAge?.years || 0}</span>
-                <span className="age-label">Year{accountAge?.years !== 1 ? 's' : ''}</span>
+          <div>
+            {/* Account Age Section */}
+            <div className="profile-section account-age-section">
+              <h3>📅 Account Age</h3>
+              <div className="account-age-display">
+                <div className="age-item">
+                  <span className="age-number">{accountAge?.years || 0}</span>
+                  <span className="age-label">
+                    Year{accountAge?.years !== 1 ? "s" : ""}
+                  </span>
+                </div>
+                <span className="age-separator">•</span>
+                <div className="age-item">
+                  <span className="age-number">{accountAge?.months || 0}</span>
+                  <span className="age-label">
+                    Month{accountAge?.months !== 1 ? "s" : ""}
+                  </span>
+                </div>
+                <span className="age-separator">•</span>
+                <div className="age-item">
+                  <span className="age-number">{accountAge?.days || 0}</span>
+                  <span className="age-label">
+                    Day{accountAge?.days !== 1 ? "s" : ""}
+                  </span>
+                </div>
               </div>
-              <span className="age-separator">•</span>
-              <div className="age-item">
-                <span className="age-number">{accountAge?.months || 0}</span>
-                <span className="age-label">Month{accountAge?.months !== 1 ? 's' : ''}</span>
-              </div>
-              <span className="age-separator">•</span>
-              <div className="age-item">
-                <span className="age-number">{accountAge?.days || 0}</span>
-                <span className="age-label">Day{accountAge?.days !== 1 ? 's' : ''}</span>
-              </div>
+              <p className="joined-date">
+                Joined on:{" "}
+                <strong>
+                  {new Date(userDetails.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </strong>
+              </p>
             </div>
-            <p className="joined-date">
-              Joined on: <strong>{new Date(userDetails.createdAt).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}</strong>
-            </p>
+
+            {/* Password Change Button Section */}
+            <div className="profile-section password-section">
+              <h3>🔐 Security</h3>
+              <p style={{ color: "#666", marginBottom: "1.5rem" }}>
+                Manage your account password and security settings.
+              </p>
+              <button
+                onClick={() => setPasswordModalOpen(true)}
+                className="password-submit-btn"
+                style={{ width: "100%" }}
+              >
+                Change Password
+              </button>
+            </div>
           </div>
 
           {/* Calendar Section */}
@@ -333,43 +399,37 @@ const Profile = () => {
             <div className="profile-section calendar-section">
               <h3>📆 Join Date Calendar</h3>
               <div className="calendar-container">
-                <Calendar 
+                <Calendar
                   value={calendarDate}
                   disabled={true}
                   tileClassName={({ date }) => {
                     const joinDate = new Date(userDetails.createdAt);
-                    if (!isNaN(joinDate.getTime()) && date.toDateString() === joinDate.toDateString()) {
+                    if (
+                      !isNaN(joinDate.getTime()) &&
+                      date.toDateString() === joinDate.toDateString()
+                    ) {
                       return "join-date-tile";
                     }
                     return null;
                   }}
                 />
-                <p style={{ marginTop: '1rem', textAlign: 'center', fontSize: '0.875rem', color: '#666' }}>
+                <p
+                  style={{
+                    marginTop: "1rem",
+                    textAlign: "center",
+                    fontSize: "0.875rem",
+                    color: "#666",
+                  }}
+                >
                   📍 Your join date is highlighted in the calendar
                 </p>
               </div>
             </div>
           )}
 
-          {/* Password Change Button Section */}
-          <div className="profile-section password-section">
-            <h3>🔐 Security</h3>
-            <p style={{ color: '#666', marginBottom: '1.5rem' }}>
-              Manage your account password and security settings.
-            </p>
-            <button 
-              onClick={() => setPasswordModalOpen(true)}
-              className="password-submit-btn"
-              style={{ width: "100%" }}
-            >
-              Change Password
-            </button>
-          </div>
-
           {/* Doctor Capacity Settings Section */}
-          
-            <CapacitySchedulerForm doctorId={userDetails._id} />
-          
+
+          <CapacitySchedulerForm doctorId={userDetails._id} />
         </div>
 
         {/* Password Change Modal */}

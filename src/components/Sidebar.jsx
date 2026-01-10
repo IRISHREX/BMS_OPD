@@ -86,13 +86,13 @@ const Sidebar = () => {
             <FaUserMd onClick={navActions.doctors} title="Doctors" />
           </RequirePermission>
 
-          <RequirePermission allowedRoles={["Admin"]}>
+          {/* <RequirePermission allowedRoles={["Admin"]}>
             <IoPersonAddSharp onClick={navActions.addNewDoctor} title="Add New Doctor" />
-          </RequirePermission>
+          </RequirePermission> */}
 
           <RequirePermission allowedRoles={["Admin", "Doctor"]}>
-            <FaUserNurse onClick={navActions.compounders} title="Compounders" />
-            <IoIosPersonAdd onClick={navActions.addNewHelper} title="Create Compounder" />
+            <FaUserNurse onClick={navActions.compounders} title="Assistants" />
+            {/* <IoIosPersonAdd onClick={navActions.addNewHelper} title="Create Assistants" /> */}
           </RequirePermission>
 
           <RequirePermission allowedRoles={["Admin", "Doctor", "Compounder"]}>
