@@ -395,7 +395,7 @@ const Profile = () => {
           </div>
 
           {/* Calendar Section */}
-          {userDetails?.createdAt && (
+          {/* {userDetails?.createdAt && ( */}
             <div className="profile-section calendar-section">
               <h3>📆 Join Date Calendar</h3>
               <div className="calendar-container">
@@ -425,7 +425,7 @@ const Profile = () => {
                 </p>
               </div>
             </div>
-          )}
+          {/* )} */}
 
           {/* Doctor Capacity Settings Section */}
 

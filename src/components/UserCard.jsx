@@ -31,6 +31,7 @@ const UserCard = ({
         transition: "box-shadow 0.2s",
         border: "1px solid #ececec",
         position: "relative",
+        lineHeight: "130%"
       }}
     >
       <div

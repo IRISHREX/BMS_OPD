@@ -16,6 +16,8 @@ import {
 } from "../utils/soundUtils";
 import "./Compounders.css";
 import { useNavigate } from "react-router-dom";
+import { MdAdd } from "react-icons/md";
+
 
 const Compounders = () => {
   const snackbar = useSnackbar();
@@ -83,7 +85,9 @@ const Compounders = () => {
               // onClick={navActions['doctor-dashboard']}
               onClick={handleRedirect}
             >
-              Add New Doctors
+              <MdAdd />
+
+              Add New Assistants
             </button>
           </div>
           <form
@@ -155,7 +159,9 @@ const Compounders = () => {
                 />
               ))
             ) : (
-              <div>
+              <div style={{
+                textAlign: 'center',
+              }}>
                 <span className="loader"></span>
                 <h1>No Registered Assistants Found!</h1>
               </div>

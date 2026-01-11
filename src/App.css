@@ -791,7 +791,7 @@ body {
 @media (max-width: 485px) {
   .doctors h1 {
     font-size: 1.8rem;
-    margin-bottom: 20px;
+    /* margin-bottom: 20px; */
     text-align: center;
   }
 }
@@ -941,6 +941,11 @@ body {
     flex-direction: column;
   }
 }
+@media (max-width: 767) {
+  .doctors .banner {
+    grid-template-columns: 1fr;
+  }
+}
 .search-section {
   display: flex;
   gap: 0.5rem;
@@ -1050,7 +1055,7 @@ body {
   gap: 6px;
 }
 .form-field-wrap.right {
-    gap: 26px;
+  gap: 26px;
 }
 @media (max-width: 945px) {
   .add-doctor-form form .first-wrapper {
