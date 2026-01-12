@@ -9,6 +9,7 @@ import { MdDelete } from "react-icons/md";
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
 import { FaSearch } from "react-icons/fa";
 import useSound from "use-sound";
+import SimpleBarChart from "./SimpleBarChart";
 
 const fmt = (n) => {
   const v = Number(n) || 0;
@@ -526,6 +527,8 @@ const ReportsPage = () => {
           </button>
         </div>
       </div>
+
+      {!usePersisted && <SimpleBarChart data={groups} />}
 
       <div className="table-wrap">
         {usePersisted ? (

@@ -225,6 +225,11 @@
   overflow: hidden;
 }
 
+.message-body.expanded {
+  max-height: none;
+  overflow: visible;
+}
+
 .message-recipient {
   font-size: 0.875rem;
   font-weight: 600;
