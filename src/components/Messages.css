@@ -452,6 +452,9 @@
   .messages-header button svg {
     font-size: 17px;
   }
+  .message-body{
+    max-height: 100%;
+  }
 }
 
 @media (max-width: 420px) {

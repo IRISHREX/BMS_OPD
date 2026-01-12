@@ -13,6 +13,7 @@ import { Context } from "../main";
 import { useNavigate } from "react-router-dom";
 import RequirePermission from "./RequirePermission";
 import { IoIosPersonAdd } from "react-icons/io";
+import { FiLogOut } from "react-icons/fi";
 
 
 const Sidebar = () => {
@@ -104,7 +105,7 @@ const Sidebar = () => {
             <IoMdSettings onClick={navActions.settings} title="Settings" />
           </RequirePermission>
 
-          <RiLogoutBoxFill onClick={handleLogout} title="Logout" />
+          <FiLogOut onClick={handleLogout} title="Logout" />
         </div>
       </nav>
       <div
