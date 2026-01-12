@@ -61,11 +61,7 @@ const Reports = ({ appointments = [], showSummary = true }) => {
         <p style={{ fontSize: 12, color: '#333' }}>Paid this month: {formatCurrency(monthPayments)}</p>
       </div>
 
-      {/* <div style={{ flex: 1, padding: 14, borderRadius: 12, background: '#f0fff4' }}>
-        <p>Total Appointments</p>
-        <h3>{appointments.length}</h3>
-        <p style={{ fontSize: 12, color: '#333' }}>Total paid: {formatCurrency((appointments || []).reduce((s, a) => s + (Number(a.price || a.feesAmount || a.fees || a.total || 0) || 0), 0))}</p>
-      </div> */}
+   
     </div>
   );
 };
