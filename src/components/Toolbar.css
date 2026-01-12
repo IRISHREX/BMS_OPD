@@ -1,0 +1,18 @@
+.toolbar {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: top 0.3s;
+    z-index: 1000;
+    padding: 1rem;
+  }
+  
+  .toolbar.hide {
+    top: -200px; /* Adjust this value based on toolbar height */
+  }
+  
+  .toolbar.show {
+    top: 0;
+  }

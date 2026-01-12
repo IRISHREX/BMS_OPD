@@ -13,17 +13,25 @@ const SimpleBarChart = ({ data }) => {
   const chartHeight = 300;
   const barWidth = 30;
   const barMargin = 15;
-  const chartWidth = data.length * (barWidth * 2 + barMargin);
+  const padding = 40;
+  const chartWidth = data.length * (barWidth * 2 + barMargin) + 2 * padding;
 
   return (
     <div className="bar-chart-container">
       <svg width={chartWidth} height={chartHeight}>
-        <g>
+        {/* Y-axis */}
+        <line x1={padding} y1={padding} x2={padding} y2={chartHeight - padding} stroke="#ccc" />
+        <text x="10" y="20" className="axis-label">Value</text>
+        
+        {/* X-axis */}
+        <line x1={padding} y1={chartHeight - padding} x2={chartWidth - padding} y2={chartHeight - padding} stroke="#ccc" />
+
+        <g transform={`translate(${padding}, 0)`}>
           {data.map((d, i) => {
             const revenue = d.revenue || d.totalEarning || 0;
             const due = d.due || d.totalDue || 0;
-            const revenueHeight = (revenue / maxVal) * (chartHeight - 40);
-            const dueHeight = (due / maxVal) * (chartHeight - 40);
+            const revenueHeight = (revenue / maxVal) * (chartHeight - 2 * padding);
+            const dueHeight = (due / maxVal) * (chartHeight - 2 * padding);
             const x1 = i * (barWidth * 2 + barMargin);
             const x2 = x1 + barWidth;
 
@@ -31,19 +39,19 @@ const SimpleBarChart = ({ data }) => {
               <g key={d.period}>
                 <rect
                   x={x1}
-                  y={chartHeight - revenueHeight - 30}
+                  y={chartHeight - padding - revenueHeight}
                   width={barWidth}
                   height={revenueHeight}
                   className="bar revenue"
                 />
                 <rect
                   x={x2}
-                  y={chartHeight - dueHeight - 30}
+                  y={chartHeight - padding - dueHeight}
                   width={barWidth}
                   height={dueHeight}
                   className="bar due"
                 />
-                <text x={x1 + barWidth / 2} y={chartHeight - 10} textAnchor="middle">
+                <text x={x1 + barWidth} y={chartHeight - padding + 15} textAnchor="middle" className="axis-label">
                   {d.period}
                 </text>
               </g>

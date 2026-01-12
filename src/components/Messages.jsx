@@ -16,6 +16,7 @@ import { playSaveSound, playLoadSound } from "../utils/soundUtils";
 import { fetchMessagesRequest } from "../store/messagesSlice";
 import "./Messages.css";
 
+import Toolbar from "./Toolbar";
 import MessageList from "./MessageList";
 import MessageFilter from "./MessageFilter";
 import BulkActions from "./BulkActions";
@@ -259,29 +260,30 @@ const Messages = () => {
           />
         )}
 
-        <MessageFilter
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          onClearFilters={clearSearch}
-          user={user}
-          filteredDoctors={filteredDoctors}
-        />
-
-        <div className="messages-summary">
-          <div className="summary-text">
-            Total: {counts.total} | Read: {counts.read} | Unread:{" "}
-            {counts.unread}
-          </div>
-          <BulkActions
-            selected={selected}
-            onSelectAll={toggleSelectAll}
-            onUpdateStatus={updateMessageStatus}
-            onDelete={deleteMessages}
-            isAllSelected={
-              selected.length > 0 && selected.length === messageIdsOnPage.length
-            }
+        <Toolbar>
+          <MessageFilter
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onClearFilters={clearSearch}
+            user={user}
+            filteredDoctors={filteredDoctors}
           />
-        </div>
+          <div className="messages-summary">
+            <div className="summary-text">
+              Total: {counts.total} | Read: {counts.read} | Unread:{" "}
+              {counts.unread}
+            </div>
+            <BulkActions
+              selected={selected}
+              onSelectAll={toggleSelectAll}
+              onUpdateStatus={updateMessageStatus}
+              onDelete={deleteMessages}
+              isAllSelected={
+                selected.length > 0 && selected.length === messageIdsOnPage.length
+              }
+            />
+          </div>
+        </Toolbar>
 
         {loading ? (
           <div className="loading-state centered">
