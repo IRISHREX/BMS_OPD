@@ -115,7 +115,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
   background: #fff;
   padding: 1.5rem 2.5rem;
   gap: 20px;
@@ -177,8 +177,8 @@
   font-size: 14px;
 }
 .dashboard-title-block.add-form {
-    justify-content: flex-start;
-    gap: 10px;
+  justify-content: flex-start;
+  gap: 10px;
 }
 .back-nav-btn {
   padding: 0;
@@ -191,9 +191,14 @@
   color: #2a3686;
 }
 .dashboard-title-block p {
-    font-size: 18px;
-    font-weight: 600;
-    color: #2a3686;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2a3686;
+}
+/* 13-01-26 */
+.ReactModalPortal .ReactModal__Overlay {
+  background-color: rgb(0 0 0 / 75%) !important;
+  backdrop-filter: blur(10px);
 }
 @media screen and (max-width: 767px) {
   .doctors-body form,

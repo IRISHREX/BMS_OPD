@@ -363,7 +363,7 @@ body {
 .dashboard .banner:first-child .firstBox .content {
   /* flex: 2; */
   background-color: transparent;
-  padding: 1.5rem;
+  padding: 0;
   z-index: 0;
 }
 .dashboard .banner:first-child .firstBox .content div {
@@ -382,6 +382,8 @@ body {
 }
 .dashboard .banner:first-child .firstBox .content p {
   font-size: 1rem;
+  text-align: justify;
+  line-height: 1.3;
 }
 .dashboard .banner:first-child .secondBox {
   background: #3939d9f2;
@@ -481,6 +483,7 @@ body {
   border-radius: 0.5rem;
   font-size: 0.8rem;
 }
+/*  */
 @media (max-width: 900px) {
   .filter-box {
     flex-direction: column;
@@ -514,7 +517,7 @@ body {
   background: #ff008d;
   color: #fff;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.25rem;
   padding: 0.5rem;
   font-weight: 600;
   font-size: 1rem;
@@ -524,7 +527,10 @@ body {
 }
 .filter-box select option {
   font-weight: 600;
-  background: #ff008d;
+  /* background: #ff008d; */
+}
+.filter-box select:focus-visible {
+  outline: 0;
 }
 
 .search-box {
@@ -559,6 +565,19 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+/* RK */
+.btn.btn-primary.prescribe-btn {
+  padding: 4px 8px;
+  width: fit-content;
+  min-width: fit-content;
+  font-size: 12px;
+  border-radius: 3px;
+  text-transform: capitalize;
+  font-weight: 400;
+}
+.filter-box .prescribed-filter {
+  background: #6ba7e8;
 }
 @media (max-width: 830px) {
   .dashboard .banner:last-child h5 {
@@ -629,6 +648,17 @@ body {
   justify-content: space-around;
   align-items: center;
   gap: 0.5rem;
+}
+/* RK */
+.doctor-imgbox {
+  width: 250px;
+  height: 150px;
+  overflow: visible;
+}
+.doctor-imgbox img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
 }
 @media (max-width: 86rem) {
   /*1376px*/
