@@ -15,7 +15,6 @@ import { useNavigate } from "react-router-dom";
 import Toolbar from "./Toolbar";
 import { MdAdd } from "react-icons/md";
 
-
 const Doctors = () => {
   const snackbar = useSnackbar();
   const [searchTerm, setSearchTerm] = useState("");
@@ -111,67 +110,66 @@ const Doctors = () => {
 
   return (
     <>
-      <section className="page doctors">
+      <section className="page doctors bg-light-blue">
         <div className="doctors-body">
           <Toolbar>
             <div className="dashboard-title-block">
-              <h1>DOCTORS</h1>
+              <h1>Doctors</h1>
+              <form
+                onSubmit={handleSearch}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  // marginBottom: "1rem",
+                  // gap: "0.5rem",
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder="Search by name, phone, department, NIC..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    // padding: "0.5rem",
+                    // borderRadius: "6px",
+                    // border: "1px solid #ccc",
+                    width: "250px",
+                  }}
+                />
+                <button
+                  type="submit"
+                  style={{
+                    background: "#271776ca",
+                    color: "#fff",
+                    border: "none",
+                    // borderRadius: "6px",
+                    // padding: "0.5rem 1rem",
+                    // display: "flex",
+                    // alignItems: "center",
+                    // gap: "0.5rem",
+                  }}
+                >
+                  <FaSearch /> Search
+                </button>
+              </form>
               <button
                 type="submit"
-                className=""
+                className="add-form-btn"
                 style={{
                   background: "#271776ca",
                   color: "#fff",
                   border: "none",
-                  borderRadius: "6px",
-                  padding: "0.5rem 1rem",
+                  // borderRadius: "6px",
+                  // padding: "0.5rem 1rem",
                   cursor: "pointer",
                 }}
                 // onClick={navActions['doctor-dashboard']}
                 onClick={handleRedirect}
               >
                 <MdAdd />
-                Add New Doctors
+                {/* Add New Doctors */}
               </button>
             </div>
-
-            <form
-              onSubmit={handleSearch}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: "1rem",
-                gap: "0.5rem",
-              }}
-            >
-              <input
-                type="text"
-                placeholder="Search by name, phone, department, NIC..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  padding: "0.5rem",
-                  borderRadius: "6px",
-                  border: "1px solid #ccc",
-                  width: "250px",
-                }}
-              />
-              <button
-                type="submit"
-                style={{
-                  background: "#271776ca",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "6px",
-                  padding: "0.5rem 1rem",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                }}
-              >
-                <FaSearch /> Search
-              </button>
-            </form>
           </Toolbar>
           <div className="banner">
             {doctorsLoading ? (

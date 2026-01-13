@@ -9,6 +9,8 @@ import {
   createDoctorRequest,
   resetDoctorCreate,
 } from "../store/doctorCreateSlice";
+import { TiArrowLeft } from "react-icons/ti";
+
 
 const AddNewDoctor = () => {
   const snackbar = useSnackbar();
@@ -35,6 +37,7 @@ const AddNewDoctor = () => {
   const navigateTo = useNavigate();
   const dispatch = useDispatch();
   const doctorCreate = useSelector((s) => s.doctorCreate);
+  const navigate = useNavigate();
 
   const departmentsArray = [
     "Pediatrics",
@@ -152,189 +155,204 @@ const AddNewDoctor = () => {
     return <Navigate to={"/login"} />;
   }
   return (
-    <section className="page">
-      <section className="container add-doctor-form">
-        <img
-          src="/logo.svg"
-          alt="logo"
-          className="logo"
-          style={{ 
-            width: "150px", 
-            height: "150px",
-            borderRadius: "50%",
-            objectFit: "cover" }}
-        />
-        <h1 className="form-title">REGISTER A NEW DOCTOR</h1>
-        <form onSubmit={handleAddNewDoctor}>
-          <div className="first-wrapper">
-            <div className="form-field-wrap left" >
-              <img
-                src={docAvatarPreview ? `${docAvatarPreview}` : "/doc1.jpg"}
-                alt="Doctor Avatar"
-              />
-              <input type="file" onChange={handleAvatar} accept="image/*" />
-              <div style={{ marginTop: 8 }}>
-                <label style={{ display: "block", marginBottom: 6 }}>
-                  Sign Image (optional)
-                </label>
-                <input
-                  type="file"
-                  onChange={handleSignImage}
-                  accept="image/*"
+    <section className="page bg-light-blue">
+      <div className="dashboard-title-block add-form">
+        <button
+          className="back-nav-btn"
+          onClick={() => navigate("/doctors")}
+          // style={{ marginLeft: 8 }}
+        >
+          <TiArrowLeft title="Back to previous"/>
+        </button>
+        <p>Register New Doctor</p>
+      </div>
+      <div className="container">
+        {/* <div></div> */}
+        <div className="add-doctor-form">
+          <img
+            src="/logo.svg"
+            alt="logo"
+            className="logo"
+            style={{
+              width: "150px",
+              height: "150px",
+              borderRadius: "50%",
+              objectFit: "cover",
+            }}
+          />
+          <h1 className="form-title">REGISTER A NEW DOCTOR</h1>
+          <form onSubmit={handleAddNewDoctor}>
+            <div className="first-wrapper">
+              <div className="form-field-wrap left">
+                <img
+                  src={docAvatarPreview ? `${docAvatarPreview}` : "/doc1.jpg"}
+                  alt="Doctor Avatar"
                 />
-                {signImagePreview && (
-                  <img
-                    src={signImagePreview}
-                    alt="Sign Preview"
-                    style={{ width: 120, marginTop: 6 }}
+                <input type="file" onChange={handleAvatar} accept="image/*" />
+                <div style={{ marginTop: 8 }}>
+                  <label style={{ display: "block", marginBottom: 6 }}>
+                    Sign Image (optional)
+                  </label>
+                  <input
+                    type="file"
+                    onChange={handleSignImage}
+                    accept="image/*"
                   />
-                )}
-              </div>
-              <div style={{ marginTop: 8 }}>
-                <label style={{ display: "block", marginBottom: 6 }}>
-                  Header Image (optional)
-                </label>
-                <input
-                  type="file"
-                  onChange={handleHeaderImage}
-                  accept="image/*"
-                />
-                {headerImagePreview && (
-                  <img
-                    src={headerImagePreview}
-                    alt="Header Preview"
-                    style={{ width: 180, marginTop: 6 }}
-                  />
-                )}
-              </div>
-            </div>
-            <div className="form-field-wrap right" >
-              <input
-                type="text"
-                placeholder="First Name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                disabled={doctorCreate.creating}
-              />
-              <input
-                type="text"
-                placeholder="Last Name"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                disabled={doctorCreate.creating}
-              />
-              <input
-                type="text"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={doctorCreate.creating}
-              />
-
-              {/* Age and DOB fields, sync both ways. NIC is always readonly and auto-populated. */}
-              <input
-                type="number"
-                placeholder="Mobile Number"
-                value={phone}
-                onChange={(e) => {
-                  setPhone(e.target.value);
-                  if (e.target.value && age)
-                    setNic(makeNIC(e.target.value, age));
-                }}
-                disabled={doctorCreate.creating}
-              />
-              <input
-                type="number"
-                placeholder="Age (years)"
-                value={age}
-                min={0}
-                max={120}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setAge(val);
-                  setDob(ageToDob(val));
-                  if (phone && val) setNic(makeNIC(phone, val));
-                }}
-                disabled={doctorCreate.creating}
-              />
-              <input
-                type="date"
-                placeholder="Date of Birth"
-                value={dob}
-                onChange={(e) => {
-                  setDob(e.target.value);
-                  const newAgeYears = dobToAgeYears(e.target.value);
-                  setAge(newAgeYears);
-                  if (phone && newAgeYears) setNic(makeNIC(phone, newAgeYears));
-                }}
-                readOnly
-                style={{ background: "#f4f4f4", color: "#888" }}
-                disabled={doctorCreate.creating}
-              />
-              <input
-                type="text"
-                placeholder="NIC (auto)"
-                value={nic}
-                readOnly
-                style={{ background: "#f4f4f4", color: "#888" }}
-                disabled={doctorCreate.creating}
-              />
-              <select
-                value={gender}
-                onChange={(e) => setGender(e.target.value)}
-                disabled={doctorCreate.creating}
-              >
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={doctorCreate.creating}
-              />
-              <select
-                value={doctorDepartment}
-                onChange={(e) => {
-                  setDoctorDepartment(e.target.value);
-                }}
-                disabled={doctorCreate.creating}
-              >
-                <option value="">Select Department</option>
-                {departmentsArray.map((depart, index) => {
-                  return (
-                    <option value={depart} key={index}>
-                      {depart}
-                    </option>
-                  );
-                })}
-              </select>
-              <input
-                type="text"
-                placeholder="Qualifications (e.g., MBBS, MD)"
-                value={qualifications}
-                onChange={(e) => setQualifications(e.target.value)}
-                disabled={doctorCreate.creating}
-              />
-              <button type="submit" disabled={doctorCreate.creating}>
-                {doctorCreate.creating
-                  ? "Registering..."
-                  : "Register New Doctor"}
-              </button>
-              {doctorCreate.error && (
-                <div
-                  className="error-message"
-                  style={{ color: "red", marginTop: 8 }}
-                >
-                  {doctorCreate.error}
+                  {signImagePreview && (
+                    <img
+                      src={signImagePreview}
+                      alt="Sign Preview"
+                      style={{ width: 120, marginTop: 6 }}
+                    />
+                  )}
                 </div>
-              )}
+                <div style={{ marginTop: 8 }}>
+                  <label style={{ display: "block", marginBottom: 6 }}>
+                    Header Image (optional)
+                  </label>
+                  <input
+                    type="file"
+                    onChange={handleHeaderImage}
+                    accept="image/*"
+                  />
+                  {headerImagePreview && (
+                    <img
+                      src={headerImagePreview}
+                      alt="Header Preview"
+                      style={{ width: 180, marginTop: 6 }}
+                    />
+                  )}
+                </div>
+              </div>
+              <div className="form-field-wrap right">
+                <input
+                  type="text"
+                  placeholder="First Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  disabled={doctorCreate.creating}
+                />
+                <input
+                  type="text"
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  disabled={doctorCreate.creating}
+                />
+                <input
+                  type="text"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={doctorCreate.creating}
+                />
+
+                {/* Age and DOB fields, sync both ways. NIC is always readonly and auto-populated. */}
+                <input
+                  type="number"
+                  placeholder="Mobile Number"
+                  value={phone}
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                    if (e.target.value && age)
+                      setNic(makeNIC(e.target.value, age));
+                  }}
+                  disabled={doctorCreate.creating}
+                />
+                <input
+                  type="number"
+                  placeholder="Age (years)"
+                  value={age}
+                  min={0}
+                  max={120}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setAge(val);
+                    setDob(ageToDob(val));
+                    if (phone && val) setNic(makeNIC(phone, val));
+                  }}
+                  disabled={doctorCreate.creating}
+                />
+                <input
+                  type="date"
+                  placeholder="Date of Birth"
+                  value={dob}
+                  onChange={(e) => {
+                    setDob(e.target.value);
+                    const newAgeYears = dobToAgeYears(e.target.value);
+                    setAge(newAgeYears);
+                    if (phone && newAgeYears)
+                      setNic(makeNIC(phone, newAgeYears));
+                  }}
+                  readOnly
+                  style={{ background: "#f4f4f4", color: "#888" }}
+                  disabled={doctorCreate.creating}
+                />
+                <input
+                  type="text"
+                  placeholder="NIC (auto)"
+                  value={nic}
+                  readOnly
+                  style={{ background: "#f4f4f4", color: "#888" }}
+                  disabled={doctorCreate.creating}
+                />
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  disabled={doctorCreate.creating}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={doctorCreate.creating}
+                />
+                <select
+                  value={doctorDepartment}
+                  onChange={(e) => {
+                    setDoctorDepartment(e.target.value);
+                  }}
+                  disabled={doctorCreate.creating}
+                >
+                  <option value="">Select Department</option>
+                  {departmentsArray.map((depart, index) => {
+                    return (
+                      <option value={depart} key={index}>
+                        {depart}
+                      </option>
+                    );
+                  })}
+                </select>
+                <input
+                  type="text"
+                  placeholder="Qualifications (e.g., MBBS, MD)"
+                  value={qualifications}
+                  onChange={(e) => setQualifications(e.target.value)}
+                  disabled={doctorCreate.creating}
+                />
+                <button type="submit" disabled={doctorCreate.creating}>
+                  {doctorCreate.creating
+                    ? "Registering..."
+                    : "Register New Doctor"}
+                </button>
+                {doctorCreate.error && (
+                  <div
+                    className="error-message"
+                    style={{ color: "red", marginTop: 8 }}
+                  >
+                    {doctorCreate.error}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </form>
-      </section>
+          </form>
+        </div>
+      </div>
     </section>
   );
 };

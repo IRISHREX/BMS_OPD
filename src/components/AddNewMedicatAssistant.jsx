@@ -8,6 +8,7 @@ import {
   createAdminRequest,
   resetAdminCreate,
 } from "../store/adminCreateSlice";
+import { TiArrowLeft } from "react-icons/ti";
 
 const AddNewAdmin = () => {
   const snackbar = useSnackbar();
@@ -24,6 +25,7 @@ const AddNewAdmin = () => {
   const [availableDoctors, setAvailableDoctors] = useState([]);
   const [assignedDoctors, setAssignedDoctors] = useState([]);
   const role = admin?.role || admin?.userRole || "Admin";
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -86,18 +88,29 @@ const AddNewAdmin = () => {
   }
 
   return (
-    <section className="page">
-      <section className="container form-component add-admin-form">
+    <section className="page bg-light-blue">
+      <div className="dashboard-title-block add-form">
+        <button
+          className="back-nav-btn"
+          onClick={() => navigate("/compounders")}
+          // style={{ marginLeft: 8 }}
+        >
+          <TiArrowLeft title="Back to previous" />
+        </button>
+        <p>Register New Assistant</p>
+      </div>
+      <div className="container">
+      <div className="form-component add-admin-form">
         <img
           src="/logo.svg"
           alt="logo"
           className="logo"
-          style={{ 
-            width: "150px", 
-            height: '150px',
+          style={{
+            width: "150px",
+            height: "150px",
             borderRadius: "50%",
-            objectFit: 'cover',
-           }}
+            objectFit: "cover",
+          }}
         />
         <h1 className="form-title">ADD NEW MEDICAL ASSISTANT</h1>
         <form onSubmit={handleAddNewAdmin}>
@@ -247,7 +260,8 @@ const AddNewAdmin = () => {
             )}
           </div>
         </form>
-      </section>
+      </div>
+</div>
     </section>
   );
 };

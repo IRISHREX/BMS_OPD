@@ -219,6 +219,19 @@
   opacity: 0.7;
   cursor: not-allowed;
 }
+.profile-container .details-grid {
+  display: flex;
+  flex-direction: column;
+  row-gap: 18px;
+}
+.profile-section .detail-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+}
+.profile-section .detail-item label {
+    margin-bottom: 0;
+}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {

@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import api from '../utils/api';
 import { useSnackbar } from '../context/SnackbarContext';
 import { playSaveSound, playLoadSound } from '../utils/soundUtils';
+import { RiSendPlaneFill } from "react-icons/ri";
+import { MdCancel } from "react-icons/md";
+
 
 const ComposeModal = ({ onClose, doctors, user }) => {
   const snackbar = useSnackbar();
@@ -54,9 +57,10 @@ const ComposeModal = ({ onClose, doctors, user }) => {
         />
         <div className="modal-actions">
           <button onClick={handleSend} className="btn btn-primary">
-            Send Message
+            <RiSendPlaneFill /> Send
           </button>
           <button onClick={onClose} className="btn btn-secondary">
+            <MdCancel />
             Cancel
           </button>
         </div>
