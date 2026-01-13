@@ -784,9 +784,10 @@ body {
 }
 
 .doctors h1 {
-  color: #3939d9f2;
+  /* color: #3939d9f2; */
   /* margin-bottom: 30px; */
-  font-size: 2.3rem;
+  color: #2a3686;
+  font-size: 2.1rem;
 }
 @media (max-width: 485px) {
   .doctors h1 {
@@ -887,6 +888,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
   grid-gap: 20px;
+  padding: 2.5rem 2.5rem;
 }
 .doctors .banner .card {
   background: #fff;
@@ -1083,7 +1085,7 @@ input[type="time"]:before {
   --btn-gradient: linear-gradient(140deg, #9083d5, #271776ca);
   --text-main: #111;
   --text-accent: #fff;
-  --app-font: "Montserrat, system-ui, -apple-system, sans-serif";
+  --app-font: "Montserrat", sans-serif;
   --sidebar-bg: transparent;
 }
 .theme-dark {
