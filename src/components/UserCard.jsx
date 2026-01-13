@@ -57,7 +57,7 @@ const UserCard = ({
       <h3
         style={{
           fontWeight: 700,
-          fontSize: "1.25rem",
+          fontSize: "1.2rem",
           margin: "0.5rem 0",
           color: "#271776",
         }}

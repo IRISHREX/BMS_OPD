@@ -274,7 +274,7 @@ body {
   border: 0.0625rem solid gray;
 }
 .form-component button {
-  padding: 0.625rem 2.1875rem;
+  padding: 0rem 2.5rem;
   color: var(--text-accent);
   font-weight: 700;
   width: fit-content;
@@ -787,7 +787,7 @@ body {
   /* color: #3939d9f2; */
   /* margin-bottom: 30px; */
   color: #2a3686;
-  font-size: 2.1rem;
+  font-size: 2rem;
 }
 @media (max-width: 485px) {
   .doctors h1 {

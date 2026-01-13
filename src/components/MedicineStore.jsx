@@ -12,6 +12,7 @@ import {
 } from '../store/medicineSlice';
 import MedicineForm from './MedicineForm';
 import BulkMedicineForm from './BulkMedicineForm';
+import Toolbar from './Toolbar';
 import { FaSearch } from "./DoctorIcons";
 import { FaTrash } from 'react-icons/fa6';
 import { FaPen } from 'react-icons/fa';
@@ -88,32 +89,34 @@ const MedicineStore = () => {
         </div>
       </div>
 
-      <div className="search-bar-container">
-        <form onSubmit={handleSearch} className="search-form">
-          <div className="search-input-wrapper">
-            <FaSearch className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search by medicine name..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-          <button type="submit" className="btn btn-search">
-            <FiSearch title="Search" />
-            {/* Search */}
-          </button>
-          <button type="button" onClick={() => handleOpenModal()} className="btn btn-add">
-            <MdOutlineAddShoppingCart title="Add Medicines" />
-            {/* + Add Medicine */}
-          </button>
-          <button type="button" onClick={handleOpenBulkModal} className="btn btn-add">
-            <HiOutlineViewGridAdd title="Add Bulk Medicines" />
-            {/* + Add Bulk Medicines */}
-          </button>
-        </form>
-      </div>
+      <Toolbar>
+        <div className="search-bar-container">
+          <form onSubmit={handleSearch} className="search-form">
+            <div className="search-input-wrapper">
+              <FaSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search by medicine name..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+            </div>
+            <button type="submit" className="btn btn-search">
+              <FiSearch title="Search" />
+              {/* Search */}
+            </button>
+            <button type="button" onClick={() => handleOpenModal()} className="btn btn-add">
+              <MdOutlineAddShoppingCart title="Add Medicines" />
+              {/* + Add Medicine */}
+            </button>
+            <button type="button" onClick={handleOpenBulkModal} className="btn btn-add">
+              <HiOutlineViewGridAdd title="Add Bulk Medicines" />
+              {/* + Add Bulk Medicines */}
+            </button>
+          </form>
+        </div>
+      </Toolbar>
 
       <div className="medicines-container">
         {loading ? (

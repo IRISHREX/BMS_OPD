@@ -38,11 +38,6 @@
   height: 1rem;
 }
 
-.bar-chart-container .axis-label {
-  font-size: 0.75rem;
-  fill: #777;
-}
-
 .bar-chart-container .no-data {
   color: #777;
 }
