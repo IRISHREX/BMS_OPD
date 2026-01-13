@@ -24,7 +24,8 @@ import "./Dashboard.css";
 import { RiExpandHorizontalSFill } from "react-icons/ri";
 import { FaPrescriptionBottleMedical } from "react-icons/fa6";
 import { IoIosShareAlt } from "react-icons/io";
-import CreateReferralTab from "./tabs/CreateReferralTab"
+import CreateReferralTab from "./tabs/CreateReferralTab";
+import RadialMenu from "./RadialMenu";
 
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
@@ -795,7 +796,7 @@ const Dashboard = () => {
                             </RequirePermission>
                           </td>
                           <td>
-                            <div className="td-btn-container">
+                            <RadialMenu>
                               {/* TODO:functionalities need to be implemented */}
                               <button
                                 style={{
@@ -861,7 +862,7 @@ const Dashboard = () => {
                                   <FaTrash title="Delete"/>
                                 </button>
                               </RequirePermission>
-                            </div>
+                            </RadialMenu>
                           </td>
                         </tr>
                       ))

@@ -93,7 +93,8 @@ const Login = () => {
       <div className="login-form-container">
         <img src="/logo.svg" alt="logo" className="logo" />
         <h1 className="form-title">WELCOME TO BIOMECASOFT</h1>
-        <p>Dashboard access for Admins and Doctors. Choose role then login.</p>
+
+        {auth.loading ? <p>LOGING IN...</p> : <p>Dashboard access for Admins and Doctors. Choose role then login.</p>}
         
         {auth.loading ? <div className="login-loader" style={{ width: "3rem", height: "3rem" }}></div> : (
           <form className="login-form" onSubmit={handleLogin}>

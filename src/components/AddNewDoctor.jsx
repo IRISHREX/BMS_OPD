@@ -317,13 +317,15 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
               <option value="Male">Male</option>
               <option value="Female">Female</option>
             </select>
-            <input
+           {isEditing ? null : (<input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={doctorCreate.creating}
-            />
+             />
+           
+            )}
             <select
               value={doctorDepartment}
               onChange={(e) => {
