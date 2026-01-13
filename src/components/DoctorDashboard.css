@@ -132,7 +132,6 @@
 }
 
 .form-group label {
-  font-size: 0.8rem;
   font-weight: 500;
   color: var(--text-light, #6b7280);
   text-transform: uppercase;
@@ -178,7 +177,7 @@
 
 .form-group textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 3rem;
   font-family: inherit;
 }
 
@@ -510,7 +509,6 @@
   position: relative;
   flex: 1;
   text-align: center;
-  min-width: 80px;
 }
 
 .timeline-dot {

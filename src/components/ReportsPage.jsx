@@ -16,6 +16,8 @@ import "./ChartCards.css";
 import ToggleSwitch from "./ToggleSwitch";
 import Toolbar from "./Toolbar";
 import { toast } from 'react-toastify';
+import { BsDownload, BsFileExcel, BsHeartPulse } from "react-icons/bs";
+import { IoRefresh } from "react-icons/io5";
 
 const fmt = (n) => {
   const v = Number(n) || 0;
@@ -457,14 +459,14 @@ const ReportsPage = () => {
               </div>
               <div className="btn-box">
                 <button
-                  className="btn"
+                  className="icon-btn"
                   onClick={() => fetchSummary({ start, end, groupBy, doctorId })}
                   disabled={loading}
                 >
-                  {loading ? "Loading..." : "Apply"}
+                  {loading ? <BsHeartPulse style={{color:'red'}} /> : <IoRefresh style={{color:'blue'}}/>}
                 </button>
-                <button className="btn" onClick={downloadCSV}>
-                  Export CSV
+                <button className="icon-btn" onClick={downloadCSV} >
+                  <BsDownload style={{color:'green'}}/>
                 </button>
               </div>
             </div>

@@ -274,7 +274,7 @@ body {
   border: 0.0625rem solid gray;
 }
 .form-component button {
-  padding: 0.625rem 2.1875rem;
+  padding: 0.rem 2.5rem;
   color: var(--text-accent);
   font-weight: 700;
   width: fit-content;
