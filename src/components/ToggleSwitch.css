@@ -51,7 +51,7 @@ input:checked + .slider::before {
 
 /* Rounded slider */
 .slider.round {
-  border-radius: 2.125rem; /* 34px */
+  border-radius: 2.2rem; /* 34px */
 }
 
 .slider.round::before {

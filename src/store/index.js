@@ -11,8 +11,8 @@ const store = configureStore({
     thunk: false,
     serializableCheck: {
       // Allow FormData and File objects in actions (used for image uploads)
-      ignoredActions: ['doctorCreate/createDoctorRequest'],
-      ignoredPaths: ['doctorCreate'],
+      ignoredActions: ['doctorCreate/createDoctorRequest', 'doctorUpdate/updateDoctorRequest'],
+      ignoredPaths: ['doctorCreate', 'doctorUpdate'],
     }
   }).concat(sagaMiddleware),
   devTools: process.env.NODE_ENV !== 'production',

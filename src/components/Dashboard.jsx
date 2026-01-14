@@ -33,6 +33,7 @@ import { RiExpandHorizontalSFill } from "react-icons/ri";
 import { FaPrescriptionBottleMedical } from "react-icons/fa6";
 import { IoIosShareAlt } from "react-icons/io";
 import CreateReferralTab from "./tabs/CreateReferralTab";
+import RadialMenu from "./RadialMenu";
 
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
@@ -797,8 +798,9 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredAppointments && filteredAppointments.length > 0 ? (
-                  filteredAppointments.map((appointment) => (
+                {filteredAppointments && filteredAppointments.length > 0 ? 
+                  <div>
+                 { filteredAppointments.map((appointment) =>(
                     <tr key={appointment._id}>
                       <td style={{ textAlign: "left" }}>
                         <RequirePermission allowedRoles={["Admin"]}>
@@ -967,6 +969,126 @@ const Dashboard = () => {
                             <IoReceipt title="Invoice" />
                           </button>
                           {/* 06-01-26 */}
+                          <select>
+                              <option value="Pending" className="value-rejected">Pending</option>
+                              {/* <option value="Accepted">Accepted</option> */}
+                              <option value="Paid" className="value-completed">Paid</option>
+                            </select>
+                          </div>
+                          </td>
+                          
+                          {isExpanded && <td style={{minWidth: "8rem"}}>
+                            <select
+                              className={
+                                appointment.status === "Pending"
+                                  ? "value-pending"
+                                  : appointment.status === "Accepted"
+                                  ? "value-accepted"
+                                  : appointment.status === "Completed"
+                                  ? "value-completed"
+                                  : "value-rejected"
+                              }
+                              value={appointment.status}
+                              onChange={(e) =>
+                                handleUpdateStatus(
+                                  appointment._id,
+                                  e.target.value
+                                )
+                              }
+                              style={{fontSize: "1rem"}}
+                            >
+                              <option value="Pending" className="value-pending">
+                                Pending
+                              </option>
+                              <option
+                                value="Accepted"
+                                className="value-accepted"
+                              >
+                                Accepted
+                              </option>
+                              <option
+                                value="Rejected"
+                                className="value-rejected"
+                              >
+                                Rejected
+                              </option>
+                              <option
+                                value="Completed"
+                                className="value-completed" 
+                              >
+                                Completed
+                              </option>
+                            </select>
+                          </td>}
+                          <RequirePermission allowedRoles={["Admin"]}>
+                            {isExpanded && <td>{`${appointment.doctor.firstName} ${appointment.doctor.lastName}`}</td>}
+                            {isExpanded && <td>{appointment.department}</td>}
+                          </RequirePermission>
+                          {isExpanded && <td>
+                            {appointment.hasVisited === true ? (
+                              <GoCheckCircleFill className="green" />
+                            ) : (
+                              <AiFillCloseCircle className="red" />
+                            )}
+                          </td>}
+                          {isExpanded && <td>
+                            {appointment.book_by_name
+                              ? appointment.book_by_name
+                              : appointment.patientId || "-"}
+                          </td>}
+                          <td>
+                            <RequirePermission allowedRoles={["Admin", "Doctor"]}>
+
+                            <button
+                              className="btn btn-primary"
+                              onClick={() =>
+                                handlePrescriptionClick(appointment.patientId)
+                              }
+                            >
+                              Prescription
+                            </button>
+                            </RequirePermission>
+                          </td>
+                          <td>
+                            <RadialMenu>
+                              {/* TODO:functionalities need to be implemented */}
+                              <button
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#0859afff",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() => handleRescheduleClick(appointment)}
+                                title="Reschedule"
+                              >
+                                <RiCalendarScheduleFill />
+                              </button>
+                              <button
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#5bbe8eff",
+                                  cursor: "pointer",
+                                }}
+                                onClick={()=>navigate(`/preview/${appointment.patientId}`)}
+                              >
+                                <FaEye title="View prescription"/>
+                              </button>
+                              <button
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#760692ff",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() =>
+                                  handleInvoiceClick(appointment._id)
+                                }
+                              >
+                                <IoReceipt title="Invoice"/>
+                              </button>
+                              {/* 06-01-26 */}
                           <button
                             style={{
                               background: "none",
@@ -981,35 +1103,34 @@ const Dashboard = () => {
                             <IoIosShareAlt title="Referral" />
                           </button>
                           {/* 06-01-26 */}
-                          <RequirePermission allowedRoles={["Admin"]}>
-                            <button
-                              onClick={() =>
-                                handleDeleteAppointment(appointment._id)
-                              }
-                              style={{
-                                background: "none",
-                                border: "none",
-                                color: "#b10c0c",
-                                cursor: "pointer",
-                              }}
-                            >
-                              <FaTrash title="Delete" />
-                            </button>
-                          </RequirePermission>
-                        </div>
-                      </td>
+                              <RequirePermission allowedRoles={["Admin"]}>
+                                <button
+                                  onClick={() =>
+                                    handleDeleteAppointment(appointment._id)
+                                  }
+                                  style={{
+                                    background: "none",
+                                    border: "none",
+                                    color: "#b10c0c",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  <FaTrash title="Delete"/>
+                                </button>
+                              </RequirePermission>
+                            </RadialMenu>
+                          </td>
                     </tr>
                   ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="100%"
-                      style={{ textAlign: "center", padding: "2rem" }}
-                    >
-                      No Appointments Found!
-                    </td>
-                  </tr>
-                )}
+                  }
+                    </div>: (
+                      <tr>
+                        <td colSpan="100%" style={{ textAlign: "center", padding: "2rem" }}>
+                          No Appointments Found!
+                        </td>
+                      </tr>
+                    )
+                  }
               </tbody>
             </table>
           </div>
