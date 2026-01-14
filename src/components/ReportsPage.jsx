@@ -386,8 +386,7 @@ const ReportsPage = () => {
               <div>
                 <h3>Reports</h3>
                 <p>
-                  Payments and patients summary. Use filters to narrow down by
-                  date and doctor.
+                  Payments and patients summary
                 </p>
               </div>
               <div className="input-container">
@@ -439,15 +438,7 @@ const ReportsPage = () => {
             </div>
             <div className="check-btn-box">
               <div className="label-box">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={includeAppointments}
-                    onChange={(e) => setIncludeAppointments(e.target.checked)}
-                  />{" "}
-                  Include appointments without invoices
-                </label>
-                <label>
+                {/* <label>
                   <input
                     type="checkbox"
                     checked={usePersisted}
@@ -457,7 +448,7 @@ const ReportsPage = () => {
                     }}
                   />{" "}
                   Use persisted report entries
-                </label>
+                </label> */}
               </div>
               <div className="btn-box">
                 <button
