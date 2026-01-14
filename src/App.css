@@ -637,11 +637,16 @@ body {
   min-width: 5rem;
   border: 1px solid #e5e5e5;
   text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #133254;
 }
 .dashboard .banner table tbody td {
   padding: 12px;
   min-width: 5rem;
   border: 1px solid #e5e5e5;
+  font-size: 13px;
+  color: #484848;
 }
 .dashboard .banner table tbody td .td-btn-container {
   display: flex;
@@ -650,6 +655,10 @@ body {
   gap: 0.5rem;
 }
 /* RK */
+.dashboard .banner table tbody tr td:first-child input {
+  position: relative;
+  top: 2px;
+}
 .doctor-imgbox {
   width: 250px;
   height: 150px;
@@ -1089,6 +1098,16 @@ body {
 .form-field-wrap.right {
   gap: 26px;
 }
+.sidebar svg.icon-btn:hover {
+  background: #fff;
+  color: #4343db;
+}
+
+.sidebar svg.icon-btn {
+  background: transparent;
+  color: #fff;
+  border: 0;
+}
 @media (max-width: 945px) {
   .add-doctor-form form .first-wrapper {
     flex-direction: column;
@@ -1176,40 +1195,39 @@ input[type="time"]:before {
 /* .theme-custom: custom variables are applied dynamically at runtime */
 
 .arrow-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #fb7185, #1a1a1a);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: 0 8px 24px rgba(251, 113, 133, 0.35);
-    border: none;
-    position: relative;
-    overflow: visible;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fb7185, #1a1a1a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 24px rgba(251, 113, 133, 0.35);
+  border: none;
+  position: relative;
+  overflow: visible;
 }
 
 .arrow-btn::after {
-    content: "←";
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
-    z-index: 10;
-    position: relative;
+  content: "←";
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  z-index: 10;
+  position: relative;
 }
 
 .arrow-btn:hover {
-    transform: translateX(-3px) scale(1.08);
-    box-shadow: 0 12px 32px rgba(251, 113, 133, 0.5);
+  transform: translateX(-3px) scale(1.08);
+  box-shadow: 0 12px 32px rgba(251, 113, 133, 0.5);
 }
 
 .arrow-btn:focus-visible {
-    outline: 2px solid #fb7185;
-    outline-offset: 2px;
+  outline: 2px solid #fb7185;
+  outline-offset: 2px;
 }
-
 
 .btn {
   display: inline-flex;
@@ -1217,8 +1235,8 @@ input[type="time"]:before {
   justify-content: center;
   position: relative;
   border: 1px solid transparent;
-  border-radius: .25rem;
-  padding: .5rem 1rem;
+  border-radius: 0.25rem;
+  padding: 0.5rem 1rem;
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.5;
@@ -1229,7 +1247,8 @@ input[type="time"]:before {
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
-  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
 .btn-icon {

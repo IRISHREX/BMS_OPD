@@ -98,11 +98,19 @@
   align-items: center;
   cursor: pointer;
   position: absolute;
-  top: 0.8rem;
+  /* top: 0.8rem; */
   right: 0;
   color: coral;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
-
+.expand-btn.icon-btn:hover {
+    background: transparent;
+}
 .expand-btn.btn-icon {
   color: coral;
 }
@@ -205,6 +213,10 @@
 .ReactModalPortal .ReactModal__Overlay {
   background-color: rgb(0 0 0 / 75%) !important;
   backdrop-filter: blur(10px);
+}
+.dashboard .banner table thead th:first-child input{
+    position: relative;
+    top: 2px;
 }
 @media screen and (max-width: 767px) {
   .doctors-body form,

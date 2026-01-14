@@ -35,6 +35,8 @@ import { IoIosShareAlt } from "react-icons/io";
 import CreateReferralTab from "./tabs/CreateReferralTab";
 import RadialMenu from "./RadialMenu";
 import useClickSound from "../hooks/useClickSound";
+import { RiExpandVerticalLine } from "react-icons/ri";
+
 
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
@@ -812,7 +814,8 @@ const Dashboard = () => {
                       className="expand-btn icon-btn"
                       onClick={() => setIsExpanded(!isExpanded)}
                     >
-                      <RiExpandHorizontalSFill />
+                      {/* <RiExpandHorizontalSFill /> */}
+                      <RiExpandVerticalLine />
                     </button>
                   </th>
                   {/* <th>Created By</th> */}
@@ -879,7 +882,7 @@ const Dashboard = () => {
                                 ? "value-rejected"
                                 : "value-completed"
                             }
-                            style={{ fontSize: "1rem" }}
+                            style={{ fontSize: "0.875rem" }}
                           >
                             <option value="Pending" className="value-rejected">
                               Pending
@@ -911,7 +914,7 @@ const Dashboard = () => {
                                 e.target.value
                               )
                             }
-                            style={{ fontSize: "1rem" }}
+                            style={{ fontSize: "0.875rem" }}
                           >
                             <option value="Pending" className="value-pending">
                               Pending
