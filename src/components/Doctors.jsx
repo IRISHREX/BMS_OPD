@@ -16,6 +16,7 @@ import Toolbar from "./Toolbar";
 import AddNewDoctor from "./AddNewDoctor";
 import { MdAdd } from "react-icons/md";
 import useClickSound from "../hooks/useClickSound";
+import { FaSearchDollar } from "react-icons/fa";
 
 const Doctors = () => {
   const snackbar = useSnackbar();
@@ -67,20 +68,15 @@ const Doctors = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   style={{
-                    width: "250px",
+                    width: "2.5rem",
+                    height: "2.5rem",
                   }}
                 />
                 <button
                   ref={setupClickSound}
-                  type="submit"
-                  className="icon-btn"
-                  style={{
-                    background: "#271776ca",
-                    color: "#fff",
-                    border: "none",
-                  }}
-                >
-                  <FaSearch />
+                type="button" className="compounders-search-btn">
+
+                  <FaSearch/>Search
                 </button>
               </form>
               <button
