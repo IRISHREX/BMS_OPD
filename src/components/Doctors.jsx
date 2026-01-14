@@ -90,7 +90,8 @@ const Doctors = () => {
                 }}
                 onClick={handleRedirect}
               >
-                <MdAdd />
+                <MdAdd title="Add New Doctors"/>
+                {/* Add New Doctors */}
               </button>
             </div>
           </Toolbar>
