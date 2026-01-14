@@ -798,9 +798,9 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredAppointments && filteredAppointments.length > 0 ? 
-                  <div>
-                 { filteredAppointments.map((appointment) =>(
+                {filteredAppointments && filteredAppointments.length > 0 ? (
+                  // <div>
+                  filteredAppointments.map((appointment) =>(
                     <tr key={appointment._id}>
                       <td style={{ textAlign: "left" }}>
                         <RequirePermission allowedRoles={["Admin"]}>
@@ -929,9 +929,9 @@ const Dashboard = () => {
                           </button>
                         </RequirePermission>
                       </td>
-                      <td>
+                      {/* <td>
                         <div className="td-btn-container">
-                          {/* TODO:functionalities need to be implemented */}
+                          TODO:functionalities need to be implemented
                           <button
                             style={{
                               background: "none",
@@ -968,16 +968,29 @@ const Dashboard = () => {
                           >
                             <IoReceipt title="Invoice" />
                           </button>
-                          {/* 06-01-26 */}
+                          
+                          <button
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#686868",
+                              cursor: "pointer",
+                            }}
+                            onClick={() =>
+                              navigate(`/referral/${appointment._id}`)
+                            }
+                          >
+                            <IoIosShareAlt title="Referral" />
+                          </button>
                           <select>
                               <option value="Pending" className="value-rejected">Pending</option>
-                              {/* <option value="Accepted">Accepted</option> */}
+                              <option value="Accepted">Accepted</option>
                               <option value="Paid" className="value-completed">Paid</option>
                             </select>
                           </div>
-                          </td>
-                          
-                          {isExpanded && <td style={{minWidth: "8rem"}}>
+                          </td> */}
+                          {/* {
+                          isExpanded && <td style={{minWidth: "8rem"}}>
                             <select
                               className={
                                 appointment.status === "Pending"
@@ -1019,12 +1032,16 @@ const Dashboard = () => {
                                 Completed
                               </option>
                             </select>
-                          </td>}
-                          <RequirePermission allowedRoles={["Admin"]}>
+                          </td>} */}
+
+                          {/*  */}
+
+                          {/* <RequirePermission allowedRoles={["Admin"]}>
                             {isExpanded && <td>{`${appointment.doctor.firstName} ${appointment.doctor.lastName}`}</td>}
                             {isExpanded && <td>{appointment.department}</td>}
-                          </RequirePermission>
-                          {isExpanded && <td>
+                          </RequirePermission> */}
+
+                          {/* {isExpanded && <td>
                             {appointment.hasVisited === true ? (
                               <GoCheckCircleFill className="green" />
                             ) : (
@@ -1035,8 +1052,9 @@ const Dashboard = () => {
                             {appointment.book_by_name
                               ? appointment.book_by_name
                               : appointment.patientId || "-"}
-                          </td>}
-                          <td>
+                          </td>} */}
+
+                          {/* {isExpanded &&<td>
                             <RequirePermission allowedRoles={["Admin", "Doctor"]}>
 
                             <button
@@ -1048,7 +1066,7 @@ const Dashboard = () => {
                               Prescription
                             </button>
                             </RequirePermission>
-                          </td>
+                          </td>} */}
                           <td>
                             <RadialMenu>
                               {/* TODO:functionalities need to be implemented */}
@@ -1122,8 +1140,9 @@ const Dashboard = () => {
                           </td>
                     </tr>
                   ))
-                  }
-                    </div>: (
+                  // }
+                  //   </div>
+                    ): (
                       <tr>
                         <td colSpan="100%" style={{ textAlign: "center", padding: "2rem" }}>
                           No Appointments Found!

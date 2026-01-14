@@ -92,7 +92,6 @@ const Doctors = () => {
               >
                 <MdAdd title="Add New Doctors"/>
                 {/* Add New Doctors */}
-                <MdAdd />
               </button>
             </div>
           </Toolbar>
