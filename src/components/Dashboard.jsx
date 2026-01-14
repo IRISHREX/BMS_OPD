@@ -47,7 +47,10 @@ const Dashboard = () => {
   const [doctors, setDoctors] = useState([]); // For total count card
   const [doctorFilterList, setDoctorFilterList] = useState([]); // For dropdown
   const [filteredAppointments, setFilteredAppointments] = useState([]);
-  const [filterPrescibed, setfilterPrescibed] = useState("");
+  const [filterPrescibed, setFilterPrescibed] = useState({
+    status: "Completed",
+    prescribed: "filterPrescibed",
+  });
 
   const fmt = (n) => {
     const v = Number(n) || 0;
@@ -472,13 +475,24 @@ const Dashboard = () => {
     customEnd,
   ]);
 
-  // if(filterPrescibed === "All"){
-  //   return 'All'
-  // }else if(filterPrescibed === "Prescribed"){
-  //   return 'Prescribed'
-  // }else if(filterPrescibed === "Unprescribed"){
-  //   return 'Unprescribed'
-  // }
+
+  const prescibeFilterChange = (event) => {
+    // const { name, value } = event.target;
+    // setFilterPrescibed((prev) => ({ ...prev, [name]: value }));
+    setFilterPrescibed(event.target.value);
+    // if (filterPrescibed === "Prescribed") {
+    //   if (appointment.status == "Completed") {
+    //     // return "Prescribed";
+    //     return console.log("data prescribed");
+    //   }
+    // } else if (filterPrescibed === "Unprescribed") {
+    //   // return "Unprescribed";
+    //   return console.log("data not prescribed");
+    // } else if (filterPrescibed === "All") {
+    //   // return "All";
+    //   return console.log("All");
+    // }
+  };
 
   if (!isAuthenticated) {
     return <Navigate to={"/login"} />;
@@ -571,6 +585,7 @@ const Dashboard = () => {
         <div className="banner middle-banner">
           <div className="filter-box">
             <select
+              name="dateFilter"
               value={filterOption}
               onChange={(e) => setFilterOption(e.target.value)}
             >
@@ -599,8 +614,9 @@ const Dashboard = () => {
             </select>
 
             <select
-              value=""
-              onChange={(e) => setfilterPrescibed(e.target.value)}
+              name="prescribed"
+              value={filterPrescibed}
+              onChange={prescibeFilterChange}
               className="prescribed-filter"
             >
               <option value="Prescribed">Prescribed Data</option>
@@ -800,7 +816,7 @@ const Dashboard = () => {
               <tbody>
                 {filteredAppointments && filteredAppointments.length > 0 ? (
                   // <div>
-                  filteredAppointments.map((appointment) =>(
+                  filteredAppointments.map((appointment) => (
                     <tr key={appointment._id}>
                       <td style={{ textAlign: "left" }}>
                         <RequirePermission allowedRoles={["Admin"]}>
@@ -859,6 +875,7 @@ const Dashboard = () => {
                       {isExpanded && (
                         <td style={{ minWidth: "8rem" }}>
                           <select
+                            name="status"
                             className={
                               appointment.status === "Pending"
                                 ? "value-pending"
@@ -989,7 +1006,7 @@ const Dashboard = () => {
                             </select>
                           </div>
                           </td> */}
-                          {/* {
+                      {/* {
                           isExpanded && <td style={{minWidth: "8rem"}}>
                             <select
                               className={
@@ -1034,14 +1051,14 @@ const Dashboard = () => {
                             </select>
                           </td>} */}
 
-                          {/*  */}
+                      {/*  */}
 
-                          {/* <RequirePermission allowedRoles={["Admin"]}>
+                      {/* <RequirePermission allowedRoles={["Admin"]}>
                             {isExpanded && <td>{`${appointment.doctor.firstName} ${appointment.doctor.lastName}`}</td>}
                             {isExpanded && <td>{appointment.department}</td>}
                           </RequirePermission> */}
 
-                          {/* {isExpanded && <td>
+                      {/* {isExpanded && <td>
                             {appointment.hasVisited === true ? (
                               <GoCheckCircleFill className="green" />
                             ) : (
@@ -1054,7 +1071,7 @@ const Dashboard = () => {
                               : appointment.patientId || "-"}
                           </td>} */}
 
-                          {/* {isExpanded &&<td>
+                      {/* {isExpanded &&<td>
                             <RequirePermission allowedRoles={["Admin", "Doctor"]}>
 
                             <button
@@ -1067,46 +1084,46 @@ const Dashboard = () => {
                             </button>
                             </RequirePermission>
                           </td>} */}
-                          <td>
-                            <RadialMenu>
-                              {/* TODO:functionalities need to be implemented */}
-                              <button
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#0859afff",
-                                  cursor: "pointer",
-                                }}
-                                onClick={() => handleRescheduleClick(appointment)}
-                                title="Reschedule"
-                              >
-                                <RiCalendarScheduleFill />
-                              </button>
-                              <button
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#5bbe8eff",
-                                  cursor: "pointer",
-                                }}
-                                onClick={()=>navigate(`/preview/${appointment.patientId}`)}
-                              >
-                                <FaEye title="View prescription"/>
-                              </button>
-                              <button
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#760692ff",
-                                  cursor: "pointer",
-                                }}
-                                onClick={() =>
-                                  handleInvoiceClick(appointment._id)
-                                }
-                              >
-                                <IoReceipt title="Invoice"/>
-                              </button>
-                              {/* 06-01-26 */}
+                      <td>
+                        <RadialMenu>
+                          {/* TODO:functionalities need to be implemented */}
+                          <button
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#0859afff",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => handleRescheduleClick(appointment)}
+                            title="Reschedule"
+                          >
+                            <RiCalendarScheduleFill />
+                          </button>
+                          <button
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#5bbe8eff",
+                              cursor: "pointer",
+                            }}
+                            onClick={() =>
+                              navigate(`/preview/${appointment.patientId}`)
+                            }
+                          >
+                            <FaEye title="View prescription" />
+                          </button>
+                          <button
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#760692ff",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => handleInvoiceClick(appointment._id)}
+                          >
+                            <IoReceipt title="Invoice" />
+                          </button>
+                          {/* 06-01-26 */}
                           <button
                             style={{
                               background: "none",
@@ -1121,35 +1138,37 @@ const Dashboard = () => {
                             <IoIosShareAlt title="Referral" />
                           </button>
                           {/* 06-01-26 */}
-                              <RequirePermission allowedRoles={["Admin"]}>
-                                <button
-                                  onClick={() =>
-                                    handleDeleteAppointment(appointment._id)
-                                  }
-                                  style={{
-                                    background: "none",
-                                    border: "none",
-                                    color: "#b10c0c",
-                                    cursor: "pointer",
-                                  }}
-                                >
-                                  <FaTrash title="Delete"/>
-                                </button>
-                              </RequirePermission>
-                            </RadialMenu>
-                          </td>
+                          <RequirePermission allowedRoles={["Admin"]}>
+                            <button
+                              onClick={() =>
+                                handleDeleteAppointment(appointment._id)
+                              }
+                              style={{
+                                background: "none",
+                                border: "none",
+                                color: "#b10c0c",
+                                cursor: "pointer",
+                              }}
+                            >
+                              <FaTrash title="Delete" />
+                            </button>
+                          </RequirePermission>
+                        </RadialMenu>
+                      </td>
                     </tr>
                   ))
+                ) : (
                   // }
                   //   </div>
-                    ): (
-                      <tr>
-                        <td colSpan="100%" style={{ textAlign: "center", padding: "2rem" }}>
-                          No Appointments Found!
-                        </td>
-                      </tr>
-                    )
-                  }
+                  <tr>
+                    <td
+                      colSpan="100%"
+                      style={{ textAlign: "center", padding: "2rem" }}
+                    >
+                      No Appointments Found!
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
