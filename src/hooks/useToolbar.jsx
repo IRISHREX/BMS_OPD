@@ -13,11 +13,11 @@ export const useToolbar = () => {
     timeoutRef.current = setTimeout(() => {
       if (typeof window !== 'undefined') {
         if (window.scrollY > lastScrollY) {
-          // if scroll down show the toolbar
-          setShowToolbar(true);
-        } else {
-          // if scroll up hide the toolbar
+          // if scroll down hide the toolbar
           setShowToolbar(false);
+        } else {
+          // if scroll up show the toolbar
+          setShowToolbar(true);
         }
         // remember current page location to use in the next move
         setLastScrollY(window.scrollY);

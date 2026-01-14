@@ -248,7 +248,7 @@ const Messages = () => {
           <button
             ref={setupClickSound}
             onClick={() => setShowComposeModal(true)}
-            className="btn btn-primary icon-btn"
+            className="btn"
           >
             <FiEdit  title="Compose"/>
             Compose

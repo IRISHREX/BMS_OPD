@@ -153,6 +153,7 @@ const TrackReferralsTab = ({ referrals: initialReferrals, onSubmit, loading: ini
         
         {/* Search and Filter Section */}
         <Toolbar>
+
           <div style={{ width: '90%' }}>
             <div className="grid-container">
               <div className="form-group">
@@ -213,16 +214,15 @@ const TrackReferralsTab = ({ referrals: initialReferrals, onSubmit, loading: ini
                 </div>
               </div>
             )}
-
-            <p style={{ fontSize: '14px', color: '#666', marginTop: '10px' }}>
-              Found: {filteredReferrals.length} referral{filteredReferrals.length !== 1 ? 's' : ''} (Total: {allReferrals.length})
-            </p>
-            <button 
+<button 
               onClick={fetchAllReferrals}
               className="icon-btn"
             >
               <FaSync />
             </button>
+            <p style={{ fontSize: '14px', color: '#666', marginTop: '10px' }}>
+              Found: {filteredReferrals.length} referral{filteredReferrals.length !== 1 ? 's' : ''} (Total: {allReferrals.length})
+            </p>
           </div>
         </Toolbar>
 
