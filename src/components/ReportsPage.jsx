@@ -18,6 +18,7 @@ import Toolbar from "./Toolbar";
 import { toast } from 'react-toastify';
 import { BsDownload, BsFileExcel, BsHeartPulse } from "react-icons/bs";
 import { IoRefresh } from "react-icons/io5";
+import useClickSound from "../hooks/useClickSound";
 
 const fmt = (n) => {
   const v = Number(n) || 0;
@@ -54,6 +55,7 @@ const ReportsPage = () => {
   const [totalPatients, setTotalPatients] = useState(0);
 
   const [playSettledSound] = useSound("/settled.mp3");
+  const setupClickSound = useClickSound();
 
   useEffect(() => {
     // fetch current user
@@ -459,13 +461,14 @@ const ReportsPage = () => {
               </div>
               <div className="btn-box">
                 <button
+                  ref={setupClickSound}
                   className="icon-btn"
                   onClick={() => fetchSummary({ start, end, groupBy, doctorId })}
                   disabled={loading}
                 >
                   {loading ? <BsHeartPulse style={{color:'red'}} /> : <IoRefresh style={{color:'blue'}}/>}
                 </button>
-                <button className="icon-btn" onClick={downloadCSV} >
+                <button ref={setupClickSound} className="icon-btn" onClick={downloadCSV} >
                   <BsDownload style={{color:'green'}}/>
                 </button>
               </div>
@@ -480,7 +483,9 @@ const ReportsPage = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={onSearchKey}
             />
-              <FaSearch 
+              <FaSearch
+                ref={setupClickSound}
+                className="icon-btn"
                 style={{padding:"0.5rem", backgroundColor:"#096dd9",color:"white",height:"2rem",width:"2rem",borderRadius:"0.3rem"}}
                 onClick={() => fetchSummary({ q: searchTerm })}
               />
@@ -611,12 +616,16 @@ const ReportsPage = () => {
                   <td>{fmt(r.due)}</td>
                   <td>{r.status}</td>
                   <td style={{ display: "flex", gap: "1rem",alignItems:"center" }}>
-                    <FaEye 
+                    <FaEye
+                      ref={setupClickSound}
+                      className="icon-btn"
                       title="View Details"
                       style={{color:"#096dd9"}}
                       onClick={() => openInvoiceDrawer(r.appointmentId)} 
                     />
-                    <MdDelete 
+                    <MdDelete
+                      ref={setupClickSound}
+                      className="icon-btn"
                       title="Delete"
                       style={{color:"var(--danger-color)"}}
                       onClick={async () => {
@@ -626,7 +635,9 @@ const ReportsPage = () => {
                         }
                       }}
                     />
-                    <RiMoneyRupeeCircleFill 
+                    <RiMoneyRupeeCircleFill
+                      ref={setupClickSound}
+                      className="icon-btn"
                       title="Mark as paid"
                       style={{color:"var(--secondary-color)"}}
                       onClick={async () => {

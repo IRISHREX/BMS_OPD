@@ -7,6 +7,7 @@ import {
   MdReply,
 } from 'react-icons/md';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import useClickSound from '../hooks/useClickSound';
 
 const MessageCard = ({
   message,
@@ -19,6 +20,7 @@ const MessageCard = ({
   const [replyText, setReplyText] = useState('');
   const [showReply, setShowReply] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const setupClickSound = useClickSound();
 
   const handleReplySubmit = (e) => {
     e.preventDefault();
@@ -147,22 +149,25 @@ const MessageCard = ({
       </div>
       <div className="message-actions">
         <button
+          ref={setupClickSound}
           onClick={() => onUpdateStatus([message._id], !message.read)}
-          className="btn-icon"
+          className="btn-icon icon-btn"
           title={message.read ? 'Mark as Unread' : 'Mark as Read'}
         >
           {message.read ? <MdMarkEmailUnread size="1.2rem" /> : <MdMarkEmailRead size="1.2rem" />}
         </button>
         <button
+          ref={setupClickSound}
           onClick={() => onDelete([message._id])}
-          className="btn-icon btn-danger"
+          className="btn-icon btn-danger icon-btn"
           title="Delete"
         >
           <MdDelete size="1.2rem" />
         </button>
         <button
+          ref={setupClickSound}
           onClick={() => setShowReply(!showReply)}
-          className="btn-icon"
+          className="btn-icon icon-btn"
           title="Quick Reply"
         >
           <MdReply size="1.2rem" />

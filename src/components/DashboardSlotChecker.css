@@ -80,6 +80,11 @@
   opacity: 0.9;
 }
 
+.popup-close-btn.btn-icon {
+  color: #fff;
+}
+
+
 /* Doctor Selector */
 .popup-doctor-selector {
   padding: 1rem 1.2rem;

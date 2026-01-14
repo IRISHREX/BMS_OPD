@@ -34,6 +34,7 @@ import { FaPrescriptionBottleMedical } from "react-icons/fa6";
 import { IoIosShareAlt } from "react-icons/io";
 import CreateReferralTab from "./tabs/CreateReferralTab";
 import RadialMenu from "./RadialMenu";
+import useClickSound from "../hooks/useClickSound";
 
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
@@ -47,10 +48,12 @@ const Dashboard = () => {
   const [doctors, setDoctors] = useState([]); // For total count card
   const [doctorFilterList, setDoctorFilterList] = useState([]); // For dropdown
   const [filteredAppointments, setFilteredAppointments] = useState([]);
-  const [filterPrescibed, setFilterPrescibed] = useState({
-    status: "Completed",
-    prescribed: "filterPrescibed",
-  });
+  // const [filterPrescibed, setFilterPrescibed] = useState({
+  //   status: "Completed",
+  //   prescribed: "filterPrescibed",
+  // });
+  const [filterPrescibed, setfilterPrescibed] = useState("unPrescribed");
+  const setupClickSound = useClickSound();
 
   const fmt = (n) => {
     const v = Number(n) || 0;
@@ -434,6 +437,20 @@ const Dashboard = () => {
           if (apptDate < start || apptDate > end) return false;
         }
 
+        // Filter by prescribed status
+        if (filterPrescibed !== "All") {
+          const isPrescribed = !(
+            appointment.status === "Pending" ||
+            appointment.status === "Accepted"
+          );
+          if (filterPrescibed === "Prescribed" && !isPrescribed) {
+            return false;
+          }
+          if (filterPrescibed === "Unprescribed" && isPrescribed) {
+            return false;
+          }
+        }
+
         // Search term across name, phone and date
         if (searchTerm && searchTerm.trim() !== "") {
           const q = searchTerm.toLowerCase();
@@ -473,6 +490,7 @@ const Dashboard = () => {
     filterOption,
     customStart,
     customEnd,
+    filterPrescibed,
   ]);
 
 
@@ -614,9 +632,9 @@ const Dashboard = () => {
             </select>
 
             <select
-              name="prescribed"
               value={filterPrescibed}
-              onChange={prescibeFilterChange}
+              // onChange={prescibeFilterChange}
+              onChange={(e) => setfilterPrescibed(e.target.value)}
               className="prescribed-filter"
             >
               <option value="Prescribed">Prescribed Data</option>
@@ -790,7 +808,8 @@ const Dashboard = () => {
                   <th style={{ position: "relative" }}>
                     Date
                     <button
-                      className="expand-btn"
+                      ref={setupClickSound}
+                      className="expand-btn icon-btn"
                       onClick={() => setIsExpanded(!isExpanded)}
                     >
                       <RiExpandHorizontalSFill />
@@ -1084,47 +1103,55 @@ const Dashboard = () => {
                             </button>
                             </RequirePermission>
                           </td>} */}
-                      <td>
-                        <RadialMenu>
-                          {/* TODO:functionalities need to be implemented */}
+                          <td>
+                            <RadialMenu>
+                              {/* TODO:functionalities need to be implemented */}
+                              <button
+                                ref={setupClickSound}
+                                className="icon-btn"
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#0859afff",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() => handleRescheduleClick(appointment)}
+                                title="Reschedule"
+                              >
+                                <RiCalendarScheduleFill />
+                              </button>
+                              <button
+                                ref={setupClickSound}
+                                className="icon-btn"
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#5bbe8eff",
+                                  cursor: "pointer",
+                                }}
+                                onClick={()=>navigate(`/preview/${appointment.patientId}`)}
+                              >
+                                <FaEye title="View prescription"/>
+                              </button>
+                              <button
+                                ref={setupClickSound}
+                                className="icon-btn"
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#760692ff",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() =>
+                                  handleInvoiceClick(appointment._id)
+                                }
+                              >
+                                <IoReceipt title="Invoice"/>
+                              </button>
+                              {/* 06-01-26 */}
                           <button
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#0859afff",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => handleRescheduleClick(appointment)}
-                            title="Reschedule"
-                          >
-                            <RiCalendarScheduleFill />
-                          </button>
-                          <button
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#5bbe8eff",
-                              cursor: "pointer",
-                            }}
-                            onClick={() =>
-                              navigate(`/preview/${appointment.patientId}`)
-                            }
-                          >
-                            <FaEye title="View prescription" />
-                          </button>
-                          <button
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#760692ff",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => handleInvoiceClick(appointment._id)}
-                          >
-                            <IoReceipt title="Invoice" />
-                          </button>
-                          {/* 06-01-26 */}
-                          <button
+                            ref={setupClickSound}
+                            className="icon-btn"
                             style={{
                               background: "none",
                               border: "none",
@@ -1138,23 +1165,25 @@ const Dashboard = () => {
                             <IoIosShareAlt title="Referral" />
                           </button>
                           {/* 06-01-26 */}
-                          <RequirePermission allowedRoles={["Admin"]}>
-                            <button
-                              onClick={() =>
-                                handleDeleteAppointment(appointment._id)
-                              }
-                              style={{
-                                background: "none",
-                                border: "none",
-                                color: "#b10c0c",
-                                cursor: "pointer",
-                              }}
-                            >
-                              <FaTrash title="Delete" />
-                            </button>
-                          </RequirePermission>
-                        </RadialMenu>
-                      </td>
+                              <RequirePermission allowedRoles={["Admin"]}>
+                                <button
+                                  ref={setupClickSound}
+                                  className="icon-btn"
+                                  onClick={() =>
+                                    handleDeleteAppointment(appointment._id)
+                                  }
+                                  style={{
+                                    background: "none",
+                                    border: "none",
+                                    color: "#b10c0c",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  <FaTrash title="Delete"/>
+                                </button>
+                              </RequirePermission>
+                            </RadialMenu>
+                          </td>
                     </tr>
                   ))
                 ) : (

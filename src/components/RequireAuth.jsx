@@ -1,14 +1,24 @@
 import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { Context } from '../main';
 
 // Usage: <RequireAuth allowedRoles={["Admin","Doctor"]}><Component/></RequireAuth>
 const RequireAuth = ({ allowedRoles = ['Admin'], children }) => {
   const { isAuthenticated, admin } = useContext(Context);
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    // Redirect them to the /login page, but save the current location they were
+    // trying to go to when they were redirected. This allows us to send them
+    // along to that page after they login, which is a nicer user experience
+    // than dropping them off on the home page.
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
   const role = admin?.role || admin?.userRole || 'Admin';
-  if (!allowedRoles.includes(role)) return <Navigate to="/" replace />;
+  if (!allowedRoles.includes(role)) {
+    return <Navigate to="/" replace />;
+  }
 
   return children;
 };

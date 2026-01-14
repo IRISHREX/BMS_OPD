@@ -3,6 +3,7 @@ import { FaTrashAlt, FaEdit, FaEye } from "./DoctorIcons";
 import { MdEmail } from "react-icons/md";
 import { PiPhone } from "react-icons/pi";
 import { FaCalendarXmark } from "react-icons/fa6";
+import useClickSound from "../hooks/useClickSound";
 
 const UserCard = ({
   user,
@@ -12,6 +13,7 @@ const UserCard = ({
   onDelete,
   allowAdminActions = true,
 }) => {
+  const setupClickSound = useClickSound();
   // Use the image URL directly from the database (or fallback to default)
   const avatarUrl = user.docAvatar
     ? `http://localhost:5000${user.docAvatar}`
@@ -121,24 +123,27 @@ const UserCard = ({
         <RequirePermission allowedRoles={["Admin"]}>
           <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
             <button
+              ref={setupClickSound}
               title="View"
-              className="btn-icon"
+              className="btn-icon icon-btn"
               onClick={() => onView && onView(user)}
         
             >
               <FaEye />
             </button>
             <button
+              ref={setupClickSound}
               title="Edit"
               onClick={() => onEdit && onEdit(user)}
-              className="btn-icon"
+              className="btn-icon icon-btn"
             >
               <FaEdit />
             </button>
             <button
+              ref={setupClickSound}
               title="Delete"
               onClick={() => onDelete && onDelete(user)}
-              className="btn-icon"
+              className="btn-icon icon-btn"
             >
               <FaTrashAlt />
             </button>

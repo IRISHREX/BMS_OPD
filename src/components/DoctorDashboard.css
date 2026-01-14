@@ -49,6 +49,12 @@
   overflow: hidden;
 }
 
+.tab.btn {
+  background: none;
+  border: none;
+  border-bottom: 4px solid transparent;
+}
+
 .tab::before {
   content: "";
   position: absolute;
@@ -223,6 +229,10 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.doctors.banner .card .btn.btn-primary {
+  background: var(--btn-gradient);
 }
 
 .doctors.banner .card .btn:hover {
@@ -604,6 +614,10 @@
   transition: all 0.2s ease;
 }
 
+.button-group .btn.btn-primary {
+  background: var(--btn-gradient);
+}
+
 .button-group .btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -612,6 +626,7 @@
 .button-group .btn:active {
   transform: translateY(0);
 }
+
 
 /* ---06-01-25--- */
 /* .form-component form div{
