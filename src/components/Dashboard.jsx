@@ -34,6 +34,7 @@ import { FaPrescriptionBottleMedical } from "react-icons/fa6";
 import { IoIosShareAlt } from "react-icons/io";
 import CreateReferralTab from "./tabs/CreateReferralTab";
 import RadialMenu from "./RadialMenu";
+import useClickSound from "../hooks/useClickSound";
 
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
@@ -47,7 +48,8 @@ const Dashboard = () => {
   const [doctors, setDoctors] = useState([]); // For total count card
   const [doctorFilterList, setDoctorFilterList] = useState([]); // For dropdown
   const [filteredAppointments, setFilteredAppointments] = useState([]);
-  const [filterPrescibed, setfilterPrescibed] = useState("");
+  const [filterPrescibed, setfilterPrescibed] = useState("unPrescribed");
+  const setupClickSound = useClickSound();
 
   const fmt = (n) => {
     const v = Number(n) || 0;
@@ -431,6 +433,20 @@ const Dashboard = () => {
           if (apptDate < start || apptDate > end) return false;
         }
 
+        // Filter by prescribed status
+        if (filterPrescibed !== "All") {
+          const isPrescribed = !(
+            appointment.status === "Pending" ||
+            appointment.status === "Accepted"
+          );
+          if (filterPrescibed === "Prescribed" && !isPrescribed) {
+            return false;
+          }
+          if (filterPrescibed === "Unprescribed" && isPrescribed) {
+            return false;
+          }
+        }
+
         // Search term across name, phone and date
         if (searchTerm && searchTerm.trim() !== "") {
           const q = searchTerm.toLowerCase();
@@ -470,15 +486,8 @@ const Dashboard = () => {
     filterOption,
     customStart,
     customEnd,
+    filterPrescibed,
   ]);
-
-  // if(filterPrescibed === "All"){
-  //   return 'All'
-  // }else if(filterPrescibed === "Prescribed"){
-  //   return 'Prescribed'
-  // }else if(filterPrescibed === "Unprescribed"){
-  //   return 'Unprescribed'
-  // }
 
   if (!isAuthenticated) {
     return <Navigate to={"/login"} />;
@@ -599,7 +608,7 @@ const Dashboard = () => {
             </select>
 
             <select
-              value=""
+              value={filterPrescibed}
               onChange={(e) => setfilterPrescibed(e.target.value)}
               className="prescribed-filter"
             >
@@ -774,7 +783,8 @@ const Dashboard = () => {
                   <th style={{ position: "relative" }}>
                     Date
                     <button
-                      className="expand-btn"
+                      ref={setupClickSound}
+                      className="expand-btn icon-btn"
                       onClick={() => setIsExpanded(!isExpanded)}
                     >
                       <RiExpandHorizontalSFill />
@@ -1071,6 +1081,8 @@ const Dashboard = () => {
                             <RadialMenu>
                               {/* TODO:functionalities need to be implemented */}
                               <button
+                                ref={setupClickSound}
+                                className="icon-btn"
                                 style={{
                                   background: "none",
                                   border: "none",
@@ -1083,6 +1095,8 @@ const Dashboard = () => {
                                 <RiCalendarScheduleFill />
                               </button>
                               <button
+                                ref={setupClickSound}
+                                className="icon-btn"
                                 style={{
                                   background: "none",
                                   border: "none",
@@ -1094,6 +1108,8 @@ const Dashboard = () => {
                                 <FaEye title="View prescription"/>
                               </button>
                               <button
+                                ref={setupClickSound}
+                                className="icon-btn"
                                 style={{
                                   background: "none",
                                   border: "none",
@@ -1108,6 +1124,8 @@ const Dashboard = () => {
                               </button>
                               {/* 06-01-26 */}
                           <button
+                            ref={setupClickSound}
+                            className="icon-btn"
                             style={{
                               background: "none",
                               border: "none",
@@ -1123,6 +1141,8 @@ const Dashboard = () => {
                           {/* 06-01-26 */}
                               <RequirePermission allowedRoles={["Admin"]}>
                                 <button
+                                  ref={setupClickSound}
+                                  className="icon-btn"
                                   onClick={() =>
                                     handleDeleteAppointment(appointment._id)
                                   }

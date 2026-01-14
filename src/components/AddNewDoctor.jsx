@@ -10,12 +10,12 @@ import {
   resetDoctorCreate,
 } from "../store/doctorCreateSlice";
 import { updateDoctorRequest } from "../store/doctorUpdateSlice";
-import { TiArrowLeft } from "react-icons/ti";
-
+import useClickSound from "../hooks/useClickSound";
 
 const AddNewDoctor = ({ initialData, isEditing }) => {
   const snackbar = useSnackbar();
   const { isAuthenticated, setIsAuthenticated } = useContext(Context);
+  const setupClickSound = useClickSound();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -376,11 +376,11 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
     <section className="page bg-light-blue">
       <div className="dashboard-title-block add-form">
         <button
-          className="back-nav-btn"
+          ref={setupClickSound}
+          className="arrow-btn icon-btn"
           onClick={() => navigate("/doctors")}
           // style={{ marginLeft: 8 }}
         >
-          <TiArrowLeft title="Back to previous"/>
         </button>
         <p>{isEditing ? "Edit Doctor" : "Register New Doctor"}</p>
       </div>

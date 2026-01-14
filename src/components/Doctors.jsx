@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import Toolbar from "./Toolbar";
 import AddNewDoctor from "./AddNewDoctor";
 import { MdAdd } from "react-icons/md";
+import useClickSound from "../hooks/useClickSound";
 
 const Doctors = () => {
   const snackbar = useSnackbar();
@@ -28,6 +29,7 @@ const Doctors = () => {
   const doctorsLoading = useSelector((s) => s.doctors.loading);
 
   const navigate = useNavigate();
+  const setupClickSound = useClickSound();
 
   useEffect(() => {
     dispatch(fetchDoctorsRequest({ query: searchTerm }));
@@ -69,19 +71,22 @@ const Doctors = () => {
                   }}
                 />
                 <button
+                  ref={setupClickSound}
                   type="submit"
+                  className="icon-btn"
                   style={{
                     background: "#271776ca",
                     color: "#fff",
                     border: "none",
                   }}
                 >
-                  <FaSearch /> Search
+                  <FaSearch />
                 </button>
               </form>
               <button
+                ref={setupClickSound}
                 type="submit"
-                className="add-form-btn"
+                className="add-form-btn icon-btn"
                 style={{
                   background: "#271776ca",
                   color: "#fff",

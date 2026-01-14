@@ -24,6 +24,7 @@ import Pagination from "./Pagination";
 import ComposeModal from "./ComposeModal";
 import { HEIGHT_MAX } from "../utils/constants";
 import { FiEdit } from "react-icons/fi";
+import useClickSound from "../hooks/useClickSound";
 
 const useDebounce = (value, delay) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -47,6 +48,7 @@ const Messages = () => {
   // Normalize it here as `user` for existing component code.
   const { isAuthenticated, admin: user } = useContext(Context);
   const dispatch = useDispatch();
+  const setupClickSound = useClickSound();
 
   const {
     messages = [],
@@ -244,8 +246,9 @@ const Messages = () => {
         <div className="messages-header">
           <h1>Messages</h1>
           <button
+            ref={setupClickSound}
             onClick={() => setShowComposeModal(true)}
-            className="btn btn-primary"
+            className="btn btn-primary icon-btn"
           >
             <FiEdit  title="Compose"/>
             Compose

@@ -95,6 +95,12 @@
   background: #f0f0f0;
 }
 
+.calendar-container :global(.react-calendar__navigation button.btn) {
+  background: #2196f3;
+  color: white;
+}
+
+
 .calendar-container :global(.react-calendar__navigation__label) {
   background: linear-gradient(135deg, #f5f7fa 0%, #f8f9fa 100%);
   border-radius: 6px;

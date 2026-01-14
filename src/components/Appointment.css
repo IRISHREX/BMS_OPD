@@ -1,8 +1,4 @@
-.back-btn-box {
-    display: flex;
-    justify-content: flex-start;
-    margin: 1rem auto;
-}
+
 .appointment-form {
     margin: 1rem auto;
     padding: 2rem;
@@ -68,22 +64,6 @@ form {
     padding: 0.1875rem; /* 3px */
 }
 
-.appointment-form button {
-    padding: 0.625rem 2.1875rem; /* 10px 35px */
-    color: #fff;
-    font-weight: 700;
-    width: fit-content;
-    border: none;
-    border-radius: 0.5rem; /* 8px */
-    font-size: 1.5rem; /* 24px */
-    background: linear-gradient(140deg, #9083d5, #271776ca);
-}
-
-.search-container input {
-    height: 2rem;
-    width: 14.5rem; /* 232px */
-}
-
 .search-container button {
     height: 2rem;
     padding: 0.3125rem 0.625rem; /* 5px 10px */
@@ -91,6 +71,7 @@ form {
     font-weight: 700;
     border-radius: 0.3125rem; /* 5px */
 }
+
 
 form input, 
 form select, 

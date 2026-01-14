@@ -505,9 +505,7 @@ const Appointment = () => {
     <>
       <section className="page">
         <div className="back-btn-box">
-          <button className="back-btn add-btn" onClick={() => navigate("/")}>
-            ← Go Back
-          </button>
+          <button className="arrow-btn" onClick={() => navigate("/")}></button>
         </div>
         <div className="  appointment-form">
           <div className="appointment-header">

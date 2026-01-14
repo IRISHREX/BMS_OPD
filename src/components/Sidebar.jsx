@@ -14,11 +14,13 @@ import { useNavigate } from "react-router-dom";
 import RequirePermission from "./RequirePermission";
 import { IoIosPersonAdd } from "react-icons/io";
 import { FiLogOut } from "react-icons/fi";
+import useClickSound from "../hooks/useClickSound";
 
 
 const Sidebar = () => {
   const snackbar = useSnackbar();
   const [show, setShow] = useState(false);
+  const setupClickSound = useClickSound();
 
   const { isAuthenticated, setIsAuthenticated } = useContext(Context);
 
@@ -77,14 +79,14 @@ const Sidebar = () => {
         className={show ? "show sidebar" : "sidebar"}
       >
         <div className="links">
-          <TiHome onClick={navActions.home} title="Dashboard" />
+          <TiHome ref={setupClickSound} className="icon-btn" onClick={navActions.home} title="Dashboard" />
           
           <RequirePermission allowedRoles={["Admin", "Doctor"]}>
-            <FaChartBar onClick={navActions['doctor-dashboard']} title="Doctor Dashboard" />
+            <FaChartBar ref={setupClickSound} className="icon-btn" onClick={navActions['doctor-dashboard']} title="Doctor Dashboard" />
           </RequirePermission>
 
           <RequirePermission allowedRoles={["Admin"]}>
-            <FaUserMd onClick={navActions.doctors} title="Doctors" />
+            <FaUserMd ref={setupClickSound} className="icon-btn" onClick={navActions.doctors} title="Doctors" />
           </RequirePermission>
 
           {/* <RequirePermission allowedRoles={["Admin"]}>
@@ -92,27 +94,27 @@ const Sidebar = () => {
           </RequirePermission> */}
 
           <RequirePermission allowedRoles={["Admin", "Doctor"]}>
-            <FaUserNurse onClick={navActions.compounders} title="Assistants" />
+            <FaUserNurse ref={setupClickSound} className="icon-btn" onClick={navActions.compounders} title="Assistants" />
             {/* <IoIosPersonAdd onClick={navActions.addNewHelper} title="Create Assistants" /> */}
           </RequirePermission>
 
           <RequirePermission allowedRoles={["Admin", "Doctor", "Compounder"]}>
-            <FaBell onClick={navActions.messages} title="Messages" />
-            <FaRegFileAlt onClick={navActions.reports} title="Reports" />
+            <FaBell ref={setupClickSound} className="icon-btn" onClick={navActions.messages} title="Messages" />
+            <FaRegFileAlt ref={setupClickSound} className="icon-btn" onClick={navActions.reports} title="Reports" />
           </RequirePermission>
 
           <RequirePermission allowedRoles={["Admin", "Doctor"]}>
-            <IoMdSettings onClick={navActions.settings} title="Settings" />
+            <IoMdSettings ref={setupClickSound} className="icon-btn" onClick={navActions.settings} title="Settings" />
           </RequirePermission>
 
-          <FiLogOut onClick={handleLogout} title="Logout" />
+          <FiLogOut ref={setupClickSound} className="icon-btn" onClick={handleLogout} title="Logout" />
         </div>
       </nav>
       <div
         className="wrapper"
         style={!isAuthenticated ? { display: "none" } : { display: "flex" }}
       >
-        <GiHamburgerMenu className="hamburger" onClick={() => setShow(!show)} />
+        <GiHamburgerMenu ref={setupClickSound} className="hamburger icon-btn" onClick={() => setShow(!show)} />
       </div>
     </>
   );
