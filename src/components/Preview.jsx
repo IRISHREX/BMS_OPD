@@ -11,6 +11,9 @@ import "./presFormat.css";
 import { PiPrescriptionBold, PiPrinter } from "react-icons/pi";
 import api from "../utils/api";
 import { BsDownload } from "react-icons/bs";
+import MyDocument from "./MyDocument";
+import ReactDOM from 'react-dom';
+import { PDFViewer } from '@react-pdf/renderer';
 
 // Helper: format date
 const formatDate = (date) =>
@@ -37,7 +40,7 @@ const Preview = () => {
 
   // Construct full image URLs
   const headerImageUrl = doctor?.headerImage ? `${api.defaults.baseURL}${doctor.headerImage}` : "/Header.png";
-  const signImageUrl = doctor?.signImage ? `${api.defaults.baseURL}${doctor.signImage}` : "/Footer.png";
+  const footerImageUrl = doctor?.signImage ? `${api.defaults.baseURL}${doctor.signImage}` : "/Footer.png";
 
   // Role check
   const canEdit = isAuthenticated && ["Admin", "Doctor"].includes(admin?.role);
@@ -181,361 +184,362 @@ const Preview = () => {
         </button>
       </div>
       {report ? (
-        <div className="prescription">
-          <div className="presdownload" id="pdfDownload">
-            <div className="pres-page">
-            {printWithHeader ? (
-              <div>
-                <div className="preview-header">
-                  {headerImageUrl && (
-                    <img
-                      src={headerImageUrl}
-                      alt="Doctor Header"
-                      className="preview-header-image"
-                    />
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="header">
-                <div className="logo">
-                  <img src={"/Doctor_logo.svg"} alt="logo" />
-                </div>
-                <div className="Dr-detail">
-                  <h2>
-                    {doctor
-                      ? `Dr. ${doctor.firstName || ""} ${
-                          doctor.lastName || ""
-                        }`
-                      : clinic.name || "Doctor"}
-                  </h2>
-                  <p className="Doc-qualifications">{clinic.address}</p>
-                </div>
-              </div>
-            )}
+        <PDFViewer width="100%" height="600px">
+          <MyDocument header={headerImageUrl} footer={footerImageUrl} p_data={patient} dr_data={doctor} report={report} />
+        </PDFViewer>
+        // <div className="prescription">
+        //   <div className="presdownload" id="pdfDownload">
+        //     <div className="pres-page">
+        //     {printWithHeader ? (
+        //         <div className="preview-header">
+        //           {headerImageUrl && (
+        //             <img
+        //               src={headerImageUrl}
+        //               alt="Doctor Header"
+        //               className="preview-header-image"
+        //             />
+        //           )}
+        //         </div>
+        //     ) : (
+        //       <div className="header">
+        //         <div className="logo">
+        //           <img src={"/Doctor_logo.svg"} alt="logo" />
+        //         </div>
+        //         <div className="Dr-detail">
+        //           <h2>
+        //             {doctor
+        //               ? `Dr. ${doctor.firstName || ""} ${
+        //                   doctor.lastName || ""
+        //                 }`
+        //               : clinic.name || "Doctor"}
+        //           </h2>
+        //           <p className="Doc-qualifications">{clinic.address}</p>
+        //         </div>
+        //       </div>
+        //     )}
 
-              <div className="main">
-                <div className="upper-box">
-                  <div>
-                    <p>
-                      <b>{`${patient.name}, ` || `${patient?.firstName} ${patient?.lastName}, `}</b>
-                      {patient.gender+', '}
-                      {patient.dob
-                        ? dobToAge(patient.dob)
-                        : patient.age
-                        ? `${patient.age} years`
-                        : ""},
-                        +91{patient.phone}
-                    </p>
-                    <p>
-                      <b>ID: </b>
-                      {patient.nic}
-                    </p>
-                    {/* <p>
-                      <b>Address: </b>
-                      {patient.address}
-                    </p> */}
-                    {/* <p>
-                      <b>Phone No: </b>
-                      {patient.phone}
-                    </p> */}
-                    {/* <p>
-                      <b>Gender: </b>
-                      {patient.gender}
-                    </p> */}
-                  </div>
-                  <div className="mid">
-                    {/* <p>
-                      <b>Age: </b>
-                      {patient.dob
-                        ? dobToAge(patient.dob)
-                        : patient.age
-                        ? `${patient.age} years`
-                        : ""}
-                    </p> */}
-                  </div>
-                  <div className="right">
-                    <p>
-                      <b>Date: </b>
-                      {formatDate(report?.createdAt || patient.updatedAt)}
-                    </p>
-                    {report.diagnosys?.BMI && (
-                      <p>
-                        <b>BMI: </b>
-                        {report.diagnosys.BMI} kg/m²
-                      </p>
-                    )}
-                    {report.diagnosys?.Weight && (
-                      <p>
-                        <b>Weight: </b>
-                        {report.diagnosys.Weight} Kg
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="pData">
-                  {patient.gender === "Female" && (
-                    <div className="gravida-section">
-                      {report?.Gravida && (
-                        <p>
-                          <b>G</b> {report.Gravida}
-                          {report?.Parity && (
-                            <span style={{ marginLeft: "0.5rem" }}>
-                              <b>P</b> {report.Parity}
-                            </span>
-                          )}
-                        </p>
-                      )}
-                      {report?.LMP && (
-                        <p>
-                          <b>LMP:</b> {formatDate(report.LMP)}
-                        </p>
-                      )}
-                      {report?.EDD && (
-                        <p>
-                          <b>EDD:</b> {formatDate(report.EDD)}
-                        </p>
-                      )}
-                      {report?.POG && (
-                        <p>
-                          <b>POG:</b> {report.POG}
-                        </p>
-                      )}
-                      {report?.LCB && (
-                        <p>
-                          <b>LCB:</b> {report.LCB}
-                        </p>
-                      )}
-                      {report?.MOD && (
-                        <p>
-                          <b>MOD:</b> {report.MOD}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  <div className="vitals">
-                    {report?.diagnosys?.BP && (
-                      <p>
-                        <b>BP: </b>
-                        {report.diagnosys.BP} mm of Hg
-                      </p>
-                    )}
-                    {report?.diagnosys?.PR && (
-                      <p>
-                        <b>PR: </b>
-                        {report.diagnosys.PR} bpm
-                      </p>
-                    )}
-                    {report?.diagnosys?.SPO2 && (
-                      <p>
-                        <b>SPO2: </b>
-                        {report.diagnosys.SPO2} % in RA
-                      </p>
-                    )}
-                    {report?.diagnosys?.Temp && (
-                      <p>
-                        <b>Temp: </b>
-                        {report.diagnosys.Temp} °F
-                      </p>
-                    )}
-                    {report?.diagnosys?.Others && (
-                      <p>
-                        <b>Others: </b>
-                        {report.diagnosys.Others}
-                      </p>
-                    )}
-                  </div>
-                  {report?.presentingComplaints && (
-                    <p>
-                      <b>Presenting Complaints: </b>
-                      {report?.presentingComplaints
-                        ? report.presentingComplaints.slice(
-                            report.presentingComplaints.length - 1,
-                            report.presentingComplaints.length
-                          ) === ","
-                        ? report.presentingComplaints.slice(
-                              0,
-                            report.presentingComplaints.length - 1
-                            )
-                        : report.presentingComplaints
-                        : ""}
-                    </p>
-                  )}
-                  {report.medicalHistory && (
-                    <p>
-                      <b>Medical History: </b>
-                      {report?.medicalHistory
-                        ? report.medicalHistory.slice(
-                            report.medicalHistory.length - 1,
-                            report.medicalHistory.length
-                          ) === ","
-                        ? report.medicalHistory.slice(
-                              0,
-                            report.medicalHistory.length - 1
-                            )
-                        : report.medicalHistory
-                        : ""}
-                    </p>
-                  )}
-                  {report?.clinical_findings && (
-                    <p>
-                      <b>On Examination: </b>
-                      Patient is {report?.clinical_findings?.patientCondition.c1 &&
-                      report?.clinical_findings?.patientCondition.c1+','}
-                      {report?.clinical_findings?.patientCondition.c2 && report?.clinical_findings?.patientCondition.c2+', '}
-                      {report?.clinical_findings?.patientCondition.c3 && report?.clinical_findings?.patientCondition.c3+', '}
-                      {report?.clinical_findings?.patientCondition.c4 && report?.clinical_findings?.patientCondition.c4+'.'}
-                      <p>
-                        {report?.clinical_findings?.polar && <span>{`Polar-${report?.clinical_findings?.polar}, `}</span>}
-                        {report?.clinical_findings?.icterus && <span>{`Icterus-${report?.clinical_findings?.icterus}, `}</span>}
-                        {report?.clinical_findings?.edema && <span>{`Edema-${report?.clinical_findings?.edema}, `}</span>}
-                        {report?.clinical_findings?.cyanosis && <span>{`Cyanosis-${report?.clinical_findings?.cyanosis}, `}</span>}
-                        {report?.clinical_findings?.clubbing && <span>{`Clubbing-${report?.clinical_findings?.clubbing}, `}</span>}
-                        {report?.clinical_findings?.lymph_nodes && <span>{`Lymph Nodes-${report?.clinical_findings?.lymph_nodes}`}</span>}
-                      </p>
-                      <p>
-                        {report?.clinical_findings?.chest && <span>{`Chest-${report?.clinical_findings?.chest}, `}</span>}
-                        {report?.clinical_findings?.cvs && <span>{`CVS-${report?.clinical_findings?.cvs}, `}</span>}
-                        {report?.clinical_findings?.per_abdomen.pt && <span>{`Per Abdomen-${report?.clinical_findings?.per_abdomen.pt},`}</span>}
-                        {report?.clinical_findings?.per_abdomen.pv && <span>{`${report?.clinical_findings?.per_abdomen.pv}`}</span>}
-                      </p>
-                      <p>
-                        {report?.clinical_findings?.others && <span>{`Others-${report?.clinical_findings?.others}`}</span>}
-                      </p>
-                    </p>
-                  )}
-                  {report?.advice?.testAdvice?.length > 0 && (
-                    <div className="advice-section">
-                      <p className="investigation">
-                        <b>Investigations: </b>
-                        {report.advice.testAdvice.map((t, i) => (
-                          <span key={i}>
-                            {t.testName}
-                            {report.advice.testAdvice.length - 1 !== i && ", "}
-                          </span>
-                        ))}
-                      </p>
-                    </div>
-                  )}
-                  <p>
-                    <b>{report.diagnosys_heading ? report.diagnosys_heading : "Provisional Diagnosis"}: </b>
-                    {report?.initialComplain?.
-                      slice(report.initialComplain.length - 1, report.initialComplain.length) === "," 
-                      ? report.initialComplain.slice(0, report.initialComplain.length - 1) : report?.initialComplain || ""}
-                  </p>
-                </div>
+        //       <div className="main">
+        //         <div className="upper-box">
+        //           <div>
+        //             <p>
+        //               <b>{`${patient.name}, ` || `${patient?.firstName} ${patient?.lastName}, `}</b>
+        //               {patient.gender+', '}
+        //               {patient.dob
+        //                 ? dobToAge(patient.dob)
+        //                 : patient.age
+        //                 ? `${patient.age} years`
+        //                 : ""},
+        //                 +91{patient.phone}
+        //             </p>
+        //             <p>
+        //               <b>ID: </b>
+        //               {patient.nic}
+        //             </p>
+        //             {/* <p>
+        //               <b>Address: </b>
+        //               {patient.address}
+        //             </p> */}
+        //             {/* <p>
+        //               <b>Phone No: </b>
+        //               {patient.phone}
+        //             </p> */}
+        //             {/* <p>
+        //               <b>Gender: </b>
+        //               {patient.gender}
+        //             </p> */}
+        //           </div>
+        //           <div className="mid">
+        //             {/* <p>
+        //               <b>Age: </b>
+        //               {patient.dob
+        //                 ? dobToAge(patient.dob)
+        //                 : patient.age
+        //                 ? `${patient.age} years`
+        //                 : ""}
+        //             </p> */}
+        //           </div>
+        //           <div className="right">
+        //             <p>
+        //               <b>Date: </b>
+        //               {formatDate(report?.createdAt || patient.updatedAt)}
+        //             </p>
+        //             {report.diagnosys?.BMI && (
+        //               <p>
+        //                 <b>BMI: </b>
+        //                 {report.diagnosys.BMI} kg/m²
+        //               </p>
+        //             )}
+        //             {report.diagnosys?.Weight && (
+        //               <p>
+        //                 <b>Weight: </b>
+        //                 {report.diagnosys.Weight} Kg
+        //               </p>
+        //             )}
+        //           </div>
+        //         </div>
+        //         <div className="pData">
+        //           {patient.gender === "Female" && (
+        //             <div className="gravida-section">
+        //               {report?.Gravida && (
+        //                 <p>
+        //                   <b>G</b> {report.Gravida}
+        //                   {report?.Parity && (
+        //                     <span style={{ marginLeft: "0.5rem" }}>
+        //                       <b>P</b> {report.Parity}
+        //                     </span>
+        //                   )}
+        //                 </p>
+        //               )}
+        //               {report?.LMP && (
+        //                 <p>
+        //                   <b>LMP:</b> {formatDate(report.LMP)}
+        //                 </p>
+        //               )}
+        //               {report?.EDD && (
+        //                 <p>
+        //                   <b>EDD:</b> {formatDate(report.EDD)}
+        //                 </p>
+        //               )}
+        //               {report?.POG && (
+        //                 <p>
+        //                   <b>POG:</b> {report.POG}
+        //                 </p>
+        //               )}
+        //               {report?.LCB && (
+        //                 <p>
+        //                   <b>LCB:</b> {report.LCB}
+        //                 </p>
+        //               )}
+        //               {report?.MOD && (
+        //                 <p>
+        //                   <b>MOD:</b> {report.MOD}
+        //                 </p>
+        //               )}
+        //             </div>
+        //           )}
+        //           <div className="vitals">
+        //             {report?.diagnosys?.BP && (
+        //               <p>
+        //                 <b>BP: </b>
+        //                 {report.diagnosys.BP} mm of Hg
+        //               </p>
+        //             )}
+        //             {report?.diagnosys?.PR && (
+        //               <p>
+        //                 <b>PR: </b>
+        //                 {report.diagnosys.PR} bpm
+        //               </p>
+        //             )}
+        //             {report?.diagnosys?.SPO2 && (
+        //               <p>
+        //                 <b>SPO2: </b>
+        //                 {report.diagnosys.SPO2} % in RA
+        //               </p>
+        //             )}
+        //             {report?.diagnosys?.Temp && (
+        //               <p>
+        //                 <b>Temp: </b>
+        //                 {report.diagnosys.Temp} °F
+        //               </p>
+        //             )}
+        //             {report?.diagnosys?.Others && (
+        //               <p>
+        //                 <b>Others: </b>
+        //                 {report.diagnosys.Others}
+        //               </p>
+        //             )}
+        //           </div>
+        //           {report?.presentingComplaints && (
+        //             <p>
+        //               <b>Presenting Complaints: </b>
+        //               {report?.presentingComplaints
+        //                 ? report.presentingComplaints.slice(
+        //                     report.presentingComplaints.length - 1,
+        //                     report.presentingComplaints.length
+        //                   ) === ","
+        //                 ? report.presentingComplaints.slice(
+        //                       0,
+        //                     report.presentingComplaints.length - 1
+        //                     )
+        //                 : report.presentingComplaints
+        //                 : ""}
+        //             </p>
+        //           )}
+        //           {report.medicalHistory && (
+        //             <p>
+        //               <b>Medical History: </b>
+        //               {report?.medicalHistory
+        //                 ? report.medicalHistory.slice(
+        //                     report.medicalHistory.length - 1,
+        //                     report.medicalHistory.length
+        //                   ) === ","
+        //                 ? report.medicalHistory.slice(
+        //                       0,
+        //                     report.medicalHistory.length - 1
+        //                     )
+        //                 : report.medicalHistory
+        //                 : ""}
+        //             </p>
+        //           )}
+        //           {report?.clinical_findings && (
+        //             <p>
+        //               <b>On Examination: </b>
+        //               Patient is {report?.clinical_findings?.patientCondition.c1 &&
+        //               report?.clinical_findings?.patientCondition.c1+','}
+        //               {report?.clinical_findings?.patientCondition.c2 && report?.clinical_findings?.patientCondition.c2+', '}
+        //               {report?.clinical_findings?.patientCondition.c3 && report?.clinical_findings?.patientCondition.c3+', '}
+        //               {report?.clinical_findings?.patientCondition.c4 && report?.clinical_findings?.patientCondition.c4+'.'}
+        //               <p>
+        //                 {report?.clinical_findings?.polar && <span>{`Polar-${report?.clinical_findings?.polar}, `}</span>}
+        //                 {report?.clinical_findings?.icterus && <span>{`Icterus-${report?.clinical_findings?.icterus}, `}</span>}
+        //                 {report?.clinical_findings?.edema && <span>{`Edema-${report?.clinical_findings?.edema}, `}</span>}
+        //                 {report?.clinical_findings?.cyanosis && <span>{`Cyanosis-${report?.clinical_findings?.cyanosis}, `}</span>}
+        //                 {report?.clinical_findings?.clubbing && <span>{`Clubbing-${report?.clinical_findings?.clubbing}, `}</span>}
+        //                 {report?.clinical_findings?.lymph_nodes && <span>{`Lymph Nodes-${report?.clinical_findings?.lymph_nodes}`}</span>}
+        //               </p>
+        //               <p>
+        //                 {report?.clinical_findings?.chest && <span>{`Chest-${report?.clinical_findings?.chest}, `}</span>}
+        //                 {report?.clinical_findings?.cvs && <span>{`CVS-${report?.clinical_findings?.cvs}, `}</span>}
+        //                 {report?.clinical_findings?.per_abdomen.pt && <span>{`Per Abdomen-${report?.clinical_findings?.per_abdomen.pt},`}</span>}
+        //                 {report?.clinical_findings?.per_abdomen.pv && <span>{`${report?.clinical_findings?.per_abdomen.pv}`}</span>}
+        //               </p>
+        //               <p>
+        //                 {report?.clinical_findings?.others && <span>{`Others-${report?.clinical_findings?.others}`}</span>}
+        //               </p>
+        //             </p>
+        //           )}
+        //           {report?.advice?.testAdvice?.length > 0 && (
+        //             <div className="advice-section">
+        //               <p className="investigation">
+        //                 <b>Investigations: </b>
+        //                 {report.advice.testAdvice.map((t, i) => (
+        //                   <span key={i}>
+        //                     {t.testName}
+        //                     {report.advice.testAdvice.length - 1 !== i && ", "}
+        //                   </span>
+        //                 ))}
+        //               </p>
+        //             </div>
+        //           )}
+        //           <p>
+        //             <b>{report.diagnosys_heading ? report.diagnosys_heading : "Provisional Diagnosis"}: </b>
+        //             {report?.initialComplain?.
+        //               slice(report.initialComplain.length - 1, report.initialComplain.length) === "," 
+        //               ? report.initialComplain.slice(0, report.initialComplain.length - 1) : report?.initialComplain || ""}
+        //           </p>
+        //         </div>
 
-                <div className="diagno-advice">
-                  {/* <h3>Prescription (RX)</h3> */}
-                  <PiPrescriptionBold
-                    style={{ fontSize: "2rem", color: "black" }}
-                  />
-                  <div className="medic-details">
-                    <div className="medicine-rows head-row">
-                      <b>Sl</b>
-                      <b>Type</b>
-                      <b>Medicine</b>
-                      <b>Dose</b>
-                      <b>Route</b>
-                      <b>Frequency</b>
-                      <b>Duration</b>
-                    </div>
-                    <div className="medic-data">
-                      {medicines.length > 0 ? (
-                        medicines.map((med, idx) => (
-                          <div className="medicine-rows" key={med._id || idx}>
-                            <p>{idx + 1}</p>
-                            <p>
-                              {med.type && <span>{med.type} </span>}
-                            </p>
-                            <p>
-                              {med.name || ""}
-                            </p>
-                            <p>{med.dose || ""}</p>
-                            <p>{med.route || ""}</p>
-                            <p>{med.frequency || ""}</p>
-                            <p>{med.duration || ""}</p>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="no-meds">No medicines prescribed.</div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+        //         <div className="diagno-advice">
+        //           {/* <h3>Prescription (RX)</h3> */}
+        //           <PiPrescriptionBold
+        //             style={{ fontSize: "2rem", color: "black" }}
+        //           />
+        //           <div className="medic-details">
+        //             <div className="medicine-rows head-row">
+        //               <b>Sl</b>
+        //               <b>Type</b>
+        //               <b>Medicine</b>
+        //               <b>Dose</b>
+        //               <b>Route</b>
+        //               <b>Frequency</b>
+        //               <b>Duration</b>
+        //             </div>
+        //             <div className="medic-data">
+        //               {medicines.length > 0 ? (
+        //                 medicines.map((med, idx) => (
+        //                   <div className="medicine-rows" key={med._id || idx}>
+        //                     <p>{idx + 1}</p>
+        //                     <p>
+        //                       {med.type && <span>{med.type} </span>}
+        //                     </p>
+        //                     <p>
+        //                       {med.name || ""}
+        //                     </p>
+        //                     <p>{med.dose || ""}</p>
+        //                     <p>{med.route || ""}</p>
+        //                     <p>{med.frequency || ""}</p>
+        //                     <p>{med.duration || ""}</p>
+        //                   </div>
+        //                 ))
+        //               ) : (
+        //                 <div className="no-meds">No medicines prescribed.</div>
+        //               )}
+        //             </div>
+        //           </div>
+        //         </div>
 
-                <div className="seal">
-                  {report?.additionalAdvice && (
-                    <div className="advice-section">
-                      <p>
-                        <b>Advice:</b>
-                        {report.additionalAdvice}
-                      </p>
-                    </div>
-                  )}
-                  <div className="follow-date">
-                    <p>
-                      <b>Next Follow-up Date: </b>
-                      {formatDate(report?.followUp)}
-                    </p>
-                  </div>
-                  <div className="drSeal">
-                    <h3>
-                      {doctor
-                        ? `Dr. ${doctor.firstName || ""} ${
-                            doctor.lastName || ""
-                          }`
-                        : ""}
-                    </h3>
+        //         <div className="seal">
+        //           {report?.additionalAdvice && (
+        //             <div className="advice-section">
+        //               <p>
+        //                 <b>Advice:</b>
+        //                 {report.additionalAdvice}
+        //               </p>
+        //             </div>
+        //           )}
+        //           <div className="follow-date">
+        //             <p>
+        //               <b>Next Follow-up Date: </b>
+        //               {formatDate(report?.followUp)}
+        //             </p>
+        //           </div>
+        //           <div className="drSeal">
+        //             <h3>
+        //               {doctor
+        //                 ? `Dr. ${doctor.firstName || ""} ${
+        //                     doctor.lastName || ""
+        //                   }`
+        //                 : ""}
+        //             </h3>
 
-                    {/* {doctor?.qualification && <p>{doctor.qualification}</p>}
-                  {doctor?.doctorDepartment && <p>{doctor.doctorDepartment}</p>}
-                  {doctor?.designation && <p>{doctor.designation}</p>} */}
-                  </div>
-                </div>
-              </div>
+        //             {/* {doctor?.qualification && <p>{doctor.qualification}</p>}
+        //           {doctor?.doctorDepartment && <p>{doctor.doctorDepartment}</p>}
+        //           {doctor?.designation && <p>{doctor.designation}</p>} */}
+        //           </div>
+        //         </div>
+        //       </div>
 
-              {/* Conditional footer for preview */}
-              {printWithFooter && (
-              <div className="preview-footer">
-                {signImageUrl && (
-                  <img 
-                    src={signImageUrl} 
-                    alt="Doctor Signature" 
-                    className="preview-footer-image"
-                  />
-                )}
-              </div>
-              )}
-            </div>
-          </div>
-          <div className="print-options">
-            <label>
-              <input
-                type="checkbox"
-                checked={printWithHeader}
-                onChange={(e) => setPrintWithHeader(e.target.checked)}
-              />
-              Print with Header
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={printWithFooter}
-                onChange={(e) => setPrintWithFooter(e.target.checked)}
-              />
-              Print with Footer
-            </label>
-          </div>
-          <div className="preview-actions">
-            <div className="pdf-down-btn" onClick={downLoadPDF}>
-              <BsDownload/>
-            </div>
-            <div className="pdf-down-btn" onClick={() => window.print()}>
-              <PiPrinter/>
-            </div>
-          </div>
-        </div>
+        //       {/* Conditional footer for preview */}
+        //       {printWithFooter && (
+        //       <div className="preview-footer">
+        //         {signImageUrl && (
+        //           <img 
+        //             src={signImageUrl} 
+        //             alt="Doctor Signature" 
+        //             className="preview-footer-image"
+        //           />
+        //         )}
+        //       </div>
+        //       )}
+        //     </div>
+        //   </div>
+        //   <div className="print-options">
+        //     <label>
+        //       <input
+        //         type="checkbox"
+        //         checked={printWithHeader}
+        //         onChange={(e) => setPrintWithHeader(e.target.checked)}
+        //       />
+        //       Print with Header
+        //     </label>
+        //     <label>
+        //       <input
+        //         type="checkbox"
+        //         checked={printWithFooter}
+        //         onChange={(e) => setPrintWithFooter(e.target.checked)}
+        //       />
+        //       Print with Footer
+        //     </label>
+        //   </div>
+        //   <div className="preview-actions">
+        //     <div className="pdf-down-btn" onClick={downLoadPDF}>
+        //       <BsDownload/>
+        //     </div>
+        //     <div className="pdf-down-btn" onClick={() => window.print()}>
+        //       <PiPrinter/>
+        //     </div>
+        //   </div>
+        // </div>
       ) : (
         <div className="prescription">
           <p>No report available</p>

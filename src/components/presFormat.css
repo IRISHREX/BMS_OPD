@@ -1,7 +1,7 @@
 .pres-page{
     width: 100%;
     min-height: 74.9375rem; /* 1199px */
-    /* padding: 1rem 2rem 0 2rem; */
+    padding: 0 2rem;
     display: grid;
     grid-template-rows: auto 1fr auto;
 }
@@ -129,7 +129,7 @@ p,b{ color: black;}
     gap: 0.5rem;
     padding: 0.25rem;
 }
-.head-row {background: #c0c7cf;}
+.head-row {background: #c0c7cf; border-top: 1px solid black; border-bottom: 1px solid black;}
 .medicine-row span{margin-left: 0.5rem;}
 .advice{display: grid; grid-template-columns: auto 1fr; gap: 1rem;}
 .mData{display: flex; gap: 0.5rem;}
