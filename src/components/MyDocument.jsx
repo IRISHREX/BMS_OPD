@@ -195,11 +195,11 @@ const MyDocument = ({ header, footer, p_data, dr_data, report }) => {
               </View>}
               {report.LMP && <View style={styles.heading_values}>
                 <Text style={styles.heading}>LMP:</Text>
-                <Text>{report.LMP}</Text>
+                <Text>{formatDate(report.LMP)}</Text>
               </View>}
               {report.EDD && <View style={styles.heading_values}>
                 <Text style={styles.heading}>EDD:</Text>
-                <Text>{report.EDD}</Text>
+                <Text>{formatDate(report.EDD)}</Text>
               </View>}
               {report.POG && <View style={styles.heading_values}>
                 <Text style={styles.heading}>POG:</Text>

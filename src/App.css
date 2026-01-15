@@ -576,9 +576,7 @@ body {
   text-transform: capitalize;
   font-weight: 400;
 }
-.filter-box .prescribed-filter {
-  background: #6ba7e8;
-}
+
 @media (max-width: 830px) {
   .dashboard .banner:last-child h5 {
     letter-spacing: normal;
