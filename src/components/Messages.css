@@ -18,6 +18,7 @@
   align-items: center;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .messages-header h1 {
@@ -224,6 +225,11 @@
   overflow: hidden;
 }
 
+.message-body.expanded {
+  max-height: none;
+  overflow: visible;
+}
+
 .message-recipient {
   font-size: 0.875rem;
   font-weight: 600;
@@ -256,7 +262,7 @@
 }
 
 .message-actions .btn-icon:hover {
-  background-color: rgba(0,0,0,0.04);
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .pagination-controls {
@@ -381,7 +387,6 @@
   gap: 1rem;
 }
 
-  
 /* Responsive adjustments */
 @media (max-width: 900px) {
   .filter-controls {
@@ -441,6 +446,20 @@
     align-items: flex-start;
     gap: 0.25rem;
   }
+  /* RK */
+  .messages-header button {
+    font-size: 0;
+    width: fit-content;
+    min-width: fit-content;
+    display: block;
+    text-align: center;
+  }
+  .messages-header button svg {
+    font-size: 17px;
+  }
+  .message-body{
+    max-height: 100%;
+  }
 }
 
 @media (max-width: 420px) {
@@ -455,4 +474,3 @@
     width: 100%;
   }
 }
-

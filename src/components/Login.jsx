@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from "../context/SnackbarContext";
 import { Context } from "../main";
@@ -28,6 +28,8 @@ const Login = () => {
   const auth = useSelector(state => state.auth);
 
   const navigateTo = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -70,15 +72,15 @@ const Login = () => {
   useEffect(() => {
     if (auth.isAuthenticated) {
       setIsAuthenticated(true);
-      navigateTo('/');
+      navigateTo(from, { replace: true });
     }
     if (auth.error) {
       snackbar.error(auth.error);
     }
-  }, [auth.isAuthenticated, auth.error]);
+  }, [auth.isAuthenticated, auth.error, from, navigateTo, setIsAuthenticated, snackbar]);
 
   if (isAuthenticated || auth.isAuthenticated) {
-    return <Navigate to={"/"} />;
+    return <Navigate to={from} replace />;
   }
 
   return (
@@ -93,7 +95,8 @@ const Login = () => {
       <div className="login-form-container">
         <img src="/logo.svg" alt="logo" className="logo" />
         <h1 className="form-title">WELCOME TO BIOMECASOFT</h1>
-        <p>Dashboard access for Admins and Doctors. Choose role then login.</p>
+
+        {auth.loading ? <p>LOGING IN...</p> : <p>Dashboard access for Admins and Doctors. Choose role then login.</p>}
         
         {auth.loading ? <div className="login-loader" style={{ width: "3rem", height: "3rem" }}></div> : (
           <form className="login-form" onSubmit={handleLogin}>

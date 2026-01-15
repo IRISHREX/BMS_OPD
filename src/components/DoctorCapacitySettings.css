@@ -48,7 +48,7 @@
 
 .form-group {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 0.5rem;
 }
 
@@ -101,6 +101,10 @@
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
+}
+
+.capacity-form-submit.btn-primary {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
 }
 
 .capacity-form-submit:hover:not(:disabled) {

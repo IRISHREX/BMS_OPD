@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import './MessageCard.css';
 import {
   MdDelete,
   MdMarkEmailRead,
   MdMarkEmailUnread,
   MdReply,
 } from 'react-icons/md';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import useClickSound from '../hooks/useClickSound';
 
 const MessageCard = ({
   message,
@@ -16,6 +19,8 @@ const MessageCard = ({
 }) => {
   const [replyText, setReplyText] = useState('');
   const [showReply, setShowReply] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const setupClickSound = useClickSound();
 
   const handleReplySubmit = (e) => {
     e.preventDefault();
@@ -42,47 +47,73 @@ const MessageCard = ({
           <span>{message.firstName} {message.lastName}</span>
           <span className="message-contact">{message.email} • {message.phone}</span>
         </div>
-        <p className="message-body">
+        <p className={`message-body ${isExpanded ? 'expanded' : ''}`}>
           {(() => {
             const text = message.message || '';
-            const elements = [];
-            const regex = /((?:https?:\/\/|www\.)[^\s]+)/gi;
-            let lastIndex = 0;
-            let match;
+            const isLongMessage = text.length > 100;
 
-            const pushText = (s) => {
-              if (!s) return;
-              const parts = s.split('\n');
-              parts.forEach((part, idx) => {
-                elements.push(part);
-                if (idx < parts.length - 1) {
-                  elements.push(<br key={`br-${elements.length}`} />);
+            const renderContent = (content) => {
+              const elements = [];
+              const regex = /((?:https?:\/\/|www\.)[^\s]+)/gi;
+              let lastIndex = 0;
+              let match;
+
+              const pushText = (s) => {
+                if (!s) return;
+                const parts = s.split('\n');
+                parts.forEach((part, idx) => {
+                  elements.push(part);
+                  if (idx < parts.length - 1) {
+                    elements.push(<br key={`br-${elements.length}`} />);
+                  }
+                });
+              };
+
+              while ((match = regex.exec(content)) !== null) {
+                const idx = match.index;
+                if (idx > lastIndex) {
+                  pushText(content.substring(lastIndex, idx));
                 }
-              });
+                let url = match[0];
+                const href = /^https?:\/\//i.test(url) ? url : `http://${url}`;
+                elements.push(
+                  <a key={`link-${elements.length}`} href={href} target="_blank" rel="noopener noreferrer">
+                    {match[0]}
+                  </a>
+                );
+                lastIndex = idx + match[0].length;
+              }
+
+              if (lastIndex < content.length) {
+                pushText(content.substring(lastIndex));
+              }
+
+              // Fallback: if nothing parsed, show the raw text
+              if (elements.length === 0) return content;
+              return elements.map((el, i) => (typeof el === 'string' ? <span key={`t-${i}`}>{el}</span> : el));
             };
 
-            while ((match = regex.exec(text)) !== null) {
-              const idx = match.index;
-              if (idx > lastIndex) {
-                pushText(text.substring(lastIndex, idx));
-              }
-              let url = match[0];
-              const href = /^https?:\/\//i.test(url) ? url : `http://${url}`;
-              elements.push(
-                <a key={`link-${elements.length}`} href={href} target="_blank" rel="noopener noreferrer">
-                  {match[0]}
-                </a>
+            if (isLongMessage && !isExpanded) {
+              return (
+                <>
+                  {renderContent(text.substring(0, 100))}...
+                  <button onClick={() => setIsExpanded(true)} className="btn-link">
+                    <FiChevronDown />
+                  </button>
+                </>
               );
-              lastIndex = idx + match[0].length;
             }
 
-            if (lastIndex < text.length) {
-              pushText(text.substring(lastIndex));
-            }
-
-            // Fallback: if nothing parsed, show the raw text
-            if (elements.length === 0) return text;
-            return elements.map((el, i) => (typeof el === 'string' ? <span key={`t-${i}`}>{el}</span> : el));
+            return (
+              <>
+                {renderContent(text)}
+                {isLongMessage && (
+                  <button onClick={() => setIsExpanded(false)} className="btn-link">
+                    <FiChevronUp />
+                  </button>
+                )}
+              </>
+            );
           })()}
         </p>
         {message.recipient && (
@@ -118,22 +149,25 @@ const MessageCard = ({
       </div>
       <div className="message-actions">
         <button
+          ref={setupClickSound}
           onClick={() => onUpdateStatus([message._id], !message.read)}
-          className="btn-icon"
+          className="btn-icon icon-btn"
           title={message.read ? 'Mark as Unread' : 'Mark as Read'}
         >
           {message.read ? <MdMarkEmailUnread size="1.2rem" /> : <MdMarkEmailRead size="1.2rem" />}
         </button>
         <button
+          ref={setupClickSound}
           onClick={() => onDelete([message._id])}
-          className="btn-icon btn-danger"
+          className="btn-icon btn-danger icon-btn"
           title="Delete"
         >
           <MdDelete size="1.2rem" />
         </button>
         <button
+          ref={setupClickSound}
           onClick={() => setShowReply(!showReply)}
-          className="btn-icon"
+          className="btn-icon icon-btn"
           title="Quick Reply"
         >
           <MdReply size="1.2rem" />
@@ -144,3 +178,4 @@ const MessageCard = ({
 };
 
 export default MessageCard;
+

@@ -12,6 +12,11 @@ import { fetchDoctorsRequest } from "../store/doctorsSlice";
 import { playSaveSound, playDeleteSound } from "../utils/soundUtils";
 import CapacitySchedulerForm from "./CapacitySchedulerForm";
 import { useNavigate } from "react-router-dom";
+import Toolbar from "./Toolbar";
+import AddNewDoctor from "./AddNewDoctor";
+import { MdAdd } from "react-icons/md";
+import useClickSound from "../hooks/useClickSound";
+import { FaSearchDollar } from "react-icons/fa";
 
 const Doctors = () => {
   const snackbar = useSnackbar();
@@ -19,20 +24,13 @@ const Doctors = () => {
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
-  const [updateFields, setUpdateFields] = useState({});
-  const [newDocAvatar, setNewDocAvatar] = useState(null);
-  const [newDocAvatarPreview, setNewDocAvatarPreview] = useState("");
-  const [newSignImage, setNewSignImage] = useState(null);
-  const [newSignImagePreview, setNewSignImagePreview] = useState("");
-  const [newHeaderImage, setNewHeaderImage] = useState(null);
-  const [newHeaderImagePreview, setNewHeaderImagePreview] = useState("");
   const { isAuthenticated } = useContext(Context);
   const dispatch = useDispatch();
   const storeDoctors = useSelector((s) => s.doctors.doctors || []);
   const doctorsLoading = useSelector((s) => s.doctors.loading);
-  const [show, setShow] = useState(false);
 
   const navigate = useNavigate();
+  const setupClickSound = useClickSound();
 
   useEffect(() => {
     dispatch(fetchDoctorsRequest({ query: searchTerm }));
@@ -42,64 +40,8 @@ const Doctors = () => {
     e.preventDefault();
   };
 
-  const handleUpdateSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    for (const key in updateFields) {
-      formData.append(key, updateFields[key]);
-    }
-    if (newDocAvatar) {
-      formData.append("docAvatar", newDocAvatar);
-    }
-    if (newSignImage) {
-      formData.append("signImage", newSignImage);
-    }
-    if (newHeaderImage) {
-      formData.append("headerImage", newHeaderImage);
-    }
-
-    try {
-      await api.put(`/api/v1/user/user/${selectedDoctor._id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      playSaveSound();
-      snackbar.success("Doctor updated");
-      setShowUpdateModal(false);
-      dispatch(fetchDoctorsRequest({ query: searchTerm }));
-    } catch (err) {
-      snackbar.error("Update failed");
-    }
-  };
-
-  const handleFileChange = (e, setFile, setPreview) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // RK
-  // const navigateTo = useNavigate();
-
-  // const createNavAction = (path) => () => {
-  //   navigateTo(path);
-  //   setShow(!show);
-  // };
-
-  // const navActions = {
-  //   addNewDoctor: createNavAction("/doctor/addnew"),
-  //   addNewHelper: createNavAction("/helper/addnew"),
-  // };
-
   const handleRedirect = () => {
-    navigate("/doctor/addnew"); // 3. Use navigate to redirect to the '/dashboard' path
+    navigate("/doctor/addnew");
   };
 
   if (!isAuthenticated) {
@@ -108,65 +50,52 @@ const Doctors = () => {
 
   return (
     <>
-      <section className="page doctors">
+      <section className="page doctors bg-light-blue">
         <div className="doctors-body">
-          <div className="dashboard-title-block">
-            <h1>DOCTORS</h1>
-            <button
-              type="submit"
-              className=""
-              style={{
-                background: "#271776ca",
-                color: "#fff",
-                border: "none",
-                borderRadius: "6px",
-                padding: "0.5rem 1rem",
-                cursor: "pointer",
-              }}
-              // onClick={navActions['doctor-dashboard']}
-              onClick={handleRedirect}
-            >
-              Add New Doctors
-            </button>
-          </div>
+          <Toolbar>
+            <div className="dashboard-title-block">
+              <h1>Doctors</h1>
+              <form
+                onSubmit={handleSearch}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder="Search by name, phone, department, NIC..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    width: "2.5rem",
+                    height: "2.5rem",
+                  }}
+                />
+                <button
+                  ref={setupClickSound}
+                type="button" className="compounders-search-btn">
 
-          <form
-            onSubmit={handleSearch}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: "1rem",
-              gap: "0.5rem",
-            }}
-          >
-            <input
-              type="text"
-              placeholder="Search by name, phone, department, NIC..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                padding: "0.5rem",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                width: "250px",
-              }}
-            />
-            <button
-              type="submit"
-              style={{
-                background: "#271776ca",
-                color: "#fff",
-                border: "none",
-                borderRadius: "6px",
-                padding: "0.5rem 1rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}
-            >
-              <FaSearch /> Search
-            </button>
-          </form>
+                  <FaSearch/>Search
+                </button>
+              </form>
+              <button
+                ref={setupClickSound}
+                type="submit"
+                className="add-form-btn icon-btn"
+                style={{
+                  background: "#271776ca",
+                  color: "#fff",
+                  border: "none",
+                  cursor: "pointer",
+                }}
+                onClick={handleRedirect}
+              >
+                <MdAdd title="Add New Doctors"/>
+                {/* Add New Doctors */}
+              </button>
+            </div>
+          </Toolbar>
           <div className="banner">
             {doctorsLoading ? (
               <span className="loader"></span>
@@ -190,24 +119,6 @@ const Doctors = () => {
                   }}
                   onEdit={(u) => {
                     setSelectedDoctor(u);
-                    setUpdateFields({
-                      firstName: u.firstName,
-                      lastName: u.lastName,
-                      email: u.email,
-                      phone: u.phone,
-                      nic: u.nic,
-                      dob: u.dob ? u.dob.substring(0, 10) : "",
-                      gender: u.gender,
-                      doctorDepartment: u.doctorDepartment,
-                      consultationFee: u.consultationFee || 100,
-                      qualifications: u.qualifications || "",
-                    });
-                    setNewDocAvatar(null);
-                    setNewDocAvatarPreview("");
-                    setNewSignImage(null);
-                    setNewSignImagePreview("");
-                    setNewHeaderImage(null);
-                    setNewHeaderImagePreview("");
                     setShowUpdateModal(true);
                   }}
                   onDelete={(u) => {
@@ -240,197 +151,14 @@ const Doctors = () => {
         style={{
           overlay: { zIndex: 1000 },
           content: {
-            maxWidth: "500px",
+            maxWidth: "900px",
             margin: "auto",
             borderRadius: "12px",
             padding: "2rem",
           },
         }}
       >
-        <h2>Update Doctor</h2>
-        {selectedDoctor && (
-          <form onSubmit={handleUpdateSubmit}>
-            <label>
-              First Name:{" "}
-              <input
-                type="text"
-                value={updateFields.firstName}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({ ...f, firstName: e.target.value }))
-                }
-              />
-            </label>
-            <br />
-            <label>
-              Last Name:{" "}
-              <input
-                type="text"
-                value={updateFields.lastName}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({ ...f, lastName: e.target.value }))
-                }
-              />
-            </label>
-            <br />
-            <label>
-              Email:{" "}
-              <input
-                type="email"
-                value={updateFields.email}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({ ...f, email: e.target.value }))
-                }
-              />
-            </label>
-            <br />
-            <label>
-              Phone:{" "}
-              <input
-                type="text"
-                value={updateFields.phone}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({ ...f, phone: e.target.value }))
-                }
-              />
-            </label>
-            <br />
-            <label>
-              NIC:{" "}
-              <input
-                type="text"
-                value={updateFields.nic}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({ ...f, nic: e.target.value }))
-                }
-              />
-            </label>
-            <br />
-            <label>
-              DOB:{" "}
-              <input
-                type="date"
-                value={updateFields.dob}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({ ...f, dob: e.target.value }))
-                }
-              />
-            </label>
-            <br />
-            <label>
-              Gender:{" "}
-              <select
-                value={updateFields.gender}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({ ...f, gender: e.target.value }))
-                }
-              >
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </label>
-            <br />
-            <label>
-              Department:{" "}
-              <input
-                type="text"
-                value={updateFields.doctorDepartment}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({
-                    ...f,
-                    doctorDepartment: e.target.value,
-                  }))
-                }
-              />
-            </label>
-            <br />
-            <label>
-              Qualifications:{" "}
-              <input
-                type="text"
-                value={updateFields.qualifications}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({
-                    ...f,
-                    qualifications: e.target.value,
-                  }))
-                }
-              />
-            </label>
-            <br />
-            <label>
-              Consultation Fee:{" "}
-              <input
-                type="number"
-                value={updateFields.consultationFee}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({
-                    ...f,
-                    consultationFee: Number(e.target.value),
-                  }))
-                }
-              />
-            </label>
-            <br />
-
-            <div>
-              <label>Doctor Avatar:</label>
-              <input
-                type="file"
-                onChange={(e) =>
-                  handleFileChange(e, setNewDocAvatar, setNewDocAvatarPreview)
-                }
-              />
-              {newDocAvatarPreview && (
-                <img
-                  src={newDocAvatarPreview}
-                  alt="Avatar Preview"
-                  style={{ width: "100px", height: "100px" }}
-                />
-              )}
-            </div>
-            <div>
-              <label>Signature Image:</label>
-              <input
-                type="file"
-                onChange={(e) =>
-                  handleFileChange(e, setNewSignImage, setNewSignImagePreview)
-                }
-              />
-              {newSignImagePreview && (
-                <img
-                  src={newSignImagePreview}
-                  alt="Signature Preview"
-                  style={{ width: "100px", height: "100px" }}
-                />
-              )}
-            </div>
-            <div>
-              <label>Header Image:</label>
-              <input
-                type="file"
-                onChange={(e) =>
-                  handleFileChange(
-                    e,
-                    setNewHeaderImage,
-                    setNewHeaderImagePreview
-                  )
-                }
-              />
-              {newHeaderImagePreview && (
-                <img
-                  src={newHeaderImagePreview}
-                  alt="Header Preview"
-                  style={{ width: "100px", height: "100px" }}
-                />
-              )}
-            </div>
-
-            <button type="submit">Update</button>
-            <button type="button" onClick={() => setShowUpdateModal(false)}>
-              Cancel
-            </button>
-          </form>
-        )}
+        <AddNewDoctor isEditing={true} initialData={selectedDoctor} />
       </Modal>
 
       {/* View Modal with Capacity Scheduler */}

@@ -9,6 +9,16 @@ import { MdDelete } from "react-icons/md";
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
 import { FaSearch } from "react-icons/fa";
 import useSound from "use-sound";
+import SimpleBarChart from "./SimpleBarChart";
+import PieChartCard from "./PieChartCard";
+import LineChartCard from "./LineChartCard";
+import "./ChartCards.css";
+import ToggleSwitch from "./ToggleSwitch";
+import Toolbar from "./Toolbar";
+import { toast } from 'react-toastify';
+import { BsDownload, BsFileExcel, BsHeartPulse } from "react-icons/bs";
+import { IoRefresh } from "react-icons/io5";
+import useClickSound from "../hooks/useClickSound";
 
 const fmt = (n) => {
   const v = Number(n) || 0;
@@ -17,24 +27,6 @@ const fmt = (n) => {
     maximumFractionDigits: 2,
   });
 };
-
-const startOfDayISO = (d) => {
-  const dd = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
-  return dd.toISOString();
-};
-const endOfDayISO = (d) => {
-  const dd = new Date(
-    d.getFullYear(),
-    d.getMonth(),
-    d.getDate(),
-    23,
-    59,
-    59,
-    999
-  );
-  return dd.toISOString();
-};
-
 const ReportsPage = () => {
   const [loading, setLoading] = useState(false);
   const [start, setStart] = useState("");
@@ -60,8 +52,10 @@ const ReportsPage = () => {
   const [reportTotal, setReportTotal] = useState(0);
   const [patientsThisMonth, setPatientsThisMonth] = useState(0);
   const [totalAppointments, setTotalAppointments] = useState(0);
+  const [totalPatients, setTotalPatients] = useState(0);
 
   const [playSettledSound] = useSound("/settled.mp3");
+  const setupClickSound = useClickSound();
 
   useEffect(() => {
     // fetch current user
@@ -72,6 +66,14 @@ const ReportsPage = () => {
       } catch (e) {
         setDashboardUser(null);
       }
+    })();
+    (async () => {
+        try {
+            const { data } = await api.get('/api/v1/user/patients');
+            setTotalPatients(data.count);
+        } catch (e) {
+            console.error("Failed to fetch total patients", e);
+        }
     })();
   }, []);
 
@@ -212,7 +214,7 @@ const ReportsPage = () => {
   };
 
   useEffect(() => {
-    fetchSummary();
+    
   }, []);
 
   // fetch invoices for an appointment and open drawer
@@ -377,100 +379,120 @@ const ReportsPage = () => {
 
   return (
     <section className="reports-page page">
-      <div className="banner">
-        <div className="content-box">
-          <div className="desc-dev-box">
-            <div>
-              <h3>Reports</h3>
-              <p>
-                Payments and patients summary. Use filters to narrow down by
-                date and doctor.
-              </p>
+      <Toolbar>
+        <div className="banner">
+          <div className="content-box">
+            <div className="desc-dev-box">
+              <div>
+                <h3>Reports</h3>
+                <p>
+                  Payments and patients summary
+                </p>
+              </div>
+              <div className="input-container">
+                <label>
+                  Start
+                  <input
+                    type="date"
+                    value={start}
+                    onChange={(e) => setStart(e.target.value)}
+                  />
+                </label>
+                <label>
+                  End
+                  <input
+                    type="date"
+                    value={end}
+                    onChange={(e) => setEnd(e.target.value)}
+                  />
+                </label>
+                <label>
+                  Group
+                  <select
+                    value={groupBy}
+                    onChange={(e) => setGroupBy(e.target.value)}
+                  >
+                    <option value="day">Day</option>
+                    <option value="week">Week</option>
+                    <option value="month">Month</option>
+                  </select>
+                </label>
+                <label>
+                  Doctor
+                  <select
+                    value={doctorId}
+                    onChange={(e) => setDoctorId(e.target.value)}
+                    disabled={dashboardUser && dashboardUser.role === 'Doctor'}
+                  >
+                    {dashboardUser && dashboardUser.role === 'Admin' && (
+                      <option value="">All</option>
+                    )}
+                    {doctors.map((d) => (
+                      <option key={d._id} value={d._id}>
+                        {d.firstName} {d.lastName}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
             </div>
-            <div className="input-container">
-              <label>
-                Start
-                <input
-                  type="date"
-                  value={start}
-                  onChange={(e) => setStart(e.target.value)}
-                />
-              </label>
-              <label>
-                End
-                <input
-                  type="date"
-                  value={end}
-                  onChange={(e) => setEnd(e.target.value)}
-                />
-              </label>
-              <label>
-                Group
-                <select
-                  value={groupBy}
-                  onChange={(e) => setGroupBy(e.target.value)}
+            <div className="check-btn-box">
+              <div className="label-box">
+                {/* <label>
+                  <input
+                    type="checkbox"
+                    checked={usePersisted}
+                    onChange={(e) => {
+                      setUsePersisted(e.target.checked);
+                      setReportPage(1);
+                    }}
+                  />{" "}
+                  Use persisted report entries
+                </label> */}
+              </div>
+              <div className="btn-box">
+                <button
+                  ref={setupClickSound}
+                  className="icon-btn"
+                  onClick={() => fetchSummary({ start, end, groupBy, doctorId })}
+                  disabled={loading}
                 >
-                  <option value="day">Day</option>
-                  <option value="week">Week</option>
-                  <option value="month">Month</option>
-                </select>
-              </label>
-              <label>
-                Doctor
-                <select
-                  value={doctorId}
-                  onChange={(e) => setDoctorId(e.target.value)}
-                  disabled={dashboardUser && dashboardUser.role === 'Doctor'}
-                >
-                  {dashboardUser && dashboardUser.role === 'Admin' && (
-                    <option value="">All</option>
-                  )}
-                  {doctors.map((d) => (
-                    <option key={d._id} value={d._id}>
-                      {d.firstName} {d.lastName}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          </div>
-          <div className="check-btn-box">
-            <div className="label-box">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={includeAppointments}
-                  onChange={(e) => setIncludeAppointments(e.target.checked)}
-                />{" "}
-                Include appointments without invoices
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={usePersisted}
-                  onChange={(e) => {
-                    setUsePersisted(e.target.checked);
-                    setReportPage(1);
-                  }}
-                />{" "}
-                Use persisted report entries
-              </label>
-            </div>
-            <div className="btn-box">
-              <button
-                className="btn"
-                onClick={() => fetchSummary({ start, end, groupBy, doctorId })}
-                disabled={loading}
-              >
-                {loading ? "Loading..." : "Apply"}
-              </button>
-              <button className="btn" onClick={downloadCSV}>
-                Export CSV
-              </button>
+                  {loading ? <BsHeartPulse style={{color:'red'}} /> : <IoRefresh style={{color:'blue'}}/>}
+                </button>
+                <button ref={setupClickSound} className="icon-btn" onClick={downloadCSV} >
+                  <BsDownload style={{color:'green'}}/>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+        <div className="search-container">
+          <div className="search-box">
+            <input
+              placeholder="Search reports by appointment id or patient"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={onSearchKey}
+            />
+              <FaSearch
+                ref={setupClickSound}
+                className="icon-btn"
+                style={{padding:"0.5rem", backgroundColor:"#096dd9",color:"white",height:"2rem",width:"2rem",borderRadius:"0.3rem"}}
+                onClick={() => fetchSummary({ q: searchTerm })}
+              />
+          </div>
+          <div>
+          <ToggleSwitch
+            label={usePersisted ? "Persisted Entries" : "Summary View"}
+            checked={usePersisted}
+            onChange={() => {
+              setUsePersisted(!usePersisted);
+              fetchSummary();
+            }}
+          />
+        </div>
+        </div>
+      </Toolbar>
 
       <div className="reports-cards">
         <div className="card">
@@ -482,6 +504,11 @@ const ReportsPage = () => {
         </div>
         {dashboardUser && dashboardUser.role === 'Admin' && (
           <>
+            <div className="card">
+              <p className="label">Total Patients</p>
+              <h2 className="value">{totalPatients}</h2>
+              <small>All time</small>
+            </div>
             <div className="card">
               <p className="label">Patients This Period</p>
               <h2 className="value">{patientsThisMonth}</h2>
@@ -501,31 +528,32 @@ const ReportsPage = () => {
         </div>
       </div>
 
-      <div className="search-container">
-        <div className="search-box">
-          <input
-            placeholder="Search reports by appointment id or patient"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={onSearchKey}
+      {!usePersisted && (
+        <div 
+          className="charts-container" 
+          style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '1rem', 
+            margin: '1rem 0', 
+            padding: '1rem',
+            backgroundColor: 'black' 
+          }}
+        >
+          <PieChartCard
+            title="Payments Breakdown"
+            data={[
+              { name: 'Paid', value: totals.paid || 0 },
+              { name: 'Due', value: totals.totalDue || 0 },
+            ]}
           />
-            <FaSearch 
-              style={{padding:"0.5rem", backgroundColor:"#096dd9",color:"white",height:"2rem",width:"2rem",borderRadius:"0.3rem"}}
-              onClick={() => fetchSummary({ q: searchTerm })}
-            />
+          <LineChartCard
+            title="Invoice Trend"
+            data={groups.map(g => ({ name: g.period, value: g.revenue || g.totalEarning || 0 }))}
+          />
+          <SimpleBarChart data={groups} />
         </div>
-        <div>
-          <button
-            className="btn"
-            onClick={() => {
-              setUsePersisted(true);
-              fetchSummary();
-            }}
-          >
-            Switch to Persisted Entries
-          </button>
-        </div>
-      </div>
+      )}
 
       <div className="table-wrap">
         {usePersisted ? (
@@ -579,12 +607,16 @@ const ReportsPage = () => {
                   <td>{fmt(r.due)}</td>
                   <td>{r.status}</td>
                   <td style={{ display: "flex", gap: "1rem",alignItems:"center" }}>
-                    <FaEye 
+                    <FaEye
+                      ref={setupClickSound}
+                      className="icon-btn"
                       title="View Details"
                       style={{color:"#096dd9"}}
                       onClick={() => openInvoiceDrawer(r.appointmentId)} 
                     />
-                    <MdDelete 
+                    <MdDelete
+                      ref={setupClickSound}
+                      className="icon-btn"
                       title="Delete"
                       style={{color:"var(--danger-color)"}}
                       onClick={async () => {
@@ -594,7 +626,9 @@ const ReportsPage = () => {
                         }
                       }}
                     />
-                    <RiMoneyRupeeCircleFill 
+                    <RiMoneyRupeeCircleFill
+                      ref={setupClickSound}
+                      className="icon-btn"
                       title="Mark as paid"
                       style={{color:"var(--secondary-color)"}}
                       onClick={async () => {
@@ -827,5 +861,6 @@ const ReportsPage = () => {
     </section>
   );
 };
+
 
 export default ReportsPage;

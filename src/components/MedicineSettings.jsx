@@ -9,6 +9,7 @@ import MedicineSearch from "./MedicineSearch";
 import { FaEye, FaPen } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa6";
 import MedicineDrawer from './MedicineDrawer';
+import Toolbar from './Toolbar';
 import useSound from "use-sound";
 // MedicineStore moved to its own page at /medicines
 
@@ -283,46 +284,48 @@ const MedicineSettings = () => {
     <section className="page" style={{height:"100vh"}}>
       <>
         {/* <div className="settings-page medicine-page" style={{ padding: 20 }}> */}
-          <div className="filter-search-box">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <button onClick={() => navigate(-1)} className="back-btn add-btn">← Go Back</button>
-              <div>
-                <h2 style={{ margin: 0 }}>Medicine Catalog</h2>
-                <div className="muted">Create, search and manage medicines used in prescriptions.</div>
+          <Toolbar>
+            <div className="filter-search-box">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <button onClick={() => navigate(-1)} className="back-btn add-btn">← Go Back</button>
+                  <div>
+                    <h2 style={{ margin: 0 }}>Medicine Catalog</h2>
+                    <div className="muted">Create, search and manage medicines used in prescriptions.</div>
+                  </div>
+                </div>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <input className="search-input" placeholder="Search by name, symptom or type" value={search} onChange={e => setSearch(e.target.value)} style={{ minWidth: 280 }} />
+                  <button className="add-btn" onClick={() => { setForm(emptyForm); setEditingId(null); setDrawerOpen(true); }}>Create Medical Advice</button>
+                  <button className="clear-btn" onClick={() => navigate('/medicines')} style={{ marginLeft: 8 }}>Manage Medicines</button>
+                </div>
+              </div>
+
+              {/* Filters Bar */}
+              <div className="filter-bar">
+                <div className="filter-group">
+                  <label className="muted">Type</label>
+                  <select onChange={e => setFilterType(e.target.value)} value={filterType}>
+                    <option value="">All Types</option>
+                    {Array.from(new Set((medicines || []).map(m => m.type).filter(Boolean))).sort().map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label className="muted">Tag</label>
+                  <input placeholder="Filter by tag" value={filterTag || ''} onChange={e => setFilterTag(e.target.value)} />
+                </div>
+                <div className="filter-group">
+                  <label className="muted">Has Tests</label>
+                  <select value={filterHasTest || ''} onChange={e => setFilterHasTest(e.target.value)}>
+                    <option value="">Either</option>
+                    <option value="yes">With Tests</option>
+                    <option value="no">No Tests</option>
+                  </select>
+                </div>
+                <button className="clear-btn" onClick={() => { setFilterTag(''); setFilterType(''); setFilterHasTest(''); }}>Reset Filters</button>
               </div>
             </div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <input className="search-input" placeholder="Search by name, symptom or type" value={search} onChange={e => setSearch(e.target.value)} style={{ minWidth: 280 }} />
-              <button className="add-btn" onClick={() => { setForm(emptyForm); setEditingId(null); setDrawerOpen(true); }}>Create Medical Advice</button>
-              <button className="clear-btn" onClick={() => navigate('/medicines')} style={{ marginLeft: 8 }}>Manage Medicines</button>
-            </div>
-          </div>
-
-          {/* Filters Bar */}
-          <div className="filter-bar">
-            <div className="filter-group">
-              <label className="muted">Type</label>
-              <select onChange={e => setFilterType(e.target.value)} value={filterType}>
-                <option value="">All Types</option>
-                {Array.from(new Set((medicines || []).map(m => m.type).filter(Boolean))).sort().map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-            <div className="filter-group">
-              <label className="muted">Tag</label>
-              <input placeholder="Filter by tag" value={filterTag || ''} onChange={e => setFilterTag(e.target.value)} />
-            </div>
-            <div className="filter-group">
-              <label className="muted">Has Tests</label>
-              <select value={filterHasTest || ''} onChange={e => setFilterHasTest(e.target.value)}>
-                <option value="">Either</option>
-                <option value="yes">With Tests</option>
-                <option value="no">No Tests</option>
-              </select>
-            </div>
-            <button className="clear-btn" onClick={() => { setFilterTag(''); setFilterType(''); setFilterHasTest(''); }}>Reset Filters</button>
-          </div>
-          </div>
+          </Toolbar>
 
           {/* Main content: list and pagination */}
           <main style={{ flex: 1, marginTop: '1rem' }}>

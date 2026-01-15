@@ -62,7 +62,11 @@ const App = () => {
       <Router>
         <Sidebar />
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={
+          <RequireAuth allowedRoles={["Admin","Doctor","Compounder"]}>
+            <Dashboard />
+          </RequireAuth>
+        } />
         <Route path="/login" element={<Login />} />
         <Route path="/forgotten-password" element={<ForgottenPassword />} />
         <Route path="/add-appointment" element={

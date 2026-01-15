@@ -1,30 +1,40 @@
 import React, { useContext, useEffect, useState } from "react";
-import InvoiceViewer from './InvoiceViewer';
-import Reports from './Reports';
+import InvoiceViewer from "./InvoiceViewer";
+import Reports from "./Reports";
 import { Context } from "../main";
 import { Navigate, useNavigate } from "react-router-dom";
 import api, { rescheduleAppointment } from "../utils/api";
 import { useSnackbar } from "../context/SnackbarContext";
 import { GoCheckCircleFill } from "react-icons/go";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { FaUserMd, FaUsers } from 'react-icons/fa';
+import { FaUserMd, FaUsers } from "react-icons/fa";
 import Prescription from "./Prescription";
 import Modal from "react-modal";
 import { FaTrash } from "react-icons/fa";
 import RequirePermission from "./RequirePermission";
-import { MdOutlineContentPasteSearch, MdOutlineDelete, MdSchedule } from "react-icons/md";
+import {
+  MdOutlineContentPasteSearch,
+  MdOutlineDelete,
+  MdSchedule,
+} from "react-icons/md";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
 import { IoReceipt } from "react-icons/io5";
 import useSound from "use-sound";
 import RescheduleModal from "./RescheduleModal";
 import DashboardSlotChecker from "./DashboardSlotChecker";
-import { playSaveSound, playLoadSound, playDeleteSound } from '../utils/soundUtils';
+import {
+  playSaveSound,
+  playLoadSound,
+  playDeleteSound,
+} from "../utils/soundUtils";
 import "./Dashboard.css";
 import { RiExpandHorizontalSFill } from "react-icons/ri";
 import { FaPrescriptionBottleMedical } from "react-icons/fa6";
 import { IoIosShareAlt } from "react-icons/io";
-import CreateReferralTab from "./tabs/CreateReferralTab"
+import CreateReferralTab from "./tabs/CreateReferralTab";
+import RadialMenu from "./RadialMenu";
+import useClickSound from "../hooks/useClickSound";
 
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
@@ -38,10 +48,15 @@ const Dashboard = () => {
   const [doctors, setDoctors] = useState([]); // For total count card
   const [doctorFilterList, setDoctorFilterList] = useState([]); // For dropdown
   const [filteredAppointments, setFilteredAppointments] = useState([]);
-  
+  const [filterPrescibed, setfilterPrescibed] = useState("unPrescribed");
+  const setupClickSound = useClickSound();
+
   const fmt = (n) => {
     const v = Number(n) || 0;
-    return v.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    return v.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
   };
   // Modal and prescription state
   const [prescriptionModalOpen, setPrescriptionModalOpen] = useState(false);
@@ -50,7 +65,8 @@ const Dashboard = () => {
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [activeInvoice, setActiveInvoice] = useState(null);
   const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
-  const [selectedAppointmentToReschedule, setSelectedAppointmentToReschedule] = useState(null);
+  const [selectedAppointmentToReschedule, setSelectedAppointmentToReschedule] =
+    useState(null);
   const [isRescheduling, setIsRescheduling] = useState(false);
   const [slotCheckerOpen, setSlotCheckerOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -73,30 +89,45 @@ const Dashboard = () => {
     fetchAppointments();
 
     const onUpdated = () => fetchAppointments();
-    window.addEventListener('appointments:updated', onUpdated);
-    return () => window.removeEventListener('appointments:updated', onUpdated);
+    window.addEventListener("appointments:updated", onUpdated);
+    return () => window.removeEventListener("appointments:updated", onUpdated);
   }, []);
 
   // Role-limited metrics
   const metrics = React.useMemo(() => {
     const now = new Date();
-    const todayYmd = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toLocaleDateString('en-CA');
+    const todayYmd = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    ).toLocaleDateString("en-CA");
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    const monthEnd = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59
+    );
 
     const getDoctorId = (appt) => {
       if (!appt) return null;
-      if (appt.doctor && (appt.doctor._id || appt.doctor.id)) return String(appt.doctor._id || appt.doctor.id);
+      if (appt.doctor && (appt.doctor._id || appt.doctor.id))
+        return String(appt.doctor._id || appt.doctor.id);
       if (appt.doctorId) return String(appt.doctorId);
       return null;
     };
 
     const isVisible = (appt) => {
       if (!admin || !admin.role) return true;
-      if (admin.role === 'Admin') return true;
-      if (admin.role === 'Doctor') return String(getDoctorId(appt)) === String(admin._id);
-      if (admin.role === 'Compounder') {
-        const assigned = (admin.assignedDoctors || []).map(d => String(d._id || d));
+      if (admin.role === "Admin") return true;
+      if (admin.role === "Doctor")
+        return String(getDoctorId(appt)) === String(admin._id);
+      if (admin.role === "Compounder") {
+        const assigned = (admin.assignedDoctors || []).map((d) =>
+          String(d._id || d)
+        );
         return assigned.includes(String(getDoctorId(appt)));
       }
       return true;
@@ -111,9 +142,9 @@ const Dashboard = () => {
       try {
         if (!isVisible(a)) return;
         const d = new Date(a.appointment_date);
-        const ymd = d.toLocaleDateString('en-CA');
+        const ymd = d.toLocaleDateString("en-CA");
         const price = Number(a.price || a.feesAmount || a.amount || 0) || 0;
-        const paid = String(a.paymentStatus || '').toLowerCase() === 'paid';
+        const paid = String(a.paymentStatus || "").toLowerCase() === "paid";
 
         if (ymd === todayYmd) {
           if (a.patientId) patientsToday.add(String(a.patientId));
@@ -138,21 +169,32 @@ const Dashboard = () => {
   const handleUpdatePaymentStatus = async (appointmentId, paymentStatus) => {
     try {
       // send only paymentStatus and let backend harmonize status/payment according to rules
-  const body = { paymentStatus };
-      const { data } = await api.put(`/api/v1/appointment/status/${appointmentId}`, body);
+      const body = { paymentStatus };
+      const { data } = await api.put(
+        `/api/v1/appointment/status/${appointmentId}`,
+        body
+      );
       const updated = data.appointment || null;
       if (updated) {
-        setAppointments((prev) => prev.map(a => a._id === appointmentId ? updated : a));
+        setAppointments((prev) =>
+          prev.map((a) => (a._id === appointmentId ? updated : a))
+        );
       } else {
-        setAppointments((prev) => prev.map(a => a._id === appointmentId ? { ...a, paymentStatus: paymentStatus } : a));
+        setAppointments((prev) =>
+          prev.map((a) =>
+            a._id === appointmentId ? { ...a, paymentStatus: paymentStatus } : a
+          )
+        );
       }
       playSaveSound();
-      snackbar.success(data.message || 'Payment status updated');
+      snackbar.success(data.message || "Payment status updated");
       if (paymentStatus === "Paid") {
         playSettledSound();
       }
     } catch (e) {
-      snackbar.error(e?.response?.data?.message || 'Failed to update payment status');
+      snackbar.error(
+        e?.response?.data?.message || "Failed to update payment status"
+      );
     }
   };
 
@@ -164,26 +206,32 @@ const Dashboard = () => {
         setDoctors(data.doctors || []);
 
         if (admin && admin.role) {
-          if (admin.role === 'Admin') {
+          if (admin.role === "Admin") {
             setDoctorFilterList(data.doctors || []);
-            setSelectedDoctorId(''); // Admin can see all by default
-          } else if (admin.role === 'Doctor') {
+            setSelectedDoctorId(""); // Admin can see all by default
+          } else if (admin.role === "Doctor") {
             setDoctorFilterList(data.doctors || []);
             setSelectedDoctorId(admin._id); // Doctor sees only their own
-          } else if (admin.role === 'Compounder') {
+          } else if (admin.role === "Compounder") {
             // Compounder sees only their assigned doctors
-            const assignedDoctorIds = (admin.assignedDoctors || []).map(d => d._id);
-            const assignedDoctorsList = (data.doctors || []).filter(doc => assignedDoctorIds.includes(doc._id));
+            const assignedDoctorIds = (admin.assignedDoctors || []).map(
+              (d) => d._id
+            );
+            const assignedDoctorsList = (data.doctors || []).filter((doc) =>
+              assignedDoctorIds.includes(doc._id)
+            );
             setDoctorFilterList(assignedDoctorsList);
             if (assignedDoctorsList.length > 0) {
               setSelectedDoctorId(assignedDoctorsList[0]._id); // Default to first assigned doctor
             } else {
-              setSelectedDoctorId('');
+              setSelectedDoctorId("");
             }
           }
         }
       } catch (error) {
-        snackbar.error(error.response?.data?.message || "Failed to fetch doctors");
+        snackbar.error(
+          error.response?.data?.message || "Failed to fetch doctors"
+        );
         setDoctors([]);
         setDoctorFilterList([]);
       }
@@ -213,21 +261,24 @@ const Dashboard = () => {
     if (selectedAppointments.length === 0) {
       return snackbar.info("No appointments selected");
     }
-    snackbar.confirm(`Delete ${selectedAppointments.length} appointments?`, async () => {
-      try {
-        await api.post(`/api/v1/appointment/bulk-delete`, {
-          ids: selectedAppointments,
-        });
-        setAppointments((prev) =>
-          prev.filter((a) => !selectedAppointments.includes(a._id))
-        );
-        setSelectedAppointments([]);
-        playDeleteSound();
-        snackbar.success("Bulk delete complete");
-      } catch (err) {
-        snackbar.error("Bulk delete failed");
+    snackbar.confirm(
+      `Delete ${selectedAppointments.length} appointments?`,
+      async () => {
+        try {
+          await api.post(`/api/v1/appointment/bulk-delete`, {
+            ids: selectedAppointments,
+          });
+          setAppointments((prev) =>
+            prev.filter((a) => !selectedAppointments.includes(a._id))
+          );
+          setSelectedAppointments([]);
+          playDeleteSound();
+          snackbar.success("Bulk delete complete");
+        } catch (err) {
+          snackbar.error("Bulk delete failed");
+        }
       }
-    });
+    );
   };
 
   // Toggle select for bulk delete
@@ -241,14 +292,20 @@ const Dashboard = () => {
     try {
       // Let backend enforce rules. When requesting Completed, backend will ensure paymentStatus is Paid.
       // If requesting Completed from UI, include paymentStatus: 'Paid' so harmonizeStatusPayment accepts Completed
-      const body = status === 'Completed' ? { status, paymentStatus: 'Paid' } : { status };
-      const { data } = await api.put(`/api/v1/appointment/status/${appointmentId}`, body);
+      const body =
+        status === "Completed" ? { status, paymentStatus: "Paid" } : { status };
+      const { data } = await api.put(
+        `/api/v1/appointment/status/${appointmentId}`,
+        body
+      );
       const updatedAppt = data.appointment || null;
       if (updatedAppt) {
-        setAppointments((prev) => prev.map((a) => (a._id === appointmentId ? updatedAppt : a)));
+        setAppointments((prev) =>
+          prev.map((a) => (a._id === appointmentId ? updatedAppt : a))
+        );
       }
       playSaveSound();
-      snackbar.success(data.message || 'Status updated');
+      snackbar.success(data.message || "Status updated");
       if (updatedAppt && updatedAppt.paymentStatus === "Paid") {
         playSettledSound();
       }
@@ -280,7 +337,7 @@ const Dashboard = () => {
       } else if (data && data._id) {
         invoices = [data];
       }
-  // extracted invoices from API response
+      // extracted invoices from API response
       if (!invoices || invoices.length === 0) {
         snackbar.info("No invoice found for this appointment");
         return;
@@ -359,7 +416,11 @@ const Dashboard = () => {
         const apptDate = new Date(appointment.appointment_date);
         const apptYmd = apptDate.toLocaleDateString("en-CA");
         const today = new Date();
-        const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const startOfToday = new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate()
+        );
         const todayYmd = startOfToday.toLocaleDateString("en-CA");
 
         // Filter by dropdown
@@ -372,12 +433,38 @@ const Dashboard = () => {
           if (apptDate < start || apptDate > end) return false;
         }
 
+        // Filter by prescribed status
+        if (filterPrescibed !== "All") {
+          const isPrescribed = !(
+            appointment.status === "Pending" ||
+            appointment.status === "Accepted"
+          );
+          if (filterPrescibed === "Prescribed" && !isPrescribed) {
+            return false;
+          }
+          if (filterPrescibed === "Unprescribed" && isPrescribed) {
+            return false;
+          }
+        }
+
         // Search term across name, phone and date
         if (searchTerm && searchTerm.trim() !== "") {
           const q = searchTerm.toLowerCase();
-          const name = (appointment.name || `${appointment.firstName || ""} ${appointment.lastName || ""}`).toLowerCase();
-          const phone = (appointment.phone || appointment.mobile || appointment.patientPhone || "").toString().toLowerCase();
-          const dateStr = (appointment.appointment_date || "").toString().toLowerCase();
+          const name = (
+            appointment.name ||
+            `${appointment.firstName || ""} ${appointment.lastName || ""}`
+          ).toLowerCase();
+          const phone = (
+            appointment.phone ||
+            appointment.mobile ||
+            appointment.patientPhone ||
+            ""
+          )
+            .toString()
+            .toLowerCase();
+          const dateStr = (appointment.appointment_date || "")
+            .toString()
+            .toLowerCase();
           if (!name.includes(q) && !phone.includes(q) && !dateStr.includes(q)) {
             return false;
           }
@@ -392,7 +479,15 @@ const Dashboard = () => {
 
     // After all filters are applied, set the state
     setFilteredAppointments(filtered);
-  }, [appointments, selectedDoctorId, searchTerm, filterOption, customStart, customEnd]);
+  }, [
+    appointments,
+    selectedDoctorId,
+    searchTerm,
+    filterOption,
+    customStart,
+    customEnd,
+    filterPrescibed,
+  ]);
 
   if (!isAuthenticated) {
     return <Navigate to={"/login"} />;
@@ -403,7 +498,9 @@ const Dashboard = () => {
       <section className="dashboard page">
         <div className="banner">
           <div className="firstBox">
-            <img src="/doc.png" alt="docImg" />
+            <div className="doctor-imgbox">
+              <img src="/doc.png" alt="docImg" />
+            </div>
             <div className="content">
               <div>
                 <p>Hello ,</p>
@@ -429,43 +526,55 @@ const Dashboard = () => {
             </div>
           </RequirePermission>
         </div>
-  {/* Role-based quick metrics */}
-  <div className="dashboard-metrics-container">
-    <div className="dashboard-metric-card blue">
-      <div className="dashboard-metric-icon">
-        <FaUserMd size={28} color="#0859af" />
-      </div>
-      <div className="dashboard-metric-content">
-        <div className="dashboard-metric-header">
-          <p className="dashboard-metric-title">Patients Viewed Today</p>
-          <div className="dashboard-metric-value blue">{metrics.patientsViewedToday}</div>
-        </div>
-        <div className="dashboard-metric-footer">
-          <span className="dashboard-metric-footer-label">Paid today</span>
-          <strong className="dashboard-metric-footer-amount">₹{fmt(metrics.paidToday)}</strong>
-        </div>
-      </div>
-    </div>
+        {/* Role-based quick metrics */}
+        <div className="dashboard-metrics-container">
+          <div className="dashboard-metric-card blue">
+            <div className="dashboard-metric-icon">
+              <FaUserMd size={28} color="#0859af" />
+            </div>
+            <div className="dashboard-metric-content">
+              <div className="dashboard-metric-header">
+                <p className="dashboard-metric-title">Patients Viewed Today</p>
+                <div className="dashboard-metric-value blue">
+                  {metrics.patientsViewedToday}
+                </div>
+              </div>
+              <div className="dashboard-metric-footer">
+                <span className="dashboard-metric-footer-label">
+                  Paid today
+                </span>
+                <strong className="dashboard-metric-footer-amount">
+                  ₹{fmt(metrics.paidToday)}
+                </strong>
+              </div>
+            </div>
+          </div>
 
-    <div className="dashboard-metric-card red">
-      <div className="dashboard-metric-icon">
-        <FaUsers size={28} color="#b91c1c" />
-      </div>
-      <div className="dashboard-metric-content">
-        <div className="dashboard-metric-header">
-          <p className="dashboard-metric-title">Patients This Month</p>
-          <div className="dashboard-metric-value red">{metrics.patientsThisMonth}</div>
+          <div className="dashboard-metric-card red">
+            <div className="dashboard-metric-icon">
+              <FaUsers size={28} color="#b91c1c" />
+            </div>
+            <div className="dashboard-metric-content">
+              <div className="dashboard-metric-header">
+                <p className="dashboard-metric-title">Patients This Month</p>
+                <div className="dashboard-metric-value red">
+                  {metrics.patientsThisMonth}
+                </div>
+              </div>
+              <div className="dashboard-metric-footer">
+                <span className="dashboard-metric-footer-label">
+                  Paid this month
+                </span>
+                <strong className="dashboard-metric-footer-amount">
+                  ₹{fmt(metrics.paidThisMonth)}
+                </strong>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="dashboard-metric-footer">
-          <span className="dashboard-metric-footer-label">Paid this month</span>
-          <strong className="dashboard-metric-footer-amount">₹{fmt(metrics.paidThisMonth)}</strong>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  {/* Reports summary (today/month/total) */}
-  <Reports appointments={appointments} showSummary={false} />
+        {/* Reports summary (today/month/total) */}
+        <Reports appointments={appointments} showSummary={false} />
 
         {/* Middle banner / navbar-like filter area */}
         <div className="banner middle-banner">
@@ -485,15 +594,27 @@ const Dashboard = () => {
             <select
               value={selectedDoctorId}
               onChange={(e) => setSelectedDoctorId(e.target.value)}
-              disabled={admin?.role === 'Doctor'}
-              style={{background:"#009688"}}
+              disabled={admin?.role === "Doctor"}
+              style={{ background: "#009688" }}
             >
-              {admin?.role !== 'Doctor' && <option value="">All Doctors</option>}
+              {admin?.role !== "Doctor" && (
+                <option value="">All Doctors</option>
+              )}
               {doctorFilterList.map((doc) => (
                 <option key={doc._id} value={doc._id}>
                   {doc.firstName} {doc.lastName}
                 </option>
               ))}
+            </select>
+
+            <select
+              value={filterPrescibed}
+              onChange={(e) => setfilterPrescibed(e.target.value)}
+              className="prescribed-filter"
+            >
+              <option value="Prescribed">Prescribed Data</option>
+              <option value="Unprescribed">Unprescribed Data</option>
+              <option value="All">All</option>
             </select>
 
             {/* <input
@@ -539,7 +660,7 @@ const Dashboard = () => {
                 className="btn add-btn"
                 onClick={() => navigate("/add-appointment")}
               >
-                < FaPrescriptionBottleMedical /> Book Appointment
+                <FaPrescriptionBottleMedical /> Book Appointment
               </button>
               <button
                 className="btn"
@@ -547,10 +668,10 @@ const Dashboard = () => {
                 style={{
                   background: "#0ae9f9ff",
                   color: "white",
-                  marginLeft: "0.5rem"
+                  marginLeft: "0.5rem",
                 }}
               >
-               <MdSchedule/> View Slots
+                <MdSchedule /> View Slots
               </button>
               <RequirePermission allowedRoles={["Admin"]}>
                 <button
@@ -558,7 +679,8 @@ const Dashboard = () => {
                   onClick={handleBulkDelete}
                   disabled={selectedAppointments.length === 0}
                 >
-                 <MdOutlineDelete/> Delete Selected ({selectedAppointments.length})
+                  <MdOutlineDelete /> Delete Selected (
+                  {selectedAppointments.length})
                 </button>
               </RequirePermission>
             </div>
@@ -568,95 +690,103 @@ const Dashboard = () => {
             <table>
               <thead>
                 <tr>
-                  <th style={{textAlign:"left"}}>
+                  <th style={{ textAlign: "left" }}>
                     <RequirePermission allowedRoles={["Admin"]}>
-                    <input style={{marginRight:"0.3rem"}}
-                      type="checkbox"
-                      onChange={(e) => {
-                        const filteredAppointments = (
-                          appointments || []
-                        ).filter((appointment) => {
-                          try {
-                            const apptDate = new Date(
-                              appointment.appointment_date
-                            );
-                            const apptYmd = apptDate.toLocaleDateString("en-CA")
-                            const today = new Date();
-                            const startOfToday = new Date(
-                              today.getFullYear(),
-                              today.getMonth(),
-                              today.getDate()
-                            );
-                            const todayYmd = startOfToday.toLocaleDateString("en-CA");
+                      <input
+                        style={{ marginRight: "0.3rem" }}
+                        type="checkbox"
+                        onChange={(e) => {
+                          const filteredAppointments = (
+                            appointments || []
+                          ).filter((appointment) => {
+                            try {
+                              const apptDate = new Date(
+                                appointment.appointment_date
+                              );
+                              const apptYmd =
+                                apptDate.toLocaleDateString("en-CA");
+                              const today = new Date();
+                              const startOfToday = new Date(
+                                today.getFullYear(),
+                                today.getMonth(),
+                                today.getDate()
+                              );
+                              const todayYmd =
+                                startOfToday.toLocaleDateString("en-CA");
 
-                            // Filter by dropdown
-                            if (filterOption === "Today") {
-                              if (apptYmd !== todayYmd) return false;
-                            } else if (filterOption === "Old") {
-                              if (apptYmd >= todayYmd) return false;
-                            } else if (filterOption === "Upcoming") {
-                              // future (strictly greater than today)
-                              if (apptYmd <= todayYmd) return false;
-                            } else if (filterOption === "Custom") {
-                              if (customStart && customEnd) {
-                                const start = new Date(
-                                  customStart + "T00:00:00"
-                                );
-                                const end = new Date(customEnd + "T23:59:59");
-                                if (apptDate < start || apptDate > end)
+                              // Filter by dropdown
+                              if (filterOption === "Today") {
+                                if (apptYmd !== todayYmd) return false;
+                              } else if (filterOption === "Old") {
+                                if (apptYmd >= todayYmd) return false;
+                              } else if (filterOption === "Upcoming") {
+                                // future (strictly greater than today)
+                                if (apptYmd <= todayYmd) return false;
+                              } else if (filterOption === "Custom") {
+                                if (customStart && customEnd) {
+                                  const start = new Date(
+                                    customStart + "T00:00:00"
+                                  );
+                                  const end = new Date(customEnd + "T23:59:59");
+                                  if (apptDate < start || apptDate > end)
+                                    return false;
+                                }
+                              }
+
+                              // Search term across name, phone and date
+                              if (searchTerm && searchTerm.trim() !== "") {
+                                const q = searchTerm.toLowerCase();
+                                const name = (
+                                  appointment.name ||
+                                  `${appointment.firstName || ""} ${
+                                    appointment.lastName || ""
+                                  }`
+                                ).toLowerCase();
+                                const phone = (
+                                  appointment.phone ||
+                                  appointment.mobile ||
+                                  appointment.patientPhone ||
+                                  ""
+                                )
+                                  .toString()
+                                  .toLowerCase();
+                                const dateStr = (
+                                  appointment.appointment_date || ""
+                                )
+                                  .toString()
+                                  .toLowerCase();
+                                if (
+                                  !name.includes(q) &&
+                                  !phone.includes(q) &&
+                                  !dateStr.includes(q)
+                                ) {
                                   return false;
+                                }
                               }
-                            }
 
-                            // Search term across name, phone and date
-                            if (searchTerm && searchTerm.trim() !== "") {
-                              const q = searchTerm.toLowerCase();
-                              const name = (
-                                appointment.name ||
-                                `${appointment.firstName || ""} ${
-                                  appointment.lastName || ""
-                                }`
-                              ).toLowerCase();
-                              const phone = (
-                                appointment.phone ||
-                                appointment.mobile ||
-                                appointment.patientPhone ||
-                                ""
-                              )
-                                .toString()
-                                .toLowerCase();
-                              const dateStr = (
-                                appointment.appointment_date || ""
-                              )
-                                .toString()
-                                .toLowerCase();
-                              if (
-                                !name.includes(q) &&
-                                !phone.includes(q) &&
-                                !dateStr.includes(q)
-                              ) {
-                                return false;
-                              }
+                              return true;
+                            } catch (err) {
+                              return true;
                             }
-
-                            return true;
-                          } catch (err) {
-                            return true;
-                          }
-                        });
-                        setSelectedAppointments(
-                          e.target.checked
-                            ? filteredAppointments.map((a) => a._id)
-                            : []
-                        );
-                      }}
-                    />
-                  </RequirePermission>
+                          });
+                          setSelectedAppointments(
+                            e.target.checked
+                              ? filteredAppointments.map((a) => a._id)
+                              : []
+                          );
+                        }}
+                      />
+                    </RequirePermission>
                     SN
                   </th>
                   <th>Name</th>
-                  <th style={{position:"relative"}}>Date
-                    <button className="expand-btn" onClick={()=>setIsExpanded(!isExpanded)}>
+                  <th style={{ position: "relative" }}>
+                    Date
+                    <button
+                      ref={setupClickSound}
+                      className="expand-btn icon-btn"
+                      onClick={() => setIsExpanded(!isExpanded)}
+                    >
                       <RiExpandHorizontalSFill />
                     </button>
                   </th>
@@ -678,51 +808,199 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredAppointments && filteredAppointments.length > 0
-                    ? filteredAppointments.map((appointment) => (
-                        <tr key={appointment._id}>
-                          <td style={{textAlign:"left"}}>
-                            <RequirePermission allowedRoles={["Admin"]}>
-                              <input style={{marginRight:"0.3rem"}}
-                                type="checkbox"
-                                checked={selectedAppointments.includes(
-                                  appointment._id
-                                )}
-                                onChange={() =>
-                                  toggleSelectAppointment(appointment._id)
-                                }
-                              />
-                            </RequirePermission>
-                            {appointments.indexOf(appointment)+1}
-                          </td>
-                          <td>
-                            {appointment.name ||
-                              `${appointment.firstName} ${appointment.lastName}`}
-                          </td>
-                          <td>
-                            {appointment.appointment_date.substring(0, 10)}
-                          </td>
-                          {/* <td>{appointment?.booked_by || "You"}</td> */}
-                          {isExpanded && <td>{appointment.phone || appointment.mobile}</td>}
-                          {isExpanded && <td>{appointment.gender}</td>}
-                          {/* <td>{appointment.paymentMode || "Cash"}</td> */}
-                          {/* <td>{appointment.price || appointment.feesAmount || "0"}</td> */}
-                          {isExpanded && <td style={{minWidth: "6.5rem"}}>
-                            <select value={appointment.paymentStatus || 'Pending'} 
-                              onChange={(e) => handleUpdatePaymentStatus(appointment._id, e.target.value)}
-                              className={
-                                appointment.paymentStatus === "Pending"
+                {filteredAppointments && filteredAppointments.length > 0 ? (
+                  // <div>
+                  filteredAppointments.map((appointment) =>(
+                    <tr key={appointment._id}>
+                      <td style={{ textAlign: "left" }}>
+                        <RequirePermission allowedRoles={["Admin"]}>
+                          <input
+                            style={{ marginRight: "0.3rem" }}
+                            type="checkbox"
+                            checked={selectedAppointments.includes(
+                              appointment._id
+                            )}
+                            onChange={() =>
+                              toggleSelectAppointment(appointment._id)
+                            }
+                          />
+                        </RequirePermission>
+                        {appointments.indexOf(appointment) + 1}
+                      </td>
+                      <td>
+                        {appointment.name ||
+                          `${appointment.firstName} ${appointment.lastName}`}
+                      </td>
+                      <td>{appointment.appointment_date.substring(0, 10)}</td>
+                      {/* <td>{appointment?.booked_by || "You"}</td> */}
+                      {isExpanded && (
+                        <td>{appointment.phone || appointment.mobile}</td>
+                      )}
+                      {isExpanded && <td>{appointment.gender}</td>}
+                      {/* <td>{appointment.paymentMode || "Cash"}</td> */}
+                      {/* <td>{appointment.price || appointment.feesAmount || "0"}</td> */}
+                      {isExpanded && (
+                        <td style={{ minWidth: "6.5rem" }}>
+                          <select
+                            value={appointment.paymentStatus || "Pending"}
+                            onChange={(e) =>
+                              handleUpdatePaymentStatus(
+                                appointment._id,
+                                e.target.value
+                              )
+                            }
+                            className={
+                              appointment.paymentStatus === "Pending"
                                 ? "value-rejected"
                                 : "value-completed"
-                              }
-                              style={{fontSize: "1rem"}}
+                            }
+                            style={{ fontSize: "1rem" }}
+                          >
+                            <option value="Pending" className="value-rejected">
+                              Pending
+                            </option>
+                            {/* <option value="Accepted">Accepted</option> */}
+                            <option value="Paid" className="value-completed">
+                              Paid
+                            </option>
+                          </select>
+                        </td>
+                      )}
+                      {isExpanded && (
+                        <td style={{ minWidth: "8rem" }}>
+                          <select
+                            className={
+                              appointment.status === "Pending"
+                                ? "value-pending"
+                                : appointment.status === "Accepted"
+                                ? "value-accepted"
+                                : appointment.status === "Completed"
+                                ? "value-completed"
+                                : "value-rejected"
+                            }
+                            value={appointment.status}
+                            onChange={(e) =>
+                              handleUpdateStatus(
+                                appointment._id,
+                                e.target.value
+                              )
+                            }
+                            style={{ fontSize: "1rem" }}
+                          >
+                            <option value="Pending" className="value-pending">
+                              Pending
+                            </option>
+                            <option value="Accepted" className="value-accepted">
+                              Accepted
+                            </option>
+                            <option value="Rejected" className="value-rejected">
+                              Rejected
+                            </option>
+                            <option
+                              value="Completed"
+                              className="value-completed"
                             >
+                              Completed
+                            </option>
+                          </select>
+                        </td>
+                      )}
+                      <RequirePermission allowedRoles={["Admin"]}>
+                        {isExpanded && (
+                          <td>{`${appointment.doctor.firstName} ${appointment.doctor.lastName}`}</td>
+                        )}
+                        {isExpanded && <td>{appointment.department}</td>}
+                      </RequirePermission>
+                      {isExpanded && (
+                        <td>
+                          {appointment.hasVisited === true ? (
+                            <GoCheckCircleFill className="green" />
+                          ) : (
+                            <AiFillCloseCircle className="red" />
+                          )}
+                        </td>
+                      )}
+                      {isExpanded && (
+                        <td>
+                          {appointment.book_by_name
+                            ? appointment.book_by_name
+                            : appointment.patientId || "-"}
+                        </td>
+                      )}
+                      <td>
+                        <RequirePermission allowedRoles={["Admin", "Doctor"]}>
+                          <button
+                            className="btn btn-primary prescribe-btn"
+                            onClick={() =>
+                              handlePrescriptionClick(appointment.patientId)
+                            }
+                          >
+                            Prescription
+                          </button>
+                        </RequirePermission>
+                      </td>
+                      {/* <td>
+                        <div className="td-btn-container">
+                          TODO:functionalities need to be implemented
+                          <button
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#0859afff",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => handleRescheduleClick(appointment)}
+                            title="Reschedule"
+                          >
+                            <RiCalendarScheduleFill />
+                          </button>
+                          <button
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#5bbe8eff",
+                              cursor: "pointer",
+                            }}
+                            onClick={() =>
+                              navigate(`/preview/${appointment.patientId}`)
+                            }
+                          >
+                            <FaEye title="View prescription" />
+                          </button>
+                          <button
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#760692ff",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => handleInvoiceClick(appointment._id)}
+                          >
+                            <IoReceipt title="Invoice" />
+                          </button>
+                          
+                          <button
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#686868",
+                              cursor: "pointer",
+                            }}
+                            onClick={() =>
+                              navigate(`/referral/${appointment._id}`)
+                            }
+                          >
+                            <IoIosShareAlt title="Referral" />
+                          </button>
+                          <select>
                               <option value="Pending" className="value-rejected">Pending</option>
-                              {/* <option value="Accepted">Accepted</option> */}
+                              <option value="Accepted">Accepted</option>
                               <option value="Paid" className="value-completed">Paid</option>
                             </select>
-                          </td>}
-                          {isExpanded && <td style={{minWidth: "8rem"}}>
+                          </div>
+                          </td> */}
+                          {/* {
+                          isExpanded && <td style={{minWidth: "8rem"}}>
                             <select
                               className={
                                 appointment.status === "Pending"
@@ -764,12 +1042,16 @@ const Dashboard = () => {
                                 Completed
                               </option>
                             </select>
-                          </td>}
-                          <RequirePermission allowedRoles={["Admin"]}>
+                          </td>} */}
+
+                          {/*  */}
+
+                          {/* <RequirePermission allowedRoles={["Admin"]}>
                             {isExpanded && <td>{`${appointment.doctor.firstName} ${appointment.doctor.lastName}`}</td>}
                             {isExpanded && <td>{appointment.department}</td>}
-                          </RequirePermission>
-                          {isExpanded && <td>
+                          </RequirePermission> */}
+
+                          {/* {isExpanded && <td>
                             {appointment.hasVisited === true ? (
                               <GoCheckCircleFill className="green" />
                             ) : (
@@ -780,8 +1062,9 @@ const Dashboard = () => {
                             {appointment.book_by_name
                               ? appointment.book_by_name
                               : appointment.patientId || "-"}
-                          </td>}
-                          <td>
+                          </td>} */}
+
+                          {/* {isExpanded &&<td>
                             <RequirePermission allowedRoles={["Admin", "Doctor"]}>
 
                             <button
@@ -793,11 +1076,13 @@ const Dashboard = () => {
                               Prescription
                             </button>
                             </RequirePermission>
-                          </td>
+                          </td>} */}
                           <td>
-                            <div className="td-btn-container">
+                            <RadialMenu>
                               {/* TODO:functionalities need to be implemented */}
                               <button
+                                ref={setupClickSound}
+                                className="icon-btn"
                                 style={{
                                   background: "none",
                                   border: "none",
@@ -810,6 +1095,8 @@ const Dashboard = () => {
                                 <RiCalendarScheduleFill />
                               </button>
                               <button
+                                ref={setupClickSound}
+                                className="icon-btn"
                                 style={{
                                   background: "none",
                                   border: "none",
@@ -821,6 +1108,8 @@ const Dashboard = () => {
                                 <FaEye title="View prescription"/>
                               </button>
                               <button
+                                ref={setupClickSound}
+                                className="icon-btn"
                                 style={{
                                   background: "none",
                                   border: "none",
@@ -835,19 +1124,25 @@ const Dashboard = () => {
                               </button>
                               {/* 06-01-26 */}
                           <button
+                            ref={setupClickSound}
+                            className="icon-btn"
                             style={{
                               background: "none",
                               border: "none",
                               color: "#686868",
                               cursor: "pointer",
                             }}
-                            onClick={() => navigate(`/referral/${appointment._id}`)}
+                            onClick={() =>
+                              navigate(`/referral/${appointment._id}`)
+                            }
                           >
-                            <IoIosShareAlt title="Referral"/>
+                            <IoIosShareAlt title="Referral" />
                           </button>
                           {/* 06-01-26 */}
                               <RequirePermission allowedRoles={["Admin"]}>
                                 <button
+                                  ref={setupClickSound}
+                                  className="icon-btn"
                                   onClick={() =>
                                     handleDeleteAppointment(appointment._id)
                                   }
@@ -861,17 +1156,20 @@ const Dashboard = () => {
                                   <FaTrash title="Delete"/>
                                 </button>
                               </RequirePermission>
-                            </div>
+                            </RadialMenu>
                           </td>
-                        </tr>
-                      ))
-                    : (
+                    </tr>
+                  ))
+                  // }
+                  //   </div>
+                    ): (
                       <tr>
                         <td colSpan="100%" style={{ textAlign: "center", padding: "2rem" }}>
                           No Appointments Found!
                         </td>
                       </tr>
-                    )}
+                    )
+                  }
               </tbody>
             </table>
           </div>

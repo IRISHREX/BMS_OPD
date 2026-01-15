@@ -16,6 +16,7 @@ import {
 } from "../utils/soundUtils";
 import "./Compounders.css";
 import { useNavigate } from "react-router-dom";
+import { MdAdd } from "react-icons/md";
 
 const Compounders = () => {
   const snackbar = useSnackbar();
@@ -65,43 +66,45 @@ const Compounders = () => {
 
   return (
     <>
-      <section className="page doctors">
+      <section className="page doctors bg-light-blue">
         <div className="compounder-body">
           <div className="dashboard-title-block">
-            <h1>ASSISTANTS</h1>
+            <h1>Assistants</h1>
+
+            <form
+              className="compounders-search-form"
+              onSubmit={(e) => e.preventDefault()}
+            >
+              <input
+                type="text"
+                placeholder="Search by name, phone, email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="compounders-search-input"
+              />
+              <button type="button" className="compounders-search-btn">
+                <FaSearch /> Search
+              </button>
+            </form>
+
             <button
               type="submit"
-              className=""
+              className="add-form-btn"
               style={{
                 background: "#271776ca",
                 color: "#fff",
                 border: "none",
-                borderRadius: "6px",
-                padding: "0.5rem 1rem",
+                // borderRadius: "6px",
+                // padding: "0.5rem 1rem",
                 cursor: "pointer",
               }}
               // onClick={navActions['doctor-dashboard']}
               onClick={handleRedirect}
             >
-              Add New Doctors
+              <MdAdd title="Add New Assistants"/>
+              {/* Add New Assistants */}
             </button>
           </div>
-          <form
-            className="compounders-search-form"
-            onSubmit={(e) => e.preventDefault()}
-          >
-            <input
-              type="text"
-              placeholder="Search by name, phone, email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="compounders-search-input"
-            />
-            <button type="button" className="compounders-search-btn">
-              <FaSearch /> Search
-            </button>
-          </form>
-
           <div className="banner">
             {compounders && compounders.length > 0 ? (
               compounders.map((el) => (
@@ -155,11 +158,14 @@ const Compounders = () => {
                 />
               ))
             ) : (
-              <div>
+              <div
+                style={{
+                  textAlign: "center",
+                }}
+              >
                 <span className="loader"></span>
                 <h1>No Registered Assistants Found!</h1>
               </div>
-              
             )}
           </div>
         </div>

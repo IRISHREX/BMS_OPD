@@ -1,6 +1,9 @@
-import React from "react";
 import RequirePermission from "./RequirePermission";
 import { FaTrashAlt, FaEdit, FaEye } from "./DoctorIcons";
+import { MdEmail } from "react-icons/md";
+import { PiPhone } from "react-icons/pi";
+import { FaCalendarXmark } from "react-icons/fa6";
+import useClickSound from "../hooks/useClickSound";
 
 const UserCard = ({
   user,
@@ -10,6 +13,7 @@ const UserCard = ({
   onDelete,
   allowAdminActions = true,
 }) => {
+  const setupClickSound = useClickSound();
   // Use the image URL directly from the database (or fallback to default)
   const avatarUrl = user.docAvatar
     ? `http://localhost:5000${user.docAvatar}`
@@ -31,6 +35,7 @@ const UserCard = ({
         transition: "box-shadow 0.2s",
         border: "1px solid #ececec",
         position: "relative",
+        lineHeight: "130%"
       }}
     >
       <div
@@ -56,7 +61,7 @@ const UserCard = ({
       <h3
         style={{
           fontWeight: 700,
-          fontSize: "1.25rem",
+          fontSize: "1rem",
           margin: "0.5rem 0",
           color: "#271776",
         }}
@@ -96,13 +101,14 @@ const UserCard = ({
         }}
       >
         <div>
-          <span style={{ fontWeight: 600 }}>Email:</span> {user.email}
+          <span style={{ fontWeight: 600 }}><MdEmail /></span> {user.email}
         </div>
         <div>
-          <span style={{ fontWeight: 600 }}>Phone:</span> {user.phone}
+          <span style={{ fontWeight: 600 }}><PiPhone /></span> {user.phone}
         </div>
         <div>
-          <span style={{ fontWeight: 600 }}>DOB:</span>{" "}
+          <span style={{ fontWeight: 600 }}><FaCalendarXmark/></span>{" "}
+          <span style={{ fontWeight: 100 }}>DOB:</span>{" "}
           {user.dob
             ? user.dob.substring
               ? user.dob.substring(0, 10)
@@ -117,50 +123,27 @@ const UserCard = ({
         <RequirePermission allowedRoles={["Admin"]}>
           <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
             <button
+              ref={setupClickSound}
               title="View"
+              className="btn-icon icon-btn"
               onClick={() => onView && onView(user)}
-              style={{
-                background: "#f7f7fa",
-                border: "none",
-                color: "#271776",
-                fontSize: "1.2rem",
-                borderRadius: "8px",
-                padding: "0.5rem 0.7rem",
-                boxShadow: "0 1px 4px #eee",
-                cursor: "pointer",
-              }}
+        
             >
               <FaEye />
             </button>
             <button
+              ref={setupClickSound}
               title="Edit"
               onClick={() => onEdit && onEdit(user)}
-              style={{
-                background: "#f7f7fa",
-                border: "none",
-                color: "#271776",
-                fontSize: "1.2rem",
-                borderRadius: "8px",
-                padding: "0.5rem 0.7rem",
-                boxShadow: "0 1px 4px #eee",
-                cursor: "pointer",
-              }}
+              className="btn-icon icon-btn"
             >
               <FaEdit />
             </button>
             <button
+              ref={setupClickSound}
               title="Delete"
               onClick={() => onDelete && onDelete(user)}
-              style={{
-                background: "#fff0f0",
-                border: "none",
-                color: "#d32f2f",
-                fontSize: "1.2rem",
-                borderRadius: "8px",
-                padding: "0.5rem 0.7rem",
-                boxShadow: "0 1px 4px #eee",
-                cursor: "pointer",
-              }}
+              className="btn-icon icon-btn"
             >
               <FaTrashAlt />
             </button>

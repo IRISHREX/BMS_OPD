@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
+import { useSnackbar } from '../../context/SnackbarContext';
+import useSound from 'use-sound';
+import { FaTrash, FaPen, FaEye, FaSync } from 'react-icons/fa';
+import Toolbar from '../Toolbar';
+import { BsEye, BsSave, BsTrash2 } from 'react-icons/bs';
+import { FiEdit } from 'react-icons/fi';
+import { GiCancel, GiCancer } from 'react-icons/gi';
+import { MdCancel } from 'react-icons/md';
 
 const TrackReferralsTab = ({ referrals: initialReferrals, onSubmit, loading: initialLoading = false }) => {
+  const snackbar = useSnackbar();
+  const [playDeleteSound] = useSound("/delete.mp3");
+  const [playSaveSound] = useSound("/save.mp3");
   const [allReferrals, setAllReferrals] = useState(initialReferrals || []);
   const [loading, setLoading] = useState(initialLoading);
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,7 +37,7 @@ const TrackReferralsTab = ({ referrals: initialReferrals, onSubmit, loading: ini
       setAllReferrals(data.referrals || []);
     } catch (error) {
       console.error('Error fetching referrals:', error);
-      alert('Error fetching referrals');
+      snackbar.error('Error fetching referrals');
     } finally {
       setLoading(false);
     }
@@ -98,27 +109,29 @@ const TrackReferralsTab = ({ referrals: initialReferrals, onSubmit, loading: ini
   const handleSaveEdit = async (referralId) => {
     try {
       await api.put(`/api/v1/referral/update/${referralId}`, editData);
-      alert('Referral updated successfully');
+      snackbar.success('Referral updated successfully');
+      playSaveSound();
       setEditingId(null);
       fetchAllReferrals(); // Refresh list
     } catch (error) {
-      alert('Error updating referral: ' + error.response?.data?.message);
+      snackbar.error('Error updating referral: ' + error.response?.data?.message);
     }
   };
 
   const handleDelete = async (referralId) => {
-    if (window.confirm('Are you sure you want to delete this referral?')) {
+    snackbar.confirm('Are you sure you want to delete this referral?', async () => {
       try {
         setDeleting(referralId);
         await api.delete(`/api/v1/referral/delete/${referralId}`);
-        alert('Referral deleted successfully');
+        snackbar.success('Referral deleted successfully');
+        playDeleteSound();
         fetchAllReferrals(); // Refresh list
       } catch (error) {
-        alert('Error deleting referral: ' + error.response?.data?.message);
+        snackbar.error('Error deleting referral: ' + error.response?.data?.message);
       } finally {
         setDeleting(null);
       }
-    }
+    });
   };
 
   if (loading) {
@@ -139,90 +152,79 @@ const TrackReferralsTab = ({ referrals: initialReferrals, onSubmit, loading: ini
         <h2>Track Referrals</h2>
         
         {/* Search and Filter Section */}
-        <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
-          <div className="grid-container">
-            <div className="form-group">
-              <label>Search by Patient Name / Referral ID</label>
-              <input 
-                type="text"
-                placeholder="Enter patient name or referral number"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+        <Toolbar>
+
+          <div style={{ width: '90%' }}>
+            <div className="grid-container">
+              <div className="form-group">
+                <input 
+                  type="text"
+                  placeholder="Enter patient name or referral number 🔍"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                /> 
+              </div>
+              <div className="form-group">
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                  <option value="">All Status </option>
+                  <option value="submitted">Submitted</option>
+                  <option value="under-review">Under Review</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="scheduled">Scheduled</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <select value={urgencyFilter} onChange={(e) => setUrgencyFilter(e.target.value)}>
+                  <option value="">All Urgency</option>
+                  <option value="routine">Routine</option>
+                  <option value="urgent">Urgent</option>
+                  <option value="emergency">Emergency</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <select value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}>
+                  <option value="all">All Dates</option>
+                  <option value="today">Today</option>
+                  <option value="yesterday">Yesterday</option>
+                  <option value="custom">Custom Range</option>
+                </select>
+              </div>
             </div>
-            <div className="form-group">
-              <label>Filter by Status</label>
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                <option value="">All Status</option>
-                <option value="submitted">Submitted</option>
-                <option value="under-review">Under Review</option>
-                <option value="accepted">Accepted</option>
-                <option value="scheduled">Scheduled</option>
-                <option value="rejected">Rejected</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Filter by Urgency</label>
-              <select value={urgencyFilter} onChange={(e) => setUrgencyFilter(e.target.value)}>
-                <option value="">All Urgency</option>
-                <option value="routine">Routine</option>
-                <option value="urgent">Urgent</option>
-                <option value="emergency">Emergency</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Filter by Date</label>
-              <select value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}>
-                <option value="all">All Dates</option>
-                <option value="today">Today</option>
-                <option value="yesterday">Yesterday</option>
-                <option value="custom">Custom Range</option>
-              </select>
-            </div>
+
+            {/* Custom Date Range */}
+            {dateFilter === 'custom' && (
+              <div className="grid-container" style={{ marginTop: '10px' }}>
+                <div className="form-group">
+                  <label>Start Date</label>
+                  <input 
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>End Date</label>
+                  <input 
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
+<button 
+              onClick={fetchAllReferrals}
+              className="icon-btn"
+            >
+              <FaSync />
+            </button>
+            <p style={{ fontSize: '14px', color: '#666', marginTop: '10px' }}>
+              Found: {filteredReferrals.length} referral{filteredReferrals.length !== 1 ? 's' : ''} (Total: {allReferrals.length})
+            </p>
           </div>
-
-          {/* Custom Date Range */}
-          {dateFilter === 'custom' && (
-            <div className="grid-container" style={{ marginTop: '10px' }}>
-              <div className="form-group">
-                <label>Start Date</label>
-                <input 
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label>End Date</label>
-                <input 
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                />
-              </div>
-            </div>
-          )}
-
-          <p style={{ fontSize: '14px', color: '#666', marginTop: '10px' }}>
-            Found: {filteredReferrals.length} referral{filteredReferrals.length !== 1 ? 's' : ''} (Total: {allReferrals.length})
-          </p>
-          <button 
-            onClick={fetchAllReferrals}
-            style={{
-              marginTop: '10px',
-              padding: '8px 15px',
-              backgroundColor: '#2196F3',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '14px',
-            }}
-          >
-            Refresh
-          </button>
-        </div>
+        </Toolbar>
 
         {/* Referrals List */}
         <div className="doctors banner">
@@ -238,26 +240,6 @@ const TrackReferralsTab = ({ referrals: initialReferrals, onSubmit, loading: ini
               
               return (
                 <div key={referral._id} className="card" style={{ position: 'relative' }}>
-                  {/* Delete Button */}
-                  <button
-                    onClick={() => handleDelete(referral._id)}
-                    disabled={deleting === referral._id}
-                    style={{
-                      position: 'absolute',
-                      top: '10px',
-                      right: '10px',
-                      backgroundColor: '#ff4444',
-                      color: 'white',
-                      border: 'none',
-                      padding: '8px 12px',
-                      borderRadius: '4px',
-                      cursor: deleting === referral._id ? 'not-allowed' : 'pointer',
-                      fontSize: '12px',
-                    }}
-                  >
-                    {deleting === referral._id ? 'Deleting...' : 'Delete'}
-                  </button>
-
                   <div className="doc-card-header">
                     <div>
                       <h4>{referral.patientName}</h4>
@@ -312,20 +294,20 @@ const TrackReferralsTab = ({ referrals: initialReferrals, onSubmit, loading: ini
                           rows="3"
                         />
                       </div>
-                      <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+                      <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
                         <button 
-                          className="btn" 
+                          className="icon-btn" 
                           onClick={() => handleSaveEdit(referral._id)}
-                          style={{ backgroundColor: '#4CAF50' }}
+                          style={{ background: '#e2f3e2' ,color: 'green'}}
                         >
-                          Save
+                          <BsSave/>
                         </button>
                         <button 
-                          className="btn" 
+                          className="icon-btn" 
                           onClick={() => setEditingId(null)}
-                          style={{ backgroundColor: '#999' }}
+                          style={{ background:'#fbf7f7', color: 'red'}}
                         >
-                          Cancel
+                          <MdCancel/>
                         </button>
                       </div>
                     </div>
@@ -380,19 +362,15 @@ const TrackReferralsTab = ({ referrals: initialReferrals, onSubmit, loading: ini
                         })}
                       </div>
 
-                      <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                        <button 
-                          className="btn"
-                          onClick={() => handleEdit(referral)}
-                          style={{ flex: 1, backgroundColor: '#2196F3' }}
-                        >
-                          Edit
+                      <div className="doc-card-actions" style={{ display: 'flex', gap: '10px', marginTop: '10px', justifyContent: 'flex-end' }}>
+                        <button className="icon-btn" onClick={() => {}}>
+                          <BsEye />
                         </button>
-                        <button 
-                          className="btn"
-                          style={{ flex: 1 }}
-                        >
-                          View Details
+                        <button className="icon-btn" onClick={() => handleEdit(referral)}>
+                          <FiEdit />
+                        </button>
+                        <button className="icon-btn" onClick={() => handleDelete(referral._id)} disabled={deleting === referral._id}>
+                          {deleting === referral._id ? <span className="loader"></span> : <BsTrash2 />}
                         </button>
                       </div>
                     </>
