@@ -36,7 +36,6 @@ const Prescription = ({ patientId, onClose }) => {
   const [age, setAge] = useState("");
   const [bookedBy, setBookedBy] = useState("");
   const rDiagnosis = useSelector((state) => state.diagnosis.value);
-  const [initialComplain, setInitialComplain] = useState("");
   const dispatch = useDispatch();
   const symptomSuggestions = useSymptomSuggestions();
   const medSuggestions = useMedicineSuggestions();
@@ -263,7 +262,7 @@ const Prescription = ({ patientId, onClose }) => {
         setDoctorId(latest.doctorId || "");
         if (latest.result && latest.result.length) {
           const r = latest.result[0];
-          setInitialComplain(r.initialComplain || "");
+          // setInitialComplain(r.initialComplain || "");
           dispatch(change(r.initialComplain || ""));
           setMedicalHistory(r.medicalHistory || "");
           setClinical_findings(
@@ -369,7 +368,7 @@ const Prescription = ({ patientId, onClose }) => {
           })();
           const payloadSnap = {
             // initialComplain: r.initialComplain || "",
-            initialComplain: rDiagnosis || "",
+            initialComplain: r.initialComplain || rDiagnosis || "",
             medicalHistory: r.medicalHistory || "",
             clinical_findings: r.clinical_findings || {
               patientCondition: {
@@ -483,7 +482,7 @@ const Prescription = ({ patientId, onClose }) => {
       setIsDirty(false);
     }
   }, [
-    initialComplain,
+    rDiagnosis,
     medicalHistory,
     clinical_findings,
     diagnosys_heading,
@@ -819,18 +818,18 @@ const Prescription = ({ patientId, onClose }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [steps.length, handleSave]);
 
-  // Auto-populate medicines when initialComplain changes (debounced)
+  // Auto-populate medicines when rDiagnosis changes (debounced)
   useEffect(() => {
-    if (!initialComplain || initialComplain.trim().length < 3) return; // wait for meaningful input
+    if (!rDiagnosis || rDiagnosis.trim().length < 3) return; // wait for meaningful input
     // don't overwrite manual medicines
     if (medicineAdvice && medicineAdvice.length > 0) return;
 
     const id = setTimeout(() => {
-      autoPopulateFromComplaint(initialComplain);
+      autoPopulateFromComplaint(rDiagnosis);
     }, 600);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialComplain]);
+  }, [rDiagnosis]);
 
   // improved scoring: count token matches, prefer advices matching ALL tokens, add bonuses for symptom matches and exact name match
   const scoreAdvice = (adviceObj, q) => {
@@ -1032,7 +1031,7 @@ const Prescription = ({ patientId, onClose }) => {
           (k) => (diagnosys[k] || "").toString().trim() !== ""
         );
       const hasContent =
-        (initialComplain && initialComplain.trim()) ||
+        (rDiagnosis && rDiagnosis.trim()) ||
         (Array.isArray(selectedMedicines) && selectedMedicines.length > 0) ||
         Object.keys(adviceToSave).length > 0 ||
         diagnosysHasContent;
@@ -1046,7 +1045,7 @@ const Prescription = ({ patientId, onClose }) => {
         followup_date: followUp, // Moved to root level as per schema
         result: [
           {
-            initialComplain,
+            initialComplain: rDiagnosis,
             medicalHistory,
             clinical_findings,
             diagnosys_heading,
@@ -1171,9 +1170,6 @@ const Prescription = ({ patientId, onClose }) => {
     }
   }, [diagnosys.Height, diagnosys.Weight]);
 
-  // useEffect(() => {
-  //   dispatch(change(initialComplain));
-  // }, []);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -1453,7 +1449,7 @@ const Prescription = ({ patientId, onClose }) => {
                         }
                       );
                       diseases.push(...data.results);
-                      console.log(data.results);
+                      // console.log(data.results);
                     } catch (err) {
                       console.log(
                         "Failed to fetch advices for query:",
@@ -1906,13 +1902,13 @@ const Prescription = ({ patientId, onClose }) => {
                     // Fix: use for...of instead of .map() to properly await async calls
                     for (const query of rDiagnosis_arr_cln) {
                       try {
-                        console.log("|", query.trim(), "|");
+                        // console.log("|", query.trim(), "|");
                         const { data } = await api.get(
                           `/api/v1/medical/suggestions/advices`,
                           { params: { q: query.trim(), limit: 20 } }
                         );
 
-                        console.log(data.advices);
+                        // console.log(data.advices);
 
                         // Flatten medicines into Map (deduplicate by medicine name)
                         if (data.advices && Array.isArray(data.advices)) {
@@ -2026,7 +2022,6 @@ const Prescription = ({ patientId, onClose }) => {
                           : item || "";
                       // Replace last partial token (if present) or append selected label as a new token.
                       // AutoSuggestInput already updated the value via onChange. Just ensure trailing comma and space.
-                      setInitialComplain(newVal.trim());
                       setComplaintSuggestions([]);
                       // track selected complaints list (preserve old behavior)
                       setSelectedComplaints((prev) => {

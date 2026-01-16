@@ -684,7 +684,7 @@ const Dashboard = () => {
             <h5>Appointments</h5>
             <div className="btn-box">
               <button
-                className="btn add-btn"
+                className="btn"
                 onClick={() => navigate("/add-appointment")}
               >
                 <FaPrescriptionBottleMedical /> Book Appointment
@@ -693,9 +693,8 @@ const Dashboard = () => {
                 className="btn"
                 onClick={() => setSlotCheckerOpen(true)}
                 style={{
-                  background: "#0ae9f9ff",
+                  background: "#5A7ACD",
                   color: "white",
-                  marginLeft: "0.5rem",
                 }}
               >
                 <MdSchedule /> View Slots
@@ -706,7 +705,7 @@ const Dashboard = () => {
                   onClick={handleBulkDelete}
                   disabled={selectedAppointments.length === 0}
                 >
-                  <MdOutlineDelete /> Delete Selected (
+                  <MdOutlineDelete /> Delete (
                   {selectedAppointments.length})
                 </button>
               </RequirePermission>
