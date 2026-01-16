@@ -516,16 +516,24 @@ body {
 }
 
 .filter-box select {
-  background: #ff008d;
+  /* background: #ff008d;
   color: #fff;
   border: none;
   border-radius: 0.25rem;
-  padding: 0.5rem;
+  padding: 0.5rem; */
   font-weight: 600;
   font-size: 1rem;
+  border: 1px solid #e2e8f0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500;
+  height: 40px;
+  font-size: 15px;
 }
 .filter-box select:focus {
-  border: none;
+  /* border: none; */
+  outline: 0;
 }
 .filter-box select option {
   font-weight: 600;
@@ -534,7 +542,12 @@ body {
 .filter-box select:focus-visible {
   outline: 0;
 }
-
+.filter-group .btn-cls{
+    display: flex;
+    align-items: center;
+    height: 40px;
+    font-size: 20px;
+}
 .search-box {
   display: flex;
   align-items: center;
@@ -1135,7 +1148,8 @@ input[type="time"]:before {
 }
 /* THEME OVERRIDES */
 .theme-light {
-  --bg-main: #e5e5e5;
+  /* --bg-main: #e5e5e5; */
+  --bg-main: #f0f0f6;
   --bg-card: #fff;
   --accent: #3939d9f2;
   --btn-gradient: linear-gradient(140deg, #9083d5, #271776ca);
@@ -1321,7 +1335,7 @@ input[type="time"]:before {
 }
 
 /* RK */
-.ReactModalPortal .ReactModal__Content.ReactModal__Content--after-open{
+.ReactModalPortal .ReactModal__Content.ReactModal__Content--after-open {
   border: 0 !important;
   /* padding: 0 !important; */
 }
@@ -1334,7 +1348,6 @@ input[type="time"]:before {
   align-items: center;
   gap: 10px;
 }
-.doctpr-form-header p{
+.doctpr-form-header p {
   color: #fff;
 }
-

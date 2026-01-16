@@ -272,9 +272,16 @@
   flex-wrap: wrap;
 }
 .medicine-page-header .header-title-group {
-  display: flex;
+  /* display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 12px; */
+}
+.header-title-group h2 {
+  text-align: left;
+  font-family: "Montserrat", sans-serif;
+}
+.header-title-group p {
+  color: #8f8f8f;
 }
 .medicine-page-header .header-actions {
   display: flex;
@@ -498,6 +505,7 @@
   border-radius: 6px;
   border: 1px solid var(--border-color);
   font-size: 0.95rem;
+  height: 40px;
 }
 .invoice-input:focus {
   outline: none;
@@ -587,10 +595,10 @@
 
 .badge-status {
   display: inline-block;
-  padding: 4px 8px;
+  padding: 3px 8px;
   border-radius: 999px;
-  font-weight: 700;
-  font-size: 0.8rem;
+  font-weight: 500;
+  font-size: 0.75rem;
   color: #fff;
 }
 .badge-unpaid {
@@ -666,6 +674,64 @@
   padding: 0.6rem 0.9rem;
   white-space: nowrap;
   flex-shrink: 0;
+}
+/*  */
+.invoice-list-wrap {
+  overflow-y: auto;
+  border: 1px solid rgb(238, 238, 238);
+  padding-inline: 16px;
+  background: #fff;
+}
+.invoice-card-item {
+  border-bottom: 1px solid #ececec;
+  padding-block: 16px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.invoice-title-div {
+  font-weight: 700;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.invoice-numb {
+  font-family: "Montserrat", sans-serif;
+  color: #6a7084;
+}
+.invoice-info {
+  color: #959595;
+  font-family: "Inter", sans-serif;
+  line-height: 150%;
+  font-size: 15px;
+}
+.icn-btn {
+  border: 0;
+  font-size: 13px;
+  background: #efefff;
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  /* color: #00a558; */
+  box-shadow: 0 0 10px -4px #000000a8;
+  transition: 0.5s all ease;
+  cursor: pointer;
+}
+.icn-btn:hover {
+    box-shadow: 0 0 10px -1px #00000066;
+}
+.icn-btn[title="Edit"] {
+  color: #1b2aca;
+}
+button.icn-btn[title="Delete"] {
+  font-size: 13px;
+  color: #b24d4d;
+  background: #ffe9e9;
 }
 
 /* --- Responsive Design --- */

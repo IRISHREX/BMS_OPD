@@ -784,7 +784,7 @@
   }
   /* RK */
   .page, .dashboard{
-    margin-top: 50px;
+    margin-top: 40px;
   }
   #root:has(.show.sidebar) .page,
   #root:has(.show.sidebar) .dashboard {
