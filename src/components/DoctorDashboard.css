@@ -324,13 +324,13 @@
   font-size: 0.9rem;
 }
 
-.badge {
+/* .badge {
   padding: 0.35rem 0.85rem;
   border-radius: 0.75rem;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-}
+} */
 
 .nabh-badge {
   background: rgba(var(--accent), 0.1);
@@ -784,7 +784,7 @@
   }
   /* RK */
   .page, .dashboard{
-    margin-top: 50px;
+    margin-top: 40px;
   }
   #root:has(.show.sidebar) .page,
   #root:has(.show.sidebar) .dashboard {

@@ -35,6 +35,8 @@ import { IoIosShareAlt } from "react-icons/io";
 import CreateReferralTab from "./tabs/CreateReferralTab";
 import RadialMenu from "./RadialMenu";
 import useClickSound from "../hooks/useClickSound";
+import { RiExpandVerticalLine } from "react-icons/ri";
+
 
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
@@ -48,6 +50,10 @@ const Dashboard = () => {
   const [doctors, setDoctors] = useState([]); // For total count card
   const [doctorFilterList, setDoctorFilterList] = useState([]); // For dropdown
   const [filteredAppointments, setFilteredAppointments] = useState([]);
+  // const [filterPrescibed, setFilterPrescibed] = useState({
+  //   status: "Completed",
+  //   prescribed: "filterPrescibed",
+  // });
   const [filterPrescibed, setfilterPrescibed] = useState("unPrescribed");
   const setupClickSound = useClickSound();
 
@@ -489,6 +495,25 @@ const Dashboard = () => {
     filterPrescibed,
   ]);
 
+
+  const prescibeFilterChange = (event) => {
+    // const { name, value } = event.target;
+    // setFilterPrescibed((prev) => ({ ...prev, [name]: value }));
+    setFilterPrescibed(event.target.value);
+    // if (filterPrescibed === "Prescribed") {
+    //   if (appointment.status == "Completed") {
+    //     // return "Prescribed";
+    //     return console.log("data prescribed");
+    //   }
+    // } else if (filterPrescibed === "Unprescribed") {
+    //   // return "Unprescribed";
+    //   return console.log("data not prescribed");
+    // } else if (filterPrescibed === "All") {
+    //   // return "All";
+    //   return console.log("All");
+    // }
+  };
+
   if (!isAuthenticated) {
     return <Navigate to={"/login"} />;
   }
@@ -580,6 +605,7 @@ const Dashboard = () => {
         <div className="banner middle-banner">
           <div className="filter-box">
             <select
+              name="dateFilter"
               value={filterOption}
               onChange={(e) => setFilterOption(e.target.value)}
             >
@@ -609,6 +635,7 @@ const Dashboard = () => {
 
             <select
               value={filterPrescibed}
+              // onChange={prescibeFilterChange}
               onChange={(e) => setfilterPrescibed(e.target.value)}
               className="prescribed-filter"
             >
@@ -786,7 +813,8 @@ const Dashboard = () => {
                       className="expand-btn icon-btn"
                       onClick={() => setIsExpanded(!isExpanded)}
                     >
-                      <RiExpandHorizontalSFill />
+                      {/* <RiExpandHorizontalSFill /> */}
+                      <RiExpandVerticalLine />
                     </button>
                   </th>
                   {/* <th>Created By</th> */}
@@ -809,7 +837,7 @@ const Dashboard = () => {
               <tbody>
                 {filteredAppointments && filteredAppointments.length > 0 ? (
                   // <div>
-                  filteredAppointments.map((appointment) =>(
+                  filteredAppointments.map((appointment) => (
                     <tr key={appointment._id}>
                       <td style={{ textAlign: "left" }}>
                         <RequirePermission allowedRoles={["Admin"]}>
@@ -853,7 +881,7 @@ const Dashboard = () => {
                                 ? "value-rejected"
                                 : "value-completed"
                             }
-                            style={{ fontSize: "1rem" }}
+                            style={{ fontSize: "0.875rem" }}
                           >
                             <option value="Pending" className="value-rejected">
                               Pending
@@ -868,6 +896,7 @@ const Dashboard = () => {
                       {isExpanded && (
                         <td style={{ minWidth: "8rem" }}>
                           <select
+                            name="status"
                             className={
                               appointment.status === "Pending"
                                 ? "value-pending"
@@ -884,7 +913,7 @@ const Dashboard = () => {
                                 e.target.value
                               )
                             }
-                            style={{ fontSize: "1rem" }}
+                            style={{ fontSize: "0.875rem" }}
                           >
                             <option value="Pending" className="value-pending">
                               Pending
@@ -998,7 +1027,7 @@ const Dashboard = () => {
                             </select>
                           </div>
                           </td> */}
-                          {/* {
+                      {/* {
                           isExpanded && <td style={{minWidth: "8rem"}}>
                             <select
                               className={
@@ -1043,14 +1072,14 @@ const Dashboard = () => {
                             </select>
                           </td>} */}
 
-                          {/*  */}
+                      {/*  */}
 
-                          {/* <RequirePermission allowedRoles={["Admin"]}>
+                      {/* <RequirePermission allowedRoles={["Admin"]}>
                             {isExpanded && <td>{`${appointment.doctor.firstName} ${appointment.doctor.lastName}`}</td>}
                             {isExpanded && <td>{appointment.department}</td>}
                           </RequirePermission> */}
 
-                          {/* {isExpanded && <td>
+                      {/* {isExpanded && <td>
                             {appointment.hasVisited === true ? (
                               <GoCheckCircleFill className="green" />
                             ) : (
@@ -1063,7 +1092,7 @@ const Dashboard = () => {
                               : appointment.patientId || "-"}
                           </td>} */}
 
-                          {/* {isExpanded &&<td>
+                      {/* {isExpanded &&<td>
                             <RequirePermission allowedRoles={["Admin", "Doctor"]}>
 
                             <button
@@ -1159,16 +1188,18 @@ const Dashboard = () => {
                           </td>
                     </tr>
                   ))
+                ) : (
                   // }
                   //   </div>
-                    ): (
-                      <tr>
-                        <td colSpan="100%" style={{ textAlign: "center", padding: "2rem" }}>
-                          No Appointments Found!
-                        </td>
-                      </tr>
-                    )
-                  }
+                  <tr>
+                    <td
+                      colSpan="100%"
+                      style={{ textAlign: "center", padding: "2rem" }}
+                    >
+                      No Appointments Found!
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
