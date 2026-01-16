@@ -19,7 +19,8 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  overflow-x: hidden;
+  /* overflow: hidden; */
+  /* overflow-x: hidden; */
   font-family: var(--app-font, "Montserrat", sans-serif);
 }
 body {
@@ -42,6 +43,7 @@ body {
   border-bottom-left-radius: 3.125rem; /*50px*/
   transition: background 0.3s;
   width: calc(100% - 6.5rem);
+  overflow-x: hidden;
 }
 .loader {
   width: 60px;
@@ -809,11 +811,13 @@ body {
     top: 0;
     border-radius: 0;
     justify-content: flex-start;
-    padding-inline: 20px;
+    padding-inline: 15px;
+    padding-top: 12px;
   }
   .wrapper .hamburger {
     display: block;
     color: #fff;
+    background-color: transparent;
   }
 
   .show {
@@ -830,7 +834,7 @@ body {
 }
 @media (max-width: 485px) {
   .doctors h1 {
-    font-size: 1.8rem;
+    font-size: 1.375rem;
     /* margin-bottom: 20px; */
     text-align: center;
   }
@@ -982,9 +986,10 @@ body {
     flex-direction: column;
   }
 }
-@media (max-width: 767) {
+@media screen and (max-width: 767px) {
   .doctors .banner {
     grid-template-columns: 1fr;
+    padding-inline: 1rem;
   }
 }
 .search-section {
@@ -1043,10 +1048,14 @@ body {
 .add-doctor-form form .first-wrapper div:first-child {
   flex: 1;
 }
-.add-doctor-form form .first-wrapper div:first-child img {
+.add-doctor-form form .doctor-avatar-imgbox {
   width: 100%;
-  height: 515px;
+  height: 260px;
   margin-bottom: 20px;
+}
+.doctor-avatar-imgbox img {
+  width: 100%;
+  height: 100%;
 }
 .add-doctor-form form .first-wrapper div:first-child input {
   width: 100%;
@@ -1312,3 +1321,22 @@ input[type="time"]:before {
 .form-component button.btn-primary {
   background: var(--btn-gradient);
 }
+
+/* RK */
+.ReactModalPortal .ReactModal__Content.ReactModal__Content--after-open{
+  border: 0 !important;
+  /* padding: 0 !important; */
+}
+.doctpr-form-header {
+  background: #2a3686;
+  width: 100%;
+  padding: 20px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.doctpr-form-header p{
+  color: #fff;
+}
+

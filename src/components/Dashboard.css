@@ -109,7 +109,7 @@
   background: transparent;
 }
 .expand-btn.icon-btn:hover {
-    background: transparent;
+  background: transparent;
 }
 .expand-btn.btn-icon {
   color: coral;
@@ -191,7 +191,7 @@
 .dashboard-title-block form button {
   position: absolute;
   right: 0;
-  padding: 10px 20px;
+  padding: 11px 20px;
   border-radius: 22px;
   display: flex;
   align-items: center;
@@ -214,9 +214,9 @@
   background-color: rgb(0 0 0 / 75%) !important;
   backdrop-filter: blur(10px);
 }
-.dashboard .banner table thead th:first-child input{
-    position: relative;
-    top: 2px;
+.dashboard .banner table thead th:first-child input {
+  position: relative;
+  top: 2px;
 }
 @media screen and (max-width: 767px) {
   .doctors-body form,
@@ -230,14 +230,22 @@
     right: 0;
     font-size: 0;
     background-color: #271776;
+    border-radius: 0 20px 20px 0px;
+    padding: 8px 10px;
   }
   .doctors-body form input,
   .compounder-body form input {
     padding-right: 50px !important;
     text-overflow: ellipsis;
+    padding: 5px 14px;
+    height: 30px !important;
+    font-size: 13px;
   }
   .doctors-body form button svg,
   .compounder-body form button svg {
-    font-size: 18px;
+    font-size: 13px;
+  }
+  .doctors-body form input::placeholder {
+    font-size: 12px;
   }
 }

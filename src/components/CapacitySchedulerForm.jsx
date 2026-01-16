@@ -3,8 +3,12 @@ import { useSnackbar } from "../context/SnackbarContext";
 import api from "../utils/api";
 import { Context } from "../main";
 import "./CapacitySchedulerForm.css";
+import { AiOutlineSchedule } from "react-icons/ai";
 
-const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) => {
+const CapacitySchedulerForm = ({
+  doctorId,
+  allowAdminSelfManagement = true,
+}) => {
   const snackbar = useSnackbar();
   const { admin } = useContext(Context);
   const [capacities, setCapacities] = useState([]);
@@ -16,7 +20,7 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
   const [isWorkingDay, setIsWorkingDay] = useState(true);
 
   // Determine effective doctorId: use admin's ID if they're an admin and allowAdminSelfManagement is true
-  const effectiveDoctorId = 
+  const effectiveDoctorId =
     allowAdminSelfManagement && admin?.role === "Admin" && admin?._id
       ? admin._id
       : doctorId;
@@ -38,8 +42,8 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
       // Use local date without timezone conversion
       const getDateString = (date) => {
         const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
         return `${year}-${month}-${day}`;
       };
 
@@ -96,7 +100,9 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
         fetchCapacities();
       }
     } catch (error) {
-      snackbar.error(error?.response?.data?.message || "Failed to set capacity");
+      snackbar.error(
+        error?.response?.data?.message || "Failed to set capacity"
+      );
     } finally {
       setFormLoading(false);
     }
@@ -109,7 +115,9 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
       );
 
       if (response.data.success) {
-        snackbar.success(`Marked as ${!currentStatus ? "working" : "non-working"} day`);
+        snackbar.success(
+          `Marked as ${!currentStatus ? "working" : "non-working"} day`
+        );
         fetchCapacities();
       }
     } catch (error) {
@@ -136,8 +144,8 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
   const getMinDate = () => {
     const today = new Date();
     const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
@@ -145,8 +153,8 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
     const maxDate = new Date();
     maxDate.setDate(maxDate.getDate() + 90);
     const year = maxDate.getFullYear();
-    const month = String(maxDate.getMonth() + 1).padStart(2, '0');
-    const day = String(maxDate.getDate()).padStart(2, '0');
+    const month = String(maxDate.getMonth() + 1).padStart(2, "0");
+    const day = String(maxDate.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
@@ -163,7 +171,10 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
   return (
     <div className="capacity-scheduler-form">
       <div className="form-header">
-        <h3>📅 Capacity Schedule Manager</h3>
+        <h3>
+          <AiOutlineSchedule />
+          Capacity Schedule Manager
+        </h3>
         <p>Set your daily patient capacity and working days</p>
       </div>
 
@@ -249,7 +260,10 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
         ) : capacities.length > 0 ? (
           <div className="capacity-list">
             {capacities.map((cap) => {
-              const percentage = getCapacityPercentage(cap.bookedCount, cap.capacity);
+              const percentage = getCapacityPercentage(
+                cap.bookedCount,
+                cap.capacity
+              );
               const { status, label } = getCapacityStatus(percentage);
               const dateStr = formatDate(cap.serviceDate);
 
@@ -264,7 +278,9 @@ const CapacitySchedulerForm = ({ doctorId, allowAdminSelfManagement = true }) =>
                     </div>
                     <button
                       type="button"
-                      onClick={() => handleToggleWorkingDay(cap._id, cap.isWorkingDay)}
+                      onClick={() =>
+                        handleToggleWorkingDay(cap._id, cap.isWorkingDay)
+                      }
                       className={`toggle-btn ${
                         cap.isWorkingDay ? "working" : "non-working"
                       }`}
