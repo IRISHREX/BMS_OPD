@@ -775,6 +775,7 @@ const Appointment = () => {
                 </div>
                 <div className="btn-container">
                   <button
+                  className="btn-cls next-btn"
                     type="button"
                     data-step="2"
                     onClick={() => setStep(2)}
@@ -919,7 +920,7 @@ const Appointment = () => {
                       </div>
 
                       <div className="btn-container">
-                        <button type="button" onClick={() => { setInvoiceFields({ address, doctorFee, price, paymentStatus }); setShowInvoicePreview(true); }}>
+                        <button className="btn-cls" type="button" onClick={() => { setInvoiceFields({ address, doctorFee, price, paymentStatus }); setShowInvoicePreview(true); }}>
                           Preview
                         </button>
                       </div>
@@ -928,8 +929,8 @@ const Appointment = () => {
                 </div>
 
                 <div className="btn-container">
-                  <button type="button" onClick={() => setStep(1)}>Back</button>
-                  <button type="submit">GET APPOINTMENT</button>
+                  <button type="button" className="btn-cls" onClick={() => setStep(1)}>Back</button>
+                  <button type="submit" className="btn-cls">GET APPOINTMENT</button>
                 </div>
               </div>
             )}

@@ -5,6 +5,16 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./Profile.css";
 import CapacitySchedulerForm from "./CapacitySchedulerForm";
+import { MdEmail } from "react-icons/md";
+import { MdPhoneIphone } from "react-icons/md";
+import { PiGenderIntersexBold } from "react-icons/pi";
+import { RxLapTimer } from "react-icons/rx";
+import { IoIosPerson } from "react-icons/io";
+import { LuCalendarClock } from "react-icons/lu";
+import { IoIosMail } from "react-icons/io";
+import { BiSolidEditAlt } from "react-icons/bi";
+import { MdOutlineLockPerson } from "react-icons/md";
+
 
 // Password Change Modal Component
 const PasswordChangeModal = ({
@@ -254,7 +264,10 @@ const Profile = () => {
     return (
       <section className="page">
         <div className="profile-page">
-          <div className="loader" style={{ Height: "3rem" }}></div>
+          <div
+            className="loader"
+            style={{ Height: "3rem", display: "block", marginInline: "auto" }}
+          ></div>
         </div>
       </section>
     );
@@ -271,32 +284,69 @@ const Profile = () => {
   }
 
   return (
-    <section className="page">
+    <section className="page bg-light-blue">
       <div className="profile-page">
-        <h2>Profile Settings</h2>
+        <div className="profile-header">
+          <h1>Profile Settings</h1>
+          <p>Manage your personal & security settings</p>
+        </div>
 
         <div className="profile-container">
           {/* User Details Section */}
           <div className="profile-section user-details-section">
-            <h3>👤 Personal Information</h3>
+            <h3>
+              <IoIosPerson />
+              Personal Overview
+            </h3>
             <div className="details-grid">
-              <div className="detail-item">
+              <div className="profile-avatar-block">
+                <div className="profile-avatar">
+                  <img src="../../public/profile-avatar.png" alt="" />
+                </div>
+                <div>
+                  <p className="profile-name">
+                    {userDetails.firstName} {userDetails.lastName}
+                  </p>
+                  <p
+                    className="badge"
+                    style={{
+                      background:
+                        userDetails.role === "Admin"
+                          ? "#ff6b6b"
+                          : userDetails.role === "Doctor"
+                          ? "#4ecdc4"
+                          : userDetails.role === "Compounder"
+                          ? "#45b7d1"
+                          : "#95a5a6",
+                    }}
+                  >
+                    {userDetails.role}
+                  </p>
+                </div>
+              </div>
+              {/* <div className="detail-item">
                 <label>First Name</label>
                 <p>{userDetails.firstName}</p>
               </div>
               <div className="detail-item">
                 <label>Last Name</label>
                 <p>{userDetails.lastName}</p>
-              </div>
+              </div> */}
               <div className="detail-item">
-                <label>Email</label>
+                <label>
+                  <IoIosMail />
+                  Email
+                </label>
                 <p>{userDetails.email}</p>
               </div>
               <div className="detail-item">
-                <label>Phone</label>
+                <label>
+                  <MdPhoneIphone />
+                  Phone
+                </label>
                 <p>{userDetails.phone}</p>
               </div>
-              <div className="detail-item">
+              {/* <div className="detail-item">
                 <label>Role</label>
                 <p
                   className="badge"
@@ -318,10 +368,12 @@ const Profile = () => {
                 >
                   {userDetails.role}
                 </p>
-              </div>
+              </div> */}
               {userDetails.gender && (
                 <div className="detail-item">
-                  <label>Gender</label>
+                  <label>
+                    <PiGenderIntersexBold /> Gender
+                  </label>
                   <p>{userDetails.gender}</p>
                 </div>
               )}
@@ -338,12 +390,20 @@ const Profile = () => {
                 </div>
               )}
             </div>
+            <div className="edit-btn-block flex-center">
+              <button className="edit-profile-btn">
+                <BiSolidEditAlt />
+                Edit Profile
+              </button>
+            </div>
           </div>
 
-          <div>
+          <div className="">
             {/* Account Age Section */}
             <div className="profile-section account-age-section">
-              <h3>📅 Account Age</h3>
+              <h3>
+                <LuCalendarClock /> Account Age
+              </h3>
               <div className="account-age-display">
                 <div className="age-item">
                   <span className="age-number">{accountAge?.years || 0}</span>
@@ -380,8 +440,11 @@ const Profile = () => {
 
             {/* Password Change Button Section */}
             <div className="profile-section password-section">
-              <h3>🔐 Security</h3>
-              <p style={{ color: "#666", marginBottom: "1.5rem" }}>
+              <h3>
+                <MdOutlineLockPerson />
+                Security
+              </h3>
+              <p className="security-text">
                 Manage your account password and security settings.
               </p>
               <button
@@ -395,9 +458,11 @@ const Profile = () => {
           </div>
 
           {/* Calendar Section */}
-          {/* {userDetails?.createdAt && ( */}
+          {userDetails?.createdAt && (
             <div className="profile-section calendar-section">
-              <h3>📆 Join Date Calendar</h3>
+              <h3>
+               📅 Join Date Calendar
+              </h3>
               <div className="calendar-container">
                 <Calendar
                   value={calendarDate}
@@ -425,7 +490,7 @@ const Profile = () => {
                 </p>
               </div>
             </div>
-          {/* )} */}
+          )}
 
           {/* Doctor Capacity Settings Section */}
 

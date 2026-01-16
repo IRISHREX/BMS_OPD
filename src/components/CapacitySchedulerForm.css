@@ -276,7 +276,6 @@
   border: 1px solid #ddd;
 }
 
-
 .capacity-card-body {
   display: flex;
   flex-direction: column;
@@ -383,6 +382,17 @@
 
 .info-box strong {
   color: #333;
+}
+/*  */
+.capacity-scheduler-form .form-header h3 {
+  font-size: 1.25rem;
+  color: #656565;
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+}
+.capacity-scheduler-form .form-header h3 svg {
+  color: #715dbb;
 }
 
 /* Responsive Design */

@@ -11,6 +11,8 @@ import {
 } from "../store/doctorCreateSlice";
 import { updateDoctorRequest } from "../store/doctorUpdateSlice";
 import useClickSound from "../hooks/useClickSound";
+import { FaUserEdit } from "react-icons/fa";
+
 
 const AddNewDoctor = ({ initialData, isEditing }) => {
   const snackbar = useSnackbar();
@@ -130,7 +132,7 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
     formData.append("lastName", lastName);
     formData.append("email", email);
     formData.append("phone", phone);
-    if(password) formData.append("password", password);
+    if (password) formData.append("password", password);
     formData.append("nic", calculatedNic);
     formData.append("dob", calculatedDob);
     formData.append("gender", gender);
@@ -178,10 +180,14 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
   if (!isAuthenticated && !isEditing) {
     return <Navigate to={"/login"} />;
   }
-  
+
   const formContent = (
     <div className="add-doctor-form">
-      <img
+      <div className="doctpr-form-header">
+        <FaUserEdit />
+        <p>{isEditing ? "Edit Doctor" : "Register A New Doctor"}</p>
+      </div>
+      {/* <img
         src="/logo.svg"
         alt="logo"
         className="logo"
@@ -191,25 +197,25 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
           borderRadius: "50%",
           objectFit: "cover",
         }}
-      />
-      <h1 className="form-title">{isEditing ? "EDIT DOCTOR" : "REGISTER A NEW DOCTOR"}</h1>
+      /> */}
+      <h1 className="form-title">
+        {isEditing ? "EDIT DOCTOR" : "REGISTER A NEW DOCTOR"}
+      </h1>
       <form onSubmit={handleAddNewDoctor}>
         <div className="first-wrapper">
           <div className="form-field-wrap left">
-            <img
-              src={docAvatarPreview ? `${docAvatarPreview}` : "/doc1.jpg"}
-              alt="Doctor Avatar"
-            />
+            <div className="doctor-avatar-imgbox">
+              <img
+                src={docAvatarPreview ? `${docAvatarPreview}` : "/doc1.jpg"}
+                alt="Doctor Avatar"
+              />
+            </div>
             <input type="file" onChange={handleAvatar} accept="image/*" />
             <div style={{ marginTop: 8 }}>
               <label style={{ display: "block", marginBottom: 6 }}>
                 Sign Image (optional)
               </label>
-              <input
-                type="file"
-                onChange={handleSignImage}
-                accept="image/*"
-              />
+              <input type="file" onChange={handleSignImage} accept="image/*" />
               {signImagePreview && (
                 <img
                   src={signImagePreview}
@@ -266,8 +272,7 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
               value={phone}
               onChange={(e) => {
                 setPhone(e.target.value);
-                if (e.target.value && age)
-                  setNic(makeNIC(e.target.value, age));
+                if (e.target.value && age) setNic(makeNIC(e.target.value, age));
               }}
               disabled={doctorCreate.creating}
             />
@@ -293,8 +298,7 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
                 setDob(e.target.value);
                 const newAgeYears = dobToAgeYears(e.target.value);
                 setAge(newAgeYears);
-                if (phone && newAgeYears)
-                  setNic(makeNIC(phone, newAgeYears));
+                if (phone && newAgeYears) setNic(makeNIC(phone, newAgeYears));
               }}
               readOnly
               style={{ background: "#f4f4f4", color: "#888" }}
@@ -317,14 +321,14 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
               <option value="Male">Male</option>
               <option value="Female">Female</option>
             </select>
-           {isEditing ? null : (<input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={doctorCreate.creating}
-             />
-           
+            {isEditing ? null : (
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={doctorCreate.creating}
+              />
             )}
             <select
               value={doctorDepartment}
@@ -350,9 +354,11 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
               disabled={doctorCreate.creating}
             />
             <button type="submit" disabled={doctorCreate.creating}>
-              {isEditing ? "Update Doctor" : (doctorCreate.creating
+              {isEditing
+                ? "Update Doctor"
+                : doctorCreate.creating
                 ? "Registering..."
-                : "Register New Doctor")}
+                : "Register New Doctor"}
             </button>
             {doctorCreate.error && (
               <div
@@ -380,16 +386,12 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
           className="arrow-btn icon-btn"
           onClick={() => navigate("/doctors")}
           // style={{ marginLeft: 8 }}
-        >
-        </button>
+        ></button>
         <p>{isEditing ? "Edit Doctor" : "Register New Doctor"}</p>
       </div>
-      <div className="container">
-        {formContent}
-      </div>
+      <div className="container">{formContent}</div>
     </section>
   );
-;
 };
 
 export default AddNewDoctor;
