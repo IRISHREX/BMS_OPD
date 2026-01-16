@@ -279,6 +279,7 @@
 .header-title-group h2 {
   text-align: left;
   font-family: "Montserrat", sans-serif;
+  margin-bottom: 5px;
 }
 .header-title-group p {
   color: #8f8f8f;
@@ -679,16 +680,35 @@
 .invoice-list-wrap {
   overflow-y: auto;
   border: 1px solid rgb(238, 238, 238);
-  padding-inline: 16px;
+  padding: 20px;
   background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  /* border-radius: 0.5rem; */
 }
 .invoice-card-item {
-  border-bottom: 1px solid #ececec;
-  padding-block: 16px;
-  border-radius: 6px;
+  /* border-bottom: 1px solid #ececec; */
+  padding: 14px 14px;
+  border-radius: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0px 3px 10px -2px #00000018;
+  border-radius: 3px;
+}
+/* .invoice-card-item:nth-child(odd) {
+  border-left: 5px solid #9bdcc7;
+}
+
+.invoice-card-item:nth-child(even) {
+  border-left: 5px solid #b4a8f2;
+} */
+.invoice-card-item:has(.badge-unpaid) {
+  border-left: 4px solid #ffc39c;
+}
+.invoice-card-item:has(.badge-paid) {
+  border-left: 4px solid #9bdcc7;
 }
 .invoice-title-div {
   font-weight: 700;
@@ -705,7 +725,7 @@
   color: #959595;
   font-family: "Inter", sans-serif;
   line-height: 150%;
-  font-size: 15px;
+  font-size: 14px;
 }
 .icn-btn {
   border: 0;
@@ -723,7 +743,7 @@
   cursor: pointer;
 }
 .icn-btn:hover {
-    box-shadow: 0 0 10px -1px #00000066;
+  box-shadow: 0 0 10px -1px #00000066;
 }
 .icn-btn[title="Edit"] {
   color: #1b2aca;
