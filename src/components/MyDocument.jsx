@@ -144,7 +144,7 @@ const MyDocument = ({ header, footer, p_data, dr_data, report }) => {
   <Document>
     <Page size="A4" style={styles.page}>
       <View style={styles.header_section} fixed>
-        {header ? <Image style={styles.header_image} src={header} /> : null}
+        <Image style={styles.header_image} src="/G.Jakaria_header.png" />
       </View>
       <View style={styles.main_section}>
         <View style={styles.upper_box}>
@@ -187,52 +187,52 @@ const MyDocument = ({ header, footer, p_data, dr_data, report }) => {
         <View style={styles.pData}>
           <View style={styles.gravida_vitals}>
             <View style={styles.gravida_section}>
-              { report.Gravida  && <View style={styles.heading_values}>
+              { report?.Gravida  && <View style={styles.heading_values}>
                 <Text style={styles.heading}>G</Text>
                 <Text>{report.Gravida}</Text>
                 <Text style={styles.heading}>P</Text>
                 <Text>{report.Parity}</Text>
               </View>}
-              {report.LMP && <View style={styles.heading_values}>
+              {report?.LMP && <View style={styles.heading_values}>
                 <Text style={styles.heading}>LMP:</Text>
                 <Text>{formatDate(report.LMP)}</Text>
               </View>}
-              {report.EDD && <View style={styles.heading_values}>
+              {report?.EDD && <View style={styles.heading_values}>
                 <Text style={styles.heading}>EDD:</Text>
                 <Text>{formatDate(report.EDD)}</Text>
               </View>}
-              {report.POG && <View style={styles.heading_values}>
+              {report?.POG && <View style={styles.heading_values}>
                 <Text style={styles.heading}>POG:</Text>
                 <Text>{report.POG}</Text>
               </View>}
-              {report.LCB && <View style={styles.heading_values}>
+              {report?.LCB && <View style={styles.heading_values}>
                 <Text style={styles.heading}>LCB:</Text>
                 <Text>{report.LCB}</Text>
               </View>}
-              {report.MOD && <View style={styles.heading_values}>
+              {report?.MOD && <View style={styles.heading_values}>
                 <Text style={styles.heading}>MOD:</Text>
                 <Text>{report.MOD}</Text>
               </View>}
             </View>
 
             <View style={styles.vitals_section}>
-              {report.diagnosys.BP && <View style={styles.heading_values}>
+              {report?.diagnosys.BP && <View style={styles.heading_values}>
                 <Text style={styles.heading}>BP:</Text>
                 <Text>{report.diagnosys.BP} mm of Hg</Text>
               </View>}
-              {report.diagnosys.PR && <View style={styles.heading_values}>
+              {report?.diagnosys.PR && <View style={styles.heading_values}>
                 <Text style={styles.heading}>PR:</Text>
                 <Text>{report.diagnosys.PR} bpm</Text>
               </View>}
-              {report.diagnosys.SPO2 && <View style={styles.heading_values}>
+              {report?.diagnosys.SPO2 && <View style={styles.heading_values}>
                 <Text style={styles.heading}>SPO2:</Text>
                 <Text>{report.diagnosys.SPO2}% in RA</Text>
               </View>}
-              {report.diagnosys.Temp && <View style={styles.heading_values}>
+              {report?.diagnosys.Temp && <View style={styles.heading_values}>
                 <Text style={styles.heading}>Temp:</Text>
                 <Text>{report.diagnosys.Temp}°F</Text>
               </View>}
-              {report.diagnosys.Others && <View style={styles.heading_values}>
+              {report?.diagnosys.Others && <View style={styles.heading_values}>
                 <Text style={styles.heading}>Others:</Text>
                 <Text>{report.diagnosys.Others}</Text>
               </View>}
@@ -426,7 +426,7 @@ const MyDocument = ({ header, footer, p_data, dr_data, report }) => {
       </View>
 
       <View style={styles.footer_section} fixed>
-        {footer ? <Image style={styles.footer_image} src={footer} /> : null}
+        <Image style={styles.footer_image} src="/G.Jakaria_footer1.png" />
       </View>
     </Page>
   </Document>
