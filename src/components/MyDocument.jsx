@@ -216,25 +216,25 @@ const MyDocument = ({ header, footer, p_data, dr_data, report }) => {
             </View>
 
             <View style={styles.vitals_section}>
-              {report?.diagnosys.BP && <View style={styles.heading_values}>
+              {report?.diagnosys?.BP && <View style={styles.heading_values}>
                 <Text style={styles.heading}>BP:</Text>
-                <Text>{report.diagnosys.BP} mm of Hg</Text>
+                <Text>{report?.diagnosys?.BP} mm of Hg</Text>
               </View>}
-              {report?.diagnosys.PR && <View style={styles.heading_values}>
+              {report?.diagnosys?.PR && <View style={styles.heading_values}>
                 <Text style={styles.heading}>PR:</Text>
-                <Text>{report.diagnosys.PR} bpm</Text>
+                <Text>{report?.diagnosys?.PR} bpm</Text>
               </View>}
-              {report?.diagnosys.SPO2 && <View style={styles.heading_values}>
+              {report?.diagnosys?.SPO2 && <View style={styles.heading_values}>
                 <Text style={styles.heading}>SPO2:</Text>
-                <Text>{report.diagnosys.SPO2}% in RA</Text>
+                <Text>{report?.diagnosys?.SPO2}% in RA</Text>
               </View>}
-              {report?.diagnosys.Temp && <View style={styles.heading_values}>
+              {report?.diagnosys?.Temp && <View style={styles.heading_values}>
                 <Text style={styles.heading}>Temp:</Text>
-                <Text>{report.diagnosys.Temp}°F</Text>
+                <Text>{report?.diagnosys?.Temp}°F</Text>
               </View>}
-              {report?.diagnosys.Others && <View style={styles.heading_values}>
+              {report?.diagnosys?.Others && <View style={styles.heading_values}>
                 <Text style={styles.heading}>Others:</Text>
-                <Text>{report.diagnosys.Others}</Text>
+                <Text>{report?.diagnosys?.Others}</Text>
               </View>}
             </View>
           </View>
