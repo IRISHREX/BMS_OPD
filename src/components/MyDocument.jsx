@@ -162,7 +162,7 @@ const MyDocument = ({ header, footer, p_data, dr_data, report }) => {
             </View>
             <View style={styles.heading_values}>
               <Text style={styles.heading}>ID:</Text>
-              <Text>{p_data.nic}</Text>
+              <Text>{p_data.appointmentId}</Text>
             </View>
           </View>
           <View style={styles.upper_right}>
