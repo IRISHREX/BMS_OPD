@@ -12,6 +12,7 @@ import {
 import { updateDoctorRequest } from "../store/doctorUpdateSlice";
 import useClickSound from "../hooks/useClickSound";
 import { FaUserEdit } from "react-icons/fa";
+import "./AddNewDoctor.css";
 
 
 const AddNewDoctor = ({ initialData, isEditing }) => {

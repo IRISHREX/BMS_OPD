@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
 });
 // Create Document Component
 const MyDocument = ({ header, footer, p_data, dr_data, report }) => {
-  console.log("In MyDocument:", header, footer, p_data, dr_data, report);
+  // console.log("In MyDocument:", header, footer, p_data, dr_data, report);
   return (
   <Document>
     <Page size="A4" style={styles.page}>
