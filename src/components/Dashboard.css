@@ -299,3 +299,408 @@
     padding-inline: 1rem;
   }
 }
+
+/* ------------------------- From app.css---- */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.dashboard .banner {
+  min-height: fit-content;
+}
+.dashboard .banner:first-child {
+  height: 35vh;
+  display: flex;
+  gap: 1.25rem;
+}
+.dashboard .banner:first-child .firstBox {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  border-radius: 1.25rem;
+  background: #b5b5ff;
+  padding: 1.25rem 1.25rem 0 0.625rem;
+}
+.dashboard .banner:first-child .firstBox img {
+  height: 100%;
+  flex: 1;
+}
+.dashboard .banner:first-child .firstBox .content {
+  /* flex: 2; */
+  background-color: transparent;
+  padding: 0;
+  z-index: 0;
+}
+.dashboard .banner:first-child .firstBox .content div {
+  display: flex;
+  align-items: center;
+  font-size: 2.125rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+.dashboard .banner:first-child .firstBox .content div p {
+  margin-right: 0.625rem;
+  font-size: 2.125rem;
+}
+.dashboard .banner:first-child .firstBox .content div h5 {
+  color: #ff008d;
+}
+.dashboard .banner:first-child .firstBox .content p {
+  font-size: 1rem;
+  text-align: justify;
+  line-height: 1.3;
+}
+.dashboard .banner:first-child .secondBox {
+  background: #3939d9f2;
+  color: #fff;
+}
+.dashboard .banner:first-child .thirdBox {
+  color: #ff008d;
+  background: #fff;
+}
+.dashboard .banner:first-child .secondBox,
+.dashboard .banner:first-child .thirdBox {
+  flex: 1;
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.5625rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.75rem;
+}
+.dashboard .banner:first-child .secondBox p,
+.dashboard .banner:first-child .thirdBox p {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.dashboard .banner:first-child .secondBox h3,
+.dashboard .banner:first-child .thirdBox h3 {
+  font-size: 2.125rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.dashboard .banner:last-child {
+  min-height: 65vh;
+  background: #fff;
+  border-radius: 1.25rem;
+  padding: 2.5rem;
+}
+.dashboard .banner:last-child h5 {
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  color: #111;
+}
+.dashboard .banner table {
+  width: 100%;
+  color: #111;
+}
+.dashboard .banner table select {
+  font-size: 1.25rem;
+  border: none;
+  width: 100%;
+  font-weight: 600;
+}
+.dashboard table td svg {
+  display: flex;
+  margin: 0 auto;
+}
+.dashboard table td .green {
+  font-size: 1.25rem;
+  color: #16a34a;
+}
+.dashboard table td .red {
+  font-size: 1.25rem;
+  color: #dc2626;
+}
+.dashboard .banner table select:focus {
+  outline: none;
+}
+
+.middle-banner {
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 10vh;
+}
+@media (max-width: 700px) {
+  .middle-banner {
+    flex-direction: column-reverse;
+  }
+}
+.filter-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.custom-dates {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.custom-dates input {
+  padding: 0.5rem;
+  border: 1px solid gray;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+}
+/*  */
+@media (max-width: 900px) {
+  .filter-box {
+    flex-direction: column;
+    align-items: start;
+  }
+  .middle-banner {
+    align-items: start;
+    position: relative;
+  }
+  .search-box {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+}
+@media (max-width: 630px) {
+  .middle-banner {
+    position: static;
+    align-items: center;
+  }
+  .filter-box {
+    flex-direction: column;
+    align-items: center;
+  }
+  .search-box {
+    position: static;
+  }
+}
+
+.filter-box select {
+  /* background: #ff008d;
+  color: #fff;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.5rem; */
+  font-weight: 600;
+  font-size: 1rem;
+  border: 1px solid #e2e8f0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500;
+  height: 40px;
+  font-size: 15px;
+}
+.filter-box select:focus {
+  /* border: none; */
+  outline: 0;
+}
+.filter-box select option {
+  font-weight: 600;
+  /* background: #ff008d; */
+}
+.filter-box select:focus-visible {
+  outline: 0;
+}
+.filter-group .btn-cls{
+    display: flex;
+    align-items: center;
+    height: 40px;
+    font-size: 20px;
+}
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.search-box input {
+  height: 2rem;
+  padding: 0.5rem;
+  border: 1px solid grey;
+  border-radius: 0.3rem;
+}
+.search-box input::placeholder {
+  font-size: 0.7rem;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.table-banner .heading-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.heading-box .btn-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+/* RK */
+.btn.btn-primary.prescribe-btn {
+  padding: 4px 8px;
+  width: fit-content;
+  min-width: fit-content;
+  font-size: 12px;
+  border-radius: 3px;
+  text-transform: capitalize;
+  font-weight: 400;
+}
+
+@media (max-width: 830px) {
+  .dashboard .banner:last-child h5 {
+    letter-spacing: normal;
+  }
+}
+@media (max-width: 810px) {
+  .dashboard .banner:last-child h5 {
+    font-size: 1.25rem;
+  }
+  .heading-box .btn-box .btn {
+    /* font-weight: 400; */
+    font-size: 0.7rem;
+  }
+  .dashboard .banner:last-child {
+    padding: 2rem 1rem;
+  }
+}
+@media (max-width: 675px) {
+  .heading-box .btn-box {
+    flex-direction: column;
+  }
+}
+@media (max-width: 535px) {
+  .table-banner .heading-box {
+    flex-direction: column;
+    gap: 2rem;
+  }
+}
+
+.dashboard .banner table .value-pending {
+  color: #eab308;
+}
+.dashboard .banner table .value-accepted {
+  color: #3971d9f2;
+}
+.dashboard .banner table .value-completed {
+  color: #16a34a;
+}
+.dashboard .banner table .value-rejected {
+  color: #dc2626;
+}
+.dashboard .banner table {
+  border-collapse: collapse; /* merges adjacent borders */
+  border-spacing: 0; /* ensures no extra gaps */
+  text-align: center;
+}
+.dashboard .banner table thead {
+  text-align: justify;
+  padding: 0.75rem 0;
+}
+.dashboard .banner table thead tr {
+  background-color: #e5e5e5;
+}
+.dashboard .banner table thead th {
+  padding: 12px;
+  min-width: 5rem;
+  border: 1px solid #e5e5e5;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #133254;
+}
+.dashboard .banner table tbody td {
+  padding: 12px;
+  min-width: 5rem;
+  border: 1px solid #e5e5e5;
+  font-size: 13px;
+  color: #484848;
+}
+.dashboard .banner table tbody td .td-btn-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 0.5rem;
+}
+/* RK */
+.dashboard .banner table tbody tr td:first-child input {
+  position: relative;
+  top: 2px;
+}
+.doctor-imgbox {
+  width: 250px;
+  height: 150px;
+  overflow: visible;
+}
+.doctor-imgbox img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+@media (max-width: 86rem) {
+  /*1376px*/
+  .dashboard .banner:first-child .firstBox .content div,
+  .dashboard .banner:first-child .firstBox .content div p {
+    font-size: 1.625rem;
+  }
+  .dashboard .banner:first-child .firstBox .content p {
+    font-size: 0.875rem;
+  }
+  .dashboard .banner:first-child .secondBox p,
+  .dashboard .banner:first-child .thirdBox p,
+  .dashboard .banner:first-child .secondBox h3,
+  .dashboard .banner:first-child .thirdBox h3 {
+    font-size: 1.25rem;
+  }
+}
+@media (max-width: 63.75rem) {
+  /*1020px*/
+  .dashboard {
+    height: auto;
+  }
+  .dashboard .banner:first-child,
+  .dashboard .banner:last-child {
+    flex-wrap: wrap;
+    height: auto;
+  }
+  .dashboard .banner:first-child .firstBox {
+    flex: none;
+    width: 100%;
+    height: 16.5625rem;
+  } /*265px*/
+  .dashboard .banner:first-child .secondBox,
+  .dashboard .banner:first-child .thirdBox {
+    height: 10.9375rem;
+  } /*175px*/
+}
+@media (max-width: 38.75rem) {
+  .dashboard .banner:first-child .secondBox,
+  .dashboard .banner:first-child .thirdBox {
+    width: 100%;
+    flex: none;
+  }
+}
+@media (max-width: 30.3125rem) {
+  .dashboard .banner:first-child .firstBox {
+    flex-direction: column;
+    height: auto;
+    padding: 1.25rem;
+  }
+  .dashboard .banner:first-child .firstBox img {
+    width: 16.875rem;
+    height: 16.875rem;
+    margin-bottom: 1.5625rem;
+  }
+  .dashboard .banner:first-child .firstBox div {
+    justify-content: center;
+  }
+}

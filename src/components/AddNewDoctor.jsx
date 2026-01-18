@@ -13,6 +13,8 @@ import { updateDoctorRequest } from "../store/doctorUpdateSlice";
 import useClickSound from "../hooks/useClickSound";
 import { FaUserEdit } from "react-icons/fa";
 import { BsArrowLeft } from "react-icons/bs";
+import "./AddNewDoctor.css";
+
 
 const AddNewDoctor = ({ initialData, isEditing }) => {
   const snackbar = useSnackbar();

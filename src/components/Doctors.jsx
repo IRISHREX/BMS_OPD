@@ -17,6 +17,7 @@ import AddNewDoctor from "./AddNewDoctor";
 import { MdAdd } from "react-icons/md";
 import useClickSound from "../hooks/useClickSound";
 import { FaSearchDollar } from "react-icons/fa";
+import "./Doctors.css";
 
 const Doctors = () => {
   const snackbar = useSnackbar();

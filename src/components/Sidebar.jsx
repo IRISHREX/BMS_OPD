@@ -15,6 +15,7 @@ import RequirePermission from "./RequirePermission";
 import { IoIosPersonAdd } from "react-icons/io";
 import { FiLogOut } from "react-icons/fi";
 import useClickSound from "../hooks/useClickSound";
+import "./Sidebar.css";
 
 
 const Sidebar = () => {

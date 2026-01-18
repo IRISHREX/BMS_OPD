@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchPreviewRequest, resetPreview } from "../store/previewSlice";
 import { dobToAge } from "../utils/ageUtils";
 import { Context } from "../main";
-import "./presFormat.css";
 import { PiPrescriptionBold, PiPrinter } from "react-icons/pi";
 import api from "../utils/api";
 import { BsDownload } from "react-icons/bs";
