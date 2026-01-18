@@ -13,6 +13,8 @@ import {
 import { useSnackbar } from "../context/SnackbarContext";
 import "./Appointment.css";
 import { useNavigate } from "react-router-dom";
+import { GoArrowLeft } from "react-icons/go";
+import { BsArrowLeft } from "react-icons/bs";
 
 const Appointment = () => {
   const snackbar = useSnackbar();
@@ -36,7 +38,16 @@ const Appointment = () => {
   const [hasVisited, setHasVisited] = useState(false);
   const [price, setPrice] = useState(0);
   const [doctorFee, setDoctorFee] = useState(100);
-  const [diagnosys, setDiagnosys] = useState({ BP: "", PR: "", SPO2: "", Temp: "", Height: "", Weight: "", BMI: "", Others: "" });
+  const [diagnosys, setDiagnosys] = useState({
+    BP: "",
+    PR: "",
+    SPO2: "",
+    Temp: "",
+    Height: "",
+    Weight: "",
+    BMI: "",
+    Others: "",
+  });
   const [paymentStatus, setPaymentStatus] = useState("Pending");
 
   const [downloadInvoice, setDownloadInvoice] = useState(false);
@@ -114,7 +125,9 @@ const Appointment = () => {
         const { data } = await api.get(`/api/v1/user/doctors`);
         setDoctors(data.doctors || []);
       } catch (err) {
-        snackbar.error(err?.response?.data?.message || "Failed to fetch doctors");
+        snackbar.error(
+          err?.response?.data?.message || "Failed to fetch doctors",
+        );
       }
     };
     fetchDoctors();
@@ -140,7 +153,7 @@ const Appointment = () => {
     const getFocusable = (container) => {
       if (!container) return [];
       return Array.from(container.querySelectorAll(selector)).filter(
-        (el) => el.offsetParent !== null
+        (el) => el.offsetParent !== null,
       );
     };
 
@@ -274,12 +287,14 @@ const Appointment = () => {
     if (!dashboardUser || !doctors.length) return;
 
     let filteredDoctors = [];
-    if (dashboardUser.role === 'Admin') {
+    if (dashboardUser.role === "Admin") {
       filteredDoctors = doctors;
-    } else if (dashboardUser.role === 'Doctor') {
-      filteredDoctors = doctors.filter(doc => doc._id === dashboardUser._id);
-    } else if (dashboardUser.role === 'Compounder') {
-      filteredDoctors = doctors.filter(doc => dashboardUser.assignedDoctors.includes(doc._id));
+    } else if (dashboardUser.role === "Doctor") {
+      filteredDoctors = doctors.filter((doc) => doc._id === dashboardUser._id);
+    } else if (dashboardUser.role === "Compounder") {
+      filteredDoctors = doctors.filter((doc) =>
+        dashboardUser.assignedDoctors.includes(doc._id),
+      );
     }
 
     setDoctorList(filteredDoctors);
@@ -287,9 +302,8 @@ const Appointment = () => {
     if (filteredDoctors.length > 0) {
       set_id(filteredDoctors[0]._id);
     } else {
-      set_id('');
+      set_id("");
     }
-
   }, [dashboardUser, doctors]);
 
   useEffect(() => {
@@ -382,21 +396,22 @@ const Appointment = () => {
       // payload prepared for appointment creation
       if (!canBook)
         return snackbar.error(
-          "Only Admin/Doctor/Compounder may create appointments. Please login to dashboard."
+          "Only Admin/Doctor/Compounder may create appointments. Please login to dashboard.",
         );
       // debug: log payload being dispatched so we can confirm data sent
       // dispatch redux action to create appointment (saga handles download)
-      console.log('Creating appointment with payload:', payload);
+      console.log("Creating appointment with payload:", payload);
       dispatch({
         type: "appointment/createAppointmentRequest",
         payload: { payload, download: downloadInvoice },
       });
-
+      navigate("/");
       // Let saga handle success. Saga will toast. We listen to appointmentState below to reset.
     } catch (error) {
       // show friendly error to user
       snackbar.error(
-        error?.response?.data?.message || "An error occurred. Please try again."
+        error?.response?.data?.message ||
+          "An error occurred. Please try again.",
       );
     }
   };
@@ -418,26 +433,38 @@ const Appointment = () => {
       setDoctorFirstName("");
       setDoctorLastName("");
       setHasVisited(false);
-      setProfession("")
+      setProfession("");
       setAddress("");
       set_id("");
       setPrice(0);
-      setDiagnosys({ BP: "", PR: "", SPO2: "", Temp: "", Height: "", Weight: "", BMI: "", Others: "" });
+      setDiagnosys({
+        BP: "",
+        PR: "",
+        SPO2: "",
+        Temp: "",
+        Height: "",
+        Weight: "",
+        BMI: "",
+        Others: "",
+      });
       setDownloadInvoice(false);
       setStep(1);
     }
   }, [appointmentState.lastCreated]);
 
   const handlePrefillFromVisited = async () => {
-    if (!searchNameOrPhone) return snackbar.error("Enter name or phone to search");
+    if (!searchNameOrPhone)
+      return snackbar.error("Enter name or phone to search");
     try {
       const q = encodeURIComponent(searchNameOrPhone);
       // use api helper (axios instance) instead of undefined globals
-      const { data } = await api.get(`/api/v1/appointment/search`, { params: { q } });
+      const { data } = await api.get(`/api/v1/appointment/search`, {
+        params: { q },
+      });
       const appt = data.appointments[0];
       if (appt) {
         setName(
-          appt.name || `${appt.firstName || ""} ${appt.lastName || ""}`.trim()
+          appt.name || `${appt.firstName || ""} ${appt.lastName || ""}`.trim(),
         );
         // setEmail(appt.email || "");
         setPhone(appt.phone || "");
@@ -465,7 +492,7 @@ const Appointment = () => {
       }
     } catch (err) {
       snackbar.error(
-        err?.response?.data?.message || "No previous appointment found"
+        err?.response?.data?.message || "No previous appointment found",
       );
     }
   };
@@ -477,7 +504,7 @@ const Appointment = () => {
       const form = formRef.current;
       if (!form) return;
       const focusable = Array.from(
-        form.querySelectorAll("input,select,textarea,button")
+        form.querySelectorAll("input,select,textarea,button"),
       ).filter((el) => !el.disabled && el.type !== "hidden");
       const idx = focusable.indexOf(document.activeElement);
       if (e.shiftKey) {
@@ -505,29 +532,28 @@ const Appointment = () => {
     <>
       <section className="page">
         <div className="back-btn-box">
-          <button className="arrow-btn" onClick={() => navigate("/")}></button>
+          <button className="arrow-btn" onClick={() => navigate("/")}>
+            <BsArrowLeft />
+          </button>
         </div>
-        <div className="  appointment-form">
+        <div className="appointment-card">
           <div className="appointment-header">
             {/* <img src="/logo.png" alt="PathologyLab Logo" className="appointment-logo" /> */}
             <h2>Appointment</h2>
           </div>
-          <div className="mb-05rem">
+          <div className="mb-05rem appointment-step">
             <small>Step {step} of 2</small>
-            <div className="float-right">
-              <small>Shortcut: Ctrl/Cmd+P to submit & download</small>
-            </div>
+            <small>Shortcut: Ctrl/Cmd+P to submit & download</small>
           </div>
           <form
+            className="appointment-form"
             ref={formRef}
             onKeyDown={handleKeyNavigation}
             onSubmit={handleAppointment}
           >
             <div className="has-visited-box ">
               <div className="checkbox-container">
-                <p className="font-1rem mb-0">
-                  Have you visited before?
-                </p>
+                <p className="font-1rem mb-0">Have you visited before?</p>
                 <input
                   type="checkbox"
                   checked={hasVisited}
@@ -551,70 +577,75 @@ const Appointment = () => {
             {step === 1 && (
               <div className="position-relative">
                 {showPatientSuggestions &&
-                      patientSuggestions &&
-                      patientSuggestions.length > 0 && (
+                  patientSuggestions &&
+                  patientSuggestions.length > 0 && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: 0,
+                        right: 0,
+                        top: "3rem",
+                        background: "#fff",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                        zIndex: 1200,
+                        maxHeight: 220,
+                        overflowY: "auto",
+                      }}
+                    >
+                      {patientSuggestions.map((p) => (
                         <div
+                          key={p._id}
                           style={{
-                            position: "absolute",
-                            left: 0,
-                            right: 0,
-                            top: "3rem",
-                            background: "#fff",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                            zIndex: 1200,
-                            maxHeight: 220,
-                            overflowY: "auto",
+                            padding: "8px 10px",
+                            borderBottom: "1px solid #eee",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            snackbar.success("Prefilled existing patient");
+                            // autofill fields
+                            setName(p.name || "");
+                            setPhone(p.phone || "");
+                            setNic(p.nic || "");
+                            if (p.profession) setProfession(p.profession);
+                            if (p.address) setAddress(p.address);
+                            // fill dob/age/gender if present (but do NOT override appointmentDate)
+                            if (p.dob) {
+                              const iso = new Date(p.dob)
+                                .toISOString()
+                                .slice(0, 10);
+                              setDob(iso);
+                              const parts = dobToAgeParts(iso);
+                              if (parts) {
+                                setAgeYears(String(parts.years || ""));
+                                setAgeMonths(String(parts.months || ""));
+                                setAgeDays(String(parts.days || ""));
+                              }
+                            } else if (p.age) {
+                              setAgeYears(String(p.age || ""));
+                              setAgeMonths("");
+                              setAgeDays("");
+                            }
+                            if (p.gender) setGender(p.gender);
+                            // mark as visited (we found existing patient)
+                            setHasVisited(true);
+                            setShowPatientSuggestions(false);
                           }}
                         >
-                          {patientSuggestions.map((p) => (
-                            <div
-                              key={p._id}
-                              style={{
-                                padding: "8px 10px",
-                                borderBottom: "1px solid #eee",
-                                cursor: "pointer",
-                              }}
-                              onClick={() => {
-                                snackbar.success("Prefilled existing patient");
-                                // autofill fields
-                                setName(p.name || "");
-                                setPhone(p.phone || "");
-                                setNic(p.nic || "");
-                                if (p.profession) setProfession(p.profession)
-                                if (p.address) setAddress(p.address);
-                                // fill dob/age/gender if present (but do NOT override appointmentDate)
-                                if (p.dob) {
-                                  const iso = new Date(p.dob)
-                                    .toISOString()
-                                    .slice(0, 10);
-                                  setDob(iso);
-                                  const parts = dobToAgeParts(iso);
-                                  if (parts) {
-                                    setAgeYears(String(parts.years || ""));
-                                    setAgeMonths(String(parts.months || ""));
-                                    setAgeDays(String(parts.days || ""));
-                                  }
-                                } else if (p.age) {
-                                  setAgeYears(String(p.age || ""));
-                                  setAgeMonths("");
-                                  setAgeDays("");
-                                }
-                                if (p.gender) setGender(p.gender);
-                                // mark as visited (we found existing patient)
-                                setHasVisited(true);
-                                setShowPatientSuggestions(false);
-                              }}
-                            >
-                              <div className="fw-600">{p.name}</div>
-                              <div className="muted font-13">
-                                {p.phone || p.email || p.profession || p.address || ""}
-                              </div>
-                            </div>
-                          ))}
+                          <div className="fw-600">{p.name}</div>
+                          <div className="muted font-13">
+                            {p.phone ||
+                              p.email ||
+                              p.profession ||
+                              p.address ||
+                              ""}
+                          </div>
                         </div>
-                    )}
+                      ))}
+                    </div>
+                  )}
                 <div className="lnr-input-box">
-                  <div className="flex-1 w-100" ref={suggestRef}>
+                  <div className="form-group" ref={suggestRef}>
+                    <label htmlFor="">Full Name:</label>
                     <input
                       type="text"
                       placeholder="Full Name"
@@ -636,7 +667,7 @@ const Appointment = () => {
                             const q = encodeURIComponent(v);
                             const { data } = await api.get(
                               `/api/v1/appointment/suggest`,
-                              { params: { q, limit: 8 } }
+                              { params: { q, limit: 8 } },
                             );
                             setPatientSuggestions(data.patients || []);
                             setShowPatientSuggestions(true);
@@ -647,20 +678,22 @@ const Appointment = () => {
                         }, 300);
                       }}
                     />
-                    
                   </div>
-                  <select
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Others">Others</option>
-                  </select>
+                  <div className="form-group">
+                    <label htmlFor="">Gender:</label>
+                    <select
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Others">Others</option>
+                    </select>
+                  </div>
                 </div>
-                <div className=" lnr-input-box">
-                  <div className=" inner-box-of-lnr">
+                <div className="lnr-input-box">
+                  <div className="form-group">
                     <label htmlFor="">Enter your age:</label>
                     <div className="age-grid">
                       <input
@@ -670,7 +703,7 @@ const Appointment = () => {
                         value={ageYears}
                         onChange={(e) => {
                           const v = e.target.value.replace(/[^0-9]/g, "");
-                          setAgeYears(v && v>150 ? 150:v);
+                          setAgeYears(v && v > 150 ? 150 : v);
                           // compute DOB from parts
                           const y = Number(v) || 0;
                           const m = Number(ageMonths) || 0;
@@ -685,7 +718,7 @@ const Appointment = () => {
                             // subtract days
                             dt.setDate(dt.getDate() - d);
                             dt.setMinutes(
-                              dt.getMinutes() - dt.getTimezoneOffset()
+                              dt.getMinutes() - dt.getTimezoneOffset(),
                             );
                             return dt.toISOString().slice(0, 10);
                           })();
@@ -700,7 +733,7 @@ const Appointment = () => {
                         value={ageMonths}
                         onChange={(e) => {
                           const v = e.target.value.replace(/[^0-9]/g, "");
-                          setAgeMonths(v && v > 12 ? 12:v);
+                          setAgeMonths(v && v > 12 ? 12 : v);
                           const y = Number(ageYears) || 0;
                           const m = Number(v) || 0;
                           const d = Number(ageDays) || 0;
@@ -709,7 +742,7 @@ const Appointment = () => {
                           dt.setMonth(dt.getMonth() - m);
                           dt.setDate(dt.getDate() - d);
                           dt.setMinutes(
-                            dt.getMinutes() - dt.getTimezoneOffset()
+                            dt.getMinutes() - dt.getTimezoneOffset(),
                           );
                           setDob(dt.toISOString().slice(0, 10));
                         }}
@@ -722,7 +755,7 @@ const Appointment = () => {
                         value={ageDays}
                         onChange={(e) => {
                           const v = e.target.value.replace(/[^0-9]/g, "");
-                          setAgeDays(v && v > 31 ? 31:v);
+                          setAgeDays(v && v > 31 ? 31 : v);
                           const y = Number(ageYears) || 0;
                           const m = Number(ageMonths) || 0;
                           const d = Number(v) || 0;
@@ -731,51 +764,60 @@ const Appointment = () => {
                           dt.setMonth(dt.getMonth() - m);
                           dt.setDate(dt.getDate() - d);
                           dt.setMinutes(
-                            dt.getMinutes() - dt.getTimezoneOffset()
+                            dt.getMinutes() - dt.getTimezoneOffset(),
                           );
                           setDob(dt.toISOString().slice(0, 10));
                         }}
                       />
                     </div>
                   </div>
-                  <input
-                    type="tel"
-                    inputMode="numeric"
-                    maxLength={10}
-                    pattern="\d{10}"
-                    placeholder="Mobile Number"
-                    value={phone}
-                    onChange={(e) => {
-                      const v = e.target.value.replace(/\D/g, '').slice(0, 10);
-                      setPhone(v);
-                    }}
-                  />
+                  <div className="form-group">
+                    <label htmlFor="">Phone Number:</label>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      maxLength={10}
+                      pattern="\d{10}"
+                      placeholder="Mobile Number"
+                      value={phone}
+                      onChange={(e) => {
+                        const v = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
+                        setPhone(v);
+                      }}
+                    />
+                  </div>
                 </div>
                 <div className="lnr-input-box">
-                  <select
-                    value={profession}
-                    onChange={(e) => setProfession(e.target.value)}
-                  >
-                    <option value="">Select Profession</option>
-                    {professions.map((p) => (
-                      <option key={p} value={p}>
-                        {p}
-                      </option>
-                    ))}
-                  </select>
-                    <div className="inner-box-of-lnr">
-                      <label htmlFor="">Addrrss:</label>
-                      <textarea className="address-box"
-                        rows="1"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        placeholder="Area, vill/City, P.O, P.S, District, PIN code"
-                      />
-                    </div>
+                  <div className="form-group mb-0">
+                    <label htmlFor="">Profession:</label>
+                    <select
+                      value={profession}
+                      onChange={(e) => setProfession(e.target.value)}
+                    >
+                      <option value="">Select Profession</option>
+                      {professions.map((p) => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group mb-0">
+                    <label htmlFor="">Addrrss:</label>
+                    <textarea
+                      className="address-box"
+                      rows="1"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Area, vill/City, P.O, P.S, District, PIN code"
+                    />
+                  </div>
                 </div>
                 <div className="btn-container">
                   <button
-                  className="btn-cls next-btn"
+                    className="btn-cls next-btn"
                     type="button"
                     data-step="2"
                     onClick={() => setStep(2)}
@@ -789,148 +831,220 @@ const Appointment = () => {
             {step === 2 && (
               <div>
                 <div className="vitals-grid">
-                      <input
-                        type="text"
-                        placeholder="BP (e.g., 120/80 mm of Hg)"
-                        maxLength={7}
-                        value={diagnosys.BP}
-                        onChange={(e) => setDiagnosys(d => ({ ...d, BP: e.target.value }))}
-                      />
-                      <input
-                        type="number"
-                        placeholder="PR (bpm)"
-                        min="20"
-                        max="500"
-                        value={diagnosys.PR}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          setDiagnosys(d => ({ ...d, PR: v && v>500? 500:v }))
-                        }}
-                      />
-
-                      <input
-                        type="number"
-                        placeholder="SPO2 (% in RA)"
-                        min="0"
-                        max="100"
-                        inputMode="numeric"
-                        value={diagnosys.SPO2}
-                        onChange={(e) => {
-                          const v = e.target.value
-                          setDiagnosys(d => ({ ...d, SPO2: v && v>100? 100:v }));
-                        }}
-                      />
-                      <input
-                        type="number"
-                        placeholder="Temp (F)"
-                        min="50"
-                        max="200"
-                        value={diagnosys.Temp}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          setDiagnosys(d => ({ ...d, Temp: v && v>200? 200:v }))
-                        }}
-                      />
-                      <input
-                        type="number"
-                        placeholder="Height (cm)"
-                        min="30"
-                        max="250"
-                        value={diagnosys.Height}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          setDiagnosys(d => ({ ...d, Height: v && v>250? 250:v }))
-                        }}
-                      />
-
-                      <input
-                        type="number"
-                        placeholder="Weight (kg)"
-                        min="1"
-                        max="300"
-                        value={diagnosys.Weight}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          setDiagnosys(d => ({ ...d, Weight: v && v>300? 300:v }))
-                        }}
-                      />
-                </div>
-                <div className="lnr-input-box">
-                      <textarea
-                        rows="2"
-                        value={diagnosys.Others}
-                        onChange={(e) => setDiagnosys(d => ({ ...d, Others: e.target.value }))}
-                        placeholder="Others"
-                      />
-                      <input
-                        type="date"
-                        placeholder="Appointment Date"
-                        min={todayStr}
-                        value={appointmentDate}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          setAppointmentDate(v && v < todayStr ? todayStr : v);
-                        }}
-                      />
-                </div>
-
-                <div className="lnr-input-box">
-                  <select
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                    disabled={dashboardUser && dashboardUser.role === "Doctor"}
-                  >
-                    {departmentsArray.map((depart) => (
-                      <option value={depart} key={depart}>
-                        {depart}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    value={_id}
-                    onChange={(e) => set_id(e.target.value)}
-                    disabled={dashboardUser && dashboardUser.role === "Doctor"}
-                  >
-                    <option value="">Select Doctor</option>
-                    {doctorList.map((doctor) => (
-                      <option value={doctor._id} key={doctor._id}>
-                        {doctor.firstName} {doctor.lastName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="fees-detail-box">
-                  Appointment Fee: {price} Rs
-                  <br />
-                  Doctor Fee: {doctorFee} Rs
-                  <br />
-                  <b>Total: {price + doctorFee} Rs</b>
-                </div>
-
-                <div className="mt-2rem">
-                  <div className="invoice-container">
-                    <div className="checkbox-container mt-1rem py-05rem">
-                      <div className="pay-status-box">
-                        <label htmlFor="">Payment Status: </label>
-                        <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
-                          <option value="Pending">Pending</option>
-                          <option value="Paid">Paid</option>
-                        </select>
-                      </div>
-
-                      <div className="btn-container">
-                        <button className="btn-cls" type="button" onClick={() => { setInvoiceFields({ address, doctorFee, price, paymentStatus }); setShowInvoicePreview(true); }}>
-                          Preview
-                        </button>
-                      </div>
-                    </div>
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      placeholder="BP (e.g., 120/80 mm of Hg)"
+                      maxLength={7}
+                      value={diagnosys.BP}
+                      onChange={(e) =>
+                        setDiagnosys((d) => ({ ...d, BP: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="form-group">
+                    <input
+                      type="number"
+                      placeholder="PR (bpm)"
+                      min="20"
+                      max="500"
+                      value={diagnosys.PR}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setDiagnosys((d) => ({
+                          ...d,
+                          PR: v && v > 500 ? 500 : v,
+                        }));
+                      }}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <input
+                      type="number"
+                      placeholder="SPO2 (% in RA)"
+                      min="0"
+                      max="100"
+                      inputMode="numeric"
+                      value={diagnosys.SPO2}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setDiagnosys((d) => ({
+                          ...d,
+                          SPO2: v && v > 100 ? 100 : v,
+                        }));
+                      }}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <input
+                      type="number"
+                      placeholder="Temp (F)"
+                      min="50"
+                      max="200"
+                      value={diagnosys.Temp}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setDiagnosys((d) => ({
+                          ...d,
+                          Temp: v && v > 200 ? 200 : v,
+                        }));
+                      }}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <input
+                      type="number"
+                      placeholder="Height (cm)"
+                      min="30"
+                      max="250"
+                      value={diagnosys.Height}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setDiagnosys((d) => ({
+                          ...d,
+                          Height: v && v > 250 ? 250 : v,
+                        }));
+                      }}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <input
+                      type="number"
+                      placeholder="Weight (kg)"
+                      min="1"
+                      max="300"
+                      value={diagnosys.Weight}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setDiagnosys((d) => ({
+                          ...d,
+                          Weight: v && v > 300 ? 300 : v,
+                        }));
+                      }}
+                    />
                   </div>
                 </div>
 
+                <div className="lnr-input-box">
+                  <div className="form-group">
+                    <select
+                      value={department}
+                      onChange={(e) => setDepartment(e.target.value)}
+                      disabled={
+                        dashboardUser && dashboardUser.role === "Doctor"
+                      }
+                    >
+                      {departmentsArray.map((depart) => (
+                        <option value={depart} key={depart}>
+                          {depart}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <select
+                      value={_id}
+                      onChange={(e) => set_id(e.target.value)}
+                      disabled={
+                        dashboardUser && dashboardUser.role === "Doctor"
+                      }
+                    >
+                      <option value="">Select Doctor</option>
+                      {doctorList.map((doctor) => (
+                        <option value={doctor._id} key={doctor._id}>
+                          {doctor.firstName} {doctor.lastName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="lnr-input-box">
+                  <div className="form-group">
+                    <textarea
+                      rows="2"
+                      value={diagnosys.Others}
+                      onChange={(e) =>
+                        setDiagnosys((d) => ({ ...d, Others: e.target.value }))
+                      }
+                      placeholder="Others"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <input
+                      type="date"
+                      placeholder="Appointment Date"
+                      min={todayStr}
+                      value={appointmentDate}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setAppointmentDate(v && v < todayStr ? todayStr : v);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="fees-detail-box">
+                  <p>
+                    Appointment Fee: <span> {price} Rs</span>
+                  </p>
+
+                  <p>
+                    Doctor Fee: <span> {doctorFee} Rs</span>
+                  </p>
+
+                  <p className="total">
+                    Total: <span> {price + doctorFee} Rs</span>
+                  </p>
+                </div>
+
+                {/* <div className="mt-2rem"> */}
+                <div className="invoice-container">
+                  <div className="checkbox-container">
+                    <div className="pay-status-box">
+                      <label htmlFor="">Payment Status: </label>
+                      <select
+                        value={paymentStatus}
+                        onChange={(e) => setPaymentStatus(e.target.value)}
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Paid">Paid</option>
+                      </select>
+                    </div>
+
+                    {/* <div className="btn-container">
+                        
+                      </div> */}
+                  </div>
+                </div>
+                {/* </div> */}
+
                 <div className="btn-container">
-                  <button type="button" className="btn-cls" onClick={() => setStep(1)}>Back</button>
-                  <button type="submit" className="btn-cls">GET APPOINTMENT</button>
+                  <button
+                    type="button"
+                    className="btn-cls"
+                    onClick={() => setStep(1)}
+                  >
+                    Back
+                  </button>
+                  <button
+                    className="btn-cls"
+                    type="button"
+                    onClick={() => {
+                      setInvoiceFields({
+                        address,
+                        doctorFee,
+                        price,
+                        paymentStatus,
+                      });
+                      setShowInvoicePreview(true);
+                    }}
+                  >
+                    Preview
+                  </button>
+                  <button type="submit" className="btn-cls">
+                    Get Appointment
+                  </button>
                 </div>
               </div>
             )}
@@ -952,20 +1066,12 @@ const Appointment = () => {
           },
         }}
       >
-        <div
-          className="flex-jc-sb-ai-c"
-        >
-          <img
-            src="/logo.png"
-            alt="logo"
-            className="w-80px br-50pct"
-          />
+        <div className="flex-jc-sb-ai-c">
+          <img src="/logo.png" alt="logo" className="w-80px br-50pct" />
           <h2 className="m-0">Appointment Invoice</h2>
         </div>
         <hr />
-        <div
-          className="flex-jc-sb-ai-c mt-1rem"
-        >
+        <div className="flex-jc-sb-ai-c mt-1rem">
           <div className="flex-1">
             <h3>Patient Info</h3>
             <div>Name: {name}</div>
@@ -976,8 +1082,8 @@ const Appointment = () => {
                 dob
                   ? formatAge(dobToAgeParts(dob))
                   : ageYears
-                  ? `${ageYears} years`
-                  : ""
+                    ? `${ageYears} years`
+                    : ""
               }
             </div>
             <div>
@@ -1054,19 +1160,19 @@ const Appointment = () => {
           <div>Paid by: Cash</div>
           <div>
             Payment Status:
-              <select
-                value={invoiceFields.paymentStatus}
-                onChange={(e) =>
-                  setInvoiceFields((f) => ({
-                    ...f,
-                    paymentStatus: e.target.value,
-                  }))
-                }
-                className="ml-05rem"
-              >
-                <option value="Pending">Pending</option>
-                <option value="Paid">Paid</option>
-              </select>
+            <select
+              value={invoiceFields.paymentStatus}
+              onChange={(e) =>
+                setInvoiceFields((f) => ({
+                  ...f,
+                  paymentStatus: e.target.value,
+                }))
+              }
+              className="ml-05rem"
+            >
+              <option value="Pending">Pending</option>
+              <option value="Paid">Paid</option>
+            </select>
           </div>
         </div>
         <div className="mt-2rem text-right">
@@ -1083,7 +1189,7 @@ const Appointment = () => {
                   dob ? dobToAge(dob) : ageYears ? `${ageYears} years` : ""
                 }`,
                 20,
-                48
+                48,
               );
               doc.text(`Address: ${invoiceFields.address}`, 20, 56);
               doc.text(`Doctor: ${doctorFirstName} ${doctorLastName}`, 120, 40);
@@ -1098,7 +1204,7 @@ const Appointment = () => {
                   return d.toISOString().slice(0, 10);
                 })()}`,
                 20,
-                78
+                78,
               );
               doc.text(`Appointment Fee: ${invoiceFields.price} Rs`, 20, 90);
               doc.text(`Doctor Fee: ${invoiceFields.doctorFee} Rs`, 20, 98);
@@ -1107,17 +1213,15 @@ const Appointment = () => {
                   Number(invoiceFields.price) + Number(invoiceFields.doctorFee)
                 } Rs`,
                 20,
-                106
+                106,
               );
               doc.text(`Paid by: Cash`, 20, 114);
               doc.text(
                 `Payment Status: ${
-                  invoiceFields.paymentStatus === "Paid"
-                    ? "Paid"
-                    : "Pending"
+                  invoiceFields.paymentStatus === "Paid" ? "Paid" : "Pending"
                 }`,
                 20,
-                122
+                122,
               );
               doc.save(`Appointment_Invoice_${name}_${appointmentDate}.pdf`);
             }}

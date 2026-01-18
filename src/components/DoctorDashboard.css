@@ -108,11 +108,9 @@
   overflow: visible;
 }
 
-.form-component form {
+/* .form-component form {
   width: 90%;
-  display: flex;
-  flex-direction: column;
-}
+} */
 
 .form-component h2 {
   color: var(--text-main);
@@ -134,14 +132,16 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 
 .form-group label {
   font-weight: 500;
   color: var(--text-light, #6b7280);
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   letter-spacing: 0.5px;
+  font-size: 14px;
+  font-family: "Inter", sans-serif;
 }
 
 .form-group input,
@@ -176,9 +176,15 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
   background: var(--bg-card);
-  box-shadow: 0 0 0 2px rgba(var(--accent), 0.1);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+.form-group input:focus-visible,
+.form-group select:focus-visible,
+.form-group textarea:focus-visible {
+  outline: 0;
 }
 
 .form-group textarea {
@@ -212,7 +218,8 @@
 
 .doctors.banner .card:hover {
   border-color: var(--accent);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07),
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.07),
     0 2px 4px -1px rgba(0, 0, 0, 0.04);
   transform: translateY(-2px);
 }
@@ -627,7 +634,6 @@
   transform: translateY(0);
 }
 
-
 /* ---06-01-25--- */
 /* .form-component form div{
   margin-bottom: 0;
@@ -783,7 +789,8 @@
     width: calc(100% - 4rem);
   }
   /* RK */
-  .page, .dashboard{
+  .page,
+  .dashboard {
     margin-top: 40px;
   }
   #root:has(.show.sidebar) .page,

@@ -25,9 +25,5 @@
   .toolbar.show .dashboard-title-block {
     padding: 1rem 0.75rem;
   }
-  .dashboard-title-block .add-form-btn{
-    width: 35px;
-    height: 35px;
-    min-width: 35px;
-  }
+ 
 }

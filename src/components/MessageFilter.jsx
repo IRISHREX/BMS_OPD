@@ -54,7 +54,7 @@ const MessageFilter = ({
         </div>
       )}
 
-      <div className="search-input">
+      <div className="message-search">
         <MdOutlineContentPasteSearch size="1.5rem" color="#718096" />
         <input
           type="text"

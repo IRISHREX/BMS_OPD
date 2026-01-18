@@ -23,10 +23,10 @@
     position: relative;
 }
 
-.arrow-btn:hover {
+/* .arrow-btn:hover {
     transform: translateX(-3px) scale(1.08);
     box-shadow: 0 12px 32px rgba(251, 113, 133, 0.5);
-}
+} */
 
 .arrow-btn:focus-visible {
     outline: 2px solid #fb7185;
