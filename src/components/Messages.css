@@ -48,7 +48,9 @@
   border-radius: var(--radius-sm);
   background-color: var(--bg-main);
   color: var(--text-main);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   min-width: 160px;
 }
 
@@ -63,6 +65,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex: 1;
 }
 
 .action-buttons .btn {
@@ -71,7 +74,9 @@
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: 600;
-  transition: background-color 0.2s, transform 0.1s;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
   text-transform: capitalize;
 }
 
@@ -107,6 +112,9 @@
 .summary-text {
   font-size: 0.9rem;
   color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .bulk-actions {
@@ -153,7 +161,9 @@
   border-radius: var(--radius-md);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   border-left: 5px solid transparent;
-  transition: box-shadow 0.3s, transform 0.2s;
+  transition:
+    box-shadow 0.3s,
+    transform 0.2s;
   display: flex;
   align-items: flex-start;
   padding: 1rem;
@@ -177,11 +187,11 @@
 }
 
 /* Make filter controls look consistent with app-wide filter boxes */
-.filter-controls select,
+/* .filter-controls select,
 .filter-controls input[type="text"],
 .filter-controls input[type="date"] {
   min-width: 180px;
-}
+} */
 
 .message-card.unread {
   border-left-color: var(--accent);
@@ -315,7 +325,7 @@
 }
 /*  */
 .messages-body .toolbar.hide {
-    transform: translateY(0);
+  transform: translateY(0);
 }
 
 @keyframes spin {
@@ -397,14 +407,33 @@
   flex-wrap: wrap;
 }
 
-
-.message-search{
+.message-search {
   display: flex;
   align-items: center;
   gap: 8px;
   /* position: relative; */
 }
+.clear-filter {
+  border: 0;
+  color: #096dd9;
+  font-size: 20px;
+  cursor: pointer;
+  background: #e5ebff;
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+.filter-controls select {
+  width: auto;
+}
+.filter-controls .message-search input[type="text"] {
+  width: auto;
+  min-width: auto;
+}
 /* Responsive adjustments */
 @media (max-width: 900px) {
   .filter-controls {
@@ -424,7 +453,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 767px) {
   .messages-container {
     padding: 1rem;
   }
@@ -475,15 +504,18 @@
   .messages-header button svg {
     font-size: 17px;
   }
-  .message-body{
+  .message-body {
     max-height: 100%;
+  }
+  .messages-body {
+    padding: 0;
   }
 }
 
 @media (max-width: 420px) {
-  .filter-controls {
+  /* .filter-controls {
     grid-template-columns: 1fr;
-  }
+  } */
 
   .filter-controls select,
   .filter-controls input[type="text"],

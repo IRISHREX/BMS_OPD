@@ -1200,7 +1200,7 @@ input[type="time"]:before {
   --text-main: #111;
   --text-accent: #fff;
   --app-font: "Montserrat", sans-serif;
-  --sidebar-bg: transparent;
+  --sidebar-bg: #3939d9f2;
 }
 .theme-dark {
   --bg-main: #181818;

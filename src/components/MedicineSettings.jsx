@@ -15,6 +15,9 @@ import { FaTrash } from "react-icons/fa6";
 import MedicineDrawer from "./MedicineDrawer";
 import Toolbar from "./Toolbar";
 import useSound from "use-sound";
+import { LuFilterX } from "react-icons/lu";
+import { BsArrowLeft } from "react-icons/bs";
+
 // MedicineStore moved to its own page at /medicines
 
 const emptyForm = {
@@ -385,9 +388,10 @@ const MedicineSettings = () => {
               >
                 <button
                   onClick={() => navigate(-1)}
-                  className="back-btn add-btn"
+                  className="arrow-btn"
                 >
-                  ← Go Back
+                  <BsArrowLeft title="Back"/>
+                  {/* ← Go Back */}
                 </button>
                 <div className="catlog-title-wrap">
                   <h2
@@ -475,14 +479,14 @@ const MedicineSettings = () => {
                 </select>
               </div>
               <button
-                className="btn btn-secondary clear-btn"
+                className="clear-filter"
                 onClick={() => {
                   setFilterTag("");
                   setFilterType("");
                   setFilterHasTest("");
                 }}
               >
-                Reset Filters
+               <LuFilterX title='Clear Filters'/>
               </button>
             </div>
           </div>

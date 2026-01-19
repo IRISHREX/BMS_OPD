@@ -1,11 +1,5 @@
 /* Doctors.css - Styles for Doctors component */
 
-.doctors h1 {
-  /* color: #3939d9f2; */
-  /* margin-bottom: 30px; */
-  color: #2a3686;
-  font-size: 2rem;
-}
 @media (max-width: 485px) {
   .doctors h1 {
     font-size: 1.375rem;

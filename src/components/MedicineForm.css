@@ -5,12 +5,11 @@
   gap: 20px;
 }
 
-.form-group {
+/* .form-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 1;
-}
+} */
 
 .form-group.full-width {
   width: 100%;

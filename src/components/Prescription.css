@@ -181,7 +181,7 @@
 .pres-form-group label,
 label select {
   font-weight: 600;
-  margin-bottom: 0.35rem;
+  /* margin-bottom: 0.35rem; */
   color: #334155;
 }
 .form-control,

@@ -129,11 +129,11 @@
   margin-bottom: 2rem;
 }
 
-.form-group {
+/* .form-group {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-}
+} */
 
 .form-group label {
   font-weight: 500;
@@ -144,14 +144,15 @@
   font-family: "Inter", sans-serif;
 }
 
+input, select, textarea,
 .form-group input,
 .form-group select,
 .form-group textarea {
-  padding: 0.75rem;
-  border: 1px solid #e2e8f0;
+  padding: 0.625rem 0.75rem;
+  /* border: 1px solid #e2e8f0; */
+  border: 1px solid #d4dbe6;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-family: inherit;
+  font-size: 0.938rem;
   background: var(--bg-card);
   color: var(--text-main);
   transition: all 0.2s ease;
@@ -172,6 +173,9 @@
   background: var(--bg-card);
 }
 
+input:focus,
+select:focus,
+textarea:focus,
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -181,6 +185,9 @@
   background: var(--bg-card);
   box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
 }
+input:focus,
+select:focus,
+textarea:focus,
 .form-group input:focus-visible,
 .form-group select:focus-visible,
 .form-group textarea:focus-visible {
