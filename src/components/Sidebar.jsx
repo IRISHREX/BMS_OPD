@@ -16,6 +16,7 @@ import { IoIosPersonAdd } from "react-icons/io";
 import { FiLogOut } from "react-icons/fi";
 import useClickSound from "../hooks/useClickSound";
 import "./Sidebar.css";
+import { BiAlignLeft } from "react-icons/bi";
 
 
 const Sidebar = () => {
@@ -115,7 +116,7 @@ const Sidebar = () => {
         className="wrapper"
         style={!isAuthenticated ? { display: "none" } : { display: "flex" }}
       >
-        <GiHamburgerMenu ref={setupClickSound} className="hamburger icon-btn" onClick={() => setShow(!show)} />
+        <BiAlignLeft ref={setupClickSound} className="hamburger icon-btn" onClick={() => setShow(!show)} />
       </div>
     </>
   );

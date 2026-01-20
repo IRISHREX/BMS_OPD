@@ -99,18 +99,19 @@
   border-radius: 20px;
 }
 
-.form-component {
+.tab-content .form-component {
   width: 100%;
   max-width: 100%;
   background: transparent;
   display: flex;
   flex-direction: column;
   overflow: visible;
+  padding-inline: 2rem;
 }
 
-/* .form-component form {
-  width: 90%;
-} */
+.tab-content form {
+  width: 100%;
+}
 
 .form-component h2 {
   color: var(--text-main);
@@ -144,7 +145,9 @@
   font-family: "Inter", sans-serif;
 }
 
-input, select, textarea,
+input,
+select,
+textarea,
 .form-group input,
 .form-group select,
 .form-group textarea {
@@ -651,12 +654,12 @@ textarea:focus,
   padding: 0.625rem 0.625rem 0.625rem 1.2rem;
   font-size: 1rem;
 }
-.form-component h4 {
-  margin-bottom: 0;
-}
 .create_referral_form .form-section {
   padding-bottom: 2rem;
   margin-bottom: 0;
+}
+.create_referral_form .form-section h4 {
+  color: #4370db;
 }
 .create_referral_form .grid-container .form-group {
   margin-bottom: 0;
@@ -669,6 +672,21 @@ textarea:focus,
   padding: 0;
   /* margin: 0; */
 }
+.track-form-wrap {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+}
+.no-found-text {
+  min-width: 100%;
+  font-size: 14px;
+  color: rgb(102, 102, 102);
+  margin-top: 10px;
+}
+.track-form-wrap .clear-filter{
+  font-size: 1rem;
+}
+
 
 /* Responsive adjustments */
 @media (max-width: 1024px) {
@@ -726,12 +744,13 @@ textarea:focus,
   }
 
   .dashboard-content {
-    padding: 1.5rem;
+    padding: 1rem;
   }
 
   .grid-container {
     grid-template-columns: 1fr;
     gap: 1rem;
+    margin-bottom: 0;
   }
 
   .doctors.banner {
@@ -769,10 +788,24 @@ textarea:focus,
     width: 100%;
   }
 }
-@media (max-width: 480px) {
-  .dashboard-content {
-    padding: 1rem 0.75rem;
+@media (max-width: 767px) {
+  .tab-content .form-component {
+    padding-inline: 0.625rem;
   }
+  .track-form-wrap {
+    grid-template-columns: 1fr;
+  }
+  .track-form-wrap .clear-filter {
+    margin-left: auto;
+  }
+  .loader-content p{
+    font-size: 1.2rem;
+  }
+}
+@media (max-width: 480px) {
+  /* .dashboard-content {
+    padding: 1rem 0.75rem;
+  } */
 
   .doctors.banner {
     grid-template-columns: 1fr;
@@ -796,10 +829,10 @@ textarea:focus,
     width: calc(100% - 4rem);
   }
   /* RK */
-  .page,
+  /* .page,
   .dashboard {
     margin-top: 40px;
-  }
+  } */
   #root:has(.show.sidebar) .page,
   #root:has(.show.sidebar) .dashboard {
     transition: 0.5s all ease-in;

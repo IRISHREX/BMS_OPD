@@ -37,7 +37,6 @@ import RadialMenu from "./RadialMenu";
 import useClickSound from "../hooks/useClickSound";
 import { RiExpandVerticalLine } from "react-icons/ri";
 
-
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [selectedAppointments, setSelectedAppointments] = useState([]);
@@ -105,7 +104,7 @@ const Dashboard = () => {
     const todayYmd = new Date(
       now.getFullYear(),
       now.getMonth(),
-      now.getDate()
+      now.getDate(),
     ).toLocaleDateString("en-CA");
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const monthEnd = new Date(
@@ -114,7 +113,7 @@ const Dashboard = () => {
       0,
       23,
       59,
-      59
+      59,
     );
 
     const getDoctorId = (appt) => {
@@ -132,7 +131,7 @@ const Dashboard = () => {
         return String(getDoctorId(appt)) === String(admin._id);
       if (admin.role === "Compounder") {
         const assigned = (admin.assignedDoctors || []).map((d) =>
-          String(d._id || d)
+          String(d._id || d),
         );
         return assigned.includes(String(getDoctorId(appt)));
       }
@@ -178,18 +177,20 @@ const Dashboard = () => {
       const body = { paymentStatus };
       const { data } = await api.put(
         `/api/v1/appointment/status/${appointmentId}`,
-        body
+        body,
       );
       const updated = data.appointment || null;
       if (updated) {
         setAppointments((prev) =>
-          prev.map((a) => (a._id === appointmentId ? updated : a))
+          prev.map((a) => (a._id === appointmentId ? updated : a)),
         );
       } else {
         setAppointments((prev) =>
           prev.map((a) =>
-            a._id === appointmentId ? { ...a, paymentStatus: paymentStatus } : a
-          )
+            a._id === appointmentId
+              ? { ...a, paymentStatus: paymentStatus }
+              : a,
+          ),
         );
       }
       playSaveSound();
@@ -199,7 +200,7 @@ const Dashboard = () => {
       }
     } catch (e) {
       snackbar.error(
-        e?.response?.data?.message || "Failed to update payment status"
+        e?.response?.data?.message || "Failed to update payment status",
       );
     }
   };
@@ -221,10 +222,10 @@ const Dashboard = () => {
           } else if (admin.role === "Compounder") {
             // Compounder sees only their assigned doctors
             const assignedDoctorIds = (admin.assignedDoctors || []).map(
-              (d) => d._id
+              (d) => d._id,
             );
             const assignedDoctorsList = (data.doctors || []).filter((doc) =>
-              assignedDoctorIds.includes(doc._id)
+              assignedDoctorIds.includes(doc._id),
             );
             setDoctorFilterList(assignedDoctorsList);
             if (assignedDoctorsList.length > 0) {
@@ -236,7 +237,7 @@ const Dashboard = () => {
         }
       } catch (error) {
         snackbar.error(
-          error.response?.data?.message || "Failed to fetch doctors"
+          error.response?.data?.message || "Failed to fetch doctors",
         );
         setDoctors([]);
         setDoctorFilterList([]);
@@ -275,7 +276,7 @@ const Dashboard = () => {
             ids: selectedAppointments,
           });
           setAppointments((prev) =>
-            prev.filter((a) => !selectedAppointments.includes(a._id))
+            prev.filter((a) => !selectedAppointments.includes(a._id)),
           );
           setSelectedAppointments([]);
           playDeleteSound();
@@ -283,14 +284,14 @@ const Dashboard = () => {
         } catch (err) {
           snackbar.error("Bulk delete failed");
         }
-      }
+      },
     );
   };
 
   // Toggle select for bulk delete
   const toggleSelectAppointment = (id) => {
     setSelectedAppointments((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
 
@@ -302,12 +303,12 @@ const Dashboard = () => {
         status === "Completed" ? { status, paymentStatus: "Paid" } : { status };
       const { data } = await api.put(
         `/api/v1/appointment/status/${appointmentId}`,
-        body
+        body,
       );
       const updatedAppt = data.appointment || null;
       if (updatedAppt) {
         setAppointments((prev) =>
-          prev.map((a) => (a._id === appointmentId ? updatedAppt : a))
+          prev.map((a) => (a._id === appointmentId ? updatedAppt : a)),
         );
       }
       playSaveSound();
@@ -327,7 +328,7 @@ const Dashboard = () => {
   const handleInvoiceClick = async (appointmentId) => {
     try {
       const { data } = await api.get(
-        `/api/v1/invoice/appointment/${appointmentId}`
+        `/api/v1/invoice/appointment/${appointmentId}`,
       );
       let invoices = [];
       if (Array.isArray(data.invoices)) {
@@ -425,7 +426,7 @@ const Dashboard = () => {
         const startOfToday = new Date(
           today.getFullYear(),
           today.getMonth(),
-          today.getDate()
+          today.getDate(),
         );
         const todayYmd = startOfToday.toLocaleDateString("en-CA");
 
@@ -494,7 +495,6 @@ const Dashboard = () => {
     customEnd,
     filterPrescibed,
   ]);
-
 
   const prescibeFilterChange = (event) => {
     // const { name, value } = event.target;
@@ -705,8 +705,7 @@ const Dashboard = () => {
                   onClick={handleBulkDelete}
                   disabled={selectedAppointments.length === 0}
                 >
-                  <MdOutlineDelete /> Delete (
-                  {selectedAppointments.length})
+                  <MdOutlineDelete /> Delete ({selectedAppointments.length})
                 </button>
               </RequirePermission>
             </div>
@@ -727,7 +726,7 @@ const Dashboard = () => {
                           ).filter((appointment) => {
                             try {
                               const apptDate = new Date(
-                                appointment.appointment_date
+                                appointment.appointment_date,
                               );
                               const apptYmd =
                                 apptDate.toLocaleDateString("en-CA");
@@ -735,7 +734,7 @@ const Dashboard = () => {
                               const startOfToday = new Date(
                                 today.getFullYear(),
                                 today.getMonth(),
-                                today.getDate()
+                                today.getDate(),
                               );
                               const todayYmd =
                                 startOfToday.toLocaleDateString("en-CA");
@@ -751,7 +750,7 @@ const Dashboard = () => {
                               } else if (filterOption === "Custom") {
                                 if (customStart && customEnd) {
                                   const start = new Date(
-                                    customStart + "T00:00:00"
+                                    customStart + "T00:00:00",
                                   );
                                   const end = new Date(customEnd + "T23:59:59");
                                   if (apptDate < start || apptDate > end)
@@ -798,7 +797,7 @@ const Dashboard = () => {
                           setSelectedAppointments(
                             e.target.checked
                               ? filteredAppointments.map((a) => a._id)
-                              : []
+                              : [],
                           );
                         }}
                       />
@@ -845,7 +844,7 @@ const Dashboard = () => {
                             style={{ marginRight: "0.3rem" }}
                             type="checkbox"
                             checked={selectedAppointments.includes(
-                              appointment._id
+                              appointment._id,
                             )}
                             onChange={() =>
                               toggleSelectAppointment(appointment._id)
@@ -873,7 +872,7 @@ const Dashboard = () => {
                             onChange={(e) =>
                               handleUpdatePaymentStatus(
                                 appointment._id,
-                                e.target.value
+                                e.target.value,
                               )
                             }
                             className={
@@ -901,16 +900,16 @@ const Dashboard = () => {
                               appointment.status === "Pending"
                                 ? "value-pending"
                                 : appointment.status === "Accepted"
-                                ? "value-accepted"
-                                : appointment.status === "Completed"
-                                ? "value-completed"
-                                : "value-rejected"
+                                  ? "value-accepted"
+                                  : appointment.status === "Completed"
+                                    ? "value-completed"
+                                    : "value-rejected"
                             }
                             value={appointment.status}
                             onChange={(e) =>
                               handleUpdateStatus(
                                 appointment._id,
-                                e.target.value
+                                e.target.value,
                               )
                             }
                             style={{ fontSize: "0.875rem" }}
@@ -1105,52 +1104,52 @@ const Dashboard = () => {
                             </button>
                             </RequirePermission>
                           </td>} */}
-                          <td>
-                            <RadialMenu>
-                              {/* TODO:functionalities need to be implemented */}
-                              <button
-                                ref={setupClickSound}
-                                className="icon-btn"
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#0859afff",
-                                  cursor: "pointer",
-                                }}
-                                onClick={() => handleRescheduleClick(appointment)}
-                                title="Reschedule"
-                              >
-                                <RiCalendarScheduleFill />
-                              </button>
-                              <button
-                                ref={setupClickSound}
-                                className="icon-btn"
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#5bbe8eff",
-                                  cursor: "pointer",
-                                }}
-                                onClick={()=>navigate(`/preview/${appointment.patientId}`)}
-                              >
-                                <FaEye title="View prescription"/>
-                              </button>
-                              <button
-                                ref={setupClickSound}
-                                className="icon-btn"
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#760692ff",
-                                  cursor: "pointer",
-                                }}
-                                onClick={() =>
-                                  handleInvoiceClick(appointment._id)
-                                }
-                              >
-                                <IoReceipt title="Invoice"/>
-                              </button>
-                              {/* 06-01-26 */}
+                      <td>
+                        <RadialMenu>
+                          {/* TODO:functionalities need to be implemented */}
+                          <button
+                            ref={setupClickSound}
+                            className="icon-btn"
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#0859afff",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => handleRescheduleClick(appointment)}
+                            title="Reschedule"
+                          >
+                            <RiCalendarScheduleFill />
+                          </button>
+                          <button
+                            ref={setupClickSound}
+                            className="icon-btn"
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#5bbe8eff",
+                              cursor: "pointer",
+                            }}
+                            onClick={() =>
+                              navigate(`/preview/${appointment.patientId}`)
+                            }
+                          >
+                            <FaEye title="View prescription" />
+                          </button>
+                          <button
+                            ref={setupClickSound}
+                            className="icon-btn"
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#760692ff",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => handleInvoiceClick(appointment._id)}
+                          >
+                            <IoReceipt title="Invoice" />
+                          </button>
+                          {/* 06-01-26 */}
                           <button
                             ref={setupClickSound}
                             className="icon-btn"
@@ -1167,25 +1166,25 @@ const Dashboard = () => {
                             <IoIosShareAlt title="Referral" />
                           </button>
                           {/* 06-01-26 */}
-                              <RequirePermission allowedRoles={["Admin"]}>
-                                <button
-                                  ref={setupClickSound}
-                                  className="icon-btn"
-                                  onClick={() =>
-                                    handleDeleteAppointment(appointment._id)
-                                  }
-                                  style={{
-                                    background: "none",
-                                    border: "none",
-                                    color: "#b10c0c",
-                                    cursor: "pointer",
-                                  }}
-                                >
-                                  <FaTrash title="Delete"/>
-                                </button>
-                              </RequirePermission>
-                            </RadialMenu>
-                          </td>
+                          <RequirePermission allowedRoles={["Admin"]}>
+                            <button
+                              ref={setupClickSound}
+                              className="icon-btn"
+                              onClick={() =>
+                                handleDeleteAppointment(appointment._id)
+                              }
+                              style={{
+                                background: "none",
+                                border: "none",
+                                color: "#b10c0c",
+                                cursor: "pointer",
+                              }}
+                            >
+                              <FaTrash title="Delete" />
+                            </button>
+                          </RequirePermission>
+                        </RadialMenu>
+                      </td>
                     </tr>
                   ))
                 ) : (
@@ -1217,59 +1216,62 @@ const Dashboard = () => {
             style={{ content: { maxWidth: "600px", margin: "auto" } }}
           >
             <h3>Invoices for Appointment</h3>
-            <div>
-              {invoicesList.map((inv, idx) => (
-                <div
-                  key={inv._id || inv.id}
-                  style={{
-                    marginBottom: 10,
-                    borderBottom: "1px solid #eee",
-                    paddingBottom: 8,
-                  }}
-                >
-                  <div>
-                    <b>Invoice #:</b> {inv.invoiceNumber || inv._id || inv.id}
-                  </div>
-                  <div>
-                    <b>Date:</b>{" "}
+
+            {invoicesList.map((inv, idx) => (
+              <div
+                className="appoinmnt-invoice-contnt"
+                key={inv._id || inv.id}
+                // style={{
+                //   marginBottom: 10,
+                //   borderBottom: "1px solid #eee",
+                //   paddingBottom: 8,
+                // }}
+              >
+                <div className="apoint-invoice-row">
+                  <p>
+                    <span>Invoice #:</span> {inv.invoiceNumber || inv._id || inv.id}
+                  </p>
+                  <p>
+                    <span>Date:</span>{" "}
                     {inv.issuedAt
                       ? String(inv.issuedAt).substring(0, 10)
                       : inv.date
-                      ? String(inv.date).substring(0, 10)
-                      : "-"}
-                  </div>
-                  <div>
-                    <b>Total:</b> {inv.total || inv.subtotal || 0}
-                  </div>
+                        ? String(inv.date).substring(0, 10)
+                        : "-"}
+                  </p>
+                  <p>
+                    <span>Total:</span> {inv.total || inv.subtotal || 0}
+                  </p>
+                </div>
+                <div className="btn-container">
                   <button
-                    className="btn btn-primary"
-                    style={{ marginRight: 8 }}
+                    className="btn-cls"
                     onClick={() => setSelectedInvoiceId(inv._id || inv.id)}
                   >
                     View
                   </button>
                   <button
-                    className="btn"
+                    className="btn-cls"
                     onClick={() =>
                       window.open(`/invoice/${inv._id || inv.id}`, "_blank")
                     }
                   >
                     Open Full Page
                   </button>
+                  <button
+                    className="btn-cls"
+                    onClick={() => {
+                      setShowInvoicesModal(false);
+                      setInvoicesList([]);
+                      setSelectedInvoiceId(null);
+                    }}
+                  >
+                    Close
+                  </button>
                 </div>
-              ))}
-            </div>
-            <button
-              className="btn"
-              style={{ marginTop: 12 }}
-              onClick={() => {
-                setShowInvoicesModal(false);
-                setInvoicesList([]);
-                setSelectedInvoiceId(null);
-              }}
-            >
-              Close
-            </button>
+              </div>
+            ))}
+
             {/* InvoiceViewer for selected invoice inside modal */}
             <InvoiceViewer
               invoiceId={selectedInvoiceId}

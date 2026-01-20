@@ -298,6 +298,9 @@
   .page.bg-light-blue .container{
     padding-inline: 1rem;
   }
+  .react-calendar{
+    width: 100%
+  }
 }
 
 /* ------------------------- From app.css---- */
@@ -306,9 +309,9 @@
   flex-direction: column;
   gap: 1.25rem;
 }
-.dashboard .banner {
+/* .dashboard .banner {
   min-height: fit-content;
-}
+} */
 .dashboard .banner:first-child {
   height: 35vh;
   display: flex;
@@ -380,12 +383,12 @@
   font-weight: 700;
   letter-spacing: 2px;
 }
-.dashboard .banner:last-child {
+/* .dashboard .banner:last-child {
   min-height: 65vh;
   background: #fff;
   border-radius: 1.25rem;
   padding: 2.5rem;
-}
+} */
 .dashboard .banner:last-child h5 {
   font-size: 1.5rem;
   letter-spacing: 2px;
@@ -636,7 +639,7 @@
   position: relative;
   top: 2px;
 }
-.doctor-imgbox {
+/* .doctor-imgbox {
   width: 250px;
   height: 150px;
   overflow: visible;
@@ -645,7 +648,7 @@
   object-fit: cover;
   width: 100%;
   height: 100%;
-}
+} */
 @media (max-width: 86rem) {
   /*1376px*/
   .dashboard .banner:first-child .firstBox .content div,

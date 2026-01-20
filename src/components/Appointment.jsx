@@ -986,15 +986,16 @@ const Appointment = () => {
 
                 <div className="fees-detail-box">
                   <p>
-                    Appointment Fee: <span> {price} Rs</span>
+                    Appointment Fee Rs:
+                    <span> {price}</span>
                   </p>
 
                   <p>
-                    Doctor Fee: <span> {doctorFee} Rs</span>
+                    Doctor Fee Rs: <span> {doctorFee}</span>
                   </p>
 
                   <p className="total">
-                    Total: <span> {price + doctorFee} Rs</span>
+                    Total Rs: <span> {price + doctorFee}</span>
                   </p>
                 </div>
 
@@ -1120,9 +1121,10 @@ const Appointment = () => {
           </div>
         </div>
         <hr />
-        <div className="mt-1rem font-11rem">
-          <div>
-            Appointment Fee:{" "}
+        <div className="appointmnt-paymnt-info">
+          <div className="appoint-payment-block">
+            <span>Appointment Fee Rs:</span>
+
             <input
               type="number"
               value={invoiceFields.price}
@@ -1133,11 +1135,10 @@ const Appointment = () => {
                 }))
               }
               className="w-80px"
-            />{" "}
-            Rs
+            />
           </div>
-          <div>
-            Doctor Fee:{" "}
+          <div className="appoint-payment-block">
+            <span> Doctor Fee Rs:</span>
             <input
               type="number"
               value={invoiceFields.doctorFee}
@@ -1148,31 +1149,32 @@ const Appointment = () => {
                 }))
               }
               className="w-80px"
-            />{" "}
-            Rs
+            />
           </div>
-          <div>
-            <b>
-              Total:{" "}
-              {Number(invoiceFields.price) + Number(invoiceFields.doctorFee)} Rs
-            </b>
+          <div className="appoint-payment-block total">
+            <span>Total Rs: </span>
+            {Number(invoiceFields.price) + Number(invoiceFields.doctorFee)}
           </div>
-          <div>Paid by: Cash</div>
-          <div>
-            Payment Status:
-            <select
-              value={invoiceFields.paymentStatus}
-              onChange={(e) =>
-                setInvoiceFields((f) => ({
-                  ...f,
-                  paymentStatus: e.target.value,
-                }))
-              }
-              className="ml-05rem"
-            >
-              <option value="Pending">Pending</option>
-              <option value="Paid">Paid</option>
-            </select>
+          <div className="payment-staus-block">
+            <div className="pay-status-div">
+              <span>Paid by:</span> Cash
+            </div>
+            <div className="appoint-paymnt-status">
+             <label> Payment Status:</label>
+              <select
+                value={invoiceFields.paymentStatus}
+                onChange={(e) =>
+                  setInvoiceFields((f) => ({
+                    ...f,
+                    paymentStatus: e.target.value,
+                  }))
+                }
+                className="ml-05rem"
+              >
+                <option value="Pending">Pending</option>
+                <option value="Paid">Paid</option>
+              </select>
+            </div>
           </div>
         </div>
         <div className="mt-2rem text-right">

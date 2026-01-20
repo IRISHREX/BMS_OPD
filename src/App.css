@@ -227,7 +227,7 @@ body {
 }
 .form-component h2 {
   color: gray;
-  letter-spacing: 4px;
+  /* letter-spacing: 4px; */
   margin-bottom: 30px;
 }
 @media (max-width: 485px) {
@@ -240,7 +240,7 @@ body {
 .form-component h4 {
   color: gray;
   font-weight: 700;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 .form-component p {
   max-width: 46.875rem;
@@ -267,10 +267,10 @@ body {
   color: #370080a3;
   margin-top: 1.875rem;
 }
-.form-component form div {
+/* .form-component form div {
   display: flex;
   gap: 1.875rem;
-}
+} */
 /* .form-component form select,
 .form-component form input,
 .form-component form textarea {
@@ -320,10 +320,10 @@ body {
     padding-top: 1.875rem;
     padding-bottom: 1.875rem;
   }
-  .form-component form div {
+  /* .form-component form div {
     flex-direction: column;
     gap: 0;
-  }
+  } */
 }
 @media (max-width: 41.6875rem) {
   /*667px*/
@@ -428,7 +428,7 @@ body {
   min-height: 65vh;
   background: #fff;
   border-radius: 1.25rem;
-  padding: 2.5rem;
+  padding: 2.5rem 0;
 }
 .dashboard .banner:last-child h5 {
   font-size: 1.5rem;
@@ -619,9 +619,9 @@ body {
     /* font-weight: 400; */
     font-size: 0.7rem;
   }
-  .dashboard .banner:last-child {
+  /* .dashboard .banner:last-child {
     padding: 2rem 1rem;
-  }
+  } */
 }
 @media (max-width: 675px) {
   .heading-box .btn-box {
@@ -826,7 +826,7 @@ body {
   }
   /* }
 @media (max-width: 485px) { */
-  .wrapper {
+  /* .wrapper {
     left: 12px;
     font-size: 1.5rem;
     background-color: #3939d9f2;
@@ -839,7 +839,7 @@ body {
     padding-inline: 15px;
     padding-top: 12px;
     z-index: 99;
-  }
+  } */
   .wrapper .hamburger {
     display: block;
     color: #fff;
@@ -1165,18 +1165,36 @@ body {
 }
 @media screen and (max-width: 991px) {
   .page {
-    border-top-left-radius: 2rem;
-    border-bottom-left-radius: 2rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
     padding: 1rem;
   }
 }
 @media screen and (max-width: 767px) {
+  .wrapper {
+    background: #3939d9;
+    width: auto;
+    height: auto;
+    top: 10px;
+    left: 16px;
+    padding: 0;
+    border-radius: 2px;
+  }
+  .page,
+  .dashboard {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    padding-top: 45px;
+  }
   .doctors .banner {
     grid-template-columns: 1fr;
     padding-inline: 1rem;
   }
   .assitant-add-form .form-cols-wrap {
     gap: 0;
+  }
+  .doctor-imgbox {
+    height: auto;
   }
 }
 

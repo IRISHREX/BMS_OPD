@@ -85,6 +85,7 @@ form textarea {
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 1rem;
+  margin-bottom: 1rem;
   /* align-items: end;
     margin-bottom: 0.8rem; */
 }
@@ -138,7 +139,8 @@ form textarea {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   column-gap: 1rem;
-  /* margin-bottom: 2rem; */
+  margin-bottom: 1rem;
+  row-gap: 1rem;
 }
 
 .fees-detail-box {
@@ -246,7 +248,7 @@ form textarea {
 .flex-jc-sb-ai-c {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  /* align-itemss: center; */
 }
 .ml-05rem {
   margin-left: 0.5rem;
@@ -300,6 +302,72 @@ form textarea {
 }
 .assitant-add-form .form-group {
   margin-bottom: 1.5rem;
+}
+/*  */
+.appoint-paymnt-status {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+}
+.appoint-paymnt-status select {
+  width: auto;
+}
+.appoint-payment-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.938rem;
+}
+.appoint-payment-block input {
+  padding: 5px 10px;
+  border-radius: 3px;
+  /* border: 0; */
+  /* border-bottom: 1px solid #d4dbe6; */
+  /* border-radius: 0; */
+}
+.payment-staus-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.appoint-paymnt-status select {
+  width: auto;
+  padding: 0;
+  border: 0;
+}
+
+/*  */
+.appoinmnt-invoice-contnt {
+  border-bottom: 1px solid rgb(238, 238, 238);
+  padding-block: 1.25rem 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: calc(100% - 25px);
+}
+.apoint-invoice-row p {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  font-size: 15px;
+  color: #2a3460;
+}
+.apoint-invoice-row p:last-child {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.apoint-invoice-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.appoinmnt-invoice-contnt .btn-container {
+  gap: 0.625rem;
+}
+
+.appoinmnt-invoice-contnt .btn-container .btn-cls {
+  width: 100%;
 }
 /* ================== Responsive ================== */
 
@@ -451,7 +519,13 @@ form textarea {
   .appointment-form .btn-container .btn-cls {
     width: 100%;
   }
-  .form-component.add-admin-form{
+  .form-component.add-admin-form {
     padding: 1rem;
+  }
+  .appoinmnt-invoice-contnt .btn-container {
+    flex-direction: column;
+  }
+  .appoinmnt-invoice-contnt .btn-container .btn-cls {
+    width: 100%;
   }
 }
