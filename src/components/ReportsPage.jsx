@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
 import api from "../utils/api";
 import "./ReportsPage.css";
 import ReportRow from "./ReportRow";
@@ -15,7 +15,7 @@ import LineChartCard from "./LineChartCard";
 import "./ChartCards.css";
 import ToggleSwitch from "./ToggleSwitch";
 import Toolbar from "./Toolbar";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import { BsDownload, BsFileExcel, BsHeartPulse } from "react-icons/bs";
 import { IoRefresh } from "react-icons/io5";
 import useClickSound from "../hooks/useClickSound";
@@ -61,19 +61,19 @@ const ReportsPage = () => {
     // fetch current user
     (async () => {
       try {
-        const { data: userRes } = await api.get('/api/v1/user/dashboard/me');
+        const { data: userRes } = await api.get("/api/v1/user/dashboard/me");
         setDashboardUser(userRes.user);
       } catch (e) {
         setDashboardUser(null);
       }
     })();
     (async () => {
-        try {
-            const { data } = await api.get('/api/v1/user/patients');
-            setTotalPatients(data.count);
-        } catch (e) {
-            console.error("Failed to fetch total patients", e);
-        }
+      try {
+        const { data } = await api.get("/api/v1/user/patients");
+        setTotalPatients(data.count);
+      } catch (e) {
+        console.error("Failed to fetch total patients", e);
+      }
     })();
   }, []);
 
@@ -85,11 +85,15 @@ const ReportsPage = () => {
         let allDoctors = data.doctors || [];
         // Role-based filtering
         if (dashboardUser) {
-          if (dashboardUser.role === 'Doctor') {
-            allDoctors = allDoctors.filter(doc => doc._id === dashboardUser._id);
+          if (dashboardUser.role === "Doctor") {
+            allDoctors = allDoctors.filter(
+              (doc) => doc._id === dashboardUser._id,
+            );
             setDoctorId(dashboardUser._id);
-          } else if (dashboardUser.role === 'Compounder') {
-            allDoctors = allDoctors.filter(doc => (dashboardUser.assignedDoctors || []).includes(doc._id));
+          } else if (dashboardUser.role === "Compounder") {
+            allDoctors = allDoctors.filter((doc) =>
+              (dashboardUser.assignedDoctors || []).includes(doc._id),
+            );
             if (allDoctors.length > 0) setDoctorId(allDoctors[0]._id);
           }
         }
@@ -140,11 +144,11 @@ const ReportsPage = () => {
         // aggregate quick totals from returned entries (use 'paid' field)
         const totPaid = (body.entries || []).reduce(
           (s, r) => s + (Number(r.paid || r.revenue) || 0),
-          0
+          0,
         );
         const totDue = (body.entries || []).reduce(
           (s, r) => s + (Number(r.due) || 0),
-          0
+          0,
         );
         setTotals({
           paid: totPaid,
@@ -155,7 +159,7 @@ const ReportsPage = () => {
         // When includeAppointments is true, also fetch hybrid report (accounts for appts without invoices)
         if (includeAppointments) {
           const repRes = await api.get(
-            `/api/v1/reports/summary${query.replace("group=", "groupBy=")}`
+            `/api/v1/reports/summary${query.replace("group=", "groupBy=")}`,
           );
           const repTotals = repRes.data.totals || { revenue: 0, due: 0 };
           // server returns totals.revenue (invoice pipeline) - treat as paid
@@ -178,7 +182,7 @@ const ReportsPage = () => {
               revenue: g.totalEarning,
               due: g.totalDue,
               count: g.count,
-            }))
+            })),
           );
         }
       }
@@ -213,9 +217,7 @@ const ReportsPage = () => {
     }
   };
 
-  useEffect(() => {
-    
-  }, []);
+  useEffect(() => {}, []);
 
   // fetch invoices for an appointment and open drawer
   const openInvoiceDrawer = async (appointmentId) => {
@@ -254,11 +256,11 @@ const ReportsPage = () => {
       delete payload.appointment;
       const res = await api.put(
         `/api/v1/invoice/${selectedInvoice._id}`,
-        payload
+        payload,
       );
       // refresh list
       const refreshed = await api.get(
-        `/api/v1/invoice/appointment/${drawerAppointmentId}`
+        `/api/v1/invoice/appointment/${drawerAppointmentId}`,
       );
       setInvoicesForAppointment(refreshed.data.invoices || []);
       setSelectedInvoice(null);
@@ -278,7 +280,7 @@ const ReportsPage = () => {
     try {
       await api.delete(`/api/v1/invoice/${id}`);
       const refreshed = await api.get(
-        `/api/v1/invoice/appointment/${drawerAppointmentId}`
+        `/api/v1/invoice/appointment/${drawerAppointmentId}`,
       );
       setInvoicesForAppointment(refreshed.data.invoices || []);
       fetchSummary();
@@ -292,7 +294,7 @@ const ReportsPage = () => {
       // call explicit settle endpoint which will append payment and normalize
       await api.post(`/api/v1/invoice/${inv._id}/settle`);
       const refreshed = await api.get(
-        `/api/v1/invoice/appointment/${drawerAppointmentId}`
+        `/api/v1/invoice/appointment/${drawerAppointmentId}`,
       );
       setInvoicesForAppointment(refreshed.data.invoices || []);
       playSettledSound();
@@ -330,11 +332,11 @@ const ReportsPage = () => {
           r.due || 0,
           r.status || "",
           r.notes || "",
-        ])
+        ]),
       );
       const csv = rows
         .map((r) =>
-          r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")
+          r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","),
         )
         .join("\n");
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -359,7 +361,7 @@ const ReportsPage = () => {
         Number(g.revenue || g.totalEarning || 0) +
           Number(g.due || g.totalDue || 0),
         g.count || g.invoices || g.appointments || 0,
-      ])
+      ]),
     );
     const csv = rows
       .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
@@ -385,29 +387,27 @@ const ReportsPage = () => {
             <div className="desc-dev-box">
               <div>
                 <h3>Reports</h3>
-                <p>
-                  Payments and patients summary
-                </p>
+                <p>Payments and patients summary</p>
               </div>
               <div className="input-container">
-                <label>
-                  Start
+                <div className="form-group">
+                  <label>Start</label>
                   <input
                     type="date"
                     value={start}
                     onChange={(e) => setStart(e.target.value)}
                   />
-                </label>
-                <label>
-                  End
+                </div>
+                <div className="form-group">
+                  <label>End</label>
                   <input
                     type="date"
                     value={end}
                     onChange={(e) => setEnd(e.target.value)}
                   />
-                </label>
-                <label>
-                  Group
+                </div>
+                <div className="form-group">
+                  <label>Group</label>
                   <select
                     value={groupBy}
                     onChange={(e) => setGroupBy(e.target.value)}
@@ -416,15 +416,16 @@ const ReportsPage = () => {
                     <option value="week">Week</option>
                     <option value="month">Month</option>
                   </select>
-                </label>
-                <label>
-                  Doctor
+                </div>
+
+                <div className="form-group">
+                  <label>Doctor </label>
                   <select
                     value={doctorId}
                     onChange={(e) => setDoctorId(e.target.value)}
-                    disabled={dashboardUser && dashboardUser.role === 'Doctor'}
+                    disabled={dashboardUser && dashboardUser.role === "Doctor"}
                   >
-                    {dashboardUser && dashboardUser.role === 'Admin' && (
+                    {dashboardUser && dashboardUser.role === "Admin" && (
                       <option value="">All</option>
                     )}
                     {doctors.map((d) => (
@@ -433,11 +434,11 @@ const ReportsPage = () => {
                       </option>
                     ))}
                   </select>
-                </label>
+                </div>
               </div>
             </div>
             <div className="check-btn-box">
-              <div className="label-box">
+              {/* <div className="label-box"> */}
                 {/* <label>
                   <input
                     type="checkbox"
@@ -449,18 +450,28 @@ const ReportsPage = () => {
                   />{" "}
                   Use persisted report entries
                 </label> */}
-              </div>
-              <div className="btn-box">
+              {/* </div> */}
+              <div className="report-btn-box">
                 <button
                   ref={setupClickSound}
                   className="icon-btn"
-                  onClick={() => fetchSummary({ start, end, groupBy, doctorId })}
+                  onClick={() =>
+                    fetchSummary({ start, end, groupBy, doctorId })
+                  }
                   disabled={loading}
                 >
-                  {loading ? <BsHeartPulse style={{color:'red'}} /> : <IoRefresh style={{color:'blue'}}/>}
+                  {loading ? (
+                    <BsHeartPulse style={{ color: "red" }} />
+                  ) : (
+                    <IoRefresh style={{ color: "blue" }} />
+                  )}
                 </button>
-                <button ref={setupClickSound} className="icon-btn" onClick={downloadCSV} >
-                  <BsDownload style={{color:'green'}}/>
+                <button
+                  ref={setupClickSound}
+                  className="icon-btn"
+                  onClick={downloadCSV}
+                >
+                  <BsDownload style={{ color: "green" }} />
                 </button>
               </div>
             </div>
@@ -474,23 +485,30 @@ const ReportsPage = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={onSearchKey}
             />
-              <FaSearch
-                ref={setupClickSound}
-                className="icon-btn"
-                style={{padding:"0.5rem", backgroundColor:"#096dd9",color:"white",height:"2rem",width:"2rem",borderRadius:"0.3rem"}}
-                onClick={() => fetchSummary({ q: searchTerm })}
-              />
+            <FaSearch
+              ref={setupClickSound}
+              className="icon-btn"
+              style={{
+                padding: "0.5rem",
+                backgroundColor: "#096dd9",
+                color: "white",
+                height: "2rem",
+                width: "2rem",
+                borderRadius: "0.3rem",
+              }}
+              onClick={() => fetchSummary({ q: searchTerm })}
+            />
           </div>
           <div>
-          <ToggleSwitch
-            label={usePersisted ? "Persisted Entries" : "Summary View"}
-            checked={usePersisted}
-            onChange={() => {
-              setUsePersisted(!usePersisted);
-              fetchSummary();
-            }}
-          />
-        </div>
+            <ToggleSwitch
+              label={usePersisted ? "Persisted Entries" : "Summary View"}
+              checked={usePersisted}
+              onChange={() => {
+                setUsePersisted(!usePersisted);
+                fetchSummary();
+              }}
+            />
+          </div>
         </div>
       </Toolbar>
 
@@ -502,7 +520,7 @@ const ReportsPage = () => {
             Paid: {fmt(totals.paid)} • Due: {fmt(totals.totalDue)}
           </small>
         </div>
-        {dashboardUser && dashboardUser.role === 'Admin' && (
+        {dashboardUser && dashboardUser.role === "Admin" && (
           <>
             <div className="card">
               <p className="label">Total Patients</p>
@@ -529,27 +547,22 @@ const ReportsPage = () => {
       </div>
 
       {!usePersisted && (
-        <div 
-          className="charts-container" 
-          style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: '1rem', 
-            margin: '1rem 0', 
-            padding: '1rem',
-            backgroundColor: 'black' 
-          }}
+        <div
+          className="charts-container"
         >
           <PieChartCard
             title="Payments Breakdown"
             data={[
-              { name: 'Paid', value: totals.paid || 0 },
-              { name: 'Due', value: totals.totalDue || 0 },
+              { name: "Paid", value: totals.paid || 0 },
+              { name: "Due", value: totals.totalDue || 0 },
             ]}
           />
           <LineChartCard
             title="Invoice Trend"
-            data={groups.map(g => ({ name: g.period, value: g.revenue || g.totalEarning || 0 }))}
+            data={groups.map((g) => ({
+              name: g.period,
+              value: g.revenue || g.totalEarning || 0,
+            }))}
           />
           <SimpleBarChart data={groups} />
         </div>
@@ -606,19 +619,25 @@ const ReportsPage = () => {
                   <td>{fmt(r.paid || r.revenue)}</td>
                   <td>{fmt(r.due)}</td>
                   <td>{r.status}</td>
-                  <td style={{ display: "flex", gap: "1rem",alignItems:"center" }}>
+                  <td
+                    style={{
+                      display: "flex",
+                      gap: "1rem",
+                      alignItems: "center",
+                    }}
+                  >
                     <FaEye
                       ref={setupClickSound}
                       className="icon-btn"
                       title="View Details"
-                      style={{color:"#096dd9"}}
-                      onClick={() => openInvoiceDrawer(r.appointmentId)} 
+                      style={{ color: "#096dd9" }}
+                      onClick={() => openInvoiceDrawer(r.appointmentId)}
                     />
                     <MdDelete
                       ref={setupClickSound}
                       className="icon-btn"
                       title="Delete"
-                      style={{color:"var(--danger-color)"}}
+                      style={{ color: "var(--danger-color)" }}
                       onClick={async () => {
                         if (window.confirm("Delete this report entry?")) {
                           await api.delete(`/api/v1/reports/${r._id}`);
@@ -630,21 +649,21 @@ const ReportsPage = () => {
                       ref={setupClickSound}
                       className="icon-btn"
                       title="Mark as paid"
-                      style={{color:"var(--secondary-color)"}}
+                      style={{ color: "var(--secondary-color)" }}
                       onClick={async () => {
                         if (
                           window.confirm(
-                            "Mark this appointment as Paid? This will settle all invoices for the appointment."
+                            "Mark this appointment as Paid? This will settle all invoices for the appointment.",
                           )
                         ) {
                           try {
                             await api.put(
                               `/api/v1/invoice/appointment/${r.appointmentId}`,
-                              { payments: [{ amount: 0 }] }
+                              { payments: [{ amount: 0 }] },
                             ); // trigger update route to be safe
                             // better: fetch all invoices and call settle on each
                             const invs = await api.get(
-                              `/api/v1/invoice/appointment/${r.appointmentId}`
+                              `/api/v1/invoice/appointment/${r.appointmentId}`,
                             );
                             if (
                               invs.data &&
@@ -652,7 +671,7 @@ const ReportsPage = () => {
                             ) {
                               for (const ii of invs.data.invoices) {
                                 await api.post(
-                                  `/api/v1/invoice/${ii._id}/settle`
+                                  `/api/v1/invoice/${ii._id}/settle`,
                                 );
                               }
                             }
@@ -695,7 +714,7 @@ const ReportsPage = () => {
                   <td>
                     {fmt(
                       Number(g.revenue || g.totalEarning || 0) +
-                        Number(g.due || g.totalDue || 0)
+                        Number(g.due || g.totalDue || 0),
                     )}
                   </td>
                   <td>{g.count || g.invoices || g.appointments || ""}</td>
@@ -746,7 +765,7 @@ const ReportsPage = () => {
                         Paid:{" "}
                         {(inv.payments || []).reduce(
                           (s, p) => s + (Number(p.amount) || 0),
-                          0
+                          0,
                         )}
                       </small>
                       <small>Status: {inv.status}</small>
@@ -861,6 +880,5 @@ const ReportsPage = () => {
     </section>
   );
 };
-
 
 export default ReportsPage;

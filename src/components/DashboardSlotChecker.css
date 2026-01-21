@@ -136,7 +136,7 @@
 /* Content */
 .slot-checker-popup-content {
   display: grid;
-  grid-template-columns: 1fr 0.95fr;
+  grid-template-columns: 1fr 1fr;
   gap: 1.2rem;
   padding: 1.2rem;
   overflow-y: auto;
@@ -203,7 +203,7 @@
 
 .popup-calendar .tile-disabled {
   background-color: #f5f5f5 !important;
-  color: #ccc !important;
+  color: #6b6b6b !important;
   cursor: not-allowed;
 }
 
@@ -281,6 +281,11 @@
   background: linear-gradient(135deg, #ffebee 0%, #ef9a9a 100%);
   border-color: #f44336;
 }
+.react-calendar__navigation button:disabled{
+    background-color: #e4e4e4;
+    color: #000000;
+    font-size: 15px;
+}
 
 /* Slot Details Panel */
 .popup-slot-details {
@@ -294,7 +299,8 @@
   height: fit-content;
   max-height: 350px;
   overflow-y: auto;
-  border-left: 4px solid #0859af;
+  /* border-left: 4px solid #0859af; */
+  height: 100%;
 }
 
 .popup-detail-header {
@@ -346,12 +352,12 @@
 
 .popup-no-work {
   text-align: center;
-  padding: 1rem;
+  /* padding: 1rem; */
   background-color: #fff;
   border-radius: 6px;
   color: #f44336;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
 }
 
 /* Responsive */

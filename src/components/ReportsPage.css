@@ -23,7 +23,7 @@
 .banner .desc-dev-box {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  /* align-items: center; */
   gap: 0.5rem;
 }
 .input-container {
@@ -33,21 +33,21 @@
   min-width: 32rem;
 }
 .input-container label {
-  padding: 0.3rem;
+  /* padding: 0.3rem; */
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 .input-container input,
 .input-container select {
-  height: 2rem;
+  /* height: 2rem; */
   display: flex;
   align-items: center;
   padding: 0.3rem;
 }
 .check-btn-box {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   gap: 0.5rem;
   padding: 0.3rem;
@@ -144,7 +144,24 @@ tbody tr {
   opacity: 0.6;
   cursor: not-allowed;
 }
+.reports-page .search-container {
+  margin-top: 0;
+  padding: 0 12px 12px;
+}
+.charts-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  /* flex-direction: column; */
+  gap: 1rem;
+  margin: 1rem 0px;
+  /* padding: 1rem; */
+}
 
+@media (max-width: 900px) {
+  .charts-container {
+    grid-template-columns: 1fr 1fr;
+  }
+}
 @media (max-width: 900px) {
   .reports-page .reports-cards {
     grid-template-columns: repeat(2, 1fr);
@@ -164,7 +181,7 @@ tbody tr {
     flex-direction: column;
   }
 }
-@media (max-width: 745px) {
+@media screen and (max-width: 767px) {
   .input-container {
     flex-direction: column;
     min-width: 100%;
@@ -176,6 +193,9 @@ tbody tr {
     gap: 0.5rem;
   }
   /* RK */
+  .reports-page .toolbar {
+    position: static;
+  }
   .reports-page .banner {
     position: static;
   }
@@ -188,6 +208,23 @@ tbody tr {
   .reports-page .input-container select {
     width: 100%;
   }
+  .check-btn-box {
+    flex-direction: row;
+    /* gap: 5px; */
+  }
+  .report-btn-box .icon-btn {
+    width: 45px;
+    height: 45px;
+    padding: 0.5rem;
+    font-size: 20px;
+  }
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+  .reports-page .search-container {
+    align-items: baseline;
+  }
+  
 }
 @media (max-width: 680px) {
   .search-container {

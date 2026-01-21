@@ -12,6 +12,7 @@ import {
 import { updateDoctorRequest } from "../store/doctorUpdateSlice";
 import useClickSound from "../hooks/useClickSound";
 import { FaUserEdit } from "react-icons/fa";
+import { BsArrowLeft } from "react-icons/bs";
 import "./AddNewDoctor.css";
 
 
@@ -184,24 +185,22 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
 
   const formContent = (
     <div className="add-doctor-form">
-      <div className="doctpr-form-header">
+      {/* <div className="doctpr-form-header">
         <FaUserEdit />
-        <p>{isEditing ? "Edit Doctor" : "Register A New Doctor"}</p>
-      </div>
-      {/* <img
-        src="/logo.svg"
-        alt="logo"
-        className="logo"
-        style={{
-          width: "150px",
-          height: "150px",
-          borderRadius: "50%",
-          objectFit: "cover",
-        }}
-      /> */}
-      <h1 className="form-title">
-        {isEditing ? "EDIT DOCTOR" : "REGISTER A NEW DOCTOR"}
-      </h1>
+        <p>{isEditing ? "Edit Doctor" : null}</p>
+      </div> */}
+      {isEditing ? (
+        <div className="edit-modal-header">
+          <FaUserEdit />
+          <h2>Edit Doctor</h2>
+        </div>
+      ) : null}
+      {/*  */}
+
+      {isEditing ? null : (
+        <h1 className="form-title">"Register A New Doctor"</h1>
+      )}
+
       <form onSubmit={handleAddNewDoctor}>
         <div className="first-wrapper">
           <div className="form-field-wrap left">
@@ -354,12 +353,12 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
               onChange={(e) => setQualifications(e.target.value)}
               disabled={doctorCreate.creating}
             />
-            <button type="submit" disabled={doctorCreate.creating}>
+            <button type="submit" className="btn-cls" disabled={doctorCreate.creating}>
               {isEditing
                 ? "Update Doctor"
                 : doctorCreate.creating
-                ? "Registering..."
-                : "Register New Doctor"}
+                  ? "Registering..."
+                  : "Register New Doctor"}
             </button>
             {doctorCreate.error && (
               <div
@@ -387,7 +386,9 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
           className="arrow-btn icon-btn"
           onClick={() => navigate("/doctors")}
           // style={{ marginLeft: 8 }}
-        ></button>
+        >
+          <BsArrowLeft />
+        </button>
         <p>{isEditing ? "Edit Doctor" : "Register New Doctor"}</p>
       </div>
       <div className="container">{formContent}</div>

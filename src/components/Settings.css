@@ -16,8 +16,8 @@
   --bg-hover: #f1f5f9;
   --border-color: #e2e8f0;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07),
-    0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
 }
 
 .settings-page {
@@ -57,7 +57,9 @@
   border-radius: 0.5rem; /* 8px */
   box-shadow: var(--shadow-md);
   cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
 }
 .settings-card:hover {
   transform: translateY(-0.1875rem); /* -3px */
@@ -126,12 +128,12 @@
   align-items: center;
   margin-bottom: 0.75rem;
 }
-.search-input {
+/* .search-input {
   flex: 1;
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
   border: 1px solid var(--border-color);
-}
+} */
 .list-body {
   padding: 2px;
   overflow: auto;
@@ -299,6 +301,8 @@
   border-bottom: 3px solid var(--primary-color);
   border-radius: 0.5rem;
   z-index: 1;
+  background-color: #fff;
+  padding: 1rem;
 }
 
 /* Filter Bar Styles */
@@ -324,6 +328,10 @@
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--text-secondary);
+}
+.filter-group input,
+.filter-group select {
+  padding: 0.575rem;
 }
 
 .medicine-list-container {
@@ -375,6 +383,7 @@
   font-weight: 500;
   color: var(--text-primary);
   flex-shrink: 0;
+  width: fit-content;
 }
 
 .medicine-actions {
@@ -635,7 +644,9 @@
   border-radius: 6px;
   font-size: 0.95rem;
   font-family: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   background: #fff;
 }
 
@@ -753,6 +764,28 @@ button.icn-btn[title="Delete"] {
   color: #b24d4d;
   background: #ffe9e9;
 }
+/*  */
+.filter-search-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.filter-search-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.filter-search-right {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.catlog-title-wrap h2 {
+  text-align: left;
+  margin: 0;
+}
 
 /* --- Responsive Design --- */
 @media (max-width: 768px) {
@@ -794,6 +827,27 @@ button.icn-btn[title="Delete"] {
   .footer-note {
     text-align: center;
   }
+}
+
+@media screen and (max-width: 767px) {
+  .page.medicine-settings .toolbar{
+    position: static;
+  }
+  .filter-group {
+    width: 100%;
+  }
+  .filter-group:has(.btn-cls) {
+    width: auto;
+  }
+  .filter-search-top{
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  .filter-search-right {
+    flex-direction: column;
+    align-items: flex-start;
+}
 }
 
 @media (max-width: 480px) {

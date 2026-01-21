@@ -1,5 +1,7 @@
 import React from 'react';
 import { MdOutlineContentPasteSearch } from 'react-icons/md';
+import { LuFilterX } from "react-icons/lu";
+
 
 const MessageFilter = ({
   filters,
@@ -54,8 +56,8 @@ const MessageFilter = ({
         </div>
       )}
 
-      <div className="search-input">
-        <MdOutlineContentPasteSearch size="1.5rem" color="#718096" />
+      <div className="message-search">
+        {/* <MdOutlineContentPasteSearch size="1.5rem" color="#718096" /> */}
         <input
           type="text"
           name="q"
@@ -66,8 +68,9 @@ const MessageFilter = ({
       </div>
 
       <div className="action-buttons">
-        <button onClick={onClearFilters} className="btn btn-secondary">
-          Clear Filters
+        <button onClick={onClearFilters} className="clear-filter">
+          {/* Clear Filters */}
+          <LuFilterX title='Clear Filters'/>
         </button>
       </div>
     </div>

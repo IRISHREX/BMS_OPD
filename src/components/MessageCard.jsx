@@ -159,7 +159,7 @@ const MessageCard = ({
         <button
           ref={setupClickSound}
           onClick={() => onDelete([message._id])}
-          className="btn-icon btn-danger icon-btn"
+          className="btn-icon icon-btn"
           title="Delete"
         >
           <MdDelete size="1.2rem" />

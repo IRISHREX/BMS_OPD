@@ -1,13 +1,16 @@
-import React from 'react';
-import './ToggleSwitch.css';
+import React from "react";
+import "./ToggleSwitch.css";
 
 const ToggleSwitch = ({ label, checked, onChange }) => {
   return (
-    <label className="toggle-switch">
-      <input type="checkbox" checked={checked} onChange={onChange} />
-      <span className="slider round"></span>
-      <span className="label-text">{label}</span>
-    </label>
+    <>
+      {/* <span className="label-text">{label}</span> */}
+      <label className="toggle-switch">
+       <span className="label-text">{label}</span>
+        <input type="checkbox" checked={checked} onChange={onChange} />
+        <span className="slider round"></span>
+      </label>
+    </>
   );
 };
 
