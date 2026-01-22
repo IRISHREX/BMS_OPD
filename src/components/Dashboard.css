@@ -252,6 +252,8 @@
 .dashboard .banner table thead th:first-child input {
   position: relative;
   top: 2px;
+  width: auto;
+  margin-right: 0.3rem;
 }
 @media screen and (max-width: 991px) {
   .compounders-search-form {
@@ -541,6 +543,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  padding-inline: 1rem;
 }
 
 .heading-box .btn-box {
@@ -635,10 +638,10 @@
   gap: 0.5rem;
 }
 /* RK */
-.dashboard .banner table tbody tr td:first-child input {
+/* .dashboard .banner table tbody tr td:first-child input {
   position: relative;
   top: 2px;
-}
+} */
 /* .doctor-imgbox {
   width: 250px;
   height: 150px;

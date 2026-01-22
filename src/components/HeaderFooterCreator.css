@@ -233,7 +233,7 @@
 }
 
 /* Buttons */
-.btn {
+/* .btn {
   padding: 14px 32px;
   font-size: 1rem;
   font-weight: 600;
@@ -248,7 +248,7 @@
   gap: 8px;
   min-width: 200px;
   justify-content: center;
-}
+} */
 
 .btn-download {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);

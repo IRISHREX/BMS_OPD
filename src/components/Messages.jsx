@@ -275,6 +275,9 @@ const Messages = () => {
             <div className="summary-text">
               <p> Total: {counts.total}</p> |<p> Read: {counts.read}</p> |
               <p> Unread: {counts.unread}</p>
+              <span >
+               {selected.length > 0 ? ` | (${selected.length} selected)` : ""}
+              </span>
             </div>
             <BulkActions
               selected={selected}

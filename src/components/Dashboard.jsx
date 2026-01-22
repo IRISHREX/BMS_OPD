@@ -718,7 +718,6 @@ const Dashboard = () => {
                   <th style={{ textAlign: "left" }}>
                     <RequirePermission allowedRoles={["Admin"]}>
                       <input
-                        style={{ marginRight: "0.3rem" }}
                         type="checkbox"
                         onChange={(e) => {
                           const filteredAppointments = (
@@ -841,7 +840,6 @@ const Dashboard = () => {
                       <td style={{ textAlign: "left" }}>
                         <RequirePermission allowedRoles={["Admin"]}>
                           <input
-                            style={{ marginRight: "0.3rem" }}
                             type="checkbox"
                             checked={selectedAppointments.includes(
                               appointment._id,

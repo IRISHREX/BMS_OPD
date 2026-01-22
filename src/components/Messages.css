@@ -43,23 +43,23 @@
 .filter-controls select,
 .filter-controls input[type="text"],
 .filter-controls input[type="date"] {
-  padding: 0.6rem 0.9rem;
+  /* padding: 0.6rem 0.9rem;
   border: 1px solid #e2e8f0;
   border-radius: var(--radius-sm);
+    color: var(--text-main); */
   background-color: var(--bg-main);
-  color: var(--text-main);
   transition:
     border-color 0.2s,
     box-shadow 0.2s;
   min-width: 160px;
 }
 
-.filter-controls select:focus,
+/* .filter-controls select:focus,
 .filter-controls input:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(var(--accent), 0.2);
-}
+} */
 
 .search-input {
   display: flex;
@@ -115,6 +115,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .bulk-actions {
@@ -411,7 +412,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  /* position: relative; */
+  position: relative;
+}
+.message-search svg {
+  position: absolute;
+  left: 14px;
+  color: #88888b;
 }
 .clear-filter {
   border: 0;
@@ -433,6 +439,7 @@
 .filter-controls .message-search input[type="text"] {
   width: auto;
   min-width: auto;
+  padding-left: 35px;
 }
 /* Responsive adjustments */
 @media (max-width: 900px) {
@@ -457,10 +464,11 @@
   .messages-container {
     padding: 1rem;
   }
-
+  .message-search {
+    width: 100%;
+  }
   .filter-controls {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    flex-wrap: wrap;
     gap: 0.5rem;
   }
 

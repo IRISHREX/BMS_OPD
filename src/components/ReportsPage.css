@@ -133,12 +133,9 @@ tbody tr {
   border-top: 1px solid #dddddd;
 }
 .btn {
-  background: #096dd9;
-  color: white;
-  padding: 8px 10px;
-  border-radius: 6px;
+  /* background: #096dd9;
+  color: white; */
   border: none;
-  cursor: pointer;
 }
 .btn[disabled] {
   opacity: 0.6;

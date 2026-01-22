@@ -92,7 +92,7 @@
 }
 
 /* Buttons */
-.btn {
+/* .btn {
   padding: 12px 20px;
   border-radius: 8px;
   font-size: 15px;
@@ -104,7 +104,7 @@
   align-items: center;
   gap: 8px;
   white-space: nowrap;
-}
+} */
 
 .btn-search {
   background: var(--primary-color, #271776);
