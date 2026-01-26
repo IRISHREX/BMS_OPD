@@ -57,9 +57,10 @@
   box-shadow: 0 0 0 3px rgba(39, 23, 118, 0.1);
 }
 
-.form-input::placeholder {
+/* .form-input::placeholder {
   color: #cbd5e1;
-}
+
+} */
 
 .form-actions {
   display: flex;

@@ -176,14 +176,16 @@ textarea,
   background: var(--bg-card);
   color: #48484a;
   transition: all 0.2s ease;
-  width: 100%;
+  /* width: 100%; */
   box-sizing: border-box;
 }
 
 .form-group input::placeholder,
 .form-group select::placeholder,
 .form-group textarea::placeholder {
+  /* color: #cbd5e1; */
   color: #a0aec0;
+  font-size: 0.875rem;
 }
 
 .form-group input:hover,
@@ -685,7 +687,7 @@ textarea:focus,
 .form-component form input,
 .form-component form select,
 .form-component form textarea {
-  padding: 0.625rem 0.625rem 0.625rem 1.2rem;
+  /* padding: 0.625rem 0.625rem 0.625rem 1.2rem; */
   font-size: 1rem;
 }
 .create_referral_form .form-section {

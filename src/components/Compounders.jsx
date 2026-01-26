@@ -78,7 +78,7 @@ const Compounders = () => {
             >
               <input
                 type="text"
-                placeholder="Search by name, phone, email..."
+                placeholder="By name, phone, email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="compounders-search-input"

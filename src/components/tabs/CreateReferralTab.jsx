@@ -111,7 +111,7 @@ const CreateReferralTab = ({
                     })
                   }
                   placeholder="Patient history, symptoms, examination findings..."
-                  rows="4"
+                  rows="2"
                 />
               </div>
               <div className="form-group">
@@ -125,7 +125,7 @@ const CreateReferralTab = ({
                     })
                   }
                   placeholder="Specific care requirements, procedures needed..."
-                  rows="3"
+                  rows="2"
                 />
               </div>
             </div>

@@ -268,7 +268,7 @@
     border-radius: 0 20px 20px 0px;
     padding: 8px 10px;
   }
-  .compounders-search-form{
+  .compounders-search-form {
     width: auto;
   }
   .doctors-body form button svg,
@@ -297,11 +297,11 @@
     padding-inline: 1rem;
     justify-content: flex-start;
   }
-  .page.bg-light-blue .container{
+  .page.bg-light-blue .container {
     padding-inline: 1rem;
   }
-  .react-calendar{
-    width: 100%
+  .react-calendar {
+    width: 100%;
   }
 }
 
@@ -511,20 +511,20 @@
 .filter-box select:focus-visible {
   outline: 0;
 }
-.filter-group .btn-cls{
-    display: flex;
-    align-items: center;
-    height: 40px;
-    font-size: 20px;
+.filter-group .btn-cls {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  font-size: 20px;
 }
-.search-box {
+/* .search-box {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 1rem;
   font-weight: 600;
-}
-.search-box input {
+} */
+/* .search-box input {
   height: 2rem;
   padding: 0.5rem;
   border: 1px solid grey;
@@ -532,7 +532,7 @@
 }
 .search-box input::placeholder {
   font-size: 0.7rem;
-}
+} */
 
 .table-container {
   overflow-x: auto;
@@ -561,7 +561,18 @@
   text-transform: capitalize;
   font-weight: 400;
 }
-
+.search-box.dashboard-home-search-box {
+  position: relative;
+}
+.search-box.dashboard-home-search-box svg {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 10px;
+}
+.search-box.dashboard-home-search-box input {
+  padding-left: 35px;
+}
 @media (max-width: 830px) {
   .dashboard .banner:last-child h5 {
     letter-spacing: normal;

@@ -328,6 +328,10 @@
 .messages-body .toolbar.hide {
   transform: translateY(0);
 }
+.messages-summary span {
+    color: #20264b;
+    font-weight: 600;
+}
 
 @keyframes spin {
   0% {

@@ -668,7 +668,7 @@ const Dashboard = () => {
             )}
           </div>
 
-          <div className="search-box">
+          <div className="search-box dashboard-home-search-box">
             <MdOutlineContentPasteSearch size={"1.8rem"} color="grey" />
             <input
               type="text"
