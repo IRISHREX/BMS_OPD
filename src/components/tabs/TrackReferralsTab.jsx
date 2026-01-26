@@ -494,7 +494,7 @@ const TrackReferralsTab = ({
 
         {onSubmit && (
           <div className="button-group" style={{ marginTop: "20px" }}>
-            <button className="btn" onClick={handleSubmit}>
+            <button className="btn-cls" onClick={handleSubmit}>
               Complete Referral
             </button>
           </div>

@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import { IoCloudUploadOutline } from "react-icons/io5";
+
 
 const CreateReferralTab = ({
   referralForm,
@@ -109,7 +111,7 @@ const CreateReferralTab = ({
                     })
                   }
                   placeholder="Patient history, symptoms, examination findings..."
-                  rows="4"
+                  rows="2"
                 />
               </div>
               <div className="form-group">
@@ -123,7 +125,7 @@ const CreateReferralTab = ({
                     })
                   }
                   placeholder="Specific care requirements, procedures needed..."
-                  rows="3"
+                  rows="2"
                 />
               </div>
             </div>
@@ -155,6 +157,7 @@ const CreateReferralTab = ({
           <div className="form-section">
             <h4>Attachments</h4>
             <div className="file-upload">
+              <IoCloudUploadOutline />
               <button type="button" className="btn">
                 Upload Reports
               </button>
@@ -166,13 +169,13 @@ const CreateReferralTab = ({
             {setActiveTab && (
               <button
                 type="button"
-                className="btn"
+                className="btn-cls"
                 onClick={() => setActiveTab("query")}
               >
                 Back
               </button>
             )}
-            <button type="submit" className="btn">
+            <button type="submit" className="btn-cls">
               Submit Referral
             </button>
           </div>

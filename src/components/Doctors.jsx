@@ -60,7 +60,7 @@ const Doctors = () => {
               <input
                 className="compounders-search-input"
                 type="text"
-                placeholder="Search by name, phone, department, NIC..."
+                placeholder="By name, phone, department, NIC..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 // style={{

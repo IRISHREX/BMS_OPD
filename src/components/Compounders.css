@@ -4,7 +4,7 @@
   padding: 0.5rem;
   border-radius: 6px;
   border: 1px solid #ccc;
-  width: 250px;
+  width: 100%;
   font-size: 1rem;
   /*  */
   border-radius: 22px;
@@ -58,6 +58,9 @@
   height: 100%;
   overflow-y: auto;
 }
+.edit-form-content .add-doctor-form {
+    padding: 0;
+}
 .edit-modal-header {
   padding: 16px 20px;
   display: flex;
@@ -80,7 +83,7 @@
 .inner-form-block {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 1rem;
+  gap: 1rem;
 }
 .form-group input[type="date"]::before {
   display: none;

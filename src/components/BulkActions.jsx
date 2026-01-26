@@ -44,9 +44,9 @@ const BulkActions = ({
       >
         <MdDelete size="1.5rem" />
       </button>
-      <span className="summary-text">
+      {/* <span className="summary-text">
         {selected.length > 0 ? `(${selected.length} selected)` : ''}
-      </span>
+      </span>  */}
     </div>
   );
 };

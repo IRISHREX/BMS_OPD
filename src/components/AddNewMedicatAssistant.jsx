@@ -115,7 +115,7 @@ const AddNewAdmin = () => {
             objectFit: "cover",
           }}
         /> */}
-          <h1 className="form-title">ADD NEW MEDICAL ASSISTANT</h1>
+          <h1 className="form-title">Add New Medical Assitant</h1>
           <form onSubmit={handleAddNewAdmin} className="assitant-add-form">
             <div className="form-cols-wrap">
               <div className="form-group">
@@ -158,15 +158,20 @@ const AddNewAdmin = () => {
               </div>
             </div>
             <div className="form-cols-wrap">
+              {/*  */}
               <div className="form-group">
-                <input
-                  type="number"
-                  placeholder="NIC"
-                  value={nic}
-                  onChange={(e) => setNic(e.target.value)}
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
                   disabled={adminCreate.creating}
-                />
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
               </div>
+              {/*  */}
+
               <div className="form-group">
                 <input
                   type={"date"}
@@ -178,17 +183,15 @@ const AddNewAdmin = () => {
               </div>
             </div>
             <div className="outer-gnp-box" style={{ flexDirection: "column" }}>
-              <div className="gnp-box">
+              <div className="gnp-box form-cols-wrap">
                 <div className="form-group">
-                  <select
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
+                  <input
+                    type="number"
+                    placeholder="NIC"
+                    value={nic}
+                    onChange={(e) => setNic(e.target.value)}
                     disabled={adminCreate.creating}
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                  </select>
+                  />
                 </div>
                 <div className="form-group">
                   <input
@@ -206,7 +209,8 @@ const AddNewAdmin = () => {
                   <label style={{ fontWeight: 700 }}>
                     Assign to doctors (multiple):
                   </label>
-                  <div className="assign-check-wrap"
+                  <div
+                    className="assign-check-wrap"
                     // style={{
                     //   maxHeight: "100px",
                     //   width: "400px",
