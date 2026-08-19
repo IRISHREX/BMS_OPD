@@ -116,7 +116,7 @@ const SearchHospitalsTab = ({ searchFilters, setSearchFilters, hospitals, setSel
               return (
                 <div 
                   key={hospital._id || hospital.id} 
-                  className="card"
+                  className="card hospital-card"
                   style={{
                     border: isSelected ? '3px solid #4CAF50' : '1px solid #ddd',
                     backgroundColor: isSelected ? '#f0f8f0' : '#fff',
@@ -167,7 +167,7 @@ const SearchHospitalsTab = ({ searchFilters, setSearchFilters, hospitals, setSel
         {selected.length > 0 && (
           <div className="button-group" style={{ marginTop: '20px' }}>
             <button 
-              className="btn"
+              className="btn-cls"
               onClick={handleProceed}
             >
               Proceed to Query Resources ({selected.length} selected)

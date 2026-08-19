@@ -181,7 +181,7 @@
 .pres-form-group label,
 label select {
   font-weight: 600;
-  margin-bottom: 0.35rem;
+  /* margin-bottom: 0.35rem; */
   color: #334155;
 }
 .form-control,
@@ -224,11 +224,15 @@ label select {
   border-radius: 0.5rem;
   cursor: pointer;
   color: #0284c7;
-  box-shadow: 2px 2px 3px #bebebe, -2px -2px 3px #ffffff;
+  box-shadow:
+    2px 2px 3px #bebebe,
+    -2px -2px 3px #ffffff;
 }
 
 .refresh-btn:active {
-  box-shadow: -2px -2px 3px #bebebe, 2px 2px 3px #ffffff;
+  box-shadow:
+    -2px -2px 3px #bebebe,
+    2px 2px 3px #ffffff;
 }
 .form-control:focus,
 .pres-form-group input:focus,
@@ -350,6 +354,10 @@ label select:focus {
   padding: 0.5rem;
   background: #dae4f1;
   border-radius: 0.5rem 0.5rem 0 0;
+  width: auto;
+}
+.toggle-title input[type="checkbox"] {
+  width: auto;
 }
 .toggle-content {
   padding: 0.5rem;
@@ -395,12 +403,12 @@ label select:focus {
   justify-content: flex-end;
   margin-top: 0.6rem;
 }
-.btn {
+/* .btn {
   padding: 0.6rem 0.9rem;
   border-radius: 0.5rem;
   cursor: pointer;
   font-weight: 600;
-}
+} */
 .btn-primary {
   background: linear-gradient(90deg, var(--primary-2), var(--accent));
   color: #fff;

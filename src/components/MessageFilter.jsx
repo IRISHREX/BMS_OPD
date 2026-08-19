@@ -1,5 +1,7 @@
-import React from 'react';
-import { MdOutlineContentPasteSearch } from 'react-icons/md';
+import React from "react";
+import { MdOutlineContentPasteSearch } from "react-icons/md";
+import { RxReload } from "react-icons/rx";
+import { GoSearch } from "react-icons/go";
 
 const MessageFilter = ({
   filters,
@@ -10,6 +12,17 @@ const MessageFilter = ({
 }) => {
   return (
     <div className="filter-controls">
+      <div className="message-search">
+        {/* <MdOutlineContentPasteSearch size="1.5rem" color="#718096" /> */}
+        <GoSearch />
+        <input
+          type="text"
+          name="q"
+          placeholder="Name or phone..."
+          value={filters.q}
+          onChange={onFilterChange}
+        />
+      </div>
       <select
         name="filterOption"
         value={filters.filterOption}
@@ -21,7 +34,7 @@ const MessageFilter = ({
         <option value="Custom">Custom Range</option>
       </select>
 
-      {user?.role !== 'Doctor' && (
+      {user?.role !== "Doctor" && (
         <select
           name="doctorId"
           value={filters.doctorId}
@@ -36,7 +49,7 @@ const MessageFilter = ({
         </select>
       )}
 
-      {filters.filterOption === 'Custom' && (
+      {filters.filterOption === "Custom" && (
         <div className="custom-date-inputs">
           <input
             type="date"
@@ -54,20 +67,10 @@ const MessageFilter = ({
         </div>
       )}
 
-      <div className="search-input">
-        <MdOutlineContentPasteSearch size="1.5rem" color="#718096" />
-        <input
-          type="text"
-          name="q"
-          placeholder="Search by name or phone..."
-          value={filters.q}
-          onChange={onFilterChange}
-        />
-      </div>
-
       <div className="action-buttons">
-        <button onClick={onClearFilters} className="btn btn-secondary">
-          Clear Filters
+        <button onClick={onClearFilters} className="clear-filter">
+          {/* Clear Filters */}
+          <RxReload title="Clear Filters" />
         </button>
       </div>
     </div>

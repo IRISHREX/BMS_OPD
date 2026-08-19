@@ -2,8 +2,8 @@
 .toggle-switch {
   position: relative;
   display: inline-block;
-  width: 3.75rem;      /* 60px */
-  height: 2.3rem;    /* 34px */
+  width: 3.75rem; /* 60px */
+  height: 1.8rem; /* 34px */
 }
 
 /* Hide default checkbox */
@@ -26,10 +26,10 @@
 .slider::before {
   position: absolute;
   content: "";
-  height: 1.625rem;   /* 26px */
-  width: 1.625rem;    /* 26px */
-  left: 0.25rem;      /* 4px */
-  bottom: 0.25rem;    /* 4px */
+  height: 1.3rem; /* 26px */
+  width: 1.3rem; /* 26px */
+  left: 0.25rem; /* 4px */
+  bottom: 0.25rem; /* 4px */
   background-color: #fff;
   transition: 0.4s;
 }
@@ -60,6 +60,18 @@ input:checked + .slider::before {
 
 /* Label text */
 .label-text {
-  margin-left: 4.375rem; /* 70px */
+  /* margin-left: 4.375rem; /* 70px */
   white-space: nowrap;
+  position: absolute;
+  right: 70px;
+  top: 6px;
+  bottom: 0;
+  margin-block: auto;
+  font-size: 0.875rem;
+}
+
+@media screen and (max-width: 767px) {
+  span.label-text {
+    right: -125px;
+  }
 }

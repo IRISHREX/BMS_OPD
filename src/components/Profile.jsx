@@ -14,6 +14,7 @@ import { LuCalendarClock } from "react-icons/lu";
 import { IoIosMail } from "react-icons/io";
 import { BiSolidEditAlt } from "react-icons/bi";
 import { MdOutlineLockPerson } from "react-icons/md";
+import { BiCalendar } from "react-icons/bi";
 
 
 // Password Change Modal Component
@@ -461,7 +462,8 @@ const Profile = () => {
           {userDetails?.createdAt && (
             <div className="profile-section calendar-section">
               <h3>
-               📅 Join Date Calendar
+                <BiCalendar/>
+                Join Date Calendar
               </h3>
               <div className="calendar-container">
                 <Calendar
@@ -490,7 +492,7 @@ const Profile = () => {
                 </p>
               </div>
             </div>
-          )}
+           )}
 
           {/* Doctor Capacity Settings Section */}
 

@@ -53,50 +53,47 @@ const Doctors = () => {
     <>
       <section className="page doctors bg-light-blue">
         <div className="doctors-body">
-          <Toolbar>
-            <div className="dashboard-title-block">
-              <h1>Doctors</h1>
-              <form
-                onSubmit={handleSearch}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <input
-                  type="text"
-                  placeholder="Search by name, phone, department, NIC..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{
-                    width: "2.5rem",
-                    height: "2.5rem",
-                  }}
-                />
-                <button
-                  ref={setupClickSound}
-                type="button" className="compounders-search-btn">
-
-                  <FaSearch/>Search
-                </button>
-              </form>
+          {/* <Toolbar> */}
+          <div className="dashboard-title-block">
+            <h1>Doctors</h1>
+            <form onSubmit={handleSearch} className="compounders-search-form">
+              <input
+                className="compounders-search-input"
+                type="text"
+                placeholder="By name, phone, department, NIC..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                // style={{
+                //   width: "2.5rem",
+                //   height: "2.5rem",
+                // }}
+              />
               <button
                 ref={setupClickSound}
-                type="submit"
-                className="add-form-btn icon-btn"
-                style={{
-                  background: "#271776ca",
-                  color: "#fff",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-                onClick={handleRedirect}
+                type="button"
+                className="compounders-search-btn"
               >
-                <MdAdd title="Add New Doctors"/>
-                {/* Add New Doctors */}
+                <FaSearch />
+                Search
               </button>
-            </div>
-          </Toolbar>
+            </form>
+            <button
+              ref={setupClickSound}
+              type="submit"
+              className="add-form-btn icon-btn"
+              // style={{
+              //   background: "#271776ca",
+              //   color: "#fff",
+              //   border: "none",
+              //   cursor: "pointer",
+              // }}
+              onClick={handleRedirect}
+            >
+              <MdAdd title="Add New Doctors" />
+              {/* Add New Doctors */}
+            </button>
+          </div>
+          {/* </Toolbar> */}
           <div className="banner">
             {doctorsLoading ? (
               <span className="loader"></span>
@@ -134,7 +131,7 @@ const Doctors = () => {
                         } catch (err) {
                           snackbar.error("Delete failed");
                         }
-                      }
+                      },
                     );
                   }}
                 />
@@ -149,17 +146,20 @@ const Doctors = () => {
         isOpen={showUpdateModal}
         onRequestClose={() => setShowUpdateModal(false)}
         contentLabel="Update Doctor"
-        style={{
-          overlay: { zIndex: 1000 },
-          content: {
-            maxWidth: "900px",
-            margin: "auto",
-            borderRadius: "12px",
-            padding: "2rem",
-          },
-        }}
+        // style={{
+        //   overlay: { zIndex: 1000 },
+        //   content: {
+        //     maxWidth: "900px",
+        //     margin: "auto",
+        //     borderRadius: "12px",
+        //     padding: "2rem",
+        //   },
+        // }}
+        className="edit-form-modal doctor-modal"
       >
-        <AddNewDoctor isEditing={true} initialData={selectedDoctor} />
+        <div className="edit-form-content">
+          <AddNewDoctor isEditing={true} initialData={selectedDoctor} />
+        </div>
       </Modal>
 
       {/* View Modal with Capacity Scheduler */}

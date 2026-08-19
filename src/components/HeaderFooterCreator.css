@@ -99,30 +99,30 @@
   gap: 20px;
 }
 
-.form-group {
+/* .form-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
+} */
 
 .form-group label {
-  font-size: 0.95rem;
+  font-size: 0.5rem;
   font-weight: 600;
   color: #374151;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   letter-spacing: 0.5px;
 }
 
-.form-group input[type='text'],
+/* .form-group input[type='text'],
 .form-group input[type='color'],
 .form-group select {
   padding: 12px;
-  border: 2px solid #e5e7eb;
+  border: 1px solid #e2e8f0;
   border-radius: 6px;
   font-size: 0.95rem;
   font-family: inherit;
   transition: all 0.3s ease;
-}
+} */
 
 .form-group input[type='text']:focus,
 .form-group select:focus {
@@ -233,7 +233,7 @@
 }
 
 /* Buttons */
-.btn {
+/* .btn {
   padding: 14px 32px;
   font-size: 1rem;
   font-weight: 600;
@@ -248,7 +248,7 @@
   gap: 8px;
   min-width: 200px;
   justify-content: center;
-}
+} */
 
 .btn-download {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);

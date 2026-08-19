@@ -78,7 +78,7 @@ const Messages = () => {
 
   const messageIdsOnPage = useMemo(
     () => messages.map((m) => m._id),
-    [messages]
+    [messages],
   );
 
   useEffect(() => {
@@ -112,7 +112,7 @@ const Messages = () => {
         filterOption,
         customStart,
         customEnd,
-      })
+      }),
     );
   }, [filters, debouncedQ, debouncedEmail, dispatch]);
 
@@ -160,13 +160,13 @@ const Messages = () => {
 
   const toggleSelect = (id) => {
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
 
   const toggleSelectAll = () => {
     setSelected(
-      selected.length === messageIdsOnPage.length ? [] : messageIdsOnPage
+      selected.length === messageIdsOnPage.length ? [] : messageIdsOnPage,
     );
   };
 
@@ -232,7 +232,7 @@ const Messages = () => {
     if (user.role === "Compounder") {
       // assignedDoctors may contain object ids or populated objects; compare as strings
       const assigned = (user.assignedDoctors || []).map((ad) =>
-        String(ad._id || ad)
+        String(ad._id || ad),
       );
       return allDoctors.filter((doc) => assigned.includes(String(doc._id)));
     }
@@ -250,7 +250,7 @@ const Messages = () => {
             onClick={() => setShowComposeModal(true)}
             className="btn"
           >
-            <FiEdit  title="Compose"/>
+            <FiEdit title="Compose" />
             Compose
           </button>
         </div>
@@ -273,8 +273,11 @@ const Messages = () => {
           />
           <div className="messages-summary">
             <div className="summary-text">
-              Total: {counts.total} | Read: {counts.read} | Unread:{" "}
-              {counts.unread}
+              <p> Total: {counts.total}</p> |<p> Read: {counts.read}</p> |
+              <p> Unread: {counts.unread}</p>
+              <span >
+               {selected.length > 0 ? ` | (${selected.length} selected)` : ""}
+              </span>
             </div>
             <BulkActions
               selected={selected}
@@ -282,7 +285,8 @@ const Messages = () => {
               onUpdateStatus={updateMessageStatus}
               onDelete={deleteMessages}
               isAllSelected={
-                selected.length > 0 && selected.length === messageIdsOnPage.length
+                selected.length > 0 &&
+                selected.length === messageIdsOnPage.length
               }
             />
           </div>

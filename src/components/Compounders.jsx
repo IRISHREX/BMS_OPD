@@ -17,6 +17,7 @@ import {
 import "./Compounders.css";
 import { useNavigate } from "react-router-dom";
 import { MdAdd } from "react-icons/md";
+import { AiOutlineEdit } from "react-icons/ai";
 
 const Compounders = () => {
   const snackbar = useSnackbar();
@@ -38,7 +39,7 @@ const Compounders = () => {
         setCompounders(data.compounders || []);
       } catch (err) {
         snackbar.error(
-          err?.response?.data?.message || "Failed to fetch compounders"
+          err?.response?.data?.message || "Failed to fetch compounders",
         );
       }
     };
@@ -53,8 +54,8 @@ const Compounders = () => {
         (c) =>
           `${c.firstName} ${c.lastName}`.toLowerCase().includes(q) ||
           (c.phone || "").includes(q) ||
-          (c.email || "").toLowerCase().includes(q)
-      )
+          (c.email || "").toLowerCase().includes(q),
+      ),
     );
   }, [searchTerm]);
 
@@ -77,7 +78,7 @@ const Compounders = () => {
             >
               <input
                 type="text"
-                placeholder="Search by name, phone, email..."
+                placeholder="By name, phone, email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="compounders-search-input"
@@ -91,17 +92,17 @@ const Compounders = () => {
               type="submit"
               className="add-form-btn"
               style={{
-                background: "#271776ca",
-                color: "#fff",
-                border: "none",
+                // background: "#271776ca",
+                // color: "#fff",
+                // border: "none",
                 // borderRadius: "6px",
                 // padding: "0.5rem 1rem",
-                cursor: "pointer",
+                // cursor: "pointer",
               }}
               // onClick={navActions['doctor-dashboard']}
               onClick={handleRedirect}
             >
-              <MdAdd title="Add New Assistants"/>
+              <MdAdd title="Add New Assistants" />
               {/* Add New Assistants */}
             </button>
           </div>
@@ -138,7 +139,7 @@ const Compounders = () => {
                   onDelete={async (u) => {
                     if (
                       window.confirm(
-                        "Are you sure you want to delete this compounder?"
+                        "Are you sure you want to delete this compounder?",
                       )
                     ) {
                       try {
@@ -147,7 +148,7 @@ const Compounders = () => {
                         snackbar.success("Compounder deleted");
                         // refetch
                         const { data } = await api.get(
-                          "/api/v1/user/compounders"
+                          "/api/v1/user/compounders",
                         );
                         setCompounders(data.compounders || []);
                       } catch (err) {
@@ -178,118 +179,145 @@ const Compounders = () => {
         style={{
           overlay: { zIndex: 1000 },
           content: {
-            maxWidth: "500px",
-            margin: "auto",
-            borderRadius: "12px",
-            padding: "2rem",
+            // maxWidth: "500px",
+            // margin: "auto",
+            // borderRadius: "12px",
           },
         }}
+        className="edit-form-modal"
       >
-        <h2>Update Compounder</h2>
-        {selected && (
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              try {
-                await api.put(
-                  `/api/v1/user/user/${selected._id}`,
-                  updateFields
-                );
-                playSaveSound();
-                snackbar.success("Compounder updated");
-                setShowUpdateModal(false);
-                const { data } = await api.get("/api/v1/user/compounders");
-                setCompounders(data.compounders || []);
-              } catch (err) {
-                snackbar.error("Update failed");
-              }
-            }}
-          >
-            <label>
-              First Name:{" "}
-              <input
-                type="text"
-                value={updateFields.firstName}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({ ...f, firstName: e.target.value }))
-                }
-              />
-            </label>
-            <br />
-            <label>
-              Last Name:{" "}
-              <input
-                type="text"
-                value={updateFields.lastName}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({ ...f, lastName: e.target.value }))
-                }
-              />
-            </label>
-            <br />
-            <label>
-              Email:{" "}
-              <input
-                type="email"
-                value={updateFields.email}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({ ...f, email: e.target.value }))
-                }
-              />
-            </label>
-            <br />
-            <label>
-              Phone:{" "}
-              <input
-                type="text"
-                value={updateFields.phone}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({ ...f, phone: e.target.value }))
-                }
-              />
-            </label>
-            <br />
-            <label>
-              NIC:{" "}
-              <input
-                type="text"
-                value={updateFields.nic}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({ ...f, nic: e.target.value }))
-                }
-              />
-            </label>
-            <br />
-            <label>
-              DOB:{" "}
-              <input
-                type="date"
-                value={updateFields.dob}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({ ...f, dob: e.target.value }))
-                }
-              />
-            </label>
-            <br />
-            <label>
-              Gender:{" "}
-              <select
-                value={updateFields.gender}
-                onChange={(e) =>
-                  setUpdateFields((f) => ({ ...f, gender: e.target.value }))
-                }
+        <div className="edit-form-content">
+          <div className="edit-modal-header">
+            <AiOutlineEdit />
+            <h2>Update Compounder</h2>
+          </div>
+          <div className="modal-body">
+            {selected && (
+              <form
+                className="compounder-form"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  try {
+                    await api.put(
+                      `/api/v1/user/user/${selected._id}`,
+                      updateFields,
+                    );
+                    playSaveSound();
+                    snackbar.success("Compounder updated");
+                    setShowUpdateModal(false);
+                    const { data } = await api.get("/api/v1/user/compounders");
+                    setCompounders(data.compounders || []);
+                  } catch (err) {
+                    snackbar.error("Update failed");
+                  }
+                }}
               >
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </label>
-            <br />
-            <button type="submit">Update</button>
-            <button type="button" onClick={() => setShowUpdateModal(false)}>
-              Cancel
-            </button>
-          </form>
-        )}
+                <div className="inner-form-block">
+                  <div className="form-group">
+                    <label>First Name: </label>
+                    <input
+                      type="text"
+                      value={updateFields.firstName}
+                      onChange={(e) =>
+                        setUpdateFields((f) => ({
+                          ...f,
+                          firstName: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Last Name: </label>
+                    <input
+                      type="text"
+                      value={updateFields.lastName}
+                      onChange={(e) =>
+                        setUpdateFields((f) => ({
+                          ...f,
+                          lastName: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Email: </label>
+                    <input
+                      type="email"
+                      value={updateFields.email}
+                      onChange={(e) =>
+                        setUpdateFields((f) => ({
+                          ...f,
+                          email: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Phone: </label>
+                    <input
+                      type="text"
+                      value={updateFields.phone}
+                      onChange={(e) =>
+                        setUpdateFields((f) => ({
+                          ...f,
+                          phone: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Gender: </label>
+                    <select
+                      value={updateFields.gender}
+                      onChange={(e) =>
+                        setUpdateFields((f) => ({
+                          ...f,
+                          gender: e.target.value,
+                        }))
+                      }
+                    >
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>DOB: </label>
+                    <input
+                      type="date"
+                      value={updateFields.dob}
+                      onChange={(e) =>
+                        setUpdateFields((f) => ({ ...f, dob: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>NIC: </label>
+                    <input
+                      type="text"
+                      value={updateFields.nic}
+                      onChange={(e) =>
+                        setUpdateFields((f) => ({ ...f, nic: e.target.value }))
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="btn-container">
+                  <button
+                    className="btn-cls"
+                    type="button"
+                    onClick={() => setShowUpdateModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button className="btn-cls" type="submit">
+                    Update
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
       </Modal>
     </>
   );

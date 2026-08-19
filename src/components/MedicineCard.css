@@ -1,4 +1,4 @@
-.modal-overlay {
+/* .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -8,8 +8,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000; /* unified modal overlay z-index so sidebar (1100) stays above */
-}
+  z-index: 1000;  [//unified modal overlay z-index so sidebar (1100) stays above]
+} */
 
 .modal-content {
   background: #fff;

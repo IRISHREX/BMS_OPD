@@ -135,44 +135,57 @@
 .doctors-body form {
   flex-direction: row;
 }
-.dashboard-title-block form {
+.compounders-search-form {
   flex-direction: row;
   width: 35%;
   margin-left: auto;
   margin-block: 0;
   position: relative;
+  /*  */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 .dashboard-title-block .add-form-btn {
   display: flex;
   align-items: center;
   width: 40px;
+  min-width: 40px;
   height: 40px;
   border-radius: 50%;
   padding: 5px;
   justify-content: center;
   font-size: 25px;
+  background: rgb(39, 23, 118);
+  color: rgb(255, 255, 255);
+  border: none;
+  cursor: pointer;
 }
 .filter-box .prescribed-filter {
-  background: #1C6EA4;
+  background: #1c6ea4;
 }
 
 .heading-box .btn-box .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: .25rem;
-  padding: .5rem;
-  font-size: .7rem;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  font-size: 0.7rem;
   font-weight: 500;
   text-decoration: none;
   vertical-align: middle;
   cursor: pointer;
   min-width: auto;
-  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  transition:
+    color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
 }
 .heading-box .btn-box .remove-btn {
-    color: var(--danger-bg);
-    background-color: #D02752;
+  color: var(--danger-bg);
+  background-color: #d02752;
 }
 
 .dashboard-title-block .add-form-btn.btn-primary {
@@ -204,13 +217,13 @@
   padding: 2rem 2.5rem 1rem;
   background-color: #fff;
 } */
-.dashboard-title-block form input {
+/* .dashboard-title-block form input {
   border-radius: 22px;
   padding: 0.5rem 1.2rem;
   position: relative;
   border: 1px solid #c9c9c9;
-}
-.dashboard-title-block form button {
+} */
+/* .dashboard-title-block form button {
   position: absolute;
   right: 0;
   padding: 11px 20px;
@@ -218,10 +231,7 @@
   display: flex;
   align-items: center;
   column-gap: 5px;
-}
-.dashboard-title-block form input::placeholder {
-  font-size: 14px;
-}
+} */
 .dashboard-title-block.add-form {
   justify-content: flex-start;
   gap: 10px;
@@ -235,33 +245,31 @@
 .ReactModalPortal .ReactModal__Overlay {
   background-color: rgb(0 0 0 / 75%) !important;
   backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .dashboard .banner table thead th:first-child input {
   position: relative;
   top: 2px;
+  width: auto;
+  margin-right: 0.3rem;
 }
-@media screen and (max-width: 767px) {
-  .doctors-body form,
-  .compounder-body form {
+@media screen and (max-width: 991px) {
+  .compounders-search-form {
     width: 100%;
-    position: relative;
   }
+}
+
+@media screen and (max-width: 767px) {
   .doctors-body form button,
   .compounder-body form button {
-    position: absolute;
-    right: 0;
     font-size: 0;
-    background-color: #271776;
     border-radius: 0 20px 20px 0px;
     padding: 8px 10px;
   }
-  .doctors-body form input,
-  .compounder-body form input {
-    padding-right: 50px !important;
-    text-overflow: ellipsis;
-    padding: 5px 14px;
-    height: 30px !important;
-    font-size: 13px;
+  .compounders-search-form {
+    width: auto;
   }
   .doctors-body form button svg,
   .compounder-body form button svg {
@@ -269,6 +277,31 @@
   }
   .doctors-body form input::placeholder {
     font-size: 12px;
+  }
+  .dashboard-title-block .add-form-btn {
+    width: 48px;
+    height: 48px;
+    position: fixed;
+    bottom: 15px;
+    right: 0;
+    z-index: 9;
+    transition: 0.5s all ease;
+    border-radius: 25px 0px 0px 25px;
+  }
+  .dashboard-title-block .add-form-btn:hover {
+    /* border-radius: 10px; */
+    width: 55px;
+  }
+  .dashboard-title-block {
+    gap: 10px;
+    padding-inline: 1rem;
+    justify-content: flex-start;
+  }
+  .page.bg-light-blue .container {
+    padding-inline: 1rem;
+  }
+  .react-calendar {
+    width: 100%;
   }
 }
 
@@ -278,9 +311,9 @@
   flex-direction: column;
   gap: 1.25rem;
 }
-.dashboard .banner {
+/* .dashboard .banner {
   min-height: fit-content;
-}
+} */
 .dashboard .banner:first-child {
   height: 35vh;
   display: flex;
@@ -352,12 +385,12 @@
   font-weight: 700;
   letter-spacing: 2px;
 }
-.dashboard .banner:last-child {
+/* .dashboard .banner:last-child {
   min-height: 65vh;
   background: #fff;
   border-radius: 1.25rem;
   padding: 2.5rem;
-}
+} */
 .dashboard .banner:last-child h5 {
   font-size: 1.5rem;
   letter-spacing: 2px;
@@ -478,20 +511,20 @@
 .filter-box select:focus-visible {
   outline: 0;
 }
-.filter-group .btn-cls{
-    display: flex;
-    align-items: center;
-    height: 40px;
-    font-size: 20px;
+.filter-group .btn-cls {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  font-size: 20px;
 }
-.search-box {
+/* .search-box {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 1rem;
   font-weight: 600;
-}
-.search-box input {
+} */
+/* .search-box input {
   height: 2rem;
   padding: 0.5rem;
   border: 1px solid grey;
@@ -499,7 +532,7 @@
 }
 .search-box input::placeholder {
   font-size: 0.7rem;
-}
+} */
 
 .table-container {
   overflow-x: auto;
@@ -510,6 +543,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  padding-inline: 1rem;
 }
 
 .heading-box .btn-box {
@@ -527,7 +561,18 @@
   text-transform: capitalize;
   font-weight: 400;
 }
-
+.search-box.dashboard-home-search-box {
+  position: relative;
+}
+.search-box.dashboard-home-search-box svg {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 10px;
+}
+.search-box.dashboard-home-search-box input {
+  padding-left: 35px;
+}
 @media (max-width: 830px) {
   .dashboard .banner:last-child h5 {
     letter-spacing: normal;
@@ -604,11 +649,11 @@
   gap: 0.5rem;
 }
 /* RK */
-.dashboard .banner table tbody tr td:first-child input {
+/* .dashboard .banner table tbody tr td:first-child input {
   position: relative;
   top: 2px;
-}
-.doctor-imgbox {
+} */
+/* .doctor-imgbox {
   width: 250px;
   height: 150px;
   overflow: visible;
@@ -617,7 +662,7 @@
   object-fit: cover;
   width: 100%;
   height: 100%;
-}
+} */
 @media (max-width: 86rem) {
   /*1376px*/
   .dashboard .banner:first-child .firstBox .content div,

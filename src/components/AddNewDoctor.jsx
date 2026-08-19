@@ -12,8 +12,8 @@ import {
 import { updateDoctorRequest } from "../store/doctorUpdateSlice";
 import useClickSound from "../hooks/useClickSound";
 import { FaUserEdit } from "react-icons/fa";
+import { BsArrowLeft } from "react-icons/bs";
 import "./AddNewDoctor.css";
-
 
 const AddNewDoctor = ({ initialData, isEditing }) => {
   const snackbar = useSnackbar();
@@ -184,37 +184,35 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
 
   const formContent = (
     <div className="add-doctor-form">
-      <div className="doctpr-form-header">
+      {/* <div className="doctpr-form-header">
         <FaUserEdit />
-        <p>{isEditing ? "Edit Doctor" : "Register A New Doctor"}</p>
-      </div>
-      {/* <img
-        src="/logo.svg"
-        alt="logo"
-        className="logo"
-        style={{
-          width: "150px",
-          height: "150px",
-          borderRadius: "50%",
-          objectFit: "cover",
-        }}
-      /> */}
-      <h1 className="form-title">
-        {isEditing ? "EDIT DOCTOR" : "REGISTER A NEW DOCTOR"}
-      </h1>
-      <form onSubmit={handleAddNewDoctor}>
+        <p>{isEditing ? "Edit Doctor" : null}</p>
+      </div> */}
+      {isEditing ? (
+        <div className="edit-modal-header">
+          <FaUserEdit />
+          <h2>Edit Doctor</h2>
+        </div>
+      ) : null}
+      {/*  */}
+
+      {isEditing ? null : <h1 className="form-title">Register A New Doctor</h1>}
+
+      <form onSubmit={handleAddNewDoctor} className="assitant-add-form">
         <div className="first-wrapper">
           <div className="form-field-wrap left">
-            <div className="doctor-avatar-imgbox">
-              <img
-                src={docAvatarPreview ? `${docAvatarPreview}` : "/doc1.jpg"}
-                alt="Doctor Avatar"
-              />
+            <div className="upload-doctor-avatar">
+              <div className="doctor-avatar-imgbox">
+                <img
+                  src={docAvatarPreview ? `${docAvatarPreview}` : "/doc1.jpg"}
+                  alt="Doctor Avatar"
+                />
+              </div>
+              <input type="file" onChange={handleAvatar} accept="image/*" />
             </div>
-            <input type="file" onChange={handleAvatar} accept="image/*" />
             <div style={{ marginTop: 8 }}>
               <label style={{ display: "block", marginBottom: 6 }}>
-                Sign Image (optional)
+                Footer Image (optional)
               </label>
               <input type="file" onChange={handleSignImage} accept="image/*" />
               {signImagePreview && (
@@ -244,122 +242,164 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
             </div>
           </div>
           <div className="form-field-wrap right">
-            <input
-              type="text"
-              placeholder="First Name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              disabled={doctorCreate.creating}
-            />
-            <input
-              type="text"
-              placeholder="Last Name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              disabled={doctorCreate.creating}
-            />
-            <input
-              type="text"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={doctorCreate.creating}
-            />
+            <div className="form-cols-wrap">
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="First Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  disabled={doctorCreate.creating}
+                />
+              </div>
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  disabled={doctorCreate.creating}
+                />
+              </div>
+            </div>
 
-            {/* Age and DOB fields, sync both ways. NIC is always readonly and auto-populated. */}
-            <input
-              type="number"
-              placeholder="Mobile Number"
-              value={phone}
-              onChange={(e) => {
-                setPhone(e.target.value);
-                if (e.target.value && age) setNic(makeNIC(e.target.value, age));
-              }}
-              disabled={doctorCreate.creating}
-            />
-            <input
-              type="number"
-              placeholder="Age (years)"
-              value={age}
-              min={0}
-              max={120}
-              onChange={(e) => {
-                const val = e.target.value;
-                setAge(val);
-                setDob(ageToDob(val));
-                if (phone && val) setNic(makeNIC(phone, val));
-              }}
-              disabled={doctorCreate.creating}
-            />
-            <input
-              type="date"
-              placeholder="Date of Birth"
-              value={dob}
-              onChange={(e) => {
-                setDob(e.target.value);
-                const newAgeYears = dobToAgeYears(e.target.value);
-                setAge(newAgeYears);
-                if (phone && newAgeYears) setNic(makeNIC(phone, newAgeYears));
-              }}
-              readOnly
-              style={{ background: "#f4f4f4", color: "#888" }}
-              disabled={doctorCreate.creating}
-            />
-            <input
-              type="text"
-              placeholder="NIC (auto)"
-              value={nic}
-              readOnly
-              style={{ background: "#f4f4f4", color: "#888" }}
-              disabled={doctorCreate.creating}
-            />
-            <select
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-              disabled={doctorCreate.creating}
-            >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
-            {isEditing ? null : (
+            <div className="form-cols-wrap">
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={doctorCreate.creating}
+                />
+              </div>
+
+              {/* Age and DOB fields, sync both ways. NIC is always readonly and auto-populated. */}
+              <div className="form-group">
+                <input
+                  type="number"
+                  placeholder="Mobile Number"
+                  value={phone}
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                    if (e.target.value && age)
+                      setNic(makeNIC(e.target.value, age));
+                  }}
+                  disabled={doctorCreate.creating}
+                />
+              </div>
+            </div>
+
+            <div className="form-cols-wrap">
+              <div className="form-group">
+                <input
+                  type="number"
+                  placeholder="Age (years)"
+                  value={age}
+                  min={0}
+                  max={120}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setAge(val);
+                    setDob(ageToDob(val));
+                    if (phone && val) setNic(makeNIC(phone, val));
+                  }}
+                  disabled={doctorCreate.creating}
+                />
+              </div>
+              <div className="form-group">
+                <input
+                  type="date"
+                  placeholder="Date of Birth"
+                  value={dob}
+                  onChange={(e) => {
+                    setDob(e.target.value);
+                    const newAgeYears = dobToAgeYears(e.target.value);
+                    setAge(newAgeYears);
+                    if (phone && newAgeYears)
+                      setNic(makeNIC(phone, newAgeYears));
+                  }}
+                  readOnly
+                  style={{ background: "#f4f4f4", color: "#888" }}
+                  disabled={doctorCreate.creating}
+                />
+              </div>
+            </div>
+
+            <div className="form-cols-wrap">
+              <div className="form-group">
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  disabled={doctorCreate.creating}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <select
+                  value={doctorDepartment}
+                  onChange={(e) => {
+                    setDoctorDepartment(e.target.value);
+                  }}
+                  disabled={doctorCreate.creating}
+                >
+                  <option value="">Select Department</option>
+                  {departmentsArray.map((depart, index) => {
+                    return (
+                      <option value={depart} key={index}>
+                        {depart}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            </div>
+            <div className="form-cols-wrap">
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="NIC (auto)"
+                  value={nic}
+                  readOnly
+                  style={{ background: "#f4f4f4", color: "#888" }}
+                  disabled={doctorCreate.creating}
+                />
+              </div>
+              {isEditing ? null : (
+                <div className="form-group">
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={doctorCreate.creating}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="form-group">
               <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                type="text"
+                placeholder="Qualifications (e.g., MBBS, MD)"
+                value={qualifications}
+                onChange={(e) => setQualifications(e.target.value)}
                 disabled={doctorCreate.creating}
               />
-            )}
-            <select
-              value={doctorDepartment}
-              onChange={(e) => {
-                setDoctorDepartment(e.target.value);
-              }}
+            </div>
+            <button
+              type="submit"
+              className="btn-cls"
               disabled={doctorCreate.creating}
             >
-              <option value="">Select Department</option>
-              {departmentsArray.map((depart, index) => {
-                return (
-                  <option value={depart} key={index}>
-                    {depart}
-                  </option>
-                );
-              })}
-            </select>
-            <input
-              type="text"
-              placeholder="Qualifications (e.g., MBBS, MD)"
-              value={qualifications}
-              onChange={(e) => setQualifications(e.target.value)}
-              disabled={doctorCreate.creating}
-            />
-            <button type="submit" disabled={doctorCreate.creating}>
               {isEditing
                 ? "Update Doctor"
                 : doctorCreate.creating
-                ? "Registering..."
-                : "Register New Doctor"}
+                  ? "Registering..."
+                  : "Register New Doctor"}
             </button>
             {doctorCreate.error && (
               <div
@@ -387,7 +427,9 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
           className="arrow-btn icon-btn"
           onClick={() => navigate("/doctors")}
           // style={{ marginLeft: 8 }}
-        ></button>
+        >
+          <BsArrowLeft />
+        </button>
         <p>{isEditing ? "Edit Doctor" : "Register New Doctor"}</p>
       </div>
       <div className="container">{formContent}</div>

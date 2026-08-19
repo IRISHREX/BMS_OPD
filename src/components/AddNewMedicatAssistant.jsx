@@ -9,6 +9,7 @@ import {
   resetAdminCreate,
 } from "../store/adminCreateSlice";
 import useClickSound from "../hooks/useClickSound";
+import { BsArrowLeft } from "react-icons/bs";
 
 const AddNewAdmin = () => {
   const snackbar = useSnackbar();
@@ -97,12 +98,13 @@ const AddNewAdmin = () => {
           onClick={() => navigate("/compounders")}
           // style={{ marginLeft: 8 }}
         >
+          <BsArrowLeft />
         </button>
         <p>Register New Assistant</p>
       </div>
       <div className="container">
-      <div className="form-component add-admin-form">
-        <img
+        <div className="form-component add-admin-form">
+          {/* <img
           src="/logo.svg"
           alt="logo"
           className="logo"
@@ -112,157 +114,175 @@ const AddNewAdmin = () => {
             borderRadius: "50%",
             objectFit: "cover",
           }}
-        />
-        <h1 className="form-title">ADD NEW MEDICAL ASSISTANT</h1>
-        <form onSubmit={handleAddNewAdmin}>
-          <div>
-            <input
-              type="text"
-              placeholder="First Name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              disabled={adminCreate.creating}
-            />
-            <input
-              type="text"
-              placeholder="Last Name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              disabled={adminCreate.creating}
-            />
-          </div>
-          <div>
-            <input
-              type="text"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={adminCreate.creating}
-            />
-            <input
-              type="number"
-              placeholder="Mobile Number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              disabled={adminCreate.creating}
-            />
-          </div>
-          <div>
-            <input
-              type="number"
-              placeholder="NIC"
-              value={nic}
-              onChange={(e) => setNic(e.target.value)}
-              disabled={adminCreate.creating}
-            />
-            <input
-              type={"date"}
-              placeholder="Date of Birth"
-              value={dob}
-              onChange={(e) => setDob(e.target.value)}
-              disabled={adminCreate.creating}
-            />
-          </div>
-          <div className="outer-gnp-box" style={{ flexDirection: "column" }}>
-            <div className="gnp-box">
-              <select
-                value={gender}
-                onChange={(e) => setGender(e.target.value)}
-                disabled={adminCreate.creating}
-              >
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={adminCreate.creating}
-              />
+        /> */}
+          <h1 className="form-title">Add New Medical Assitant</h1>
+          <form onSubmit={handleAddNewAdmin} className="assitant-add-form">
+            <div className="form-cols-wrap">
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="First Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  disabled={adminCreate.creating}
+                />
+              </div>
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  disabled={adminCreate.creating}
+                />
+              </div>
             </div>
-            {/* If Admin creating a compounder, allow assignment to multiple doctors. If doctor creating, assign to themselves */}
-            {role === "Admin" ? (
-              <div
-                style={{
-                  marginTop: "0.75rem",
-                  justifyContent: "space-between",
-                }}
-                className="assign-doctor-box"
-              >
-                <label style={{ fontWeight: 700 }}>
-                  Assign to doctors (multiple):
-                </label>
-                <div
-                  style={{
-                    maxHeight: "100px",
-                    width: "400px",
-                    overflowY: "auto",
-                    marginTop: "0.5rem",
-                    flexDirection: "column",
-                    alignItems: "start",
-                  }}
+            <div className="form-cols-wrap">
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={adminCreate.creating}
+                />
+              </div>
+              <div className="form-group">
+                <input
+                  type="number"
+                  placeholder="Mobile Number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  disabled={adminCreate.creating}
+                />
+              </div>
+            </div>
+            <div className="form-cols-wrap">
+              {/*  */}
+              <div className="form-group">
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  disabled={adminCreate.creating}
                 >
-                  {availableDoctors.map((d) => (
-                    <label
-                      key={d._id}
-                      style={{
-                        minHeight: "1.2rem",
-                        overflow: "hidden",
-                        display: "flex",
-                        gap: "0.5rem",
-                        alignItems: "center",
-                        padding: "0.25rem",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={assignedDoctors.includes(d._id)}
-                        disabled={adminCreate.creating}
-                        onChange={(e) => {
-                          if (e.target.checked)
-                            setAssignedDoctors((s) => [...s, d._id]);
-                          else
-                            setAssignedDoctors((s) =>
-                              s.filter((id) => id !== d._id)
-                            );
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+              {/*  */}
+
+              <div className="form-group">
+                <input
+                  type={"date"}
+                  placeholder="Date of Birth"
+                  value={dob}
+                  onChange={(e) => setDob(e.target.value)}
+                  disabled={adminCreate.creating}
+                />
+              </div>
+            </div>
+            <div className="outer-gnp-box" style={{ flexDirection: "column" }}>
+              <div className="gnp-box form-cols-wrap">
+                <div className="form-group">
+                  <input
+                    type="number"
+                    placeholder="NIC"
+                    value={nic}
+                    onChange={(e) => setNic(e.target.value)}
+                    disabled={adminCreate.creating}
+                  />
+                </div>
+                <div className="form-group">
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={adminCreate.creating}
+                  />
+                </div>
+              </div>
+              {/* If Admin creating a compounder, allow assignment to multiple doctors. If doctor creating, assign to themselves */}
+              {role === "Admin" ? (
+                <div className="assign-doctor-box">
+                  <label style={{ fontWeight: 700 }}>
+                    Assign to doctors (multiple):
+                  </label>
+                  <div
+                    className="assign-check-wrap"
+                    // style={{
+                    //   maxHeight: "100px",
+                    //   width: "400px",
+                    //   overflowY: "auto",
+                    //   marginTop: "0.5rem",
+                    //   flexDirection: "column",
+                    //   alignItems: "start",
+                    // }}
+                  >
+                    {availableDoctors.map((d) => (
+                      <label
+                        key={d._id}
+                        style={{
+                          minHeight: "1.2rem",
+                          overflow: "hidden",
+                          display: "flex",
+                          gap: "0.5rem",
+                          alignItems: "center",
+                          padding: "0.25rem",
                         }}
-                      />
-                      <span>{`${d.firstName || ""} ${d.lastName || ""} (${
-                        d.doctorDepartment || "General"
-                      })`}</span>
-                    </label>
-                  ))}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={assignedDoctors.includes(d._id)}
+                          disabled={adminCreate.creating}
+                          onChange={(e) => {
+                            if (e.target.checked)
+                              setAssignedDoctors((s) => [...s, d._id]);
+                            else
+                              setAssignedDoctors((s) =>
+                                s.filter((id) => id !== d._id),
+                              );
+                          }}
+                        />
+                        <span>{`${d.firstName || ""} ${d.lastName || ""} (${
+                          d.doctorDepartment || "General"
+                        })`}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div style={{ marginTop: "0.75rem" }}>
-                <label style={{ fontWeight: 700 }}>Assigned Doctor:</label>
-                <div>
-                  {admin?.firstName
-                    ? `${admin.firstName} ${admin.lastName}`
-                    : "You"}
+              ) : (
+                <div style={{ marginTop: "0.75rem" }}>
+                  <label style={{ fontWeight: 700 }}>Assigned Doctor:</label>
+                  <div>
+                    {admin?.firstName
+                      ? `${admin.firstName} ${admin.lastName}`
+                      : "You"}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-          <div style={{ justifyContent: "center", alignItems: "center" }}>
-            <button type="submit" disabled={adminCreate.creating}>
-              {adminCreate.creating ? "Creating..." : "CREATE ASSISTANT"}
-            </button>
-            {adminCreate.error && (
-              <div
-                className="error-message"
-                style={{ color: "red", marginTop: 8 }}
+              )}
+            </div>
+            <div className="btn-container">
+              <button
+                className="btn-cls"
+                type="submit"
+                disabled={adminCreate.creating}
               >
-                {adminCreate.error}
-              </div>
-            )}
-          </div>
-        </form>
+                {adminCreate.creating ? "Creating..." : "CREATE ASSISTANT"}
+              </button>
+              {adminCreate.error && (
+                <div
+                  className="error-message"
+                  style={{ color: "red", marginTop: 8 }}
+                >
+                  {adminCreate.error}
+                </div>
+              )}
+            </div>
+          </form>
+        </div>
       </div>
-</div>
     </section>
   );
 };

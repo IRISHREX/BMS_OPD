@@ -5,10 +5,10 @@
 }
 .messages-body {
   display: flex;
-  background-color: #e2e8f0;
+  /* background-color: #e2e8f0; */
   padding: 1rem;
   border-radius: var(--radius-md);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); */
   flex-direction: column;
   height: 100%;
 }
@@ -43,26 +43,29 @@
 .filter-controls select,
 .filter-controls input[type="text"],
 .filter-controls input[type="date"] {
-  padding: 0.6rem 0.9rem;
+  /* padding: 0.6rem 0.9rem;
   border: 1px solid #e2e8f0;
   border-radius: var(--radius-sm);
+    color: var(--text-main); */
   background-color: var(--bg-main);
-  color: var(--text-main);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   min-width: 160px;
 }
 
-.filter-controls select:focus,
+/* .filter-controls select:focus,
 .filter-controls input:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(var(--accent), 0.2);
-}
+} */
 
 .search-input {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex: 1;
 }
 
 .action-buttons .btn {
@@ -71,7 +74,10 @@
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: 600;
-  transition: background-color 0.2s, transform 0.1s;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
+  text-transform: capitalize;
 }
 
 .btn-primary {
@@ -100,11 +106,16 @@
   padding: 0.75rem 1rem;
   background-color: var(--bg-card);
   border-radius: var(--radius-md);
+  flex-wrap: wrap;
 }
 
 .summary-text {
   font-size: 0.9rem;
   color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .bulk-actions {
@@ -143,6 +154,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  margin-top: 2rem;
 }
 
 .message-card {
@@ -150,7 +162,9 @@
   border-radius: var(--radius-md);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   border-left: 5px solid transparent;
-  transition: box-shadow 0.3s, transform 0.2s;
+  transition:
+    box-shadow 0.3s,
+    transform 0.2s;
   display: flex;
   align-items: flex-start;
   padding: 1rem;
@@ -174,11 +188,11 @@
 }
 
 /* Make filter controls look consistent with app-wide filter boxes */
-.filter-controls select,
+/* .filter-controls select,
 .filter-controls input[type="text"],
 .filter-controls input[type="date"] {
   min-width: 180px;
-}
+} */
 
 .message-card.unread {
   border-left-color: var(--accent);
@@ -271,6 +285,7 @@
   align-items: center;
   gap: 0.5rem;
   margin-top: 2rem;
+  flex-wrap: wrap;
 }
 
 .pagination-controls .btn {
@@ -284,6 +299,7 @@
   color: var(--text-main);
   cursor: pointer;
   transition: background-color 0.2s;
+  border: 1px solid #9fcdff;
 }
 
 .page-number.active {
@@ -307,6 +323,14 @@
   height: 40px;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;
+}
+/*  */
+.messages-body .toolbar.hide {
+  transform: translateY(0);
+}
+.messages-summary span {
+    color: #20264b;
+    font-weight: 600;
 }
 
 @keyframes spin {
@@ -350,7 +374,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
   backdrop-filter: blur(5px);
 }
 
@@ -385,8 +409,42 @@
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
+.message-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+.message-search svg {
+  position: absolute;
+  left: 14px;
+  color: #88888b;
+}
+.clear-filter {
+  border: 0;
+  color: #096dd9;
+  font-size: 20px;
+  cursor: pointer;
+  background: #e5ebff;
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-controls select {
+  width: auto;
+}
+.filter-controls .message-search input[type="text"] {
+  width: auto;
+  min-width: auto;
+  padding-left: 35px;
+}
 /* Responsive adjustments */
 @media (max-width: 900px) {
   .filter-controls {
@@ -406,14 +464,15 @@
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 767px) {
   .messages-container {
     padding: 1rem;
   }
-
+  .message-search {
+    width: 100%;
+  }
   .filter-controls {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    flex-wrap: wrap;
     gap: 0.5rem;
   }
 
@@ -457,15 +516,18 @@
   .messages-header button svg {
     font-size: 17px;
   }
-  .message-body{
+  .message-body {
     max-height: 100%;
+  }
+  .messages-body {
+    padding: 0;
   }
 }
 
 @media (max-width: 420px) {
-  .filter-controls {
+  /* .filter-controls {
     grid-template-columns: 1fr;
-  }
+  } */
 
   .filter-controls select,
   .filter-controls input[type="text"],

@@ -147,11 +147,11 @@
   grid-column: 1 / -1;
 }
 
-.calendar-container {
+/* .calendar-container {
   display: flex;
   justify-content: center;
   padding: 1rem;
-}
+} */
 
 .calendar-container :global(.react-calendar) {
   border: none;
@@ -186,20 +186,23 @@
   grid-column: 1 / -1;
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
-}
+/* .form-group {
+  margin-bottom: 1rem;
+} */
 
 .form-group label {
   display: block;
   font-size: 0.875rem;
-  color: #666;
+  color: #374151;
   font-weight: 600;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
+  /* margin-bottom: 0.5rem;
+  text-transform: uppercase; */
+}
+.capacity-form .form-group label{
+    margin-bottom: 0;
 }
 
-.form-group input {
+/* .form-group input {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
@@ -208,7 +211,7 @@
   font-family: inherit;
   transition: border-color 0.3s;
   box-sizing: border-box;
-}
+} */
 
 .form-group input:focus {
   outline: none;
@@ -216,7 +219,8 @@
   box-shadow: 0 0 5px rgba(102, 126, 234, 0.2);
 }
 
-.btn-cls, .password-submit-btn {
+.btn-cls,
+.password-submit-btn {
   padding: 0.75rem 1.5rem;
   color: white;
   border: none;
@@ -237,7 +241,8 @@
   /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
 }
 
-.btn-cls:hover, .password-submit-btn:hover {
+.btn-cls:hover,
+.password-submit-btn:hover {
   background-position: 100% 0;
   transition: all 0.4s ease-in-out;
 }
@@ -322,6 +327,7 @@
   text-transform: capitalize;
   font-weight: 500;
   font-family: "Inter", sans-serif;
+  width: fit-content;
 }
 .profile-name {
   color: #666e8c;
@@ -375,6 +381,9 @@
   color: #979797;
   margin-bottom: 1.5rem;
 }
+#capacityDate::before{
+  display: none;
+}
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .profile-page {
@@ -388,10 +397,16 @@
 
   .profile-container {
     gap: 1rem;
+    flex-wrap: unset;
+    flex-direction: column;
   }
 
   .profile-section {
     padding: 1.5rem;
+     width: 100%;
+  }
+  .profile-section.user-details-section {
+    width: 100%;
   }
 
   .details-grid {
