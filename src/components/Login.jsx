@@ -74,10 +74,7 @@ const Login = () => {
       setIsAuthenticated(true);
       navigateTo(from, { replace: true });
     }
-    if (auth.error) {
-      snackbar.error(auth.error);
-    }
-  }, [auth.isAuthenticated, auth.error, from, navigateTo, setIsAuthenticated, snackbar]);
+  }, [auth.isAuthenticated, from, navigateTo, setIsAuthenticated]);
 
   if (isAuthenticated || auth.isAuthenticated) {
     return <Navigate to={from} replace />;

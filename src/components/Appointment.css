@@ -535,3 +535,28 @@ form textarea {
     width: 100%;
   }
 }
+
+.required-star {
+  color: #ef4444;
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+.optional-tag {
+  color: #94a3b8;
+  font-size: 0.85em;
+  font-weight: normal;
+  margin-left: 4px;
+}
+
+.form-legend {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+.input-error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px #ef4444 !important;
+}
+

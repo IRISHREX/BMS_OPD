@@ -39,6 +39,9 @@ function* createAppointmentSaga(action) {
         console.warn('Failed to auto-settle invoices after appointment creation', e.message || e);
       }
     }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('appointments:updated'));
+    }
   } catch (err) {
     const msg = err?.response?.data?.message || err.message || 'Appointment failed';
     yield put(createAppointmentFailure(msg));

@@ -292,8 +292,11 @@ const Appointment = () => {
     } else if (dashboardUser.role === "Doctor") {
       filteredDoctors = doctors.filter((doc) => doc._id === dashboardUser._id);
     } else if (dashboardUser.role === "Compounder") {
+      const assignedIds = (dashboardUser.assignedDoctors || []).map((doc) =>
+        doc._id ? doc._id.toString() : doc.toString()
+      );
       filteredDoctors = doctors.filter((doc) =>
-        dashboardUser.assignedDoctors.includes(doc._id),
+        assignedIds.includes(doc._id ? doc._id.toString() : doc.toString())
       );
     }
 
@@ -314,9 +317,32 @@ const Appointment = () => {
         setDoctorLastName(d.lastName);
         setDoctorFee(d.consultationFee || 100);
         setPrice(Math.round((d.consultationFee || 100) * 0.2));
+        if (d.doctorDepartment) {
+          setDepartment(d.doctorDepartment);
+        }
       }
     }
   }, [_id, doctors]);
+
+  const handleNextStep = () => {
+    if (!name || !name.trim()) {
+      snackbar.error("Please enter Patient Full Name.");
+      return;
+    }
+    if (!gender) {
+      snackbar.error("Please select Gender.");
+      return;
+    }
+    if (!phone || phone.trim().length !== 10) {
+      snackbar.error("Please enter a valid 10-digit Phone Number.");
+      return;
+    }
+    if (!address || !address.trim()) {
+      snackbar.error("Please enter Address.");
+      return;
+    }
+    setStep(2);
+  };
 
   const handleAppointment = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -545,6 +571,9 @@ const Appointment = () => {
             <small>Step {step} of 2</small>
             <small>Shortcut: Ctrl/Cmd+P to submit & download</small>
           </div>
+          <p className="form-legend mt-0">
+            <span className="required-star">*</span> Indicates required field
+          </p>
           <form
             className="appointment-form"
             ref={formRef}
@@ -645,10 +674,12 @@ const Appointment = () => {
                   )}
                 <div className="lnr-input-box">
                   <div className="form-group" ref={suggestRef}>
-                    <label htmlFor="">Full Name:</label>
+                    <label htmlFor="">
+                      Full Name <span className="required-star">*</span>
+                    </label>
                     <input
                       type="text"
-                      placeholder="Full Name"
+                      placeholder="Full Name *"
                       className="w-100"
                       value={name}
                       onChange={(e) => {
@@ -680,12 +711,14 @@ const Appointment = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="">Gender:</label>
+                    <label htmlFor="">
+                      Gender <span className="required-star">*</span>
+                    </label>
                     <select
                       value={gender}
                       onChange={(e) => setGender(e.target.value)}
                     >
-                      <option value="">Select Gender</option>
+                      <option value="">Select Gender *</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
                       <option value="Others">Others</option>
@@ -694,11 +727,13 @@ const Appointment = () => {
                 </div>
                 <div className="lnr-input-box">
                   <div className="form-group">
-                    <label htmlFor="">Enter your age:</label>
+                    <label htmlFor="">
+                      Enter your age <span className="optional-tag">(Optional)</span>:
+                    </label>
                     <div className="age-grid">
                       <input
                         type="number"
-                        placeholder="Years"
+                        placeholder="Years (Optional)"
                         min={0}
                         value={ageYears}
                         onChange={(e) => {
@@ -727,7 +762,7 @@ const Appointment = () => {
                       />
                       <input
                         type="number"
-                        placeholder="Months"
+                        placeholder="Months (Optional)"
                         min={0}
                         max={12}
                         value={ageMonths}
@@ -749,7 +784,7 @@ const Appointment = () => {
                       />
                       <input
                         type="number"
-                        placeholder="Days"
+                        placeholder="Days (Optional)"
                         min={0}
                         max={31}
                         value={ageDays}
@@ -772,13 +807,15 @@ const Appointment = () => {
                     </div>
                   </div>
                   <div className="form-group">
-                    <label htmlFor="">Phone Number:</label>
+                    <label htmlFor="">
+                      Phone Number <span className="required-star">*</span>
+                    </label>
                     <input
                       type="tel"
                       inputMode="numeric"
                       maxLength={10}
                       pattern="\d{10}"
-                      placeholder="Mobile Number"
+                      placeholder="10-digit Mobile Number *"
                       value={phone}
                       onChange={(e) => {
                         const v = e.target.value
@@ -791,12 +828,14 @@ const Appointment = () => {
                 </div>
                 <div className="lnr-input-box">
                   <div className="form-group mb-0">
-                    <label htmlFor="">Profession:</label>
+                    <label htmlFor="">
+                      Profession <span className="optional-tag">(Optional)</span>:
+                    </label>
                     <select
                       value={profession}
                       onChange={(e) => setProfession(e.target.value)}
                     >
-                      <option value="">Select Profession</option>
+                      <option value="">Select Profession (Optional)</option>
                       {professions.map((p) => (
                         <option key={p} value={p}>
                           {p}
@@ -805,13 +844,15 @@ const Appointment = () => {
                     </select>
                   </div>
                   <div className="form-group mb-0">
-                    <label htmlFor="">Addrrss:</label>
+                    <label htmlFor="">
+                      Address <span className="required-star">*</span>
+                    </label>
                     <textarea
                       className="address-box"
                       rows="1"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
-                      placeholder="Area, vill/City, P.O, P.S, District, PIN code"
+                      placeholder="Area, Village/City, P.O, P.S, District, PIN code *"
                     />
                   </div>
                 </div>
@@ -820,7 +861,7 @@ const Appointment = () => {
                     className="btn-cls next-btn"
                     type="button"
                     data-step="2"
-                    onClick={() => setStep(2)}
+                    onClick={handleNextStep}
                   >
                     Next
                   </button>
@@ -834,7 +875,7 @@ const Appointment = () => {
                   <div className="form-group">
                     <input
                       type="text"
-                      placeholder="BP (e.g., 120/80 mm of Hg)"
+                      placeholder="BP (e.g., 120/80) (Optional)"
                       maxLength={7}
                       value={diagnosys.BP}
                       onChange={(e) =>
@@ -845,7 +886,7 @@ const Appointment = () => {
                   <div className="form-group">
                     <input
                       type="number"
-                      placeholder="PR (bpm)"
+                      placeholder="PR (bpm) (Optional)"
                       min="20"
                       max="500"
                       value={diagnosys.PR}
@@ -861,7 +902,7 @@ const Appointment = () => {
                   <div className="form-group">
                     <input
                       type="number"
-                      placeholder="SPO2 (% in RA)"
+                      placeholder="SPO2 (% in RA) (Optional)"
                       min="0"
                       max="100"
                       inputMode="numeric"
@@ -878,7 +919,7 @@ const Appointment = () => {
                   <div className="form-group">
                     <input
                       type="number"
-                      placeholder="Temp (F)"
+                      placeholder="Temp (F) (Optional)"
                       min="50"
                       max="200"
                       value={diagnosys.Temp}
@@ -894,7 +935,7 @@ const Appointment = () => {
                   <div className="form-group">
                     <input
                       type="number"
-                      placeholder="Height (cm)"
+                      placeholder="Height (cm) (Optional)"
                       min="30"
                       max="250"
                       value={diagnosys.Height}
@@ -910,7 +951,7 @@ const Appointment = () => {
                   <div className="form-group">
                     <input
                       type="number"
-                      placeholder="Weight (kg)"
+                      placeholder="Weight (kg) (Optional)"
                       min="1"
                       max="300"
                       value={diagnosys.Weight}
@@ -927,14 +968,20 @@ const Appointment = () => {
 
                 <div className="lnr-input-box">
                   <div className="form-group">
+                    <label className="d-block mb-1 font-14">
+                      Department <span className="required-star">*</span>
+                    </label>
                     <select
                       value={department}
                       onChange={(e) => setDepartment(e.target.value)}
-                      disabled={
-                        dashboardUser && dashboardUser.role === "Doctor"
-                      }
+                      disabled={true}
                     >
-                      {departmentsArray.map((depart) => (
+                      {Array.from(
+                        new Set([
+                          ...departmentsArray,
+                          ...(department ? [department] : []),
+                        ])
+                      ).map((depart) => (
                         <option value={depart} key={depart}>
                           {depart}
                         </option>
@@ -942,6 +989,9 @@ const Appointment = () => {
                     </select>
                   </div>
                   <div className="form-group">
+                    <label className="d-block mb-1 font-14">
+                      Select Doctor <span className="required-star">*</span>
+                    </label>
                     <select
                       value={_id}
                       onChange={(e) => set_id(e.target.value)}
@@ -949,7 +999,7 @@ const Appointment = () => {
                         dashboardUser && dashboardUser.role === "Doctor"
                       }
                     >
-                      <option value="">Select Doctor</option>
+                      <option value="">Select Doctor *</option>
                       {doctorList.map((doctor) => (
                         <option value={doctor._id} key={doctor._id}>
                           {doctor.firstName} {doctor.lastName}
@@ -961,19 +1011,25 @@ const Appointment = () => {
 
                 <div className="lnr-input-box">
                   <div className="form-group">
+                    <label className="d-block mb-1 font-14">
+                      Others / Notes <span className="optional-tag">(Optional)</span>
+                    </label>
                     <textarea
                       rows="2"
                       value={diagnosys.Others}
                       onChange={(e) =>
                         setDiagnosys((d) => ({ ...d, Others: e.target.value }))
                       }
-                      placeholder="Others"
+                      placeholder="Others (Optional)"
                     />
                   </div>
                   <div className="form-group">
+                    <label className="d-block mb-1 font-14">
+                      Appointment Date <span className="required-star">*</span>
+                    </label>
                     <input
                       type="date"
-                      placeholder="Appointment Date"
+                      placeholder="Appointment Date *"
                       min={todayStr}
                       value={appointmentDate}
                       onChange={(e) => {
@@ -1068,7 +1124,7 @@ const Appointment = () => {
         }}
       >
         <div className="flex-jc-sb-ai-c">
-          <img src="/logo.png" alt="logo" className="w-80px br-50pct" />
+          <img src="/logo.svg" alt="logo" className="w-80px br-50pct" />
           <h2 className="m-0">Appointment Invoice</h2>
         </div>
         <hr />
@@ -1180,52 +1236,94 @@ const Appointment = () => {
         <div className="mt-2rem text-right">
           <button
             onClick={() => {
-              const doc = new jsPDF();
-              doc.setFontSize(18);
-              doc.text("Appointment Invoice", 20, 20);
-              doc.addImage("/logo.png", "PNG", 160, 10, 30, 30);
-              doc.setFontSize(12);
-              doc.text(`Patient Name: ${name}`, 20, 40);
-              doc.text(
-                `Age: ${
-                  dob ? dobToAge(dob) : ageYears ? `${ageYears} years` : ""
-                }`,
-                20,
-                48,
-              );
-              doc.text(`Address: ${invoiceFields.address}`, 20, 56);
-              doc.text(`Doctor: ${doctorFirstName} ${doctorLastName}`, 120, 40);
-              doc.text(`Department: ${department}`, 120, 48);
-              doc.text(`Appointment Date: ${appointmentDate}`, 20, 70);
-              doc.text(
-                `Valid up to: ${(() => {
-                  if (!appointmentDate) return "-";
+              try {
+                const doc = new jsPDF();
+                
+                // Title & Header
+                doc.setFontSize(20);
+                doc.setTextColor(39, 23, 118);
+                doc.text("Appointment Invoice", 20, 22);
+
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Generated Date: ${new Date().toLocaleDateString("en-GB")}`, 20, 28);
+
+                doc.setLineWidth(0.5);
+                doc.setDrawColor(200, 200, 200);
+                doc.line(20, 32, 190, 32);
+
+                // Patient Info Section
+                doc.setFontSize(13);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont(undefined, "bold");
+                doc.text("Patient Info", 20, 42);
+                doc.setFont(undefined, "normal");
+                doc.setFontSize(11);
+                doc.text(`Name: ${name || "-"}`, 20, 50);
+                const ageStr = dob
+                  ? formatAge(dobToAgeParts(dob))
+                  : ageYears
+                    ? `${ageYears} years`
+                    : "-";
+                doc.text(`Age: ${ageStr}`, 20, 57);
+                doc.text(`Address: ${invoiceFields.address || address || "-"}`, 20, 64);
+
+                // Doctor Info Section
+                doc.setFontSize(13);
+                doc.setFont(undefined, "bold");
+                doc.text("Doctor Info", 120, 42);
+                doc.setFont(undefined, "normal");
+                doc.setFontSize(11);
+                doc.text(`Name: Dr. ${doctorFirstName || ""} ${doctorLastName || ""}`, 120, 50);
+                doc.text(`Department: ${department || "-"}`, 120, 57);
+
+                doc.line(20, 72, 190, 72);
+
+                // Appointment Dates
+                doc.setFontSize(11);
+                doc.text(`Appointment Date: ${appointmentDate || "-"}`, 20, 82);
+                let validUpTo = "-";
+                if (appointmentDate) {
                   const d = new Date(appointmentDate);
-                  if (isNaN(d.getTime())) return "-";
-                  d.setDate(d.getDate() + 2);
-                  return d.toISOString().slice(0, 10);
-                })()}`,
-                20,
-                78,
-              );
-              doc.text(`Appointment Fee: ${invoiceFields.price} Rs`, 20, 90);
-              doc.text(`Doctor Fee: ${invoiceFields.doctorFee} Rs`, 20, 98);
-              doc.text(
-                `Total: ${
-                  Number(invoiceFields.price) + Number(invoiceFields.doctorFee)
-                } Rs`,
-                20,
-                106,
-              );
-              doc.text(`Paid by: Cash`, 20, 114);
-              doc.text(
-                `Payment Status: ${
-                  invoiceFields.paymentStatus === "Paid" ? "Paid" : "Pending"
-                }`,
-                20,
-                122,
-              );
-              doc.save(`Appointment_Invoice_${name}_${appointmentDate}.pdf`);
+                  if (!isNaN(d.getTime())) {
+                    d.setDate(d.getDate() + 2);
+                    validUpTo = d.toISOString().slice(0, 10);
+                  }
+                }
+                doc.text(`Valid Up To: ${validUpTo}`, 20, 90);
+
+                doc.line(20, 96, 190, 96);
+
+                // Fees & Payment Status
+                const apptFee = Number(invoiceFields.price) || 0;
+                const docFee = Number(invoiceFields.doctorFee) || 0;
+                const totalFee = apptFee + docFee;
+
+                doc.text(`Appointment Fee: Rs ${apptFee}`, 20, 106);
+                doc.text(`Doctor Fee: Rs ${docFee}`, 20, 114);
+                doc.setFont(undefined, "bold");
+                doc.text(`Total Amount: Rs ${totalFee}`, 20, 124);
+
+                doc.setFont(undefined, "normal");
+                doc.text(`Paid by: Cash`, 20, 134);
+                doc.text(
+                  `Payment Status: ${
+                    invoiceFields.paymentStatus === "Paid" ? "Paid" : "Pending"
+                  }`,
+                  20,
+                  142
+                );
+
+                doc.setLineWidth(0.3);
+                doc.line(20, 150, 190, 150);
+
+                const fileName = `Appointment_Invoice_${(name || "Patient").replace(/\s+/g, "_")}_${appointmentDate || "date"}.pdf`;
+                doc.save(fileName);
+                snackbar.success("PDF downloaded successfully!");
+              } catch (err) {
+                console.error("PDF download error:", err);
+                snackbar.error("Failed to download PDF.");
+              }
             }}
             style={{
               marginRight: "1rem",

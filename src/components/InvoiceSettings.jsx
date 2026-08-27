@@ -92,8 +92,11 @@ const InvoiceSettings = () => {
             );
             setFilters((f) => ({ ...f, doctor: dashboardUser._id }));
           } else if (dashboardUser.role === "Compounder") {
+            const assignedIds = (dashboardUser.assignedDoctors || []).map(
+              (d) => (d._id ? d._id.toString() : d.toString())
+            );
             allDoctors = allDoctors.filter((doc) =>
-              (dashboardUser.assignedDoctors || []).includes(doc._id)
+              assignedIds.includes(doc._id ? doc._id.toString() : doc.toString())
             );
             if (allDoctors.length > 0)
               setFilters((f) => ({ ...f, doctor: allDoctors[0]._id }));

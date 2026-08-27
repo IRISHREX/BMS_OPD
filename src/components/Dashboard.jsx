@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import InvoiceViewer from "./InvoiceViewer";
 import Reports from "./Reports";
 import { Context } from "../main";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useLocation } from "react-router-dom";
 import api, { rescheduleAppointment } from "../utils/api";
 import { useSnackbar } from "../context/SnackbarContext";
 import { GoCheckCircleFill } from "react-icons/go";
@@ -40,12 +40,13 @@ import { RiExpandVerticalLine } from "react-icons/ri";
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [selectedAppointments, setSelectedAppointments] = useState([]);
-  const [filterOption, setFilterOption] = useState("All");
+  const [filterOption, setFilterOption] = useState("Today");
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
   const [searchTerm, setSearchTerm] = useState(""); // For text search
   const [selectedDoctorId, setSelectedDoctorId] = useState(""); // For doctor filter
   const navigate = useNavigate();
+  const location = useLocation();
   const [doctors, setDoctors] = useState([]); // For total count card
   const [doctorFilterList, setDoctorFilterList] = useState([]); // For dropdown
   const [filteredAppointments, setFilteredAppointments] = useState([]);
@@ -53,7 +54,7 @@ const Dashboard = () => {
   //   status: "Completed",
   //   prescribed: "filterPrescibed",
   // });
-  const [filterPrescibed, setfilterPrescibed] = useState("unPrescribed");
+  const [filterPrescibed, setfilterPrescibed] = useState("Unprescribed");
   const setupClickSound = useClickSound();
 
   const fmt = (n) => {
@@ -74,7 +75,19 @@ const Dashboard = () => {
     useState(null);
   const [isRescheduling, setIsRescheduling] = useState(false);
   const [slotCheckerOpen, setSlotCheckerOpen] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(
+    () => typeof window !== "undefined" && window.innerWidth > 900
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 900) {
+        setIsExpanded(true);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const { isAuthenticated, admin } = useContext(Context);
   const snackbar = useSnackbar();
@@ -96,7 +109,7 @@ const Dashboard = () => {
     const onUpdated = () => fetchAppointments();
     window.addEventListener("appointments:updated", onUpdated);
     return () => window.removeEventListener("appointments:updated", onUpdated);
-  }, []);
+  }, [location.pathname]);
 
   // Role-limited metrics
   const metrics = React.useMemo(() => {
@@ -219,6 +232,7 @@ const Dashboard = () => {
           } else if (admin.role === "Doctor") {
             setDoctorFilterList(data.doctors || []);
             setSelectedDoctorId(admin._id); // Doctor sees only their own
+            setfilterPrescibed("Unprescribed");
           } else if (admin.role === "Compounder") {
             // Compounder sees only their assigned doctors
             const assignedDoctorIds = (admin.assignedDoctors || []).map(
@@ -344,16 +358,40 @@ const Dashboard = () => {
       } else if (data && data._id) {
         invoices = [data];
       }
-      // extracted invoices from API response
+
       if (!invoices || invoices.length === 0) {
         snackbar.info("No invoice found for this appointment");
         return;
       }
-      setInvoicesList(invoices);
-      setShowInvoicesModal(true);
-      setSelectedInvoiceId(null);
+
+      const inv = invoices[0];
+      const printUrl = `/api/v1/invoice/${inv._id || inv.id}/download`;
+
+      const resp = await api.get(printUrl);
+      const htmlContent = typeof resp.data === "string" ? resp.data : JSON.stringify(resp.data);
+
+      const printFrame = document.createElement("iframe");
+      printFrame.style.position = "fixed";
+      printFrame.style.right = "0";
+      printFrame.style.bottom = "0";
+      printFrame.style.width = "0";
+      printFrame.style.height = "0";
+      printFrame.style.border = "0";
+      document.body.appendChild(printFrame);
+
+      const frameDoc = printFrame.contentWindow.document;
+      frameDoc.open();
+      frameDoc.write(htmlContent);
+      frameDoc.write(`<script>window.onload = function() { window.print(); };</script>`);
+      frameDoc.close();
+
+      setTimeout(() => {
+        if (document.body.contains(printFrame)) {
+          document.body.removeChild(printFrame);
+        }
+      }, 2000);
     } catch (e) {
-      snackbar.error("Failed to fetch invoice for appointment");
+      snackbar.error("Failed to print invoice for appointment");
     }
   };
 
@@ -454,9 +492,9 @@ const Dashboard = () => {
           }
         }
 
-        // Search term across name, phone and date
+        // Search term across name, phone, date and invoice number
         if (searchTerm && searchTerm.trim() !== "") {
-          const q = searchTerm.toLowerCase();
+          const q = searchTerm.toLowerCase().trim();
           const name = (
             appointment.name ||
             `${appointment.firstName || ""} ${appointment.lastName || ""}`
@@ -472,7 +510,25 @@ const Dashboard = () => {
           const dateStr = (appointment.appointment_date || "")
             .toString()
             .toLowerCase();
-          if (!name.includes(q) && !phone.includes(q) && !dateStr.includes(q)) {
+
+          let invoiceNums = [];
+          if (Array.isArray(appointment.invoices)) {
+            appointment.invoices.forEach((inv) => {
+              if (typeof inv === "object" && inv !== null) {
+                if (inv.invoiceNumber) invoiceNums.push(inv.invoiceNumber.toLowerCase());
+                if (inv._id) invoiceNums.push(inv._id.toString().toLowerCase());
+              } else if (inv) {
+                invoiceNums.push(inv.toString().toLowerCase());
+              }
+            });
+          }
+          if (appointment.invoiceNumber) {
+            invoiceNums.push(appointment.invoiceNumber.toString().toLowerCase());
+          }
+
+          const matchesInvoice = invoiceNums.some((num) => num.includes(q));
+
+          if (!name.includes(q) && !phone.includes(q) && !dateStr.includes(q) && !matchesInvoice) {
             return false;
           }
         }
@@ -610,7 +666,7 @@ const Dashboard = () => {
               onChange={(e) => setFilterOption(e.target.value)}
             >
               <option value="All">All</option>
-              <option value="Today">Today's</option>
+              <option value="Today">Today</option>
               <option value="Old">Old</option>
               <option value="Upcoming">Upcoming</option>
               <option value="Custom">Custom</option>
@@ -640,7 +696,7 @@ const Dashboard = () => {
               className="prescribed-filter"
             >
               <option value="Prescribed">Prescribed Data</option>
-              <option value="Unprescribed">Unprescribed Data</option>
+              <option value="Unprescribed">Non Prescribed</option>
               <option value="All">All</option>
             </select>
 
@@ -672,7 +728,7 @@ const Dashboard = () => {
             <MdOutlineContentPasteSearch size={"1.8rem"} color="grey" />
             <input
               type="text"
-              placeholder="Search by name/phone/date"
+              placeholder="Search by name/phone/date/invoice #"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -690,18 +746,16 @@ const Dashboard = () => {
                 <FaPrescriptionBottleMedical /> Book Appointment
               </button>
               <button
+                ref={setupClickSound}
                 className="btn"
                 onClick={() => setSlotCheckerOpen(true)}
-                style={{
-                  background: "#5A7ACD",
-                  color: "white",
-                }}
               >
                 <MdSchedule /> View Slots
               </button>
               <RequirePermission allowedRoles={["Admin"]}>
                 <button
-                  className="btn remove-btn"
+                  ref={setupClickSound}
+                  className="btn btn-danger"
                   onClick={handleBulkDelete}
                   disabled={selectedAppointments.length === 0}
                 >
@@ -715,7 +769,7 @@ const Dashboard = () => {
             <table>
               <thead>
                 <tr>
-                  <th style={{ textAlign: "left" }}>
+                  <th style={{ width: "45px", minWidth: "45px", textAlign: "center" }}>
                     <RequirePermission allowedRoles={["Admin"]}>
                       <input
                         type="checkbox"
@@ -757,9 +811,9 @@ const Dashboard = () => {
                                 }
                               }
 
-                              // Search term across name, phone and date
+                              // Search term across name, phone, date and invoice number
                               if (searchTerm && searchTerm.trim() !== "") {
-                                const q = searchTerm.toLowerCase();
+                                const q = searchTerm.toLowerCase().trim();
                                 const name = (
                                   appointment.name ||
                                   `${appointment.firstName || ""} ${
@@ -779,15 +833,33 @@ const Dashboard = () => {
                                 )
                                   .toString()
                                   .toLowerCase();
+
+                                let invoiceNums = [];
+                                if (Array.isArray(appointment.invoices)) {
+                                  appointment.invoices.forEach((inv) => {
+                                    if (typeof inv === "object" && inv !== null) {
+                                      if (inv.invoiceNumber) invoiceNums.push(inv.invoiceNumber.toLowerCase());
+                                      if (inv._id) invoiceNums.push(inv._id.toString().toLowerCase());
+                                    } else if (inv) {
+                                      invoiceNums.push(inv.toString().toLowerCase());
+                                    }
+                                  });
+                                }
+                                if (appointment.invoiceNumber) {
+                                  invoiceNums.push(appointment.invoiceNumber.toString().toLowerCase());
+                                }
+
+                                const matchesInvoice = invoiceNums.some((num) => num.includes(q));
+
                                 if (
                                   !name.includes(q) &&
                                   !phone.includes(q) &&
-                                  !dateStr.includes(q)
+                                  !dateStr.includes(q) &&
+                                  !matchesInvoice
                                 ) {
                                   return false;
                                 }
                               }
-
                               return true;
                             } catch (err) {
                               return true;
@@ -801,10 +873,9 @@ const Dashboard = () => {
                         }}
                       />
                     </RequirePermission>
-                    SN
                   </th>
-                  <th>Name</th>
-                  <th style={{ position: "relative" }}>
+                  <th style={{ textAlign: "left" }}>Name</th>
+                  <th style={{ width: "130px", minWidth: "110px", textAlign: "center", position: "relative" }}>
                     Date
                     <button
                       ref={setupClickSound}
@@ -816,20 +887,20 @@ const Dashboard = () => {
                     </button>
                   </th>
                   {/* <th>Created By</th> */}
-                  {isExpanded && <th>Phone</th>}
-                  {isExpanded && <th>Gender</th>}
+                  {isExpanded && <th style={{ textAlign: "center" }}>Phone</th>}
+                  {isExpanded && <th style={{ textAlign: "center" }}>Gender</th>}
                   {/* <th>Payment Mode</th> */}
                   {/* <th>Fees Amount</th> */}
-                  {isExpanded && <th>Payment Status</th>}
-                  {isExpanded && <th>Status</th>}
+                  {isExpanded && <th style={{ textAlign: "center" }}>Payment Status</th>}
+                  {isExpanded && <th style={{ textAlign: "center" }}>Status</th>}
                   <RequirePermission allowedRoles={["Admin"]}>
-                    {isExpanded && <th>Doctor</th>}
-                    {isExpanded && <th>Department</th>}
+                    {isExpanded && <th style={{ textAlign: "left" }}>Doctor</th>}
+                    {isExpanded && <th style={{ textAlign: "left" }}>Department</th>}
                   </RequirePermission>
-                  {isExpanded && <th>Visited Before</th>}
-                  {isExpanded && <th>Booked By</th>}
-                  <th>Prescription</th>
-                  <th>Actions</th>
+                  {isExpanded && <th style={{ textAlign: "center" }}>Visited Before</th>}
+                  {isExpanded && <th style={{ textAlign: "left" }}>Booked By</th>}
+                  <th style={{ width: "140px", textAlign: "center" }}>Prescription</th>
+                  <th style={{ width: "80px", textAlign: "center" }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -837,7 +908,7 @@ const Dashboard = () => {
                   // <div>
                   filteredAppointments.map((appointment) => (
                     <tr key={appointment._id}>
-                      <td style={{ textAlign: "left" }}>
+                      <td style={{ width: "45px", minWidth: "45px", textAlign: "center" }}>
                         <RequirePermission allowedRoles={["Admin"]}>
                           <input
                             type="checkbox"
@@ -849,18 +920,17 @@ const Dashboard = () => {
                             }
                           />
                         </RequirePermission>
-                        {appointments.indexOf(appointment) + 1}
                       </td>
-                      <td>
+                      <td style={{ textAlign: "left", fontWeight: 500 }}>
                         {appointment.name ||
                           `${appointment.firstName} ${appointment.lastName}`}
                       </td>
-                      <td>{appointment.appointment_date.substring(0, 10)}</td>
+                      <td style={{ textAlign: "center" }}>{appointment.appointment_date.substring(0, 10)}</td>
                       {/* <td>{appointment?.booked_by || "You"}</td> */}
                       {isExpanded && (
-                        <td>{appointment.phone || appointment.mobile}</td>
+                        <td style={{ textAlign: "center" }}>{appointment.phone || appointment.mobile}</td>
                       )}
-                      {isExpanded && <td>{appointment.gender}</td>}
+                      {isExpanded && <td style={{ textAlign: "center" }}>{appointment.gender}</td>}
                       {/* <td>{appointment.paymentMode || "Cash"}</td> */}
                       {/* <td>{appointment.price || appointment.feesAmount || "0"}</td> */}
                       {isExpanded && (
@@ -1201,82 +1271,7 @@ const Dashboard = () => {
             </table>
           </div>
 
-          {/* Invoice selection modal for multiple invoices - only opens on IoReceipt click */}
-          <Modal
-            isOpen={showInvoicesModal}
-            onRequestClose={() => {
-              setShowInvoicesModal(false);
-              setInvoicesList([]);
-              setSelectedInvoiceId(null);
-            }}
-            contentLabel="Invoices Modal"
-            ariaHideApp={false}
-            style={{ content: { maxWidth: "600px", margin: "auto" } }}
-          >
-            <h3>Invoices for Appointment</h3>
 
-            {invoicesList.map((inv, idx) => (
-              <div
-                className="appoinmnt-invoice-contnt"
-                key={inv._id || inv.id}
-                // style={{
-                //   marginBottom: 10,
-                //   borderBottom: "1px solid #eee",
-                //   paddingBottom: 8,
-                // }}
-              >
-                <div className="apoint-invoice-row">
-                  <p>
-                    <span>Invoice #:</span> {inv.invoiceNumber || inv._id || inv.id}
-                  </p>
-                  <p>
-                    <span>Date:</span>{" "}
-                    {inv.issuedAt
-                      ? String(inv.issuedAt).substring(0, 10)
-                      : inv.date
-                        ? String(inv.date).substring(0, 10)
-                        : "-"}
-                  </p>
-                  <p>
-                    <span>Total:</span> {inv.total || inv.subtotal || 0}
-                  </p>
-                </div>
-                <div className="btn-container">
-                  <button
-                    className="btn-cls"
-                    onClick={() => setSelectedInvoiceId(inv._id || inv.id)}
-                  >
-                    View
-                  </button>
-                  <button
-                    className="btn-cls"
-                    onClick={() =>
-                      window.open(`/invoice/${inv._id || inv.id}`, "_blank")
-                    }
-                  >
-                    Open Full Page
-                  </button>
-                  <button
-                    className="btn-cls"
-                    onClick={() => {
-                      setShowInvoicesModal(false);
-                      setInvoicesList([]);
-                      setSelectedInvoiceId(null);
-                    }}
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            {/* InvoiceViewer for selected invoice inside modal */}
-            <InvoiceViewer
-              invoiceId={selectedInvoiceId}
-              isOpen={!!selectedInvoiceId}
-              onClose={() => setSelectedInvoiceId(null)}
-            />
-          </Modal>
 
           {/* Prescription modal - only for prescription */}
           <Modal
