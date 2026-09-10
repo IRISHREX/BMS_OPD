@@ -19,6 +19,8 @@ const TrackReferralsTab = ({
   const [playSaveSound] = useSound("/save.mp3");
   const [allReferrals, setAllReferrals] = useState(initialReferrals || []);
   const [loading, setLoading] = useState(initialLoading);
+  const [typeFilter, setTypeFilter] = useState("all"); // all, patient_request, doctor_referral
+  const [convertingId, setConvertingId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [urgencyFilter, setUrgencyFilter] = useState("");
@@ -44,6 +46,25 @@ const TrackReferralsTab = ({
       snackbar.error("Error fetching referrals");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleConvertToAppointment = async (referralId) => {
+    try {
+      setConvertingId(referralId);
+      const { data } = await api.post(`/api/v1/referral/${referralId}/convert-to-appointment`);
+      if (data.success) {
+        snackbar.success("Patient referral converted to active appointment successfully!");
+        playSaveSound();
+        await fetchAllReferrals();
+      } else {
+        snackbar.error(data.message || "Failed to convert referral");
+      }
+    } catch (error) {
+      console.error("Conversion error:", error);
+      snackbar.error(error.response?.data?.message || "Failed to convert to appointment");
+    } finally {
+      setConvertingId(null);
     }
   };
 
@@ -78,14 +99,19 @@ const TrackReferralsTab = ({
     return null;
   };
 
-  // Filter referrals based on search, filters, and dates
+  // Filter referrals based on search, type, filters, and dates
   const filteredReferrals = allReferrals.filter((referral) => {
+    const matchesType =
+      typeFilter === "all" ||
+      (typeFilter === "patient_request" && referral.referralType === "patient_request") ||
+      (typeFilter === "doctor_referral" && (referral.referralType === "doctor_referral" || !referral.referralType));
+
     const matchesSearch =
       referral.patientName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      referral.referralNumber
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      referral.diagnosis?.toLowerCase().includes(searchQuery.toLowerCase());
+      referral.referralNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      referral.diagnosis?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      referral.targetDoctorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      referral.applicantBy?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesStatus = !statusFilter || referral.status === statusFilter;
     const matchesUrgency = !urgencyFilter || referral.urgency === urgencyFilter;
@@ -102,7 +128,7 @@ const TrackReferralsTab = ({
       }
     }
 
-    return matchesSearch && matchesStatus && matchesUrgency && matchesDate;
+    return matchesType && matchesSearch && matchesStatus && matchesUrgency && matchesDate;
   });
 
   const handleEdit = (referral) => {
@@ -165,7 +191,67 @@ const TrackReferralsTab = ({
   return (
     <div className="tab-content">
       <div className="form-component">
-        <h2>Track Referrals</h2>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", flexWrap: "wrap", gap: "10px" }}>
+          <h2 style={{ margin: 0 }}>Track Referrals</h2>
+
+          {/* Referral Category Filter Pills */}
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <button
+              type="button"
+              onClick={() => setTypeFilter("all")}
+              style={{
+                padding: "6px 14px",
+                borderRadius: "20px",
+                border: "1.5px solid",
+                borderColor: typeFilter === "all" ? "#2563eb" : "#cbd5e1",
+                background: typeFilter === "all" ? "#2563eb" : "#ffffff",
+                color: typeFilter === "all" ? "#ffffff" : "#475569",
+                fontWeight: "600",
+                fontSize: "0.85rem",
+                cursor: "pointer",
+                transition: "all 0.2s"
+              }}
+            >
+              All ({allReferrals.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setTypeFilter("patient_request")}
+              style={{
+                padding: "6px 14px",
+                borderRadius: "20px",
+                border: "1.5px solid",
+                borderColor: typeFilter === "patient_request" ? "#0d9488" : "#cbd5e1",
+                background: typeFilter === "patient_request" ? "#0d9488" : "#ffffff",
+                color: typeFilter === "patient_request" ? "#ffffff" : "#475569",
+                fontWeight: "600",
+                fontSize: "0.85rem",
+                cursor: "pointer",
+                transition: "all 0.2s"
+              }}
+            >
+              📥 Patient Inbound ({allReferrals.filter(r => r.referralType === 'patient_request').length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setTypeFilter("doctor_referral")}
+              style={{
+                padding: "6px 14px",
+                borderRadius: "20px",
+                border: "1.5px solid",
+                borderColor: typeFilter === "doctor_referral" ? "#d97706" : "#cbd5e1",
+                background: typeFilter === "doctor_referral" ? "#d97706" : "#ffffff",
+                color: typeFilter === "doctor_referral" ? "#ffffff" : "#475569",
+                fontWeight: "600",
+                fontSize: "0.85rem",
+                cursor: "pointer",
+                transition: "all 0.2s"
+              }}
+            >
+              🏥 Hospital Transfers ({allReferrals.filter(r => r.referralType !== 'patient_request').length})
+            </button>
+          </div>
+        </div>
 
         {/* Search and Filter Section */}
         <Toolbar>
@@ -175,7 +261,7 @@ const TrackReferralsTab = ({
                 <div className="form-group">
                   <input
                     type="text"
-                    placeholder="Enter patient name or referral number 🔍"
+                    placeholder="Search patient, doctor, applicant or referral # 🔍"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -388,43 +474,85 @@ const TrackReferralsTab = ({
                   ) : (
                     // View Mode
                     <>
-                      <div className="doc-card-details">
-                        <div className="detail-row">
-                          <span>Hospital:</span>
-                          <span>
-                            {referral.hospitals && referral.hospitals.length > 0
-                              ? referral.hospitals[0].hospitalName
-                              : "N/A"}
-                          </span>
+                      {referral.referralType === "patient_request" ? (
+                        <div className="doc-card-details">
+                          <div className="detail-row">
+                            <span>Service:</span>
+                            <span style={{ fontWeight: "700", color: "#0d9488" }}>Patient Inbound Booking</span>
+                          </div>
+                          <div className="detail-row">
+                            <span>Applicant By:</span>
+                            <span style={{ background: "#e0f2fe", color: "#0369a1", padding: "2px 8px", borderRadius: "12px", fontSize: "0.75rem", fontWeight: "700" }}>
+                              {referral.applicantBy || "Self"}
+                            </span>
+                          </div>
+                          <div className="detail-row">
+                            <span>Target Doctor:</span>
+                            <span style={{ fontWeight: "600", color: "#1e3a8a" }}>
+                              {referral.targetDoctorName || "General Specialist"}
+                              {referral.targetDoctorSpecialty ? ` (${referral.targetDoctorSpecialty})` : ""}
+                            </span>
+                          </div>
+                          <div className="detail-row">
+                            <span>Preferred Slot:</span>
+                            <span>{referral.appointmentDate || "Flexible"} • {referral.appointmentSlot || "Standard"}</span>
+                          </div>
+                          {referral.applicantPhone && (
+                            <div className="detail-row">
+                              <span>Contact Phone:</span>
+                              <span>{referral.applicantPhone}</span>
+                            </div>
+                          )}
+                          <div className="detail-row">
+                            <span>Symptoms / Notes:</span>
+                            <span>{referral.symptoms || referral.clinicalNotes || "Consultation requested"}</span>
+                          </div>
+                          <div className="detail-row">
+                            <span>Status:</span>
+                            <span className={`status-badge status-${currentStatus}`}>
+                              {currentStatus.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
+                            </span>
+                          </div>
                         </div>
-                        <div className="detail-row">
-                          <span>Date Submitted:</span>
-                          <span>
-                            {referral.createdAt
-                              ? new Date(
-                                  referral.createdAt,
-                                ).toLocaleDateString()
-                              : "N/A"}
-                          </span>
+                      ) : (
+                        <div className="doc-card-details">
+                          <div className="detail-row">
+                            <span>Hospital:</span>
+                            <span>
+                              {referral.hospitals && referral.hospitals.length > 0
+                                ? referral.hospitals[0].hospitalName
+                                : "N/A"}
+                            </span>
+                          </div>
+                          <div className="detail-row">
+                            <span>Date Submitted:</span>
+                            <span>
+                              {referral.createdAt
+                                ? new Date(
+                                    referral.createdAt,
+                                  ).toLocaleDateString()
+                                : "N/A"}
+                            </span>
+                          </div>
+                          <div className="detail-row">
+                            <span>Status:</span>
+                            <span
+                              className={`status-badge status-${currentStatus}`}
+                            >
+                              {currentStatus
+                                .split("-")
+                                .map(
+                                  (w) => w.charAt(0).toUpperCase() + w.slice(1),
+                                )
+                                .join(" ")}
+                            </span>
+                          </div>
+                          <div className="detail-row">
+                            <span>Diagnosis:</span>
+                            <span>{referral.diagnosis}</span>
+                          </div>
                         </div>
-                        <div className="detail-row">
-                          <span>Status:</span>
-                          <span
-                            className={`status-badge status-${currentStatus}`}
-                          >
-                            {currentStatus
-                              .split("-")
-                              .map(
-                                (w) => w.charAt(0).toUpperCase() + w.slice(1),
-                              )
-                              .join(" ")}
-                          </span>
-                        </div>
-                        <div className="detail-row">
-                          <span>Diagnosis:</span>
-                          <span>{referral.diagnosis}</span>
-                        </div>
-                      </div>
+                      )}
 
                       <div className="status-timeline">
                         {statusSteps.map((step) => {
@@ -460,29 +588,63 @@ const TrackReferralsTab = ({
                           display: "flex",
                           gap: "10px",
                           marginTop: "10px",
-                          justifyContent: "flex-end",
+                          alignItems: "center",
+                          justifyContent: "space-between",
                         }}
                       >
-                        <button className="icon-btn" onClick={() => {}}>
-                          <BsEye />
-                        </button>
-                        <button
-                          className="icon-btn"
-                          onClick={() => handleEdit(referral)}
-                        >
-                          <FiEdit />
-                        </button>
-                        <button
-                          className="icon-btn"
-                          onClick={() => handleDelete(referral._id)}
-                          disabled={deleting === referral._id}
-                        >
-                          {deleting === referral._id ? (
-                            <span className="loader"></span>
+                        {referral.referralType === "patient_request" ? (
+                          referral.convertedToAppointment ? (
+                            <span style={{ color: "#16a34a", fontWeight: "700", fontSize: "0.82rem" }}>
+                              ✓ Added as Appointment
+                            </span>
                           ) : (
-                            <BsTrash2 />
-                          )}
-                        </button>
+                            <button
+                              type="button"
+                              onClick={() => handleConvertToAppointment(referral._id)}
+                              disabled={convertingId === referral._id}
+                              style={{
+                                background: "linear-gradient(135deg, #0d9488, #2563eb)",
+                                color: "#ffffff",
+                                border: "none",
+                                borderRadius: "6px",
+                                padding: "6px 12px",
+                                fontSize: "0.82rem",
+                                fontWeight: "700",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "4px"
+                              }}
+                            >
+                              {convertingId === referral._id ? "Adding..." : "+ Add as Appointment"}
+                            </button>
+                          )
+                        ) : (
+                          <div />
+                        )}
+
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <button className="icon-btn" onClick={() => {}}>
+                            <BsEye />
+                          </button>
+                          <button
+                            className="icon-btn"
+                            onClick={() => handleEdit(referral)}
+                          >
+                            <FiEdit />
+                          </button>
+                          <button
+                            className="icon-btn"
+                            onClick={() => handleDelete(referral._id)}
+                            disabled={deleting === referral._id}
+                          >
+                            {deleting === referral._id ? (
+                              <span className="loader"></span>
+                            ) : (
+                              <BsTrash2 />
+                            )}
+                          </button>
+                        </div>
                       </div>
                     </>
                   )}

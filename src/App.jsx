@@ -38,6 +38,7 @@ import DoctorDashboard from "./components/DoctorDashboard";
 import CreateReferralTab from "./components/tabs/CreateReferralTab";
 import ReferralPage from "./components/ReferralPage";
 import HeaderFooterCreator from "./components/HeaderFooterCreator";
+import PublicDoctorBooking from "./components/PublicDoctorBooking";
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated, admin, setAdmin } =
@@ -162,6 +163,7 @@ const App = () => {
         <Route path="/preview/:patientId" element={<Preview />} />
         <Route path="/invoice/:invoiceId" element={<InvoicePage />} />
         <Route path="/referral/:referralId" element={<ReferralPage />} />
+        <Route path="/book-appointment" element={<PublicDoctorBooking />} />
         <Route path="*" element={<CyberPunk404 />} />
       </Routes>
       <SnackbarContainer />
