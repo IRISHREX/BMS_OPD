@@ -138,6 +138,7 @@ const TrackReferralsTab = ({
       diagnosis: referral.diagnosis,
       clinicalNotes: referral.clinicalNotes,
       urgency: referral.urgency,
+      commissionPercent: referral.commissionPercent !== undefined ? referral.commissionPercent : 5,
     });
   };
 
@@ -448,6 +449,21 @@ const TrackReferralsTab = ({
                           rows="3"
                         />
                       </div>
+                      <div className="form-group">
+                        <label>Commission (%):</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={editData.commissionPercent !== undefined ? editData.commissionPercent : 5}
+                          onChange={(e) =>
+                            setEditData({
+                              ...editData,
+                              commissionPercent: Number(e.target.value),
+                            })
+                          }
+                        />
+                      </div>
                       <div
                         style={{
                           marginTop: "0.5rem",
@@ -506,6 +522,12 @@ const TrackReferralsTab = ({
                           <div className="detail-row">
                             <span>Symptoms / Notes:</span>
                             <span>{referral.symptoms || referral.clinicalNotes || "Consultation requested"}</span>
+                          </div>
+                          <div className="detail-row" style={{ backgroundColor: "#fef3c7", padding: "4px 8px", borderRadius: "6px", margin: "4px 0" }}>
+                            <span style={{ fontWeight: "700", color: "#b45309" }}>Referral Commission:</span>
+                            <span style={{ fontWeight: "800", color: "#b45309" }}>
+                              ₹{referral.commissionAmount || 0} ({referral.commissionPercent !== undefined ? referral.commissionPercent : 5}%) • {referral.commissionStatus || "pending"}
+                            </span>
                           </div>
                           <div className="detail-row">
                             <span>Status:</span>
