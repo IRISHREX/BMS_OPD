@@ -46,6 +46,18 @@ const Preview = () => {
 
   useEffect(() => {
     if (!patientId) return;
+
+    // If opened on localhost or 127.0.0.1, automatically redirect to production preview on novel.mkinfotrack.com
+    if (
+      typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1") &&
+      !window.location.search.includes("local=true")
+    ) {
+      window.location.replace(`https://novel.mkinfotrack.com/preview/${patientId}`);
+      return;
+    }
+
     // try to detect whether this is an appointment id (24 hex chars) or a patient id
     const isMongoId = /^[0-9a-fA-F]{24}$/.test(patientId);
     dispatch(fetchPreviewRequest({ patientId }));
