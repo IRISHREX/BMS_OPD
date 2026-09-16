@@ -164,6 +164,29 @@ const Login = () => {
                 </span>
               </p>
             </div>
+
+            <div style={{ marginTop: "1.2rem", paddingTop: "1rem", borderTop: "1px solid rgba(255,255,255,0.15)", textAlign: "center" }}>
+              <p style={{ margin: "0 0 8px 0", fontSize: "0.85rem", color: "#cbd5e1" }}>
+                Patient looking to consult a doctor?
+              </p>
+              <button
+                type="button"
+                onClick={() => navigateTo('/book-appointment')}
+                style={{
+                  background: "linear-gradient(135deg, #1e3a8a, #0d9488)",
+                  color: "#f8fafc",
+                  border: "1.5px solid #f59e0b",
+                  borderRadius: "8px",
+                  padding: "8px 18px",
+                  cursor: "pointer",
+                  fontWeight: "700",
+                  fontSize: "0.88rem",
+                  boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
+                }}
+              >
+                📅 Book Doctor Appointment (Patient Referral)
+              </button>
+            </div>
           </form>
         )}
       </div>

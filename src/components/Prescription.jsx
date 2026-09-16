@@ -1068,13 +1068,14 @@ const Prescription = ({ patientId, onClose }) => {
         doctorId: doctorId || undefined,
       });
       if (doctorContact) {
+        const previewUrl = `https://novel.mkinfotrack.com/preview/${patientId}`;
         await api.post(`/api/v1/message/send`, {
           firstName: "System",
           lastName: "Notification",
           email: doctorContact.includes("@") ? doctorContact : "",
           phone: doctorContact.includes("@") ? "01234567891" : doctorContact,
           message: `Prescription completed for patient NIC: ${nic} -
-           🌐download link: ${window.location.origin}/preview/${patientId}`,
+           🌐download link: ${previewUrl}`,
         });
       }
       playSaveSound();
