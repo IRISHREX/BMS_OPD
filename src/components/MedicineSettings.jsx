@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import { useSnackbar } from "../context/SnackbarContext";
@@ -10,12 +10,37 @@ import {
 import "./Settings.css";
 import MedicineCard from "./MedicineCard";
 import MedicineSearch from "./MedicineSearch";
-import { FaEye, FaPen } from "react-icons/fa";
+import { FaEye, FaPen, FaSearch } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa6";
 import MedicineDrawer from "./MedicineDrawer";
 import Toolbar from "./Toolbar";
 import { LuFilterX } from "react-icons/lu";
 import { BsArrowLeft } from "react-icons/bs";
+
+// Standard clinical & form types
+const STANDARD_MEDICINE_TYPES = [
+  "Tablet",
+  "Capsule",
+  "Syrup",
+  "Injection",
+  "Ointment",
+  "Drops",
+  "Inhaler",
+  "Suspension",
+  "Cream",
+  "Powder",
+  "Lotion",
+  "Gel",
+  "Antibiotic",
+  "Analgesic",
+  "Antacid",
+  "Antipyretic",
+  "Antidiabetic",
+  "Antihistamine",
+  "Cardiovascular",
+  "Dermatological",
+  "General",
+];
 
 // MedicineStore moved to its own page at /medicines
 
@@ -61,6 +86,26 @@ const MedicineSettings = () => {
   const [filterTag, setFilterTag] = useState("");
   const [filterHasTest, setFilterHasTest] = useState("");
   const [viewingAdvice, setViewingAdvice] = useState(null);
+
+  const availableTypes = useMemo(() => {
+    const dynamicTypes = new Set();
+    (medicines || []).forEach((m) => {
+      if (m.type && typeof m.type === "string" && m.type.trim()) {
+        dynamicTypes.add(m.type.trim());
+      }
+      if (Array.isArray(m.medicines)) {
+        m.medicines.forEach((med) => {
+          if (med.type && typeof med.type === "string" && med.type.trim()) {
+            dynamicTypes.add(med.type.trim());
+          }
+        });
+      }
+    });
+    const combined = Array.from(
+      new Set([...STANDARD_MEDICINE_TYPES, ...dynamicTypes]),
+    );
+    return combined.sort((a, b) => a.localeCompare(b));
+  }, [medicines]);
 
   useEffect(() => {
     fetchMedicines();
@@ -364,54 +409,24 @@ const MedicineSettings = () => {
         {/* <div className="settings-page medicine-page" style={{ padding: 20 }}> */}
         <Toolbar>
           <div className="filter-search-box">
-            <div
-              className="filter-search-top"
-              // style={{
-              //   display: "flex",
-              //   justifyContent: "space-between",
-              //   alignItems: "center",
-              //   marginBottom: 16,
-              // }}
-            >
-              <div
-                className="filter-search-left"
-                // style={{
-                //   display: "flex",
-                //   alignItems: "center",
-                //   gap: 12,
-                // }}
-              >
+            {/* Row 1: Header / Title Section + Actions */}
+            <div className="filter-search-top">
+              <div className="filter-search-left">
                 <button
                   onClick={() => navigate(-1)}
                   className="arrow-btn"
+                  title="Back"
                 >
-                  <BsArrowLeft title="Back"/>
-                  {/* ← Go Back */}
+                  <BsArrowLeft />
                 </button>
                 <div className="catlog-title-wrap">
-                  <h2
-                    // style={{
-                    //   margin: 0,
-                    // }}
-                  >
-                    Medicine Catalog
-                  </h2>
-                  <div className="muted">
+                  <h2>Medicine Catalog</h2>
+                  <span className="muted">
                     Create, search and manage medicines used in prescriptions.
-                  </div>
+                  </span>
                 </div>
               </div>
-              <div
-                className="filter-search-right"
-                // style={{ display: "flex", gap: 8, alignItems: "center" }}
-              >
-                <input
-                  className="search-input"
-                  placeholder="Search by name, symptom or type"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  style={{ minWidth: 280 }}
-                />
+              <div className="filter-search-actions">
                 <button
                   className="add-btn"
                   onClick={() => {
@@ -420,69 +435,77 @@ const MedicineSettings = () => {
                     setDrawerOpen(true);
                   }}
                 >
-                  Create Medical Advice
+                  + Create Medical Advice
                 </button>
                 <button
                   className="clear-btn"
                   onClick={() => navigate("/medicines")}
-                  // style={{ marginLeft: 8 }}
                 >
                   Manage Medicines
                 </button>
               </div>
             </div>
 
-            {/* Filters Bar */}
-            <div className="filter-bar">
-              <div className="filter-group">
-                <label className="muted">Type</label>
-                <select
-                  onChange={(e) => setFilterType(e.target.value)}
-                  value={filterType}
-                >
-                  <option value="">All Types</option>
-                  {Array.from(
-                    new Set(
-                      (medicines || []).map((m) => m.type).filter(Boolean),
-                    ),
-                  )
-                    .sort()
-                    .map((t) => (
+            {/* Row 2: Search + Inline Filters Bar */}
+            <div className="filter-search-bottom">
+              <div className="medicine-search-wrap">
+                <FaSearch className="search-icon" />
+                <input
+                  className="search-input"
+                  placeholder="Search by name, symptom or type..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+
+              <div className="filter-bar">
+                <div className="filter-group">
+                  <label className="muted">Type</label>
+                  <select
+                    onChange={(e) => setFilterType(e.target.value)}
+                    value={filterType}
+                  >
+                    <option value="">All Types</option>
+                    {availableTypes.map((t) => (
                       <option key={t} value={t}>
                         {t}
                       </option>
                     ))}
-                </select>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label className="muted">Tag</label>
+                  <input
+                    placeholder="Filter by tag"
+                    value={filterTag || ""}
+                    onChange={(e) => setFilterTag(e.target.value)}
+                  />
+                </div>
+                <div className="filter-group">
+                  <label className="muted">Tests</label>
+                  <select
+                    value={filterHasTest || ""}
+                    onChange={(e) => setFilterHasTest(e.target.value)}
+                  >
+                    <option value="">Either</option>
+                    <option value="yes">With Tests</option>
+                    <option value="no">No Tests</option>
+                  </select>
+                </div>
+                {(filterType || filterTag || filterHasTest) && (
+                  <button
+                    className="clear-filter"
+                    title="Clear Filters"
+                    onClick={() => {
+                      setFilterTag("");
+                      setFilterType("");
+                      setFilterHasTest("");
+                    }}
+                  >
+                    <LuFilterX />
+                  </button>
+                )}
               </div>
-              <div className="filter-group">
-                <label className="muted">Tag</label>
-                <input
-                  placeholder="Filter by tag"
-                  value={filterTag || ""}
-                  onChange={(e) => setFilterTag(e.target.value)}
-                />
-              </div>
-              <div className="filter-group">
-                <label className="muted">Has Tests</label>
-                <select
-                  value={filterHasTest || ""}
-                  onChange={(e) => setFilterHasTest(e.target.value)}
-                >
-                  <option value="">Either</option>
-                  <option value="yes">With Tests</option>
-                  <option value="no">No Tests</option>
-                </select>
-              </div>
-              <button
-                className="clear-filter"
-                onClick={() => {
-                  setFilterTag("");
-                  setFilterType("");
-                  setFilterHasTest("");
-                }}
-              >
-               <LuFilterX title='Clear Filters'/>
-              </button>
             </div>
           </div>
         </Toolbar>
@@ -503,7 +526,21 @@ const MedicineSettings = () => {
                   </div>
                 ))
               : (medicines || [])
-                  .filter((m) => !filterType || m.type === filterType)
+                  .filter((m) => {
+                    if (!filterType) return true;
+                    const target = filterType.toLowerCase();
+                    const matchAdviceType =
+                      typeof m.type === "string" &&
+                      m.type.toLowerCase() === target;
+                    const matchMedicineType =
+                      Array.isArray(m.medicines) &&
+                      m.medicines.some(
+                        (med) =>
+                          typeof med.type === "string" &&
+                          med.type.toLowerCase() === target,
+                      );
+                    return matchAdviceType || matchMedicineType;
+                  })
                   .filter(
                     (m) =>
                       !filterTag ||

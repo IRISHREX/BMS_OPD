@@ -18,6 +18,7 @@ import { toast } from "react-toastify";
 import { BsDownload, BsFileExcel, BsHeartPulse } from "react-icons/bs";
 import { IoRefresh } from "react-icons/io5";
 import useClickSound from "../hooks/useClickSound";
+import { playSettledSound } from "../utils/soundUtils";
 
 const fmt = (n) => {
   const v = Number(n) || 0;
@@ -108,10 +109,11 @@ const ReportsPage = () => {
   const fetchSummary = async (opts = {}) => {
     setLoading(true);
     try {
-      const s = opts.start || start;
-      const e = opts.end || end;
-      const grp = opts.groupBy || groupBy;
-      const doc = opts.doctorId || doctorId;
+      const s = opts.start !== undefined ? opts.start : start;
+      const e = opts.end !== undefined ? opts.end : end;
+      const grp = opts.groupBy !== undefined ? opts.groupBy : groupBy;
+      const doc = opts.doctorId !== undefined ? opts.doctorId : doctorId;
+      const querySearch = opts.q !== undefined ? opts.q : searchTerm;
 
       // Prefer invoice stats endpoint for payments (server computes paid/due)
       const q = [];
@@ -132,11 +134,11 @@ const ReportsPage = () => {
         const qparts = [];
         if (s) qparts.push(`start=${encodeURIComponent(s)}`);
         if (e) qparts.push(`end=${encodeURIComponent(e)}`);
-        if (doctorId) qparts.push(`doctorId=${encodeURIComponent(doctorId)}`);
+        if (doc) qparts.push(`doctorId=${encodeURIComponent(doc)}`);
         qparts.push(`page=${reportPage}`);
         qparts.push(`limit=50`);
-        if (opts.q || searchTerm)
-          qparts.push(`q=${encodeURIComponent(opts.q || searchTerm)}`);
+        if (querySearch)
+          qparts.push(`q=${encodeURIComponent(querySearch)}`);
         const qstr = qparts.length ? `?${qparts.join("&")}` : "";
         const repRes = await api.get(`/api/v1/reports${qstr}`);
         const body = repRes.data || {};
@@ -218,7 +220,9 @@ const ReportsPage = () => {
     }
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    fetchSummary();
+  }, [start, end, groupBy, doctorId, usePersisted, reportPage]);
 
   // fetch invoices for an appointment and open drawer
   const openInvoiceDrawer = async (appointmentId) => {
@@ -383,132 +387,119 @@ const ReportsPage = () => {
   return (
     <section className="reports-page page">
       <Toolbar>
-        <div className="banner">
-          <div className="content-box">
-            <div className="desc-dev-box">
-              <div>
-                <h3>Reports</h3>
-                <p>Payments and patients summary</p>
-              </div>
-              <div className="input-container">
-                <div className="form-group">
-                  <label>Start</label>
-                  <input
-                    type="date"
-                    value={start}
-                    onChange={(e) => setStart(e.target.value)}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>End</label>
-                  <input
-                    type="date"
-                    value={end}
-                    onChange={(e) => setEnd(e.target.value)}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Group</label>
-                  <select
-                    value={groupBy}
-                    onChange={(e) => setGroupBy(e.target.value)}
-                  >
-                    <option value="day">Day</option>
-                    <option value="week">Week</option>
-                    <option value="month">Month</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>Doctor </label>
-                  <select
-                    value={doctorId}
-                    onChange={(e) => setDoctorId(e.target.value)}
-                    disabled={dashboardUser && dashboardUser.role === "Doctor"}
-                  >
-                    {dashboardUser && dashboardUser.role === "Admin" && (
-                      <option value="">All</option>
-                    )}
-                    {doctors.map((d) => (
-                      <option key={d._id} value={d._id}>
-                        {d.firstName} {d.lastName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+        <div className="reports-top-bar">
+          <div className="reports-header-row">
+            <div className="reports-title-section">
+              <h2 className="reports-title">Reports</h2>
+              <span className="reports-subtitle">Payments & patients summary</span>
             </div>
-            <div className="check-btn-box">
-              {/* <div className="label-box"> */}
-                {/* <label>
-                  <input
-                    type="checkbox"
-                    checked={usePersisted}
-                    onChange={(e) => {
-                      setUsePersisted(e.target.checked);
-                      setReportPage(1);
-                    }}
-                  />{" "}
-                  Use persisted report entries
-                </label> */}
-              {/* </div> */}
-              <div className="report-btn-box">
+
+            <div className="reports-filters-group">
+              <div className="reports-filter-item">
+                <label htmlFor="report-start-date">From</label>
+                <input
+                  id="report-start-date"
+                  type="date"
+                  value={start}
+                  onChange={(e) => setStart(e.target.value)}
+                />
+              </div>
+              <div className="reports-filter-item">
+                <label htmlFor="report-end-date">To</label>
+                <input
+                  id="report-end-date"
+                  type="date"
+                  value={end}
+                  onChange={(e) => setEnd(e.target.value)}
+                />
+              </div>
+              <div className="reports-filter-item">
+                <label htmlFor="report-group-by">Group</label>
+                <select
+                  id="report-group-by"
+                  value={groupBy}
+                  onChange={(e) => setGroupBy(e.target.value)}
+                >
+                  <option value="day">Day</option>
+                  <option value="week">Week</option>
+                  <option value="month">Month</option>
+                </select>
+              </div>
+
+              <div className="reports-filter-item">
+                <label htmlFor="report-doctor-select">Doctor</label>
+                <select
+                  id="report-doctor-select"
+                  value={doctorId}
+                  onChange={(e) => setDoctorId(e.target.value)}
+                  disabled={dashboardUser && dashboardUser.role === "Doctor"}
+                >
+                  {dashboardUser && dashboardUser.role === "Admin" && (
+                    <option value="">All Doctors</option>
+                  )}
+                  {doctors.map((d) => (
+                    <option key={d._id} value={d._id}>
+                      {d.firstName} {d.lastName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="reports-actions">
                 <button
                   ref={setupClickSound}
-                  className="icon-btn"
+                  className="reports-action-btn"
                   onClick={() =>
                     fetchSummary({ start, end, groupBy, doctorId })
                   }
                   disabled={loading}
+                  title="Refresh data"
                 >
                   {loading ? (
-                    <BsHeartPulse style={{ color: "red" }} />
+                    <BsHeartPulse style={{ color: "#ef4444" }} />
                   ) : (
-                    <IoRefresh style={{ color: "blue" }} />
+                    <IoRefresh style={{ color: "#096dd9" }} />
                   )}
                 </button>
                 <button
                   ref={setupClickSound}
-                  className="icon-btn"
+                  className="reports-action-btn"
                   onClick={downloadCSV}
+                  title="Download CSV"
                 >
-                  <BsDownload style={{ color: "green" }} />
+                  <BsDownload style={{ color: "#10b981" }} />
                 </button>
               </div>
             </div>
           </div>
-        </div>
-        <div className="search-container">
-          <div className="search-box">
-            <input
-              placeholder="Search reports by appointment id or patient"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={onSearchKey}
-            />
-            <FaSearch
-              ref={setupClickSound}
-              className="icon-btn"
-              style={{
-                padding: "0.5rem",
-                backgroundColor: "#096dd9",
-                color: "white",
-                height: "2rem",
-                width: "2rem",
-                borderRadius: "0.3rem",
-              }}
-              onClick={() => fetchSummary({ q: searchTerm })}
-            />
-          </div>
-          <div>
-            <ToggleSwitch
-              label={usePersisted ? "Persisted Entries" : "Summary View"}
-              checked={usePersisted}
-              onChange={() => {
-                setUsePersisted(!usePersisted);
-                fetchSummary();
-              }}
-            />
+
+          <div className="reports-sub-row">
+            <div className="reports-search-box">
+              <input
+                placeholder="Search reports by appointment id, patient or doctor..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={onSearchKey}
+              />
+              <button
+                ref={setupClickSound}
+                className="reports-search-btn"
+                onClick={() => fetchSummary({ q: searchTerm })}
+                title="Search"
+              >
+                <FaSearch />
+              </button>
+            </div>
+
+            <div className="reports-toggle-container">
+              <ToggleSwitch
+                label={usePersisted ? "Persisted Entries" : "Summary View"}
+                checked={usePersisted}
+                onChange={() => {
+                  setUsePersisted(!usePersisted);
+                }}
+              />
+            </div>
           </div>
         </div>
       </Toolbar>

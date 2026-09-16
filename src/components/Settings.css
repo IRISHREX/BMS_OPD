@@ -293,19 +293,21 @@
   flex-wrap: wrap;
 }
 
-.filter-search-box {
-  background-color: var(--bg-main);
-  padding: 0.5rem 0 1px 0;
-  position: sticky;
-  top: -2.5rem;
-  border-bottom: 3px solid var(--primary-color);
-  border-radius: 0.5rem;
-  z-index: 1;
-  background-color: #fff;
-  padding: 1rem;
+.medicine-settings .filter-search-box {
+  background-color: #ffffff;
+  padding: 10px 16px;
+  border-bottom: 2.5px solid var(--primary-color);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  position: static;
 }
 
-/* Filter Bar Styles */
+/* Filter Bar Styles (Global fallback e.g. InvoiceSettings) */
 .filter-bar {
   display: flex;
   gap: 1rem;
@@ -769,22 +771,174 @@ button.icn-btn[title="Delete"] {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 0;
 }
 .filter-search-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+.catlog-title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
   flex-wrap: wrap;
 }
-.filter-search-right {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
 .catlog-title-wrap h2 {
-  text-align: left;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
   margin: 0;
+  line-height: 1.2;
+}
+.catlog-title-wrap .muted {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.filter-search-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.filter-search-actions button {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.filter-search-actions .add-btn {
+  background-color: #096dd9;
+  color: #fff;
+  border: 1px solid #096dd9;
+}
+.filter-search-actions .add-btn:hover {
+  background-color: #085cc0;
+}
+.filter-search-actions .clear-btn {
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+.filter-search-actions .clear-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.filter-search-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+  border-top: 1px dashed #e5e7eb;
+}
+
+.medicine-search-wrap {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+  max-width: 360px;
+}
+
+.medicine-search-wrap .search-icon {
+  position: absolute;
+  left: 10px;
+  color: #9ca3af;
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.medicine-search-wrap .search-input {
+  width: 100%;
+  height: 32px;
+  padding: 4px 10px 4px 30px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  background-color: #fff;
+  color: #374151;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.medicine-search-wrap .search-input:focus {
+  border-color: #096dd9;
+  box-shadow: 0 0 0 2px rgba(9, 109, 217, 0.15);
+}
+
+.medicine-settings .filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.medicine-settings .filter-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+
+.medicine-settings .filter-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4b5563;
+  white-space: nowrap;
+}
+
+.medicine-settings .filter-group input,
+.medicine-settings .filter-group select {
+  height: 32px;
+  padding: 3px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  background-color: #fff;
+  color: #374151;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.medicine-settings .filter-group input:focus,
+.medicine-settings .filter-group select:focus {
+  border-color: #096dd9;
+  box-shadow: 0 0 0 2px rgba(9, 109, 217, 0.15);
+}
+
+.clear-filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  cursor: pointer;
+  font-size: 15px;
+  color: #096dd9;
+  transition: all 0.2s;
+}
+
+.clear-filter:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
 }
 
 /* --- Responsive Design --- */
@@ -830,24 +984,31 @@ button.icn-btn[title="Delete"] {
 }
 
 @media screen and (max-width: 767px) {
-  .page.medicine-settings .toolbar{
+  .page.medicine-settings .toolbar {
     position: static;
   }
-  .filter-group {
+  .filter-search-top {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .filter-search-actions {
     width: 100%;
+    justify-content: flex-start;
   }
-  .filter-group:has(.btn-cls) {
-    width: auto;
-  }
-  .filter-search-top{
+  .filter-search-bottom {
     flex-direction: column;
-    gap: 15px;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 10px;
   }
-  .filter-search-right {
-    flex-direction: column;
-    align-items: flex-start;
-}
+  .medicine-search-wrap {
+    max-width: 100%;
+    min-width: 100%;
+  }
+  .medicine-settings .filter-bar {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 480px) {
