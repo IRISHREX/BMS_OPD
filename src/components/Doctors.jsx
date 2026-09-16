@@ -9,6 +9,7 @@ import UserCard from "./UserCard";
 import RequirePermission from "./RequirePermission";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDoctorsRequest } from "../store/doctorsSlice";
+import { resetDoctorUpdate } from "../store/doctorUpdateSlice";
 import { playSaveSound, playDeleteSound } from "../utils/soundUtils";
 import CapacitySchedulerForm from "./CapacitySchedulerForm";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +30,7 @@ const Doctors = () => {
   const dispatch = useDispatch();
   const storeDoctors = useSelector((s) => s.doctors.doctors || []);
   const doctorsLoading = useSelector((s) => s.doctors.loading);
+  const doctorUpdate = useSelector((s) => s.doctorUpdate);
 
   const navigate = useNavigate();
   const setupClickSound = useClickSound();
@@ -36,6 +38,14 @@ const Doctors = () => {
   useEffect(() => {
     dispatch(fetchDoctorsRequest({ query: searchTerm }));
   }, [searchTerm, dispatch]);
+
+  useEffect(() => {
+    if (doctorUpdate?.success) {
+      setShowUpdateModal(false);
+      dispatch(fetchDoctorsRequest({ query: searchTerm }));
+      dispatch(resetDoctorUpdate());
+    }
+  }, [doctorUpdate?.success, dispatch, searchTerm]);
 
   const handleSearch = (e) => {
     e.preventDefault();

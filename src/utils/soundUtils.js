@@ -41,6 +41,14 @@ export const playLoadSound2 = () => {
   playSound('mech_reload2.mp3');
 };
 
+export const playClickSound = () => {
+  playSound('click.mp3');
+};
+
 export const playDeleteSound = () => {
   playSound('delete.mp3');
+};
+
+export const playSettledSound = () => {
+  playSound('settled.mp3');
 };

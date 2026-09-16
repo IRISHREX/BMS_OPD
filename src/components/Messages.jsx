@@ -8,11 +8,10 @@ import React, {
 import { useSnackbar } from "../context/SnackbarContext";
 import { Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import useSound from "use-sound";
 
 import { Context } from "../main";
 import api from "../utils/api";
-import { playSaveSound, playLoadSound } from "../utils/soundUtils";
+import { playSaveSound, playLoadSound, playDeleteSound } from "../utils/soundUtils";
 import { fetchMessagesRequest } from "../store/messagesSlice";
 import "./Messages.css";
 
@@ -70,8 +69,6 @@ const Messages = () => {
   const [selected, setSelected] = useState([]);
   const [allDoctors, setAllDoctors] = useState([]);
   const [showComposeModal, setShowComposeModal] = useState(false);
-
-  const [playDeleteSound] = useSound("/delete.mp3");
 
   const debouncedQ = useDebounce(filters.q, 500);
   const debouncedEmail = useDebounce(filters.email, 500);

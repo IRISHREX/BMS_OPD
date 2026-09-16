@@ -46,6 +46,12 @@ const App = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
+      // If user recently logged out, don't try to re-hydrate automatically
+      if (sessionStorage.getItem("logged_out") === "true") {
+        setIsAuthenticated(false);
+        setAdmin({});
+        return;
+      }
       try {
         const response = await api.get(`/api/v1/user/dashboard/me`);
         setIsAuthenticated(true);
@@ -56,7 +62,7 @@ const App = () => {
       }
     };
     fetchUser();
-  }, [isAuthenticated]);
+  }, []);
 
   return (
     <SnackbarProvider>

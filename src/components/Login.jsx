@@ -23,7 +23,7 @@ const Login = () => {
   const [role, setRole] = useState("Admin");
   const buttonRef = useRef(null);
 
-  const { isAuthenticated, setIsAuthenticated } = useContext(Context);
+  const { isAuthenticated, setIsAuthenticated, setAdmin } = useContext(Context);
   const dispatch = useDispatch();
   const auth = useSelector(state => state.auth);
 
@@ -33,6 +33,7 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    sessionStorage.removeItem('logged_out');
     createSparks();
     buttonRef.current?.classList.add('struck');
     setTimeout(() => {
@@ -71,12 +72,16 @@ const Login = () => {
 
   useEffect(() => {
     if (auth.isAuthenticated) {
+      sessionStorage.removeItem('logged_out');
       setIsAuthenticated(true);
+      if (auth.admin) {
+        setAdmin(auth.admin);
+      }
       navigateTo(from, { replace: true });
     }
-  }, [auth.isAuthenticated, from, navigateTo, setIsAuthenticated]);
+  }, [auth.isAuthenticated, auth.admin, from, navigateTo, setIsAuthenticated, setAdmin]);
 
-  if (isAuthenticated || auth.isAuthenticated) {
+  if ((isAuthenticated || auth.isAuthenticated) && sessionStorage.getItem('logged_out') !== 'true') {
     return <Navigate to={from} replace />;
   }
 

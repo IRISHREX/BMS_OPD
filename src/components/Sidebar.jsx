@@ -1,64 +1,66 @@
 import React, { useContext, useState } from "react";
 import { TiHome } from "react-icons/ti";
-import { RiLogoutBoxFill } from "react-icons/ri";
-import { FaBell, FaRegFileAlt, FaUserMd, FaUserNurse, FaUserPlus, FaChartBar } from "react-icons/fa";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { IoPersonAddSharp } from "react-icons/io5";
-import { FaPrescription } from "react-icons/fa";
+import { FaBell, FaRegFileAlt, FaUserMd, FaUserNurse, FaChartBar } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
+import { FiLogOut } from "react-icons/fi";
+import { BiAlignLeft } from "react-icons/bi";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import api from "../utils/api";
 import { useSnackbar } from "../context/SnackbarContext";
 import { Context } from "../main";
-import { useNavigate } from "react-router-dom";
+import { logout } from "../store/authSlice";
+import { playClickSound } from "../utils/soundUtils";
 import RequirePermission from "./RequirePermission";
-import { IoIosPersonAdd } from "react-icons/io";
-import { FiLogOut } from "react-icons/fi";
-import useClickSound from "../hooks/useClickSound";
 import "./Sidebar.css";
-import { BiAlignLeft } from "react-icons/bi";
-
 
 const Sidebar = () => {
   const snackbar = useSnackbar();
   const [show, setShow] = useState(false);
-  const setupClickSound = useClickSound();
+  const dispatch = useDispatch();
+  const navigateTo = useNavigate();
 
-  const { isAuthenticated, setIsAuthenticated } = useContext(Context);
+  const { isAuthenticated, setIsAuthenticated, setAdmin } = useContext(Context);
 
   const handleLogout = async () => {
+    playClickSound();
+    sessionStorage.setItem("logged_out", "true");
     try {
       const res = await api.get(`/api/v1/user/admin/logout`, {
         withCredentials: true,
       });
 
-      // 1. Update React state
+      // 1. Update Redux & Context state
+      dispatch(logout());
       setIsAuthenticated(false);
-      snackbar.success(res.data.message);
+      setAdmin({});
+      snackbar.success(res?.data?.message || "Logged out successfully");
 
-      // 2. Clear local storage and session storage
+      // 2. Clear storage but keep logout marker
       localStorage.clear();
       sessionStorage.clear();
+      sessionStorage.setItem("logged_out", "true");
 
-      // 3. Force a hard reload to the login page to clear all in-memory state
-      // and fetch a fresh version of the app.
+      // 3. Navigate to login
       window.location.href = "/login";
-
     } catch (err) {
       // Even if logout fails, attempt to clear local state and redirect
+      dispatch(logout());
       setIsAuthenticated(false);
+      setAdmin({});
       localStorage.clear();
       sessionStorage.clear();
+      sessionStorage.setItem("logged_out", "true");
       snackbar.error(err?.response?.data?.message || 'Logout failed');
       window.location.href = "/login";
     }
   };
 
-  const navigateTo = useNavigate();
-
   const createNavAction = (path) => () => {
+    playClickSound();
     navigateTo(path);
-    setShow(!show);
+    setShow(false);
   };
 
   const navActions = {
@@ -73,7 +75,6 @@ const Sidebar = () => {
     settings: createNavAction("/settings"),
   };
 
-
   return (
     <>
       <nav
@@ -81,42 +82,37 @@ const Sidebar = () => {
         className={show ? "show sidebar" : "sidebar"}
       >
         <div className="links">
-          <TiHome ref={setupClickSound} className="icon-btn" onClick={navActions.home} title="Dashboard" />
+          <TiHome className="icon-btn" onClick={navActions.home} title="Dashboard" />
           
           <RequirePermission allowedRoles={["Admin", "Doctor"]}>
-            <FaChartBar ref={setupClickSound} className="icon-btn" onClick={navActions['doctor-dashboard']} title="Doctor Dashboard" />
+            <FaChartBar className="icon-btn" onClick={navActions['doctor-dashboard']} title="Doctor Dashboard" />
           </RequirePermission>
 
           <RequirePermission allowedRoles={["Admin"]}>
-            <FaUserMd ref={setupClickSound} className="icon-btn" onClick={navActions.doctors} title="Doctors" />
+            <FaUserMd className="icon-btn" onClick={navActions.doctors} title="Doctors" />
           </RequirePermission>
 
-          {/* <RequirePermission allowedRoles={["Admin"]}>
-            <IoPersonAddSharp onClick={navActions.addNewDoctor} title="Add New Doctor" />
-          </RequirePermission> */}
-
           <RequirePermission allowedRoles={["Admin", "Doctor"]}>
-            <FaUserNurse ref={setupClickSound} className="icon-btn" onClick={navActions.compounders} title="Assistants" />
-            {/* <IoIosPersonAdd onClick={navActions.addNewHelper} title="Create Assistants" /> */}
+            <FaUserNurse className="icon-btn" onClick={navActions.compounders} title="Assistants" />
           </RequirePermission>
 
           <RequirePermission allowedRoles={["Admin", "Doctor", "Compounder"]}>
-            <FaBell ref={setupClickSound} className="icon-btn" onClick={navActions.messages} title="Messages" />
-            <FaRegFileAlt ref={setupClickSound} className="icon-btn" onClick={navActions.reports} title="Reports" />
+            <FaBell className="icon-btn" onClick={navActions.messages} title="Messages" />
+            <FaRegFileAlt className="icon-btn" onClick={navActions.reports} title="Reports" />
           </RequirePermission>
 
           <RequirePermission allowedRoles={["Admin", "Doctor"]}>
-            <IoMdSettings ref={setupClickSound} className="icon-btn" onClick={navActions.settings} title="Settings" />
+            <IoMdSettings className="icon-btn" onClick={navActions.settings} title="Settings" />
           </RequirePermission>
 
-          <FiLogOut ref={setupClickSound} className="icon-btn" onClick={handleLogout} title="Logout" />
+          <FiLogOut className="icon-btn" onClick={handleLogout} title="Logout" />
         </div>
       </nav>
       <div
         className="wrapper"
         style={!isAuthenticated ? { display: "none" } : { display: "flex" }}
       >
-        <BiAlignLeft ref={setupClickSound} className="hamburger icon-btn" onClick={() => setShow(!show)} />
+        <BiAlignLeft className="hamburger icon-btn" onClick={() => { playClickSound(); setShow(!show); }} />
       </div>
     </>
   );

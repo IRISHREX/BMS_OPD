@@ -37,26 +37,26 @@ const Preview = () => {
   const { isAuthenticated, admin } = useContext(Context);
   const navigate = useNavigate();
 
-  // Construct full image URLs
-  const headerImageUrl = doctor?.headerImage ? `${api.defaults.baseURL}${doctor.headerImage}` : "/Header.png";
-  const footerImageUrl = doctor?.signImage ? `${api.defaults.baseURL}${doctor.signImage}` : "/Footer.png";
+  // Helper to construct full image URLs
+  const getFullImageUrl = (imagePath, fallback) => {
+    if (!imagePath) return fallback;
+    if (imagePath.startsWith("http://") || imagePath.startsWith("https://") || imagePath.startsWith("data:")) {
+      return imagePath;
+    }
+    const base = api.defaults.baseURL || "";
+    const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
+    const cleanPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
+    return `${cleanBase}${cleanPath}`;
+  };
+
+  const headerImageUrl = getFullImageUrl(doctor?.headerImage, "/Header.png");
+  const footerImageUrl = getFullImageUrl(doctor?.signImage, "/Footer.png");
 
   // Role check
   const canEdit = isAuthenticated && ["Admin", "Doctor"].includes(admin?.role);
 
   useEffect(() => {
     if (!patientId) return;
-
-    // If opened on localhost or 127.0.0.1, automatically redirect to production preview on novel.mkinfotrack.com
-    if (
-      typeof window !== "undefined" &&
-      (window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1") &&
-      !window.location.search.includes("local=true")
-    ) {
-      window.location.replace(`https://novel.mkinfotrack.com/preview/${patientId}`);
-      return;
-    }
 
     // try to detect whether this is an appointment id (24 hex chars) or a patient id
     const isMongoId = /^[0-9a-fA-F]{24}$/.test(patientId);

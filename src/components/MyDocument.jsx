@@ -144,7 +144,7 @@ const MyDocument = ({ header, footer, p_data, dr_data, report }) => {
   <Document>
     <Page size="A4" style={styles.page}>
       <View style={styles.header_section} fixed>
-        <Image style={styles.header_image} src="/G.Jakaria_header.png" />
+        <Image style={styles.header_image} src={header || "/G.Jakaria_header.png"} />
       </View>
       <View style={styles.main_section}>
         <View style={styles.upper_box}>
@@ -426,7 +426,7 @@ const MyDocument = ({ header, footer, p_data, dr_data, report }) => {
       </View>
 
       <View style={styles.footer_section} fixed>
-        <Image style={styles.footer_image} src="/G.Jakaria_footer1.png" />
+        <Image style={styles.footer_image} src={footer || "/G.Jakaria_footer1.png"} />
       </View>
     </Page>
   </Document>

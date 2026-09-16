@@ -24,11 +24,19 @@ const AppWrapper = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [admin, setAdmin] = useState({});
   const theme = useSelector(state => state.theme.theme);
+  const auth = useSelector(state => state.auth);
   const dispatch = useDispatch();
 
   React.useEffect(() => {
     dispatch(hydrateTheme());
   }, []);
+
+  React.useEffect(() => {
+    if (auth.isAuthenticated && auth.admin) {
+      setIsAuthenticated(true);
+      setAdmin(auth.admin);
+    }
+  }, [auth.isAuthenticated, auth.admin]);
 
   React.useEffect(() => {
   // Remove known theme classes, then add current normalized theme

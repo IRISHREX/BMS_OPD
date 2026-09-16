@@ -1,15 +1,14 @@
-import useSound from 'use-sound';
 import { useRef } from 'react';
+import { playClickSound } from '../utils/soundUtils';
 
 const useClickSound = () => {
-    const [play] = useSound('/click.mp3');
     const listenerMap = useRef(new WeakSet());
 
     const setupClickSound = (element) => {
-        if (!element || listenerMap.current.has(element)) return;
+        if (!element || typeof element.addEventListener !== 'function' || listenerMap.current.has(element)) return;
 
         element.addEventListener('click', () => {
-            play();
+            playClickSound();
         });
         listenerMap.current.add(element);
     };

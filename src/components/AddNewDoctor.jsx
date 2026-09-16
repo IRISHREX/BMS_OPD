@@ -13,6 +13,7 @@ import { updateDoctorRequest } from "../store/doctorUpdateSlice";
 import useClickSound from "../hooks/useClickSound";
 import { FaUserEdit } from "react-icons/fa";
 import { BsArrowLeft } from "react-icons/bs";
+import api from "../utils/api";
 import "./AddNewDoctor.css";
 
 const AddNewDoctor = ({ initialData, isEditing }) => {
@@ -38,6 +39,19 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
   const [headerImagePreview, setHeaderImagePreview] = useState("");
   const [age, setAge] = useState("");
 
+  const resolveImageUrl = (img) => {
+    if (!img) return "";
+    const url = typeof img === "string" ? img : img.url || "";
+    if (!url) return "";
+    if (url.startsWith("data:") || url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    const base = api.defaults.baseURL || "";
+    const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
+    const cleanPath = url.startsWith("/") ? url : `/${url}`;
+    return `${cleanBase}${cleanPath}`;
+  };
+
   useEffect(() => {
     if (isEditing && initialData) {
       setFirstName(initialData.firstName || "");
@@ -49,9 +63,9 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
       setGender(initialData.gender || "");
       setDoctorDepartment(initialData.doctorDepartment || "");
       setQualifications(initialData.qualifications || "");
-      setDocAvatarPreview(initialData.docAvatar?.url || "");
-      setSignImagePreview(initialData.signImage?.url || "");
-      setHeaderImagePreview(initialData.headerImage?.url || "");
+      setDocAvatarPreview(resolveImageUrl(initialData.docAvatar));
+      setSignImagePreview(resolveImageUrl(initialData.signImage));
+      setHeaderImagePreview(resolveImageUrl(initialData.headerImage));
       const ageFromDob = initialData.dob ? dobToAgeYears(initialData.dob) : "";
       setAge(ageFromDob);
     }

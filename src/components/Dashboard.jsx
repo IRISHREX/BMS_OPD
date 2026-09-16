@@ -20,13 +20,13 @@ import {
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
 import { IoReceipt } from "react-icons/io5";
-import useSound from "use-sound";
 import RescheduleModal from "./RescheduleModal";
 import DashboardSlotChecker from "./DashboardSlotChecker";
 import {
   playSaveSound,
   playLoadSound,
   playDeleteSound,
+  playSettledSound,
 } from "../utils/soundUtils";
 import "./Dashboard.css";
 import { RiExpandHorizontalSFill } from "react-icons/ri";
@@ -91,9 +91,6 @@ const Dashboard = () => {
 
   const { isAuthenticated, admin } = useContext(Context);
   const snackbar = useSnackbar();
-  // Note: Sound file should be in the `public` directory.
-  const [playDeleteSound] = useSound("/delete.mp3");
-  const [playSettledSound] = useSound("/settled.mp3");
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -585,7 +582,7 @@ const Dashboard = () => {
             <div className="content">
               <div>
                 <p>Hello ,</p>
-                <h5>{admin && `${admin.firstName} ${admin.lastName}`} </h5>
+                <h5>{admin?.firstName ? `${admin.firstName} ${admin.lastName || ''}`.trim() : (admin?.role || '')}</h5>
               </div>
               <p>
                 Welcome to your dashboard! Here you can manage appointments,

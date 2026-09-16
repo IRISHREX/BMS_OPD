@@ -14,7 +14,6 @@ import { FaEye, FaPen } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa6";
 import MedicineDrawer from "./MedicineDrawer";
 import Toolbar from "./Toolbar";
-import useSound from "use-sound";
 import { LuFilterX } from "react-icons/lu";
 import { BsArrowLeft } from "react-icons/bs";
 
@@ -62,10 +61,6 @@ const MedicineSettings = () => {
   const [filterTag, setFilterTag] = useState("");
   const [filterHasTest, setFilterHasTest] = useState("");
   const [viewingAdvice, setViewingAdvice] = useState(null);
-
-  const [playDeleteSound] = useSound("/delete.mp3");
-  const [playSettledSound] = useSound("/settled.mp3");
-  const [playLoadingSound] = useSound("/mech_loading.mp3");
 
   useEffect(() => {
     fetchMedicines();

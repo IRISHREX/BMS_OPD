@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "../../utils/api";
 import { useSnackbar } from "../../context/SnackbarContext";
-import useSound from "use-sound";
+import { playDeleteSound, playSaveSound } from "../../utils/soundUtils";
 import { FaTrash, FaPen, FaEye, FaSync } from "react-icons/fa";
 import Toolbar from "../Toolbar";
 import { BsEye, BsSave, BsTrash2 } from "react-icons/bs";
@@ -15,8 +15,6 @@ const TrackReferralsTab = ({
   loading: initialLoading = false,
 }) => {
   const snackbar = useSnackbar();
-  const [playDeleteSound] = useSound("/delete.mp3");
-  const [playSaveSound] = useSound("/save.mp3");
   const [allReferrals, setAllReferrals] = useState(initialReferrals || []);
   const [loading, setLoading] = useState(initialLoading);
   const [typeFilter, setTypeFilter] = useState("all"); // all, patient_request, doctor_referral

@@ -8,7 +8,6 @@ import { FaEye } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
 import { FaSearch } from "react-icons/fa";
-import useSound from "use-sound";
 import SimpleBarChart from "./SimpleBarChart";
 import PieChartCard from "./PieChartCard";
 import LineChartCard from "./LineChartCard";
@@ -54,7 +53,6 @@ const ReportsPage = () => {
   const [totalAppointments, setTotalAppointments] = useState(0);
   const [totalPatients, setTotalPatients] = useState(0);
 
-  const [playSettledSound] = useSound("/settled.mp3");
   const setupClickSound = useClickSound();
 
   useEffect(() => {
