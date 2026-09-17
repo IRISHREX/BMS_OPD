@@ -183,8 +183,17 @@ const Dashboard = () => {
 
   const handleUpdatePaymentStatus = async (appointmentId, paymentStatus) => {
     try {
-      // send only paymentStatus and let backend harmonize status/payment according to rules
+      const appt = appointments.find((a) => a._id === appointmentId);
+      const rawStatus = appt?.status || "Pending";
+      const currentStatus = rawStatus === "Rejected" ? "Canceled" : rawStatus;
+
       const body = { paymentStatus };
+      if (paymentStatus === "Refund") {
+        body.status = "Canceled";
+      } else if (paymentStatus === "Paid" && currentStatus === "Pending") {
+        body.status = "Accepted";
+      }
+
       const { data } = await api.put(
         `/api/v1/appointment/status/${appointmentId}`,
         body,
@@ -198,7 +207,16 @@ const Dashboard = () => {
         setAppointments((prev) =>
           prev.map((a) =>
             a._id === appointmentId
-              ? { ...a, paymentStatus: paymentStatus }
+              ? {
+                  ...a,
+                  paymentStatus,
+                  status:
+                    paymentStatus === "Refund"
+                      ? "Canceled"
+                      : paymentStatus === "Paid" && a.status === "Pending"
+                        ? "Accepted"
+                        : a.status,
+                }
               : a,
           ),
         );
@@ -475,12 +493,9 @@ const Dashboard = () => {
           if (apptDate < start || apptDate > end) return false;
         }
 
-        // Filter by prescribed status
+        // Filter by prescribed status (Completed = Prescribed, otherwise Non Prescribed)
         if (filterPrescibed !== "All") {
-          const isPrescribed = !(
-            appointment.status === "Pending" ||
-            appointment.status === "Accepted"
-          );
+          const isPrescribed = appointment.status === "Completed";
           if (filterPrescibed === "Prescribed" && !isPrescribed) {
             return false;
           }
@@ -932,69 +947,113 @@ const Dashboard = () => {
                       {/* <td>{appointment.price || appointment.feesAmount || "0"}</td> */}
                       {isExpanded && (
                         <td style={{ minWidth: "6.5rem" }}>
-                          <select
-                            value={appointment.paymentStatus || "Pending"}
-                            onChange={(e) =>
-                              handleUpdatePaymentStatus(
-                                appointment._id,
-                                e.target.value,
-                              )
-                            }
-                            className={
-                              appointment.paymentStatus === "Pending"
-                                ? "value-rejected"
-                                : "value-completed"
-                            }
-                            style={{ fontSize: "0.875rem" }}
-                          >
-                            <option value="Pending" className="value-rejected">
-                              Pending
-                            </option>
-                            {/* <option value="Accepted">Accepted</option> */}
-                            <option value="Paid" className="value-completed">
-                              Paid
-                            </option>
-                          </select>
+                          {(() => {
+                            const currentPayment = appointment.paymentStatus || "Pending";
+                            const rawStatus = appointment.status || "Pending";
+                            const currentStatus = rawStatus === "Rejected" ? "Canceled" : rawStatus;
+
+                            const isCanceled = currentStatus === "Canceled" || currentStatus === "Cancelled";
+                            const isCompleted = currentStatus === "Completed";
+                            const isRefunded = currentPayment === "Refund";
+                            const isPaid = currentPayment === "Paid";
+                            const isPendingPayment = currentPayment === "Pending";
+
+                            const isPaymentDisabled = isRefunded || isCanceled || isCompleted;
+
+                            return (
+                              <select
+                                value={currentPayment}
+                                onChange={(e) =>
+                                  handleUpdatePaymentStatus(
+                                    appointment._id,
+                                    e.target.value,
+                                  )
+                                }
+                                disabled={isPaymentDisabled}
+                                className={
+                                  currentPayment === "Pending"
+                                    ? "value-rejected"
+                                    : currentPayment === "Refund"
+                                      ? "value-refund"
+                                      : "value-completed"
+                                }
+                                style={{
+                                  fontSize: "0.875rem",
+                                  cursor: isPaymentDisabled ? "not-allowed" : "pointer",
+                                }}
+                              >
+                                <option value="Pending" className="value-rejected" disabled={isPaid}>
+                                  Pending
+                                </option>
+                                <option value="Paid" className="value-completed">
+                                  Paid
+                                </option>
+                                <option value="Refund" className="value-refund" disabled={isPendingPayment || isCompleted}>
+                                  Refund
+                                </option>
+                              </select>
+                            );
+                          })()}
                         </td>
                       )}
                       {isExpanded && (
                         <td style={{ minWidth: "8rem" }}>
-                          <select
-                            name="status"
-                            className={
-                              appointment.status === "Pending"
-                                ? "value-pending"
-                                : appointment.status === "Accepted"
-                                  ? "value-accepted"
-                                  : appointment.status === "Completed"
-                                    ? "value-completed"
-                                    : "value-rejected"
-                            }
-                            value={appointment.status}
-                            onChange={(e) =>
-                              handleUpdateStatus(
-                                appointment._id,
-                                e.target.value,
-                              )
-                            }
-                            style={{ fontSize: "0.875rem" }}
-                          >
-                            <option value="Pending" className="value-pending">
-                              Pending
-                            </option>
-                            <option value="Accepted" className="value-accepted">
-                              Accepted
-                            </option>
-                            <option value="Rejected" className="value-rejected">
-                              Rejected
-                            </option>
-                            <option
-                              value="Completed"
-                              className="value-completed"
-                            >
-                              Completed
-                            </option>
-                          </select>
+                          {(() => {
+                            const currentPayment = appointment.paymentStatus || "Pending";
+                            const rawStatus = appointment.status || "Pending";
+                            const currentStatus = rawStatus === "Rejected" ? "Canceled" : rawStatus;
+
+                            const isCanceled = currentStatus === "Canceled" || currentStatus === "Cancelled";
+                            const isCompleted = currentStatus === "Completed";
+                            const isRefunded = currentPayment === "Refund";
+                            const isPaid = currentPayment === "Paid";
+
+                            const isStatusDisabled = isCanceled || isCompleted || isRefunded;
+
+                            return (
+                              <select
+                                name="status"
+                                disabled={isStatusDisabled}
+                                className={
+                                  currentStatus === "Pending"
+                                    ? "value-pending"
+                                    : currentStatus === "Accepted"
+                                      ? "value-accepted"
+                                      : currentStatus === "Completed"
+                                        ? "value-completed"
+                                        : "value-canceled"
+                                }
+                                value={currentStatus}
+                                onChange={(e) =>
+                                  handleUpdateStatus(
+                                    appointment._id,
+                                    e.target.value,
+                                  )
+                                }
+                                style={{
+                                  fontSize: "0.875rem",
+                                  cursor: isStatusDisabled ? "not-allowed" : "pointer",
+                                }}
+                              >
+                                <option value="Pending" className="value-pending" disabled={isPaid}>
+                                  Pending
+                                </option>
+                                <option value="Accepted" className="value-accepted">
+                                  Accepted
+                                </option>
+                                <option value="Canceled" className="value-canceled" disabled={isPaid}>
+                                  Canceled
+                                </option>
+                                <option
+                                  value="Completed"
+                                  className="value-completed"
+                                  disabled={!isPaid}
+                                >
+                                  Completed
+                                </option>
+                              </select>
+                            );
+                          })()}
                         </td>
                       )}
                       <RequirePermission allowedRoles={["Admin"]}>

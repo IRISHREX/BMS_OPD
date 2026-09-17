@@ -344,7 +344,167 @@ const Appointment = () => {
     setStep(2);
   };
 
-  const handleAppointment = async (e) => {
+  const printAppointmentReceipt = ({
+    name,
+    phone,
+    doctorFirstName,
+    doctorLastName,
+    department,
+    price,
+    doctorFee,
+    paymentStatus,
+    receiptNo,
+  }) => {
+    try {
+      const now = new Date();
+      const dateTimeFormatted = now.toLocaleString("en-GB", {
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+        hour12: true,
+      });
+
+      const apptFee = Number(price) || 0;
+      const docFee = Number(doctorFee) || 0;
+      const totalAmount = apptFee + docFee;
+      const rNo = receiptNo || `INV-${now.toISOString().slice(0, 10).replace(/-/g, "")}-${Date.now().toString().slice(-6)}`;
+      
+      const printedByName = (dashboardUser?.firstName || dashboardUser?.lastName)
+        ? `${dashboardUser.firstName || ""} ${dashboardUser.lastName || ""}`.trim()
+        : (dashboardUser?.name || "Admin");
+
+      const html = `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Receipt ${rNo}</title>
+    <style>
+      body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 25px; color: #2d3748; max-width: 650px; margin: 0 auto; line-height: 1.5; background: #fff; }
+      .receipt-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: #ffffff; }
+      .header { text-align: center; border-bottom: 2px solid #edf2f7; padding-bottom: 16px; margin-bottom: 20px; }
+      .header h1 { margin: 0; color: #1a202c; font-size: 22px; font-weight: 700; }
+      .header p { margin: 4px 0 0; color: #718096; font-size: 14px; }
+      .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; font-size: 14px; }
+      .detail-item strong { color: #4a5568; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+      .detail-item span { color: #1a202c; }
+      .table-section { margin-bottom: 20px; }
+      .table-section h3 { margin: 0 0 10px 0; color: #1a202c; font-size: 16px; font-weight: 700; }
+      table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+      th { background: #f7fafc; padding: 10px; text-align: left; border-bottom: 2px solid #edf2f7; color: #4a5568; font-weight: 600; }
+      td { padding: 10px; border-bottom: 1px solid #edf2f7; }
+      .totals { text-align: right; margin-top: 16px; font-size: 14px; }
+      .totals .grand-total { font-size: 18px; font-weight: bold; color: #2b6cb0; margin-top: 8px; }
+      .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; background: #e6fffa; color: #234e52; }
+      .badge-unpaid { background: #fef3c7; color: #92400e; }
+      .footer-print-info { margin-top: 24px; padding-top: 12px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #718096; text-align: right; }
+    </style>
+  </head>
+  <body>
+    <div class="receipt-card">
+      <div class="header">
+        <h1>Medical Appointment Receipt</h1>
+        <p>Receipt #: ${rNo}</p>
+      </div>
+      <div class="details-grid">
+        <div class="detail-item">
+          <strong>Patient Name</strong>
+          <span>${name || "-"}</span>
+        </div>
+        <div class="detail-item">
+          <strong>Doctor Name</strong>
+          <span>Dr. ${doctorFirstName || ""} ${doctorLastName || ""}</span>
+        </div>
+        <div class="detail-item">
+          <strong>Department</strong>
+          <span>${department || "-"}</span>
+        </div>
+        <div class="detail-item">
+          <strong>Date & Time</strong>
+          <span>${dateTimeFormatted}</span>
+        </div>
+        <div class="detail-item">
+          <strong>Phone / Contact</strong>
+          <span>${phone || "N/A"}</span>
+        </div>
+        <div class="detail-item">
+          <strong>Payment Status</strong>
+          <span class="badge ${paymentStatus === "Paid" ? "" : "badge-unpaid"}">${paymentStatus === "Paid" ? "Paid" : "Unpaid"}</span>
+        </div>
+      </div>
+
+      <div class="table-section">
+        <h3>Fee Details</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th style="text-align:center">Qty</th>
+              <th style="text-align:right">Price</th>
+              <th style="text-align:right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Consultation Fee</td>
+              <td style="text-align:center">1</td>
+              <td style="text-align:right">₹${docFee}</td>
+              <td style="text-align:right">₹${docFee}</td>
+            </tr>
+            <tr>
+              <td>Platform Fee</td>
+              <td style="text-align:center">1</td>
+              <td style="text-align:right">₹${apptFee}</td>
+              <td style="text-align:right">₹${apptFee}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="totals">
+        <div class="grand-total">Total Payable: ₹${totalAmount}</div>
+      </div>
+
+      <div class="footer-print-info">
+        Printed By: <strong>${printedByName}</strong> (${dateTimeFormatted})
+      </div>
+    </div>
+    <script>
+      window.onload = function() {
+        window.print();
+      };
+    </script>
+  </body>
+</html>`;
+
+      const printFrame = document.createElement("iframe");
+      printFrame.style.position = "fixed";
+      printFrame.style.right = "0";
+      printFrame.style.bottom = "0";
+      printFrame.style.width = "0";
+      printFrame.style.height = "0";
+      printFrame.style.border = "0";
+      document.body.appendChild(printFrame);
+
+      const frameDoc = printFrame.contentWindow.document;
+      frameDoc.open();
+      frameDoc.write(html);
+      frameDoc.close();
+
+      setTimeout(() => {
+        if (document.body.contains(printFrame)) {
+          document.body.removeChild(printFrame);
+        }
+      }, 60000);
+    } catch (err) {
+      console.error("Failed to print receipt:", err);
+    }
+  };
+
+  const handleAppointment = async (e, printAfter = false) => {
     if (e && e.preventDefault) e.preventDefault();
     try {
       // Name parsing logic
@@ -373,9 +533,6 @@ const Appointment = () => {
         const bmi = (weightInKg / (heightInMeters * heightInMeters)).toFixed(2);
         bmiValue = bmi;
       }
-
-      // Combine calculated BMI with any manually entered "Others" text
-      // const othersValue = [bmiString, diagnosys.Others].filter(Boolean).join('; ');
 
       // Append units to diagnosys fields for the payload
       const diagnosysForPayload = {
@@ -411,7 +568,8 @@ const Appointment = () => {
         hasVisited: hasVisitedBool,
         profession,
         address,
-        price,
+        price: Number(price) || 0,
+        doctorFee: Number(doctorFee) || 0,
         // send paymentStatus to backend and let backend decide status according to centralized rules
         paymentStatus,
         // do not set status from frontend creation; backend will harmonize (Paid -> Accepted at creation)
@@ -424,7 +582,20 @@ const Appointment = () => {
         return snackbar.error(
           "Only Admin/Doctor/Compounder may create appointments. Please login to dashboard.",
         );
-      // debug: log payload being dispatched so we can confirm data sent
+
+      if (printAfter) {
+        printAppointmentReceipt({
+          name,
+          phone,
+          doctorFirstName,
+          doctorLastName,
+          department,
+          price: Number(price) || 0,
+          doctorFee: Number(doctorFee) || 0,
+          paymentStatus,
+        });
+      }
+
       // dispatch redux action to create appointment (saga handles download)
       console.log("Creating appointment with payload:", payload);
       dispatch({
@@ -1041,21 +1212,36 @@ const Appointment = () => {
                 </div>
 
                 <div className="fees-detail-box">
-                  <p>
-                    Appointment Fee Rs:
-                    <span> {price}</span>
-                  </p>
+                  <div className="fees-inputs-grid">
+                    <div className="fee-input-group">
+                      <label>Appointment Fee (Rs):</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={price}
+                        onChange={(e) => setPrice(Number(e.target.value) || 0)}
+                        className="fee-input"
+                      />
+                    </div>
 
-                  <p>
-                    Doctor Fee Rs: <span> {doctorFee}</span>
-                  </p>
+                    <div className="fee-input-group">
+                      <label>Doctor Fee (Rs):</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={doctorFee}
+                        onChange={(e) => setDoctorFee(Number(e.target.value) || 0)}
+                        className="fee-input"
+                      />
+                    </div>
 
-                  <p className="total">
-                    Total Rs: <span> {price + doctorFee}</span>
-                  </p>
+                    <div className="fee-input-group total-box">
+                      <label>Total (Rs):</label>
+                      <span className="total-fee-val">₹{(Number(price) || 0) + (Number(doctorFee) || 0)}</span>
+                    </div>
+                  </div>
                 </div>
 
-                {/* <div className="mt-2rem"> */}
                 <div className="invoice-container">
                   <div className="checkbox-container">
                     <div className="pay-status-box">
@@ -1063,18 +1249,14 @@ const Appointment = () => {
                       <select
                         value={paymentStatus}
                         onChange={(e) => setPaymentStatus(e.target.value)}
+                        style={{ cursor: "pointer" }}
                       >
                         <option value="Pending">Pending</option>
                         <option value="Paid">Paid</option>
                       </select>
                     </div>
-
-                    {/* <div className="btn-container">
-                        
-                      </div> */}
                   </div>
                 </div>
-                {/* </div> */}
 
                 <div className="btn-container">
                   <button
@@ -1099,8 +1281,19 @@ const Appointment = () => {
                   >
                     Preview
                   </button>
-                  <button type="submit" className="btn-cls">
-                    Get Appointment
+                  <button
+                    type="button"
+                    className="btn-cls save-btn"
+                    onClick={(e) => handleAppointment(e, false)}
+                  >
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-cls save-print-btn"
+                    onClick={(e) => handleAppointment(e, true)}
+                  >
+                    Save & Print
                   </button>
                 </div>
               </div>
@@ -1108,244 +1301,207 @@ const Appointment = () => {
           </form>
         </div>
       </section>
-      {/* change into jsx page instead of model?? */}
+
+      {/* Complete Appointment Preview Modal */}
       <Modal
         isOpen={showInvoicePreview}
         onRequestClose={() => setShowInvoicePreview(false)}
-        contentLabel="Invoice Preview"
+        contentLabel="Appointment Preview"
         style={{
-          overlay: { zIndex: 1000, background: "rgba(0,0,0,0.5)" },
+          overlay: { zIndex: 1000, background: "rgba(15, 23, 42, 0.65)", backdropFilter: "blur(4px)" },
           content: {
-            maxWidth: "600px",
+            maxWidth: "760px",
+            maxHeight: "90vh",
+            overflowY: "auto",
             margin: "auto",
-            borderRadius: "12px",
+            borderRadius: "16px",
             padding: "2rem",
+            border: "none",
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+            background: "#ffffff",
           },
         }}
       >
-        <div className="flex-jc-sb-ai-c">
-          <img src="/logo.svg" alt="logo" className="w-80px br-50pct" />
-          <h2 className="m-0">Appointment Invoice</h2>
-        </div>
-        <hr />
-        <div className="flex-jc-sb-ai-c mt-1rem">
-          <div className="flex-1">
-            <h3>Patient Info</h3>
-            <div>Name: {name}</div>
+        <div className="preview-modal-header">
+          <div className="preview-header-brand">
+            <img src="/logo.svg" alt="logo" className="preview-logo" />
             <div>
-              Age:{" "}
-              {
-                // prefer DOB-based formatted age when DOB is available, otherwise show numeric years
-                dob
-                  ? formatAge(dobToAgeParts(dob))
-                  : ageYears
-                    ? `${ageYears} years`
-                    : ""
-              }
-            </div>
-            <div>
-              Address:{" "}
-              <input
-                type="text"
-                value={invoiceFields.address}
-                onChange={(e) =>
-                  setInvoiceFields((f) => ({ ...f, address: e.target.value }))
-                }
-                className="w-80pct"
-              />
+              <h2 className="preview-title">Appointment Preview</h2>
+              <p className="preview-subtitle">Verify all patient, clinical & billing details before saving</p>
             </div>
           </div>
-          <div className="flex-1 text-right">
-            <h3>Doctor Info</h3>
-            <div>
-              Name: {doctorFirstName} {doctorLastName}
-            </div>
-            <div>Department: {department}</div>
-          </div>
-        </div>
-        <div className="mt-1rem">
-          <div>Appointment Date: {appointmentDate}</div>
-          <div>
-            Valid up to:{" "}
-            {(() => {
-              if (!appointmentDate) return "-";
-              const d = new Date(appointmentDate);
-              if (isNaN(d.getTime())) return "-";
-              d.setDate(d.getDate() + 2);
-              return d.toISOString().slice(0, 10);
-            })()}
-          </div>
-        </div>
-        <hr />
-        <div className="appointmnt-paymnt-info">
-          <div className="appoint-payment-block">
-            <span>Appointment Fee Rs:</span>
-
-            <input
-              type="number"
-              value={invoiceFields.price}
-              onChange={(e) =>
-                setInvoiceFields((f) => ({
-                  ...f,
-                  price: Number(e.target.value),
-                }))
-              }
-              className="w-80px"
-            />
-          </div>
-          <div className="appoint-payment-block">
-            <span> Doctor Fee Rs:</span>
-            <input
-              type="number"
-              value={invoiceFields.doctorFee}
-              onChange={(e) =>
-                setInvoiceFields((f) => ({
-                  ...f,
-                  doctorFee: Number(e.target.value),
-                }))
-              }
-              className="w-80px"
-            />
-          </div>
-          <div className="appoint-payment-block total">
-            <span>Total Rs: </span>
-            {Number(invoiceFields.price) + Number(invoiceFields.doctorFee)}
-          </div>
-          <div className="payment-staus-block">
-            <div className="pay-status-div">
-              <span>Paid by:</span> Cash
-            </div>
-            <div className="appoint-paymnt-status">
-             <label> Payment Status:</label>
-              <select
-                value={invoiceFields.paymentStatus}
-                onChange={(e) =>
-                  setInvoiceFields((f) => ({
-                    ...f,
-                    paymentStatus: e.target.value,
-                  }))
-                }
-                className="ml-05rem"
-              >
-                <option value="Pending">Pending</option>
-                <option value="Paid">Paid</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div className="mt-2rem text-right">
           <button
-            onClick={() => {
-              try {
-                const doc = new jsPDF();
-                
-                // Title & Header
-                doc.setFontSize(20);
-                doc.setTextColor(39, 23, 118);
-                doc.text("Appointment Invoice", 20, 22);
-
-                doc.setFontSize(10);
-                doc.setTextColor(100, 100, 100);
-                doc.text(`Generated Date: ${new Date().toLocaleDateString("en-GB")}`, 20, 28);
-
-                doc.setLineWidth(0.5);
-                doc.setDrawColor(200, 200, 200);
-                doc.line(20, 32, 190, 32);
-
-                // Patient Info Section
-                doc.setFontSize(13);
-                doc.setTextColor(0, 0, 0);
-                doc.setFont(undefined, "bold");
-                doc.text("Patient Info", 20, 42);
-                doc.setFont(undefined, "normal");
-                doc.setFontSize(11);
-                doc.text(`Name: ${name || "-"}`, 20, 50);
-                const ageStr = dob
-                  ? formatAge(dobToAgeParts(dob))
-                  : ageYears
-                    ? `${ageYears} years`
-                    : "-";
-                doc.text(`Age: ${ageStr}`, 20, 57);
-                doc.text(`Address: ${invoiceFields.address || address || "-"}`, 20, 64);
-
-                // Doctor Info Section
-                doc.setFontSize(13);
-                doc.setFont(undefined, "bold");
-                doc.text("Doctor Info", 120, 42);
-                doc.setFont(undefined, "normal");
-                doc.setFontSize(11);
-                doc.text(`Name: Dr. ${doctorFirstName || ""} ${doctorLastName || ""}`, 120, 50);
-                doc.text(`Department: ${department || "-"}`, 120, 57);
-
-                doc.line(20, 72, 190, 72);
-
-                // Appointment Dates
-                doc.setFontSize(11);
-                doc.text(`Appointment Date: ${appointmentDate || "-"}`, 20, 82);
-                let validUpTo = "-";
-                if (appointmentDate) {
-                  const d = new Date(appointmentDate);
-                  if (!isNaN(d.getTime())) {
-                    d.setDate(d.getDate() + 2);
-                    validUpTo = d.toISOString().slice(0, 10);
-                  }
-                }
-                doc.text(`Valid Up To: ${validUpTo}`, 20, 90);
-
-                doc.line(20, 96, 190, 96);
-
-                // Fees & Payment Status
-                const apptFee = Number(invoiceFields.price) || 0;
-                const docFee = Number(invoiceFields.doctorFee) || 0;
-                const totalFee = apptFee + docFee;
-
-                doc.text(`Appointment Fee: Rs ${apptFee}`, 20, 106);
-                doc.text(`Doctor Fee: Rs ${docFee}`, 20, 114);
-                doc.setFont(undefined, "bold");
-                doc.text(`Total Amount: Rs ${totalFee}`, 20, 124);
-
-                doc.setFont(undefined, "normal");
-                doc.text(`Paid by: Cash`, 20, 134);
-                doc.text(
-                  `Payment Status: ${
-                    invoiceFields.paymentStatus === "Paid" ? "Paid" : "Pending"
-                  }`,
-                  20,
-                  142
-                );
-
-                doc.setLineWidth(0.3);
-                doc.line(20, 150, 190, 150);
-
-                const fileName = `Appointment_Invoice_${(name || "Patient").replace(/\s+/g, "_")}_${appointmentDate || "date"}.pdf`;
-                doc.save(fileName);
-                snackbar.success("PDF downloaded successfully!");
-              } catch (err) {
-                console.error("PDF download error:", err);
-                snackbar.error("Failed to download PDF.");
-              }
-            }}
-            style={{
-              marginRight: "1rem",
-              padding: "0.5rem 1.5rem",
-              background: "#271776ca",
-              color: "#fff",
-              border: "none",
-              borderRadius: "6px",
-            }}
-          >
-            Download PDF
-          </button>
-          <button
+            type="button"
+            className="preview-close-btn"
             onClick={() => setShowInvoicePreview(false)}
-            style={{
-              padding: "0.5rem 1.5rem",
-              background: "#eee",
-              border: "none",
-              borderRadius: "6px",
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="preview-modal-body">
+          {/* Section 1: Patient Information */}
+          <div className="preview-section">
+            <h3 className="preview-section-title">
+              <span className="preview-section-badge">1</span> Patient Information
+            </h3>
+            <div className="preview-grid-3">
+              <div className="preview-item">
+                <span className="preview-label">Patient Name:</span>
+                <span className="preview-val fw-bold">{name || "-"}</span>
+              </div>
+              <div className="preview-item">
+                <span className="preview-label">Gender:</span>
+                <span className="preview-val">{gender || "-"}</span>
+              </div>
+              <div className="preview-item">
+                <span className="preview-label">Age / DOB:</span>
+                <span className="preview-val">
+                  {dob
+                    ? formatAge(dobToAgeParts(dob))
+                    : ageYears
+                      ? `${ageYears} yrs ${ageMonths ? `${ageMonths}m ` : ""}${ageDays ? `${ageDays}d` : ""}`
+                      : "-"}
+                </span>
+              </div>
+              <div className="preview-item">
+                <span className="preview-label">Phone Number:</span>
+                <span className="preview-val">{phone || "-"}</span>
+              </div>
+              <div className="preview-item">
+                <span className="preview-label">Profession:</span>
+                <span className="preview-val">{profession || "-"}</span>
+              </div>
+              <div className="preview-item col-span-2">
+                <span className="preview-label">Address:</span>
+                <span className="preview-val">{address || "-"}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Doctor & Schedule */}
+          <div className="preview-section">
+            <h3 className="preview-section-title">
+              <span className="preview-section-badge">2</span> Doctor & Schedule
+            </h3>
+            <div className="preview-grid-3">
+              <div className="preview-item">
+                <span className="preview-label">Doctor Name:</span>
+                <span className="preview-val fw-bold">Dr. {doctorFirstName || ""} {doctorLastName || ""}</span>
+              </div>
+              <div className="preview-item">
+                <span className="preview-label">Department:</span>
+                <span className="preview-val">{department || "-"}</span>
+              </div>
+              <div className="preview-item">
+                <span className="preview-label">Appointment Date:</span>
+                <span className="preview-val">{appointmentDate || "-"}</span>
+              </div>
+              <div className="preview-item">
+                <span className="preview-label">Valid Up To:</span>
+                <span className="preview-val">
+                  {(() => {
+                    if (!appointmentDate) return "-";
+                    const d = new Date(appointmentDate);
+                    if (isNaN(d.getTime())) return "-";
+                    d.setDate(d.getDate() + 2);
+                    return d.toISOString().slice(0, 10);
+                  })()}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Clinical Vitals & Notes */}
+          <div className="preview-section">
+            <h3 className="preview-section-title">
+              <span className="preview-section-badge">3</span> Clinical Vitals & Notes
+            </h3>
+            <div className="preview-vitals-wrap">
+              <div className="preview-vital-chip"><strong>BP:</strong> {diagnosys.BP || "-"}</div>
+              <div className="preview-vital-chip"><strong>Pulse (PR):</strong> {diagnosys.PR ? `${diagnosys.PR} bpm` : "-"}</div>
+              <div className="preview-vital-chip"><strong>SPO2:</strong> {diagnosys.SPO2 ? `${diagnosys.SPO2}%` : "-"}</div>
+              <div className="preview-vital-chip"><strong>Temp:</strong> {diagnosys.Temp ? `${diagnosys.Temp}°F` : "-"}</div>
+              <div className="preview-vital-chip"><strong>Height:</strong> {diagnosys.Height ? `${diagnosys.Height} cm` : "-"}</div>
+              <div className="preview-vital-chip"><strong>Weight:</strong> {diagnosys.Weight ? `${diagnosys.Weight} kg` : "-"}</div>
+              {(() => {
+                const heightInMeters = Number(diagnosys.Height) / 100;
+                const weightInKg = Number(diagnosys.Weight);
+                if (heightInMeters > 0 && weightInKg > 0) {
+                  const bmi = (weightInKg / (heightInMeters * heightInMeters)).toFixed(2);
+                  return <div className="preview-vital-chip"><strong>BMI:</strong> {bmi}</div>;
+                }
+                return null;
+              })()}
+            </div>
+            {diagnosys.Others && (
+              <div className="preview-notes-box">
+                <span className="preview-label">Other Clinical Notes:</span>
+                <p className="preview-notes-text">{diagnosys.Others}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Section 4: Billing Summary */}
+          <div className="preview-section">
+            <h3 className="preview-section-title">
+              <span className="preview-section-badge">4</span> Billing & Payment Summary
+            </h3>
+            <div className="preview-billing-box">
+              <div className="preview-billing-row">
+                <span>Appointment Booking Fee:</span>
+                <span className="fw-semibold">₹{Number(price) || 0}</span>
+              </div>
+              <div className="preview-billing-row">
+                <span>Doctor Consultation Fee:</span>
+                <span className="fw-semibold">₹{Number(doctorFee) || 0}</span>
+              </div>
+              <div className="preview-billing-row total-row">
+                <span>Total Amount:</span>
+                <span className="preview-total-val">₹{(Number(price) || 0) + (Number(doctorFee) || 0)}</span>
+              </div>
+              <div className="preview-billing-row preview-payment-info-row">
+                <span>Payment Mode: <strong>Cash</strong></span>
+                <span className="preview-pay-badge-wrap">
+                  Payment Status: 
+                  <span className={`preview-status-pill ${paymentStatus === "Paid" ? "paid" : "pending"}`}>
+                    {paymentStatus}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="preview-modal-footer">
+          <button
+            type="button"
+            className="preview-btn-secondary"
+            onClick={() => setShowInvoicePreview(false)}
+          >
+            ← Back to Edit
+          </button>
+
+          <button
+            type="button"
+            className="preview-btn-save"
+            onClick={(e) => {
+              setShowInvoicePreview(false);
+              handleAppointment(e, false);
             }}
           >
-            Close
+            Save
+          </button>
+
+          <button
+            type="button"
+            className="preview-btn-save-print"
+            onClick={(e) => {
+              setShowInvoicePreview(false);
+              handleAppointment(e, true);
+            }}
+          >
+            Save & Print
           </button>
         </div>
       </Modal>

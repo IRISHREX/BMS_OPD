@@ -617,8 +617,20 @@
 .dashboard .banner table .value-completed {
   color: #16a34a;
 }
-.dashboard .banner table .value-rejected {
+.dashboard .banner table .value-rejected,
+.dashboard .banner table .value-canceled {
   color: #dc2626;
+}
+.dashboard .banner table .value-refund {
+  color: #9333ea;
+}
+.dashboard .banner table select {
+  cursor: pointer;
+}
+.dashboard .banner table select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  background-color: #f8fafc;
 }
 .dashboard .banner table {
   border-collapse: collapse; /* merges adjacent borders */

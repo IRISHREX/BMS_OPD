@@ -560,3 +560,386 @@ form textarea {
   box-shadow: 0 0 0 1px #ef4444 !important;
 }
 
+/* Fees inputs grid */
+.fees-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  align-items: center;
+}
+
+.fees-inputs-grid .fee-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.fees-inputs-grid .fee-input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e3a8a;
+}
+
+.fees-inputs-grid .fee-input-group input {
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #bfdbfe;
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.fees-inputs-grid .fee-input-group.total-box {
+  background: #dbeafe;
+  padding: 0.5rem 0.85rem;
+  border-radius: 6px;
+  border: 1px solid #93c5fd;
+  justify-content: center;
+}
+
+.fees-inputs-grid .fee-input-group.total-box label {
+  color: #1e40af;
+  font-size: 12px;
+}
+
+.fees-inputs-grid .fee-input-group.total-box .total-fee-val {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+@media (max-width: 650px) {
+  .fees-inputs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Action buttons */
+.btn-cls.save-btn {
+  background: #16a34a !important;
+  color: #fff !important;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  padding: 0.625rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cls.save-btn:hover {
+  background: #15803d !important;
+}
+
+.btn-cls.save-print-btn {
+  background: #271776 !important;
+  color: #fff !important;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  padding: 0.625rem 1.5rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-cls.save-print-btn:hover {
+  background: #1e105e !important;
+}
+
+/* Preview Modal Styling */
+.preview-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 1.25rem;
+}
+
+.preview-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.preview-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.preview-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #271776;
+  margin: 0;
+  text-align: left;
+}
+
+.preview-subtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin: 2px 0 0 0;
+}
+
+.preview-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.preview-close-btn:hover {
+  color: #1e293b;
+}
+
+.preview-section {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.preview-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.75rem 0;
+}
+
+.preview-section-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #271776;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.preview-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem 1rem;
+}
+
+@media (max-width: 600px) {
+  .preview-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.preview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.preview-item.col-span-2 {
+  grid-column: span 2;
+}
+
+.preview-label {
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.preview-val {
+  font-size: 13.5px;
+  color: #0f172a;
+}
+
+.preview-val.fw-bold {
+  font-weight: 600;
+  color: #271776;
+}
+
+.preview-vitals-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.preview-vital-chip {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #334155;
+}
+
+.preview-notes-box {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.preview-notes-text {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: #334155;
+  white-space: pre-wrap;
+}
+
+.preview-billing-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.preview-billing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13.5px;
+  color: #334155;
+}
+
+.preview-billing-row.total-row {
+  border-top: 1px solid #cbd5e1;
+  border-bottom: 1px solid #cbd5e1;
+  padding: 8px 0;
+  margin: 4px 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.preview-total-val {
+  color: #1d4ed8;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.preview-status-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.preview-status-pill.paid {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.preview-status-pill.pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.preview-billing-row.preview-payment-info-row {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.preview-pay-badge-wrap {
+  display: inline-flex;
+  align-items: center;
+}
+
+.preview-modal-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 1rem;
+}
+
+.preview-btn-secondary {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.preview-btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+.preview-btn-pdf {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.preview-btn-pdf:hover {
+  background: #2563eb;
+}
+
+.preview-btn-print {
+  background: #0284c7;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.preview-btn-print:hover {
+  background: #0369a1;
+}
+
+.preview-btn-save {
+  background: #16a34a;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.preview-btn-save:hover {
+  background: #15803d;
+}
+
+.preview-btn-save-print {
+  background: #271776;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.preview-btn-save-print:hover {
+  background: #1e105e;
+}
+
+
