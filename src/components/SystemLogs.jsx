@@ -23,6 +23,7 @@ import {
   FaCog,
   FaBell,
   FaCopy,
+  FaBolt,
 } from "react-icons/fa";
 import "./SystemLogs.css";
 
@@ -672,7 +673,7 @@ const SystemLogs = () => {
                 <span className="dot green" />
               </div>
               <div className="syslogs-terminal-title">
-                ⚡ BMS Live Command Execution Stream (Max: {stats.maxLogsLimit || 500} items)
+                <FaBolt style={{ color: "#f59e0b", marginRight: 6 }} /> BMS Live Command Execution Stream (Max: {stats.maxLogsLimit || 500} items)
               </div>
               <div className="syslogs-terminal-actions">
                 <button onClick={handleCopyTerminal} title="Copy command stream">

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../../utils/api";
 import { useSnackbar } from "../../context/SnackbarContext";
 import { playDeleteSound, playSaveSound } from "../../utils/soundUtils";
-import { FaTrash, FaPen, FaEye, FaSync } from "react-icons/fa";
+import { FaTrash, FaPen, FaEye, FaSync, FaInbox, FaHospital } from "react-icons/fa";
 import Toolbar from "../Toolbar";
 import { BsEye, BsSave, BsTrash2 } from "react-icons/bs";
 import { FiEdit } from "react-icons/fi";
@@ -239,7 +239,7 @@ const TrackReferralsTab = ({
                 transition: "all 0.2s"
               }}
             >
-              📥 Patient Inbound ({allReferrals.filter(r => r.referralType === 'patient_request').length})
+              <FaInbox style={{ marginRight: 6 }} /> Patient Inbound ({allReferrals.filter(r => r.referralType === 'patient_request').length})
             </button>
             <button
               type="button"
@@ -257,7 +257,7 @@ const TrackReferralsTab = ({
                 transition: "all 0.2s"
               }}
             >
-              🏥 Hospital Transfers ({allReferrals.filter(r => r.referralType !== 'patient_request').length})
+              <FaHospital style={{ marginRight: 6 }} /> Hospital Transfers ({allReferrals.filter(r => r.referralType !== 'patient_request').length})
             </button>
           </div>
         </div>
@@ -270,7 +270,7 @@ const TrackReferralsTab = ({
                 <div className="form-group">
                   <input
                     type="text"
-                    placeholder="Search patient, doctor, applicant or referral # 🔍"
+                    placeholder="Search patient, doctor, applicant or referral #"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />

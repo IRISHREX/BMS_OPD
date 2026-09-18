@@ -17,7 +17,7 @@ import Toolbar from "./Toolbar";
 import AddNewDoctor from "./AddNewDoctor";
 import { MdAdd } from "react-icons/md";
 import useClickSound from "../hooks/useClickSound";
-import { FaSearchDollar } from "react-icons/fa";
+import { FaSearchDollar, FaUserMd } from "react-icons/fa";
 import "./Doctors.css";
 
 const Doctors = () => {
@@ -196,7 +196,7 @@ const Doctors = () => {
         {selectedDoctor && (
           <div>
             <h2 style={{ marginTop: 0, marginBottom: "1.5rem" }}>
-              👨‍⚕️ {selectedDoctor.firstName} {selectedDoctor.lastName}
+              <FaUserMd style={{ marginRight: 8, color: '#0284c7' }} /> {selectedDoctor.firstName} {selectedDoctor.lastName}
             </h2>
 
             <div

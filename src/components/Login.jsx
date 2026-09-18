@@ -13,6 +13,7 @@ import {
   LOGIN_BUTTON_BORDER_RADIUS,
 } from "../utils/constants";
 import { loginRequest } from "../store/authSlice";
+import { FaCalendarCheck } from "react-icons/fa";
 import "./Login.css";
 
 const Login = () => {
@@ -189,7 +190,7 @@ const Login = () => {
                   boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
                 }}
               >
-                📅 Book Doctor Appointment (Patient Referral)
+                <FaCalendarCheck style={{ marginRight: 8, verticalAlign: "middle" }} /> Book Doctor Appointment (Patient Referral)
               </button>
             </div>
           </form>

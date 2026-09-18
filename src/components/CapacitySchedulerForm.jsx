@@ -4,6 +4,7 @@ import api from "../utils/api";
 import { Context } from "../main";
 import "./CapacitySchedulerForm.css";
 import { AiOutlineSchedule } from "react-icons/ai";
+import { FaClock, FaCalendarAlt, FaStickyNote, FaLightbulb } from "react-icons/fa";
 
 const CapacitySchedulerForm = ({
   doctorId,
@@ -180,7 +181,7 @@ const CapacitySchedulerForm = ({
 
       {/* Set Capacity Form */}
       <div className="capacity-form-section">
-        <h4>🕐 Set New Capacity</h4>
+        <h4><FaClock style={{ marginRight: 6, color: '#0284c7' }} /> Set New Capacity</h4>
         <form onSubmit={handleSetCapacity} className="capacity-form">
           <div className="form-row">
             <div className="form-group">
@@ -254,7 +255,7 @@ const CapacitySchedulerForm = ({
 
       {/* Capacity Schedule List */}
       <div className="capacity-list-section">
-        <h4>📊 Your Schedule</h4>
+        <h4><FaCalendarAlt style={{ marginRight: 6, color: '#0284c7' }} /> Your Schedule</h4>
         {loading ? (
           <p className="loading-text">Loading schedule...</p>
         ) : capacities.length > 0 ? (
@@ -342,7 +343,7 @@ const CapacitySchedulerForm = ({
 
                     {cap.notes && (
                       <div className="capacity-notes">
-                        <strong>📝 Notes:</strong> {cap.notes}
+                        <strong><FaStickyNote style={{ marginRight: 4, color: '#64748b' }} /> Notes:</strong> {cap.notes}
                       </div>
                     )}
                   </div>
@@ -359,7 +360,7 @@ const CapacitySchedulerForm = ({
 
       <div className="info-box">
         <p>
-          <strong>💡 Tip:</strong> Set your capacity in advance to help patients
+          <strong><FaLightbulb style={{ marginRight: 6, color: '#eab308' }} /> Tip:</strong> Set your capacity in advance to help patients
           see your availability. Your schedule will update automatically as
           appointments are booked.
         </p>

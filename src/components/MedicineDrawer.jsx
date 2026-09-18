@@ -1,6 +1,7 @@
 import React from 'react';
 import MedicineSearch from './MedicineSearch';
 import { FaTrash } from 'react-icons/fa6';
+import { FaSearch } from 'react-icons/fa';
 
 const MedicineDrawer = ({
   form,
@@ -48,7 +49,7 @@ const MedicineDrawer = ({
 
           <div style={{ display: 'flex', gap: '1rem', margin: '1rem 0' }}>
             <div style={{ flex: 1 }}>
-              <label> 🔎 Add Medicine by Name</label>
+              <label><FaSearch style={{ marginRight: 6, color: '#0284c7' }} /> Add Medicine by Name</label>
               <MedicineSearch
                 searchBy="name"
                 onSelect={(medicine) => {
@@ -57,7 +58,7 @@ const MedicineDrawer = ({
               />
             </div>
             <div style={{ flex: 1 }}>
-              <label>🔍 Add Medicine by Composition</label>
+              <label><FaSearch style={{ marginRight: 6, color: '#0284c7' }} /> Add Medicine by Composition</label>
               <MedicineSearch
                 onSelect={(medicine) => {
                   if (typeof addSelectedMedicine === 'function') addSelectedMedicine(medicine);
@@ -83,7 +84,7 @@ const MedicineDrawer = ({
               }}
             >
               <div id={`medicine-search-${idx}`} style={{ minWidth: 260, flex: '0 0 260px' }}>
-                <div style={{ marginBottom: 4, fontSize: '0.85rem', fontWeight: 600 }}>🔍 Search by composition & Suggest</div>
+                <div style={{ marginBottom: 4, fontSize: '0.85rem', fontWeight: 600 }}><FaSearch style={{ marginRight: 4, color: '#0284c7' }} /> Search by composition & Suggest</div>
                 <MedicineSearch
                   onSelect={(medicine) => {
                     updateMedicineRow(idx, 'name', medicine.name || '');

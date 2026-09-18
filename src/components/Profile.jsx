@@ -15,6 +15,7 @@ import { IoIosMail } from "react-icons/io";
 import { BiSolidEditAlt } from "react-icons/bi";
 import { MdOutlineLockPerson } from "react-icons/md";
 import { BiCalendar } from "react-icons/bi";
+import { FaLock, FaMapMarkerAlt } from "react-icons/fa";
 
 
 // Password Change Modal Component
@@ -56,7 +57,7 @@ const PasswordChangeModal = ({
         onClick={(e) => e.stopPropagation()}
       >
         <h2 style={{ marginTop: 0, marginBottom: "1.5rem" }}>
-          🔐 Change Password
+          <FaLock style={{ marginRight: 8, color: '#0284c7' }} /> Change Password
         </h2>
 
         <form onSubmit={onSubmit}>
@@ -488,7 +489,7 @@ const Profile = () => {
                     color: "#666",
                   }}
                 >
-                  📍 Your join date is highlighted in the calendar
+                  <FaMapMarkerAlt style={{ marginRight: 6, color: '#ef4444' }} /> Your join date is highlighted in the calendar
                 </p>
               </div>
             </div>

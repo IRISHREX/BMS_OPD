@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../utils/api";
+import { FaCalendarAlt, FaSyncAlt } from "react-icons/fa";
 import "./DashboardCapacityCard.css";
 
 const DashboardCapacityCard = ({ doctorId, doctorName }) => {
@@ -86,9 +87,9 @@ const DashboardCapacityCard = ({ doctorId, doctorName }) => {
   return (
     <div className="dashboard-capacity-card">
       <div className="card-header">
-        <h4>📅 {doctorName}</h4>
-        <span className="card-refresh" onClick={fetchCapacities}>
-          🔄
+        <h4><FaCalendarAlt style={{ marginRight: 6, color: '#0284c7' }} /> {doctorName}</h4>
+        <span className="card-refresh" onClick={fetchCapacities} title="Refresh schedule">
+          <FaSyncAlt />
         </span>
       </div>
 

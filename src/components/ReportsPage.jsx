@@ -14,7 +14,7 @@ import "./ChartCards.css";
 import ToggleSwitch from "./ToggleSwitch";
 import Toolbar from "./Toolbar";
 import { useSnackbar } from "../context/SnackbarContext";
-import { BsDownload, BsFileExcel, BsHeartPulse } from "react-icons/bs";
+import { BsDownload, BsFileExcel, BsHeartPulse, BsReceiptCutoff, BsBarChartFill, BsCashCoin, BsCardChecklist } from "react-icons/bs";
 import { IoRefresh } from "react-icons/io5";
 import useClickSound from "../hooks/useClickSound";
 import { playSettledSound } from "../utils/soundUtils";
@@ -329,29 +329,121 @@ const ReportsPage = () => {
     }
   };
 
+  const generateClientReceiptHtml = (entry) => {
+    const patName = entry.patientId && (entry.patientId.firstName || entry.patientId.name)
+      ? `${entry.patientId.firstName || entry.patientId.name} ${entry.patientId.lastName || ""}`.trim()
+      : (entry.appointmentId?.name || "Patient");
+    const docName = entry.doctorId && (entry.doctorId.firstName || entry.doctorId.name)
+      ? `Dr. ${entry.doctorId.firstName || entry.doctorId.name} ${entry.doctorId.lastName || ""}`.trim()
+      : (entry.appointmentId?.doctor?.firstName ? `Dr. ${entry.appointmentId.doctor.firstName} ${entry.appointmentId.doctor.lastName || ""}`.trim() : "Attending Doctor");
+    const apptDisplayId = entry.appointmentId?._id 
+      ? `APT-${String(entry.appointmentId._id).slice(-6).toUpperCase()}` 
+      : (entry.appointmentId ? `APT-${String(entry.appointmentId).slice(-6).toUpperCase()}` : `RPT-${String(entry._id || 'INV').slice(-6).toUpperCase()}`);
+    const dateStr = entry.appointmentDate ? new Date(entry.appointmentDate).toLocaleString() : new Date().toLocaleString();
+    const phone = entry.patientId?.phone || entry.appointmentId?.phone || 'N/A';
+    const status = entry.status || 'Paid';
+    const amount = Number(entry.amount || entry.paid || 0).toFixed(2);
+
+    return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Receipt ${apptDisplayId}</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 25px; color: #2d3748; max-width: 650px; margin: 0 auto; line-height: 1.5; background: #fff; }
+    .receipt-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: #ffffff; }
+    .header { text-align: center; border-bottom: 2px solid #edf2f7; padding-bottom: 16px; margin-bottom: 20px; }
+    .header h1 { margin: 0; color: #1a202c; font-size: 22px; font-weight: 700; }
+    .header p { margin: 4px 0 0; color: #718096; font-size: 14px; }
+    .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; font-size: 14px; }
+    .detail-item strong { color: #4a5568; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .detail-item span { color: #1a202c; }
+    .table-section { margin-bottom: 20px; }
+    .table-section h3 { margin: 0 0 10px 0; color: #1a202c; font-size: 16px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+    th { background: #f7fafc; padding: 10px; text-align: left; border-bottom: 2px solid #edf2f7; color: #4a5568; font-weight: 600; }
+    td { padding: 10px; border-bottom: 1px solid #edf2f7; }
+    .totals { text-align: right; margin-top: 16px; font-size: 14px; }
+    .totals .grand-total { font-size: 18px; font-weight: bold; color: #2b6cb0; margin-top: 8px; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; background: #e6fffa; color: #234e52; }
+    .footer-print-info { margin-top: 24px; padding-top: 12px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #718096; text-align: right; }
+  </style>
+</head>
+<body>
+  <div class="receipt-card">
+    <div class="header">
+      <h1>Medical Appointment Receipt</h1>
+      <p>Receipt Reference: ${apptDisplayId}</p>
+    </div>
+    <div class="details-grid">
+      <div class="detail-item"><strong>Patient Name</strong><span>${patName}</span></div>
+      <div class="detail-item"><strong>Doctor Name</strong><span>${docName}</span></div>
+      <div class="detail-item"><strong>Date & Time</strong><span>${dateStr}</span></div>
+      <div class="detail-item"><strong>Phone / Contact</strong><span>${phone}</span></div>
+      <div class="detail-item"><strong>Payment Status</strong><span class="badge">${status}</span></div>
+    </div>
+    <div class="table-section">
+      <h3>Fee Details</h3>
+      <table>
+        <thead>
+          <tr><th>Description</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Total</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Consultation / Medical Service</td><td style="text-align:center">1</td><td style="text-align:right">₹${amount}</td><td style="text-align:right">₹${amount}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="totals">
+      <div class="grand-total">Total: ₹${amount}</div>
+    </div>
+    <div class="footer-print-info">Generated on ${new Date().toLocaleString()} • BMS-OPD System</div>
+  </div>
+</body>
+</html>`;
+  };
+
   // Download Invoice / Receipt for an appointment or invoice
   const handleDownloadInvoice = async (entry) => {
-    try {
-      const apptId = entry.appointmentId?._id || entry.appointmentId;
-      const invId = entry.appointmentId?.invoices?.[0]?._id || entry.appointmentId?.invoices?.[0];
-      const targetId = invId || apptId;
-      if (!targetId) {
-        snackbar.error("No record found to download invoice");
-        return;
+    const apptId = entry.appointmentId?._id || entry.appointmentId;
+    const invId = entry.appointmentId?.invoices?.[0]?._id || entry.appointmentId?.invoices?.[0];
+    const targetId = invId || apptId || entry._id;
+
+    if (targetId) {
+      try {
+        const res = await api.get(`/api/v1/invoice/${targetId}/download`, {
+          responseType: "blob",
+        });
+        if (res.data && res.data.size > 0) {
+          const blob = new Blob([res.data], { type: "text/html" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `receipt-${String(targetId).slice(-6).toUpperCase()}.html`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+          snackbar.success("Invoice downloaded successfully");
+          return;
+        }
+      } catch (err) {
+        console.warn("Backend receipt download failed, falling back to local receipt generator", err);
       }
-      const res = await api.get(`/api/v1/invoice/${targetId}/download`, {
-        responseType: "blob",
-      });
-      const blob = new Blob([res.data], { type: "text/html" });
+    }
+
+    // Client-side fallback guarantees download
+    try {
+      const html = generateClientReceiptHtml(entry);
+      const blob = new Blob([html], { type: "text/html" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `receipt-${String(targetId).slice(-6).toUpperCase()}.html`;
+      a.download = `receipt-${String(targetId || 'REC').slice(-6).toUpperCase()}.html`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      snackbar.success("Invoice downloaded successfully");
+      snackbar.success("Invoice receipt downloaded");
     } catch (err) {
       snackbar.error("Failed to download invoice");
     }
@@ -615,13 +707,13 @@ const ReportsPage = () => {
                 className={`reports-view-tab ${usePersisted ? "active" : ""}`}
                 onClick={() => setUsePersisted(true)}
               >
-                📋 Persisted Reports
+                <BsCardChecklist style={{ marginRight: 6 }} /> Persisted Reports
               </button>
               <button
                 className={`reports-view-tab ${!usePersisted ? "active" : ""}`}
                 onClick={() => setUsePersisted(false)}
               >
-                📊 Summary View
+                <BsBarChartFill style={{ marginRight: 6 }} /> Summary View
               </button>
             </div>
           </div>
@@ -698,7 +790,7 @@ const ReportsPage = () => {
                   fetchSummary({ subTab: "all", page: 1 });
                 }}
               >
-                📋 All Transactions ({persistedSubTab === "all" ? reportTotal : ""})
+                <BsReceiptCutoff style={{ marginRight: 6 }} /> All Transactions ({persistedSubTab === "all" ? reportTotal : ""})
               </button>
               <button
                 className={`persisted-nav-btn refund-btn ${persistedSubTab === "refunded" ? "active" : ""}`}
@@ -708,7 +800,7 @@ const ReportsPage = () => {
                   fetchSummary({ subTab: "refunded", page: 1 });
                 }}
               >
-                💸 Refunded Appointments {persistedSubTab === "refunded" ? `(${reportTotal})` : ""}
+                <BsCashCoin style={{ marginRight: 6 }} /> Refunded Appointments {persistedSubTab === "refunded" ? `(${reportTotal})` : ""}
               </button>
             </div>
 
@@ -778,7 +870,6 @@ const ReportsPage = () => {
                             onClick={() => handleDownloadInvoice(r)}
                           >
                             <BsDownload />
-                            <span>Download</span>
                           </button>
 
                           {/* View details drawer */}

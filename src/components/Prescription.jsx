@@ -1074,8 +1074,7 @@ const Prescription = ({ patientId, onClose }) => {
           lastName: "Notification",
           email: doctorContact.includes("@") ? doctorContact : "",
           phone: doctorContact.includes("@") ? "01234567891" : doctorContact,
-          message: `Prescription completed for patient NIC: ${nic} -
-           🌐download link: ${previewUrl}`,
+          message: `Prescription completed for patient NIC: ${nic} -\nDownload link: ${previewUrl}`,
         });
       }
       playSaveSound();

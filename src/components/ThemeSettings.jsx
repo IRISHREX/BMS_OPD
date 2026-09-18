@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setTheme, setCustomTheme } from '../store/themeSlice';
 import { playSaveSound, playLoadSound, playLoadSound2, playDeleteSound } from '../utils/soundUtils';
 import HeaderFooterCreator from './HeaderFooterCreator';
+import { IoColorPaletteOutline, IoVolumeHighOutline, IoDocumentTextOutline, IoVolumeMute, IoVolumeHigh, IoPlay } from "react-icons/io5";
 import "./Settings.css";
 import "./GeneralSettings.css";
 
@@ -103,19 +104,19 @@ const GeneralSettings = () => {
             className={`general-nav-item ${activeSection === 'themes' ? 'active' : ''}`}
             onClick={() => setActiveSection('themes')}
           >
-            🎨 Themes
+            <IoColorPaletteOutline style={{ marginRight: 6, verticalAlign: "middle" }} /> Themes
           </button>
           <button
             className={`general-nav-item ${activeSection === 'sounds' ? 'active' : ''}`}
             onClick={() => setActiveSection('sounds')}
           >
-            🔊 Sounds
+            <IoVolumeHighOutline style={{ marginRight: 6, verticalAlign: "middle" }} /> Sounds
           </button>
           <button
             className={`general-nav-item ${activeSection === 'header-footer' ? 'active' : ''}`}
             onClick={() => setActiveSection('header-footer')}
           >
-            📄 Header & Footer
+            <IoDocumentTextOutline style={{ marginRight: 6, verticalAlign: "middle" }} /> Header & Footer
           </button>
         </div>
 
@@ -209,7 +210,9 @@ const GeneralSettings = () => {
               }}
               title={isMuted ? "Click to unmute" : "Click to mute"}
               >
-                {isMuted ? "🔇 Muted" : "🔊 Unmuted"}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  {isMuted ? <><IoVolumeMute /> Muted</> : <><IoVolumeHigh /> Unmuted</>}
+                </span>
               </button>
             </h3>
 
@@ -251,7 +254,7 @@ const GeneralSettings = () => {
                   onMouseLeave={(e) => (e.target.style.background = "rgba(81, 207, 102, 0.15)")}
                   disabled={isMuted}
                 >
-                  ▶ Save Sound
+                  <IoPlay style={{ marginRight: 6, verticalAlign: "middle" }} /> Save Sound
                 </button>
                 <button
                   onClick={testLoadSound}
@@ -271,7 +274,7 @@ const GeneralSettings = () => {
                   onMouseLeave={(e) => (e.target.style.background = "rgba(77, 171, 247, 0.15)")}
                   disabled={isMuted}
                 >
-                  ▶ Load Sound
+                  <IoPlay style={{ marginRight: 6, verticalAlign: "middle" }} /> Load Sound
                 </button>
                 <button
                   onClick={testLoginSound}
@@ -291,7 +294,7 @@ const GeneralSettings = () => {
                   onMouseLeave={(e) => (e.target.style.background = "rgba(255, 212, 59, 0.15)")}
                   disabled={isMuted}
                 >
-                  ▶ Login Sound
+                  <IoPlay style={{ marginRight: 6, verticalAlign: "middle" }} /> Login Sound
                 </button>
                 <button
                   onClick={testDeleteSound}
@@ -311,7 +314,7 @@ const GeneralSettings = () => {
                   onMouseLeave={(e) => (e.target.style.background = "rgba(255, 107, 107, 0.15)")}
                   disabled={isMuted}
                 >
-                  ▶ Delete Sound
+                  <IoPlay style={{ marginRight: 6, verticalAlign: "middle" }} /> Delete Sound
                 </button>
               </div>
             </div>

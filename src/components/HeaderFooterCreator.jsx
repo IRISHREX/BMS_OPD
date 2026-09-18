@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { FaHeading, FaFileAlt, FaAlignLeft, FaAlignCenter, FaAlignRight, FaDownload } from 'react-icons/fa';
 import './HeaderFooterCreator.css';
 
 const FONTS = ['Arial', 'Georgia', 'Times New Roman', 'Courier New', 'Trebuchet MS'];
@@ -39,11 +40,11 @@ const HeaderFooterCreator = () => {
     footerMainEn: 'For Appointment or Emergency',
     footerInstEn: 'Contact immediately or rush to hospital',
     footerHoursEn: 'Contact Hours: 6:00 AM to 10:00 PM',
-    footerPhoneEn: '📞 8906805818 / 8327402232',
+    footerPhoneEn: 'Ph: 8906805818 / 8327402232',
     footerMainBn: 'অ্যাপয়েন্টমেন্ট অথবা জরুরী অবস্থায়',
     footerInstBn: 'তাৎক্ষণিক ফোন করুন অথবা হাসপাতালে যোগাযোগ করুন',
     footerHoursBn: 'যোগাযোগের সময়- সকাল ৬টা থেকে রাত্রি ১০টা পর্যন্ত',
-    footerPhoneBn: '📞 ৮৯০৬৮০৫৮১৮ / ৮৩২৭৪০২২৩২',
+    footerPhoneBn: 'Ph: ৮৯০৬৮০৫৮১৮ / ৮৩২৭৪০২২৩২',
     backgroundColor: '#ffffff',
     font: 'Arial',
     textPositionX: 0,
@@ -317,13 +318,13 @@ const HeaderFooterCreator = () => {
             className={`tab-btn ${activeTab === 'header' ? 'active' : ''}`}
             onClick={() => setActiveTab('header')}
           >
-            📋 Header Creator
+            <FaHeading style={{ marginRight: 6 }} /> Header Creator
           </button>
           <button
             className={`tab-btn ${activeTab === 'footer' ? 'active' : ''}`}
             onClick={() => setActiveTab('footer')}
           >
-            📄 Footer Creator
+            <FaFileAlt style={{ marginRight: 6 }} /> Footer Creator
           </button>
         </div>
 
@@ -553,19 +554,19 @@ const HeaderFooterCreator = () => {
                       className={`position-btn ${headerData.buttonPosition === 'left' ? 'active' : ''}`}
                       onClick={() => handleHeaderChange('buttonPosition', 'left')}
                     >
-                      ⬅️ Left
+                      <FaAlignLeft style={{ marginRight: 5 }} /> Left
                     </button>
                     <button
                       className={`position-btn ${headerData.buttonPosition === 'center' ? 'active' : ''}`}
                       onClick={() => handleHeaderChange('buttonPosition', 'center')}
                     >
-                      ⬆️ Center
+                      <FaAlignCenter style={{ marginRight: 5 }} /> Center
                     </button>
                     <button
                       className={`position-btn ${headerData.buttonPosition === 'right' ? 'active' : ''}`}
                       onClick={() => handleHeaderChange('buttonPosition', 'right')}
                     >
-                      ➡️ Right
+                      <FaAlignRight style={{ marginRight: 5 }} /> Right
                     </button>
                   </div>
                 </div>
@@ -576,7 +577,7 @@ const HeaderFooterCreator = () => {
               <h3>Header Preview</h3>
               <canvas ref={headerCanvasRef}></canvas>
               <button className="btn btn-download" onClick={downloadHeader}>
-                ⬇️ Download Header JPG
+                <FaDownload style={{ marginRight: 6 }} /> Download Header JPG
               </button>
             </div>
           </div>
@@ -712,19 +713,19 @@ const HeaderFooterCreator = () => {
                       className={`position-btn ${footerData.buttonPosition === 'left' ? 'active' : ''}`}
                       onClick={() => handleFooterChange('buttonPosition', 'left')}
                     >
-                      ⬅️ Left
+                      <FaAlignLeft style={{ marginRight: 5 }} /> Left
                     </button>
                     <button
                       className={`position-btn ${footerData.buttonPosition === 'center' ? 'active' : ''}`}
                       onClick={() => handleFooterChange('buttonPosition', 'center')}
                     >
-                      ⬆️ Center
+                      <FaAlignCenter style={{ marginRight: 5 }} /> Center
                     </button>
                     <button
                       className={`position-btn ${footerData.buttonPosition === 'right' ? 'active' : ''}`}
                       onClick={() => handleFooterChange('buttonPosition', 'right')}
                     >
-                      ➡️ Right
+                      <FaAlignRight style={{ marginRight: 5 }} /> Right
                     </button>
                   </div>
                 </div>
@@ -735,7 +736,7 @@ const HeaderFooterCreator = () => {
               <h3>Footer Preview</h3>
               <canvas ref={footerCanvasRef}></canvas>
               <button className="btn btn-download" onClick={downloadFooter}>
-                ⬇️ Download Footer JPG
+                <FaDownload style={{ marginRight: 6 }} /> Download Footer JPG
               </button>
             </div>
           </div>

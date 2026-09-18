@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Context } from "../main";
 import api from "../utils/api";
 import { useSnackbar } from "../context/SnackbarContext";
-import Sidebar from "./Sidebar";
 import RadialMenu from "./RadialMenu";
 import {
   FaArrowLeft,
@@ -440,8 +439,7 @@ const TemplateBuilder = () => {
     .sort((a, b) => a.order - b.order);
 
   return (
-    <div className="tmpl-builder-container">
-      <Sidebar />
+    <section className="page tmpl-builder-page">
       <RadialMenu />
 
       {/* =========================================================================
@@ -1145,7 +1143,7 @@ const TemplateBuilder = () => {
           </div>
         </aside>
       </div>
-    </div>
+    </section>
   );
 };
 

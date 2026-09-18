@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSnackbar } from "../context/SnackbarContext";
 import api from "../utils/api";
+import { FaClipboardList, FaLightbulb } from "react-icons/fa";
 import "./DoctorCapacitySettings.css";
 
 const DoctorCapacitySettings = ({ doctorId }) => {
@@ -21,25 +22,15 @@ const DoctorCapacitySettings = ({ doctorId }) => {
   }, [doctorId]);
 
   const fetchCapacities = async () => {
-    setLoading(true);
     try {
-      const today = new Date();
-      const ninetyDaysLater = new Date();
-      ninetyDaysLater.setDate(ninetyDaysLater.getDate() + 90);
-
-      const { data } = await api.get(`/api/v1/capacity`, {
-        params: {
-          doctorId,
-          startDate: today.toISOString().split("T")[0],
-          endDate: ninetyDaysLater.toISOString().split("T")[0],
-        },
-      });
-
-      if (data.success) {
-        setCapacities(data.capacities || []);
-      }
+      setLoading(true);
+      const url = doctorId
+        ? `/api/v1/doctor-capacity/doctor/${doctorId}`
+        : "/api/v1/doctor-capacity/doctor/me";
+      const { data } = await api.get(url);
+      setCapacities(data.capacities || []);
     } catch (error) {
-      snackbar.error("Failed to load capacities");
+      console.error("Error fetching capacities:", error);
     } finally {
       setLoading(false);
     }
@@ -47,34 +38,44 @@ const DoctorCapacitySettings = ({ doctorId }) => {
 
   const handleSetCapacity = async (e) => {
     e.preventDefault();
-
     if (!selectedDate || !maxCapacity) {
-      snackbar.error("Please select a date and enter max capacity!");
+      snackbar.error("Please select date and capacity");
       return;
     }
 
-    if (maxCapacity < 1 || maxCapacity > 100) {
-      snackbar.error("Capacity must be between 1 and 100!");
-      return;
-    }
-
-    setFormLoading(true);
     try {
-      const response = await api.post(`/api/v1/capacity/set`, {
+      setFormLoading(true);
+      const payload = {
         date: selectedDate,
-        maxCapacity: parseInt(maxCapacity),
-      });
+        maxPatients: parseInt(maxCapacity),
+        notes: `Capacity set to ${maxCapacity}`,
+      };
 
-      if (response.data.success) {
-        snackbar.success("Capacity set successfully!");
-        setSelectedDate("");
-        setMaxCapacity("10");
-        fetchCapacities();
+      if (doctorId) {
+        payload.doctorId = doctorId;
       }
+
+      await api.post("/api/v1/doctor-capacity/set", payload);
+      snackbar.success("Capacity set successfully");
+      setSelectedDate("");
+      setMaxCapacity("10");
+      fetchCapacities();
     } catch (error) {
-      snackbar.error(error?.response?.data?.message || "Failed to set capacity");
+      snackbar.error(error.response?.data?.message || "Failed to set capacity");
     } finally {
       setFormLoading(false);
+    }
+  };
+
+  const handleDeleteCapacity = async (id) => {
+    if (!window.confirm("Are you sure you want to remove this capacity?")) return;
+
+    try {
+      await api.delete(`/api/v1/doctor-capacity/${id}`);
+      snackbar.success("Capacity removed");
+      fetchCapacities();
+    } catch (error) {
+      snackbar.error("Failed to remove capacity");
     }
   };
 
@@ -107,7 +108,7 @@ const DoctorCapacitySettings = ({ doctorId }) => {
 
   return (
     <div className="doctor-capacity-settings">
-      <h3>📋 Doctor Capacity Settings</h3>
+      <h3><FaClipboardList style={{ marginRight: 8, color: '#0284c7' }} /> Doctor Capacity Settings</h3>
       <p style={{ color: "#666", marginBottom: "1.5rem" }}>
         Set the maximum number of patients you want to see each day. This helps manage your schedule effectively.
       </p>
@@ -252,7 +253,7 @@ const DoctorCapacitySettings = ({ doctorId }) => {
 
       <div style={{ marginTop: "2rem", padding: "1rem", background: "#f0f8ff", borderRadius: "4px" }}>
         <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
-          <strong>💡 Tip:</strong> Set your capacity in advance so patients can see your availability. Your schedule will update automatically as appointments are booked.
+          <strong><FaLightbulb style={{ marginRight: 6, color: '#eab308' }} /> Tip:</strong> Set your capacity in advance so patients can see your availability. Your schedule will update automatically as appointments are booked.
         </p>
       </div>
     </div>

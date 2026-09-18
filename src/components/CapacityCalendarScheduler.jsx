@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import api from "../utils/api";
+import { FaBan } from "react-icons/fa";
 import "./CapacityCalendar.css";
 
 const CapacityCalendar = ({
@@ -210,7 +211,7 @@ const CapacityCalendar = ({
 
             {!capacityInfo.isWorkingDay && (
               <div className="holiday-notice">
-                <span>🚫 Doctor is not working on this day</span>
+                <span><FaBan style={{ marginRight: 6, color: '#ef4444' }} /> Doctor is not working on this day</span>
               </div>
             )}
           </div>
