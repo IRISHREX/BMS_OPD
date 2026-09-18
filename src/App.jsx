@@ -41,6 +41,7 @@ import HeaderFooterCreator from "./components/HeaderFooterCreator";
 import TemplateBuilder from "./components/TemplateBuilder";
 import PublicDoctorBooking from "./components/PublicDoctorBooking";
 import BackupManager from "./components/BackupManager";
+import SystemLogs from "./components/SystemLogs";
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated, admin, setAdmin } =
@@ -166,6 +167,11 @@ const App = () => {
         <Route path="/settings/advanced/backups" element={
           <RequireAuth allowedRoles={["Admin"]}>
             <BackupManager />
+          </RequireAuth>
+        } />
+        <Route path="/settings/advanced/logs" element={
+          <RequireAuth allowedRoles={["Admin"]}>
+            <SystemLogs />
           </RequireAuth>
         } />
         <Route path="/settings/header-footer" element={

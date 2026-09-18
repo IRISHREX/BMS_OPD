@@ -37,10 +37,14 @@ const AdvancedSettings = () => {
               <p>Export appointments and patients (Excel, CSV, PDF) and monitor storage.</p>
             </div>
           </div>
-          <div className="settings-card">
+          <div
+            className="settings-card"
+            onClick={() => navigate("/settings/advanced/logs")}
+            style={{ cursor: "pointer" }}
+          >
             <div className="settings-card-body">
               <h3>Logs</h3>
-              <p>View system logs (dummy).</p>
+              <p>View real-time audit trail, error logs, and system diagnostics.</p>
             </div>
           </div>
         </div>
