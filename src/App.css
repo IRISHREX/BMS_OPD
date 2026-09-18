@@ -1142,12 +1142,14 @@ body {
   gap: 26px;
   flex: 2;
 }
-.sidebar svg.icon-btn:hover {
+.sidebar svg.icon-btn:hover,
+.sidebar svg.sidebar-icon:hover {
   background: #fff;
   color: #4343db;
 }
 
-.sidebar svg.icon-btn {
+.sidebar svg.icon-btn,
+.sidebar svg.sidebar-icon {
   background: transparent;
   color: #fff;
   border: 0;

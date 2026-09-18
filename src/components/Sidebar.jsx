@@ -82,30 +82,30 @@ const Sidebar = () => {
         className={show ? "show sidebar" : "sidebar"}
       >
         <div className="links">
-          <TiHome className="icon-btn" onClick={navActions.home} title="Dashboard" />
+          <TiHome className="sidebar-icon" onClick={navActions.home} title="Dashboard" />
           
           <RequirePermission allowedRoles={["Admin", "Doctor"]}>
-            <FaChartBar className="icon-btn" onClick={navActions['doctor-dashboard']} title="Doctor Dashboard" />
+            <FaChartBar className="sidebar-icon" onClick={navActions['doctor-dashboard']} title="Doctor Dashboard" />
           </RequirePermission>
 
           <RequirePermission allowedRoles={["Admin"]}>
-            <FaUserMd className="icon-btn" onClick={navActions.doctors} title="Doctors" />
+            <FaUserMd className="sidebar-icon" onClick={navActions.doctors} title="Doctors" />
           </RequirePermission>
 
           <RequirePermission allowedRoles={["Admin", "Doctor"]}>
-            <FaUserNurse className="icon-btn" onClick={navActions.compounders} title="Assistants" />
+            <FaUserNurse className="sidebar-icon" onClick={navActions.compounders} title="Assistants" />
           </RequirePermission>
 
           <RequirePermission allowedRoles={["Admin", "Doctor", "Compounder"]}>
-            <FaBell className="icon-btn" onClick={navActions.messages} title="Messages" />
-            <FaRegFileAlt className="icon-btn" onClick={navActions.reports} title="Reports" />
+            <FaBell className="sidebar-icon" onClick={navActions.messages} title="Messages" />
+            <FaRegFileAlt className="sidebar-icon" onClick={navActions.reports} title="Reports" />
           </RequirePermission>
 
           <RequirePermission allowedRoles={["Admin", "Doctor"]}>
-            <IoMdSettings className="icon-btn" onClick={navActions.settings} title="Settings" />
+            <IoMdSettings className="sidebar-icon" onClick={navActions.settings} title="Settings" />
           </RequirePermission>
 
-          <FiLogOut className="icon-btn" onClick={handleLogout} title="Logout" />
+          <FiLogOut className="sidebar-icon" onClick={handleLogout} title="Logout" />
         </div>
       </nav>
       <div

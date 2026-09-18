@@ -400,7 +400,8 @@
   gap: 8px;
 }
 
-.icon-btn {
+.settings-page .icon-btn,
+.settings-container .icon-btn {
   background: var(--bg-hover);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -414,21 +415,26 @@
   color: var(--text-secondary);
   transition: all 0.2s;
 }
-.icon-btn:hover {
+.settings-page .icon-btn:hover,
+.settings-container .icon-btn:hover {
   background: var(--border-color);
 }
-.icon-btn.secondary {
+.settings-page .icon-btn.secondary,
+.settings-container .icon-btn.secondary {
   background-color: #f0fdfa;
   color: var(--secondary-color);
 }
-.icon-btn.secondary:hover {
+.settings-page .icon-btn.secondary:hover,
+.settings-container .icon-btn.secondary:hover {
   background-color: #ccfbf1;
 }
-.icon-btn.remove-btn {
+.settings-page .icon-btn.remove-btn,
+.settings-container .icon-btn.remove-btn {
   background: var(--danger-bg);
   color: var(--danger-color);
 }
-.icon-btn.remove-btn:hover {
+.settings-page .icon-btn.remove-btn:hover,
+.settings-container .icon-btn.remove-btn:hover {
   background: #fecaca;
 }
 
