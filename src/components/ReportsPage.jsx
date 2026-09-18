@@ -4,10 +4,9 @@ import api from "../utils/api";
 import "./ReportsPage.css";
 import ReportRow from "./ReportRow";
 import "./InvoiceEditor.css";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaSearch, FaTimes } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
-import { FaSearch } from "react-icons/fa";
 import SimpleBarChart from "./SimpleBarChart";
 import PieChartCard from "./PieChartCard";
 import LineChartCard from "./LineChartCard";
@@ -27,6 +26,7 @@ const fmt = (n) => {
     maximumFractionDigits: 2,
   });
 };
+
 const ReportsPage = () => {
   const snackbar = useSnackbar();
   const [loading, setLoading] = useState(false);
@@ -40,7 +40,21 @@ const ReportsPage = () => {
 
   const [totals, setTotals] = useState({ paid: 0, totalDue: 0, invoiced: 0 });
   const [groups, setGroups] = useState([]);
-  const [usePersisted, setUsePersisted] = useState(false);
+  
+  // Default to Persisted View as main view
+  const [usePersisted, setUsePersisted] = useState(() => {
+    const saved = sessionStorage.getItem("reports_usePersisted");
+    return saved !== null ? saved === "true" : true;
+  });
+
+  // Persisted Sub-Tab: "all" or "refunded"
+  const [persistedSubTab, setPersistedSubTab] = useState(() => {
+    return sessionStorage.getItem("reports_persistedSubTab") || "all";
+  });
+
+  // Summary View Payment Status filter: "all", "paid", "due"
+  const [paymentTypeFilter, setPaymentTypeFilter] = useState("all");
+
   const [reportEntries, setReportEntries] = useState([]);
   const [searchTerm, setSearchTerm] = useState(() => sessionStorage.getItem("reports_searchTerm") || "");
   
@@ -50,7 +64,10 @@ const ReportsPage = () => {
     sessionStorage.setItem("reports_groupBy", groupBy);
     sessionStorage.setItem("reports_doctorId", doctorId);
     sessionStorage.setItem("reports_searchTerm", searchTerm);
-  }, [start, end, groupBy, doctorId, searchTerm]);
+    sessionStorage.setItem("reports_usePersisted", String(usePersisted));
+    sessionStorage.setItem("reports_persistedSubTab", persistedSubTab);
+  }, [start, end, groupBy, doctorId, searchTerm, usePersisted, persistedSubTab]);
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerLoading, setDrawerLoading] = useState(false);
   const [drawerAppointmentId, setDrawerAppointmentId] = useState(null);
@@ -66,7 +83,6 @@ const ReportsPage = () => {
   const setupClickSound = useClickSound();
 
   useEffect(() => {
-    // fetch current user
     (async () => {
       try {
         const { data: userRes } = await api.get("/api/v1/user/dashboard/me");
@@ -86,12 +102,10 @@ const ReportsPage = () => {
   }, []);
 
   useEffect(() => {
-    // load doctors for filter
     (async () => {
       try {
         const { data } = await api.get("/api/v1/user/doctors");
         let allDoctors = data.doctors || [];
-        // Role-based filtering
         if (dashboardUser) {
           if (dashboardUser.role === "Doctor") {
             allDoctors = allDoctors.filter(
@@ -123,8 +137,10 @@ const ReportsPage = () => {
       const grp = opts.groupBy !== undefined ? opts.groupBy : groupBy;
       const doc = opts.doctorId !== undefined ? opts.doctorId : doctorId;
       const querySearch = opts.q !== undefined ? opts.q : searchTerm;
+      const activeTab = opts.subTab !== undefined ? opts.subTab : persistedSubTab;
+      const pg = opts.page !== undefined ? opts.page : reportPage;
 
-      // Prefer invoice stats endpoint for payments (server computes paid/due)
+      // Prefer invoice stats endpoint for payments
       const q = [];
       if (s) q.push(`start=${encodeURIComponent(s)}`);
       if (e) q.push(`end=${encodeURIComponent(e)}`);
@@ -138,28 +154,31 @@ const ReportsPage = () => {
       const totalDue = Number(invData.totalDue || 0);
       const invGroups = Array.isArray(invData.groups) ? invData.groups : [];
 
-      // Choose between persisted per-appointment reports or on-the-fly aggregation
       if (usePersisted) {
         const qparts = [];
         if (s) qparts.push(`start=${encodeURIComponent(s)}`);
         if (e) qparts.push(`end=${encodeURIComponent(e)}`);
         if (doc) qparts.push(`doctorId=${encodeURIComponent(doc)}`);
-        qparts.push(`page=${reportPage}`);
+        if (activeTab === "refunded") {
+          qparts.push("status=Refund");
+        }
+        qparts.push(`page=${pg}`);
         qparts.push(`limit=50`);
-        if (querySearch)
-          qparts.push(`q=${encodeURIComponent(querySearch)}`);
+        if (querySearch && querySearch.trim()) {
+          qparts.push(`q=${encodeURIComponent(querySearch.trim())}`);
+        }
         const qstr = qparts.length ? `?${qparts.join("&")}` : "";
         const repRes = await api.get(`/api/v1/reports${qstr}`);
         const body = repRes.data || {};
         setReportTotal(body.total || 0);
         setReportEntries(body.entries || []);
-        // aggregate quick totals from returned entries (use 'paid' field)
+
         const totPaid = (body.entries || []).reduce(
-          (s, r) => s + (Number(r.paid || r.revenue) || 0),
+          (sum, r) => sum + (Number(r.paid || r.revenue) || 0),
           0,
         );
         const totDue = (body.entries || []).reduce(
-          (s, r) => s + (Number(r.due) || 0),
+          (sum, r) => sum + (Number(r.due) || 0),
           0,
         );
         setTotals({
@@ -168,13 +187,11 @@ const ReportsPage = () => {
           invoiced: totPaid + totDue,
         });
       } else {
-        // When includeAppointments is true, also fetch hybrid report (accounts for appts without invoices)
         if (includeAppointments) {
           const repRes = await api.get(
             `/api/v1/reports/summary${query.replace("group=", "groupBy=")}`,
           );
           const repTotals = repRes.data.totals || { revenue: 0, due: 0 };
-          // server returns totals.revenue (invoice pipeline) - treat as paid
           setTotals({
             paid: repTotals.revenue || 0,
             totalDue: repTotals.due || 0,
@@ -187,7 +204,6 @@ const ReportsPage = () => {
             totalDue,
             invoiced: totalEarning + totalDue,
           });
-          // map invGroups -> { period, revenue: totalEarning, due: totalDue }
           setGroups(
             invGroups.map((g) => ({
               period: g.period,
@@ -199,12 +215,10 @@ const ReportsPage = () => {
         }
       }
 
-      // compute patients this month & total appointments (use appointment API as fallback)
       const apptsRes = await api.get("/api/v1/appointment/getall");
       const appts = apptsRes.data.appointments || [];
       setTotalAppointments(appts.length || 0);
 
-      // patients this month: if start/end provided, use them, else current month
       const now = new Date();
       const sDate = s
         ? new Date(s + "T00:00:00")
@@ -223,7 +237,7 @@ const ReportsPage = () => {
       });
       setPatientsThisMonth(patientSet.size);
     } catch (err) {
-      snackbar.error("Failed to load report summary");
+      snackbar.error("Failed to load report data");
     } finally {
       setLoading(false);
     }
@@ -231,9 +245,9 @@ const ReportsPage = () => {
 
   useEffect(() => {
     fetchSummary();
-  }, [start, end, groupBy, doctorId, usePersisted, reportPage]);
+  }, [start, end, groupBy, doctorId, usePersisted, persistedSubTab, reportPage]);
 
-  // fetch invoices for an appointment and open drawer
+  // Invoice drawer
   const openInvoiceDrawer = async (appointmentId) => {
     setDrawerLoading(true);
     setDrawerAppointmentId(appointmentId);
@@ -264,15 +278,10 @@ const ReportsPage = () => {
     setInvoiceSaving(true);
     try {
       const payload = { ...selectedInvoice };
-      // avoid sending populated objects for patient/doctor/appointment
       delete payload.patient;
       delete payload.doctor;
       delete payload.appointment;
-      const res = await api.put(
-        `/api/v1/invoice/${selectedInvoice._id}`,
-        payload,
-      );
-      // refresh list
+      await api.put(`/api/v1/invoice/${selectedInvoice._id}`, payload);
       const refreshed = await api.get(
         `/api/v1/invoice/appointment/${drawerAppointmentId}`,
       );
@@ -282,8 +291,9 @@ const ReportsPage = () => {
         playSettledSound();
       }
       fetchSummary();
+      snackbar.success("Invoice updated");
     } catch (e) {
-      console.warn("Failed to save invoice", e);
+      snackbar.error("Failed to save invoice");
     } finally {
       setInvoiceSaving(false);
     }
@@ -298,14 +308,14 @@ const ReportsPage = () => {
       );
       setInvoicesForAppointment(refreshed.data.invoices || []);
       fetchSummary();
+      snackbar.success("Invoice deleted");
     } catch (e) {
-      console.warn("Failed to delete invoice", e);
+      snackbar.error("Failed to delete invoice");
     }
   };
 
   const settleInvoice = async (inv) => {
     try {
-      // call explicit settle endpoint which will append payment and normalize
       await api.post(`/api/v1/invoice/${inv._id}/settle`);
       const refreshed = await api.get(
         `/api/v1/invoice/appointment/${drawerAppointmentId}`,
@@ -313,41 +323,104 @@ const ReportsPage = () => {
       setInvoicesForAppointment(refreshed.data.invoices || []);
       playSettledSound();
       fetchSummary();
+      snackbar.success("Invoice marked as settled");
     } catch (e) {
-      console.warn("Failed to settle invoice", e);
+      snackbar.error("Failed to settle invoice");
+    }
+  };
+
+  // Download Invoice / Receipt for an appointment or invoice
+  const handleDownloadInvoice = async (entry) => {
+    try {
+      const apptId = entry.appointmentId?._id || entry.appointmentId;
+      const invId = entry.appointmentId?.invoices?.[0]?._id || entry.appointmentId?.invoices?.[0];
+      const targetId = invId || apptId;
+      if (!targetId) {
+        snackbar.error("No record found to download invoice");
+        return;
+      }
+      const res = await api.get(`/api/v1/invoice/${targetId}/download`, {
+        responseType: "blob",
+      });
+      const blob = new Blob([res.data], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `receipt-${String(targetId).slice(-6).toUpperCase()}.html`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      snackbar.success("Invoice downloaded successfully");
+    } catch (err) {
+      snackbar.error("Failed to download invoice");
+    }
+  };
+
+  // Delete report entry (Admin only)
+  const handleDeleteReport = async (reportId) => {
+    if (window.confirm("Are you sure you want to delete this report entry?")) {
+      try {
+        await api.delete(`/api/v1/reports/${reportId}`);
+        snackbar.success("Report entry deleted successfully");
+        fetchSummary();
+      } catch (err) {
+        snackbar.error("Failed to delete report entry");
+      }
     }
   };
 
   const onSearchKey = (e) => {
-    if (e.key === "Enter") fetchSummary({ q: searchTerm });
+    if (e.key === "Enter") {
+      setReportPage(1);
+      fetchSummary({ q: searchTerm, page: 1 });
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setReportPage(1);
+    fetchSummary({ q: "", page: 1 });
   };
 
   const downloadCSV = () => {
     if (usePersisted) {
       const rows = [
         [
-          "AppointmentId",
+          "Patient ID",
+          "Appointment ID",
+          "Patient Name",
           "Date",
-          "DoctorId",
+          "Doctor",
+          "Payment Status",
           "Amount",
           "Paid",
           "Due",
-          "Status",
-          "Notes",
         ],
       ];
-      reportEntries.forEach((r) =>
+      reportEntries.forEach((r) => {
+        const patId = r.patientId?.nic || (r.patientId?._id ? `P-${String(r.patientId._id).slice(-5).toUpperCase()}` : (r.appointmentId?.nic || "-"));
+        const apptId = r.appointmentId?._id ? `APT-${String(r.appointmentId._id).slice(-6).toUpperCase()}` : (r.appointmentId || "-");
+        const patName = r.patientId && (r.patientId.firstName || r.patientId.name)
+          ? `${r.patientId.firstName || r.patientId.name} ${r.patientId.lastName || ""}`.trim()
+          : (r.appointmentId?.name || "N/A");
+        const dateStr = r.appointmentDate ? String(r.appointmentDate).slice(0, 10) : "";
+        const docName = r.doctorId && (r.doctorId.firstName || r.doctorId.name)
+          ? `Dr. ${r.doctorId.firstName || r.doctorId.name} ${r.doctorId.lastName || ""}`.trim()
+          : (r.appointmentId?.doctor?.firstName ? `Dr. ${r.appointmentId.doctor.firstName} ${r.appointmentId.doctor.lastName || ""}`.trim() : "N/A");
+
         rows.push([
-          r.appointmentId,
-          r.appointmentDate ? String(r.appointmentDate).slice(0, 10) : "",
-          r.doctorId || "",
+          patId,
+          apptId,
+          patName,
+          dateStr,
+          docName,
+          r.status || "Due",
           r.amount || 0,
           r.paid || r.revenue || 0,
           r.due || 0,
-          r.status || "",
-          r.notes || "",
-        ]),
-      );
+        ]);
+      });
       const csv = rows
         .map((r) =>
           r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","),
@@ -357,23 +430,21 @@ const ReportsPage = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `reports-entries-${new Date()
-        .toISOString()
-        .slice(0, 10)}.csv`;
+      a.download = `reports-${persistedSubTab}-${new Date().toISOString().slice(0, 10)}.csv`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
       return;
     }
+
     const rows = [["Period", "Paid", "Due", "Invoiced", "Count"]];
-    groups.forEach((g) =>
+    filteredSummaryGroups.forEach((g) =>
       rows.push([
         g.period,
         g.revenue || g.totalEarning || 0,
         g.due || g.totalDue || 0,
-        Number(g.revenue || g.totalEarning || 0) +
-          Number(g.due || g.totalDue || 0),
+        Number(g.revenue || g.totalEarning || 0) + Number(g.due || g.totalDue || 0),
         g.count || g.invoices || g.appointments || 0,
       ]),
     );
@@ -384,14 +455,23 @@ const ReportsPage = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `reports-${groupBy || "summary"}-${new Date()
-      .toISOString()
-      .slice(0, 10)}.csv`;
+    a.download = `reports-${groupBy || "summary"}-${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
   };
+
+  // Filter groups in summary view based on paid/due
+  const filteredSummaryGroups = useMemo(() => {
+    if (paymentTypeFilter === "paid") {
+      return groups.filter((g) => Number(g.revenue || g.totalEarning || 0) > 0);
+    }
+    if (paymentTypeFilter === "due") {
+      return groups.filter((g) => Number(g.due || g.totalDue || 0) > 0);
+    }
+    return groups;
+  }, [groups, paymentTypeFilter]);
 
   return (
     <section className="reports-page page">
@@ -399,8 +479,8 @@ const ReportsPage = () => {
         <div className="reports-top-bar">
           <div className="reports-header-row">
             <div className="reports-title-section">
-              <h2 className="reports-title">Reports</h2>
-              <span className="reports-subtitle">Payments & patients summary</span>
+              <h2 className="reports-title">Reports & Billing</h2>
+              <span className="reports-subtitle">Financial summaries & transaction records</span>
             </div>
 
             <div className="reports-filters-group">
@@ -422,18 +502,36 @@ const ReportsPage = () => {
                   onChange={(e) => setEnd(e.target.value)}
                 />
               </div>
-              <div className="reports-filter-item">
-                <label htmlFor="report-group-by">Group</label>
-                <select
-                  id="report-group-by"
-                  value={groupBy}
-                  onChange={(e) => setGroupBy(e.target.value)}
-                >
-                  <option value="day">Day</option>
-                  <option value="week">Week</option>
-                  <option value="month">Month</option>
-                </select>
-              </div>
+
+              {!usePersisted && (
+                <>
+                  <div className="reports-filter-item">
+                    <label htmlFor="report-group-by">Group</label>
+                    <select
+                      id="report-group-by"
+                      value={groupBy}
+                      onChange={(e) => setGroupBy(e.target.value)}
+                    >
+                      <option value="day">Day</option>
+                      <option value="week">Week</option>
+                      <option value="month">Month</option>
+                    </select>
+                  </div>
+
+                  <div className="reports-filter-item">
+                    <label htmlFor="report-payment-filter">Filter</label>
+                    <select
+                      id="report-payment-filter"
+                      value={paymentTypeFilter}
+                      onChange={(e) => setPaymentTypeFilter(e.target.value)}
+                    >
+                      <option value="all">All (Paid & Due)</option>
+                      <option value="paid">Paid Only</option>
+                      <option value="due">Due Only</option>
+                    </select>
+                  </div>
+                </>
+              )}
 
               <div className="reports-filter-item">
                 <label htmlFor="report-doctor-select">Doctor</label>
@@ -458,9 +556,7 @@ const ReportsPage = () => {
                 <button
                   ref={setupClickSound}
                   className="reports-action-btn"
-                  onClick={() =>
-                    fetchSummary({ start, end, groupBy, doctorId })
-                  }
+                  onClick={() => fetchSummary({ start, end, groupBy, doctorId })}
                   disabled={loading}
                   title="Refresh data"
                 >
@@ -483,42 +579,62 @@ const ReportsPage = () => {
           </div>
 
           <div className="reports-sub-row">
+            {/* Multi-field search box */}
             <div className="reports-search-box">
               <input
-                placeholder="Search reports by appointment id, patient or doctor..."
+                placeholder="Search by Patient Name, Doctor, ID, Appointment ID, or Invoice #..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={onSearchKey}
               />
+              {searchTerm && (
+                <button
+                  className="reports-search-clear-btn"
+                  onClick={handleClearSearch}
+                  title="Clear search"
+                >
+                  <FaTimes />
+                </button>
+              )}
               <button
                 ref={setupClickSound}
                 className="reports-search-btn"
-                onClick={() => fetchSummary({ q: searchTerm })}
+                onClick={() => {
+                  setReportPage(1);
+                  fetchSummary({ q: searchTerm, page: 1 });
+                }}
                 title="Search"
               >
                 <FaSearch />
               </button>
             </div>
 
-            <div className="reports-toggle-container">
-              <ToggleSwitch
-                label={usePersisted ? "Persisted Entries" : "Summary View"}
-                checked={usePersisted}
-                onChange={() => {
-                  setUsePersisted(!usePersisted);
-                }}
-              />
+            {/* View Switcher: Persisted View (Main Default) vs Summary View */}
+            <div className="reports-view-segmented">
+              <button
+                className={`reports-view-tab ${usePersisted ? "active" : ""}`}
+                onClick={() => setUsePersisted(true)}
+              >
+                📋 Persisted Reports
+              </button>
+              <button
+                className={`reports-view-tab ${!usePersisted ? "active" : ""}`}
+                onClick={() => setUsePersisted(false)}
+              >
+                📊 Summary View
+              </button>
             </div>
           </div>
         </div>
       </Toolbar>
 
+      {/* Top Statistic Cards */}
       <div className="reports-cards">
         <div className="card">
-          <p className="label">Total Payments</p>
-          <h2 className="value">{fmt(totals.invoiced)}</h2>
+          <p className="label">Total Amount</p>
+          <h2 className="value">₹{fmt(totals.invoiced)}</h2>
           <small>
-            Paid: {fmt(totals.paid)} • Due: {fmt(totals.totalDue)}
+            Paid: ₹{fmt(totals.paid)} • Due: ₹{fmt(totals.totalDue)}
           </small>
         </div>
         {dashboardUser && dashboardUser.role === "Admin" && (
@@ -526,210 +642,277 @@ const ReportsPage = () => {
             <div className="card">
               <p className="label">Total Patients</p>
               <h2 className="value">{totalPatients}</h2>
-              <small>All time</small>
+              <small>All time registered</small>
             </div>
             <div className="card">
               <p className="label">Patients This Period</p>
               <h2 className="value">{patientsThisMonth}</h2>
-              <small>Total Appointments: {totalAppointments}</small>
+              <small>Appointments: {totalAppointments}</small>
             </div>
             <div className="card">
-              <p className="label">Groups</p>
-              <h2 className="value">{groups.length}</h2>
-              <small>Periods shown</small>
+              <p className="label">Report Records</p>
+              <h2 className="value">{usePersisted ? reportTotal : filteredSummaryGroups.length}</h2>
+              <small>{usePersisted ? "Total entries" : "Periods grouped"}</small>
             </div>
           </>
         )}
         <div className="card">
           <p className="label">Last Refreshed</p>
-          <h2 className="value">{new Date().toLocaleDateString("CA")}</h2>
-          <small>Realtime snapshot</small>
+          <h2 className="value">{new Date().toLocaleDateString("en-GB")}</h2>
+          <small>Realtime synchronization</small>
         </div>
       </div>
 
+      {/* Summary View Graphs */}
       {!usePersisted && (
-        <div
-          className="charts-container"
-        >
+        <div className="charts-container">
           <PieChartCard
-            title="Payments Breakdown"
+            title="Collections Breakdown"
             data={[
               { name: "Paid", value: totals.paid || 0 },
               { name: "Due", value: totals.totalDue || 0 },
             ]}
           />
           <LineChartCard
-            title="Invoice Trend"
-            data={groups.map((g) => ({
+            title="Revenue Trend"
+            data={filteredSummaryGroups.map((g) => ({
               name: g.period,
               value: g.revenue || g.totalEarning || 0,
             }))}
           />
-          <SimpleBarChart data={groups} />
+          <SimpleBarChart data={filteredSummaryGroups} />
         </div>
       )}
 
+      {/* Main Table Section */}
       <div className="table-wrap">
         {usePersisted ? (
-          <table className="reports-table">
-            <thead>
-              <tr>
-                <th>AppointmentId</th>
-                <th>Date</th>
-                <th>Doctor</th>
-                <th>Patient</th>
-                <th>Amount</th>
-                <th>Paid</th>
-                <th>Due</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(reportEntries || []).map((r) => (
-                <tr key={r._id}>
-                  <td
-                    style={{
-                      maxWidth: 180,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {r.appointmentId}
-                  </td>
-                  <td>
-                    {r.appointmentDate
-                      ? String(r.appointmentDate).slice(0, 10)
-                      : ""}
-                  </td>
-                  <td>
-                    {r.doctorId && (r.doctorId.firstName || r.doctorId.name)
-                      ? `${r.doctorId.firstName || r.doctorId.name} ${
-                          r.doctorId.lastName || ""
-                        }`
-                      : r.doctorId || ""}
-                  </td>
-                  <td>
-                    {r.patientId && (r.patientId.firstName || r.patientId.name)
-                      ? `${r.patientId.firstName || r.patientId.name} ${
-                          r.patientId.lastName || ""
-                        }`
-                      : r.patientId || ""}
-                  </td>
-                  <td>{fmt(r.amount)}</td>
-                  <td>{fmt(r.paid || r.revenue)}</td>
-                  <td>{fmt(r.due)}</td>
-                  <td>{r.status}</td>
-                  <td
-                    style={{
-                      display: "flex",
-                      gap: "1rem",
-                      alignItems: "center",
-                    }}
-                  >
-                    <FaEye
-                      ref={setupClickSound}
-                      className="icon-btn"
-                      title="View Details"
-                      style={{ color: "#096dd9" }}
-                      onClick={() => openInvoiceDrawer(r.appointmentId)}
-                    />
-                    <MdDelete
-                      ref={setupClickSound}
-                      className="icon-btn"
-                      title="Delete"
-                      style={{ color: "var(--danger-color)" }}
-                      onClick={async () => {
-                        if (window.confirm("Delete this report entry?")) {
-                          await api.delete(`/api/v1/reports/${r._id}`);
-                          fetchSummary();
-                        }
-                      }}
-                    />
-                    <RiMoneyRupeeCircleFill
-                      ref={setupClickSound}
-                      className="icon-btn"
-                      title="Mark as paid"
-                      style={{ color: "var(--secondary-color)" }}
-                      onClick={async () => {
-                        if (
-                          window.confirm(
-                            "Mark this appointment as Paid? This will settle all invoices for the appointment.",
-                          )
-                        ) {
-                          try {
-                            await api.put(
-                              `/api/v1/invoice/appointment/${r.appointmentId}`,
-                              { payments: [{ amount: 0 }] },
-                            ); // trigger update route to be safe
-                            // better: fetch all invoices and call settle on each
-                            const invs = await api.get(
-                              `/api/v1/invoice/appointment/${r.appointmentId}`,
-                            );
-                            if (
-                              invs.data &&
-                              Array.isArray(invs.data.invoices)
-                            ) {
-                              for (const ii of invs.data.invoices) {
-                                await api.post(
-                                  `/api/v1/invoice/${ii._id}/settle`,
-                                );
-                              }
-                            }
-                            fetchSummary();
-                          } catch (e) {
-                            console.warn("Mark paid failed", e);
-                          }
-                        }
-                      }}
-                    />
-                  </td>
-                </tr>
-              ))}
-              {(!reportEntries || reportEntries.length === 0) && (
+          <div>
+            {/* Sub-Navigation: All Transactions vs Refunded Appointments */}
+            <div className="persisted-sub-nav">
+              <button
+                className={`persisted-nav-btn ${persistedSubTab === "all" ? "active" : ""}`}
+                onClick={() => {
+                  setPersistedSubTab("all");
+                  setReportPage(1);
+                  fetchSummary({ subTab: "all", page: 1 });
+                }}
+              >
+                📋 All Transactions ({persistedSubTab === "all" ? reportTotal : ""})
+              </button>
+              <button
+                className={`persisted-nav-btn refund-btn ${persistedSubTab === "refunded" ? "active" : ""}`}
+                onClick={() => {
+                  setPersistedSubTab("refunded");
+                  setReportPage(1);
+                  fetchSummary({ subTab: "refunded", page: 1 });
+                }}
+              >
+                💸 Refunded Appointments {persistedSubTab === "refunded" ? `(${reportTotal})` : ""}
+              </button>
+            </div>
+
+            <table className="reports-table">
+              <thead>
                 <tr>
-                  <td colSpan={9} style={{ textAlign: "center", padding: 16 }}>
-                    No report entries found
-                  </td>
+                  <th>Patient ID</th>
+                  <th>Appointment ID</th>
+                  <th>Patient Name</th>
+                  <th>Date</th>
+                  <th>Doctor</th>
+                  <th>Payment Status</th>
+                  <th>Amount</th>
+                  <th style={{ textAlign: "center" }}>Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {(reportEntries || []).map((r) => {
+                  const patId = r.patientId?.nic || (r.patientId?._id ? `P-${String(r.patientId._id).slice(-5).toUpperCase()}` : (r.appointmentId?.nic || "-"));
+                  const apptDisplayId = r.appointmentId?._id 
+                    ? `APT-${String(r.appointmentId._id).slice(-6).toUpperCase()}` 
+                    : (r.appointmentId ? `APT-${String(r.appointmentId).slice(-6).toUpperCase()}` : "-");
+                  
+                  const patName = r.patientId && (r.patientId.firstName || r.patientId.name)
+                    ? `${r.patientId.firstName || r.patientId.name} ${r.patientId.lastName || ""}`.trim()
+                    : (r.appointmentId?.name || r.patientId || "N/A");
+
+                  const docName = r.doctorId && (r.doctorId.firstName || r.doctorId.name)
+                    ? `Dr. ${r.doctorId.firstName || r.doctorId.name} ${r.doctorId.lastName || ""}`.trim()
+                    : (r.appointmentId?.doctor?.firstName ? `Dr. ${r.appointmentId.doctor.firstName} ${r.appointmentId.doctor.lastName || ""}`.trim() : (r.doctorId || "N/A"));
+
+                  const apptDate = r.appointmentDate
+                    ? String(r.appointmentDate).slice(0, 10)
+                    : (r.appointmentId?.appointment_date ? String(r.appointmentId.appointment_date).slice(0, 10) : "-");
+
+                  const statusStr = r.status || "Due";
+                  const isRefund = statusStr === "Refund" || r.appointmentId?.paymentStatus === "Refund";
+
+                  return (
+                    <tr key={r._id}>
+                      <td className="cell-id-badge">
+                        <code>{patId}</code>
+                      </td>
+                      <td className="cell-id-badge" title={r.appointmentId?._id || r.appointmentId}>
+                        <code>{apptDisplayId}</code>
+                      </td>
+                      <td>
+                        <strong>{patName}</strong>
+                      </td>
+                      <td>{apptDate}</td>
+                      <td>{docName}</td>
+                      <td>
+                        <span className={`reports-status-pill ${isRefund ? "refund" : statusStr.toLowerCase()}`}>
+                          {isRefund ? "Refunded" : statusStr}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="reports-amount-val">₹{fmt(r.amount)}</span>
+                      </td>
+                      <td>
+                        <div className="reports-actions-cell">
+                          {/* Download Invoice button */}
+                          <button
+                            ref={setupClickSound}
+                            className="reports-btn-action download"
+                            title="Download Invoice / Receipt"
+                            onClick={() => handleDownloadInvoice(r)}
+                          >
+                            <BsDownload />
+                            <span>Download</span>
+                          </button>
+
+                          {/* View details drawer */}
+                          <button
+                            ref={setupClickSound}
+                            className="reports-btn-action view"
+                            title="View Invoices"
+                            onClick={() => openInvoiceDrawer(r.appointmentId?._id || r.appointmentId)}
+                          >
+                            <FaEye />
+                          </button>
+
+                          {/* Delete only for Admin */}
+                          {dashboardUser && dashboardUser.role === "Admin" && (
+                            <button
+                              ref={setupClickSound}
+                              className="reports-btn-action delete"
+                              title="Delete Report (Admin Only)"
+                              onClick={() => handleDeleteReport(r._id)}
+                            >
+                              <MdDelete />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {(!reportEntries || reportEntries.length === 0) && (
+                  <tr>
+                    <td colSpan={8} style={{ textAlign: "center", padding: "32px 16px", color: "#6b7280" }}>
+                      {persistedSubTab === "refunded" 
+                        ? "No refunded appointments found" 
+                        : "No report entries found for the selected criteria"}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+
+            {/* Pagination Controls */}
+            {reportTotal > 50 && (
+              <div className="reports-pagination">
+                <button
+                  className="reports-page-btn"
+                  disabled={reportPage <= 1}
+                  onClick={() => setReportPage((p) => Math.max(1, p - 1))}
+                >
+                  Previous
+                </button>
+                <span className="reports-page-info">
+                  Page {reportPage} of {Math.ceil(reportTotal / 50)} ({reportTotal} total)
+                </span>
+                <button
+                  className="reports-page-btn"
+                  disabled={reportPage * 50 >= reportTotal}
+                  onClick={() => setReportPage((p) => p + 1)}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
         ) : (
-          <table className="reports-table">
-            <thead>
-              <tr>
-                <th>Period</th>
-                <th>Paid</th>
-                <th>Due</th>
-                <th>Invoiced</th>
-                <th>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {groups.map((g) => (
-                <tr key={g.period}>
-                  <td>{g.period}</td>
-                  <td>{fmt(g.revenue || g.totalEarning || 0)}</td>
-                  <td>{fmt(g.due || g.totalDue || 0)}</td>
-                  <td>
-                    {fmt(
-                      Number(g.revenue || g.totalEarning || 0) +
-                        Number(g.due || g.totalDue || 0),
-                    )}
-                  </td>
-                  <td>{g.count || g.invoices || g.appointments || ""}</td>
-                </tr>
-              ))}
-              {groups.length === 0 && (
-                <tr>
-                  <td colSpan={5} style={{ textAlign: "center", padding: 16 }}>
-                    No data for selected filters
-                  </td>
-                </tr>
+          /* Summary View Table */
+          <div>
+            <div className="summary-table-header-info">
+              <span>Showing <strong>{filteredSummaryGroups.length}</strong> period records</span>
+              {paymentTypeFilter !== "all" && (
+                <span className="filter-badge">
+                  Filtered: {paymentTypeFilter === "paid" ? "Paid Collections Only" : "Due Collections Only"}
+                </span>
               )}
-            </tbody>
-          </table>
+            </div>
+            <table className="reports-table">
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th>Paid</th>
+                  <th>Due</th>
+                  <th>Invoiced Total</th>
+                  <th>Transactions Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredSummaryGroups.map((g) => {
+                  const paidVal = g.revenue || g.totalEarning || 0;
+                  const dueVal = g.due || g.totalDue || 0;
+                  const invTotal = Number(paidVal) + Number(dueVal);
+                  const countVal = g.count || g.invoices || g.appointments || 0;
+
+                  return (
+                    <tr key={g.period}>
+                      <td>
+                        <strong>{g.period}</strong>
+                      </td>
+                      <td style={{ color: "#059669", fontWeight: "600" }}>₹{fmt(paidVal)}</td>
+                      <td style={{ color: "#dc2626", fontWeight: "600" }}>₹{fmt(dueVal)}</td>
+                      <td>
+                        <strong>₹{fmt(invTotal)}</strong>
+                      </td>
+                      <td>{countVal}</td>
+                    </tr>
+                  );
+                })}
+                {filteredSummaryGroups.length === 0 && (
+                  <tr>
+                    <td colSpan={5} style={{ textAlign: "center", padding: "32px 16px", color: "#6b7280" }}>
+                      No data found for selected period and filters
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+              {filteredSummaryGroups.length > 0 && (
+                <tfoot>
+                  <tr style={{ background: "#f8fafc", fontWeight: "700" }}>
+                    <td>Grand Total</td>
+                    <td style={{ color: "#059669" }}>
+                      ₹{fmt(filteredSummaryGroups.reduce((s, g) => s + Number(g.revenue || g.totalEarning || 0), 0))}
+                    </td>
+                    <td style={{ color: "#dc2626" }}>
+                      ₹{fmt(filteredSummaryGroups.reduce((s, g) => s + Number(g.due || g.totalDue || 0), 0))}
+                    </td>
+                    <td>
+                      ₹{fmt(filteredSummaryGroups.reduce((s, g) => s + (Number(g.revenue || g.totalEarning || 0) + Number(g.due || g.totalDue || 0)), 0))}
+                    </td>
+                    <td>
+                      {filteredSummaryGroups.reduce((s, g) => s + Number(g.count || g.invoices || g.appointments || 0), 0)}
+                    </td>
+                  </tr>
+                </tfoot>
+              )}
+            </table>
+          </div>
         )}
       </div>
 
@@ -744,16 +927,21 @@ const ReportsPage = () => {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              marginBottom: "14px",
+              paddingBottom: "10px",
+              borderBottom: "1px solid #e5e7eb",
             }}
           >
-            <h3>Invoices for {drawerAppointmentId}</h3>
+            <h3 style={{ margin: 0, fontSize: "16px", color: "#1f2937" }}>
+              Invoices for Appointment #{String(drawerAppointmentId).slice(-6).toUpperCase()}
+            </h3>
             <div>
               <button className="btn" onClick={closeDrawer}>
                 Close
               </button>
             </div>
           </div>
-          {drawerLoading && <p>Loading...</p>}
+          {drawerLoading && <p>Loading invoices...</p>}
           {!drawerLoading && (
             <div>
               <div className="invoice-list">
@@ -761,17 +949,19 @@ const ReportsPage = () => {
                   <div key={inv._id} className="invoice-item">
                     <div className="meta">
                       <strong>{inv.invoiceNumber || inv._id}</strong>
-                      <small>Total: {fmt(inv.total)}</small>
+                      <small>Total: ₹{fmt(inv.total)}</small>
                       <small>
-                        Paid:{" "}
-                        {(inv.payments || []).reduce(
-                          (s, p) => s + (Number(p.amount) || 0),
-                          0,
+                        Paid: ₹
+                        {fmt(
+                          (inv.payments || []).reduce(
+                            (s, p) => s + (Number(p.amount) || 0),
+                            0,
+                          ),
                         )}
                       </small>
                       <small>Status: {inv.status}</small>
                     </div>
-                    <div style={{ display: "flex", gap: 6 }}>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                       <button
                         className="btn-small"
                         onClick={() => editInvoice(inv)}
@@ -786,16 +976,27 @@ const ReportsPage = () => {
                       </button>
                       <button
                         className="btn-small"
-                        style={{ background: "#d9534f" }}
-                        onClick={() => deleteInvoice(inv._id)}
+                        style={{ background: "#096dd9", color: "#fff" }}
+                        onClick={() => handleDownloadInvoice({ appointmentId: inv._id })}
                       >
-                        Delete
+                        Download
                       </button>
+                      {dashboardUser && dashboardUser.role === "Admin" && (
+                        <button
+                          className="btn-small"
+                          style={{ background: "#dc2626", color: "#fff" }}
+                          onClick={() => deleteInvoice(inv._id)}
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
                 {invoicesForAppointment.length === 0 && (
-                  <div>No invoices for this appointment</div>
+                  <div style={{ padding: "16px 0", color: "#6b7280" }}>
+                    No separate invoice records created for this appointment yet. You can download the consultation receipt directly from the table.
+                  </div>
                 )}
               </div>
 
@@ -818,8 +1019,9 @@ const ReportsPage = () => {
                     />
                   </label>
                   <label>
-                    Total
+                    Total Amount (₹)
                     <input
+                      type="number"
                       value={selectedInvoice.total || 0}
                       onChange={(e) =>
                         setSelectedInvoice((s) => ({
@@ -840,9 +1042,10 @@ const ReportsPage = () => {
                         }))
                       }
                     >
-                      <option>Unpaid</option>
-                      <option>Partial</option>
-                      <option>Paid</option>
+                      <option value="Unpaid">Unpaid</option>
+                      <option value="Partial">Partial</option>
+                      <option value="Paid">Paid</option>
+                      <option value="Cancelled">Cancelled</option>
                     </select>
                   </label>
                   <label>
@@ -857,7 +1060,7 @@ const ReportsPage = () => {
                       }
                     />
                   </label>
-                  <div style={{ display: "flex", gap: 8 }}>
+                  <div style={{ display: "flex", gap: 8, marginTop: "10px" }}>
                     <button
                       className="btn"
                       onClick={saveInvoice}

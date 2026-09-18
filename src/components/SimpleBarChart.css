@@ -1,48 +1,108 @@
-.bar-chart-container {
+.simple-bar-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin: 2rem 0;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  overflow: hidden;
 }
 
-.bar-chart-container .bar {
-  transition: opacity 0.2s;
-}
-
-.bar-chart-container .bar:hover {
-  opacity: 0.8;
-}
-
-.bar-chart-container .revenue {
-  fill: #4caf50;
-}
-
-.bar-chart-container .due {
-  fill: #f44336;
-}
-
-.bar-chart-container .legend {
+.simple-bar-header {
   display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.bar-chart-container .legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.simple-bar-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
 }
 
-.bar-chart-container .color-box {
-  width: 1rem;
-  height: 1rem;
-}
-
-.bar-chart-container .axis-label {
+.simple-bar-header .chart-subtitle {
   font-size: 0.75rem;
-  fill: #777;
+  color: #6b7280;
 }
 
-.bar-chart-container .no-data {
-  color: #777;
+.simple-bar-card .legend {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.simple-bar-card .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.color-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.color-indicator.revenue {
+  background: linear-gradient(to bottom, #10b981, #059669);
+}
+
+.color-indicator.due {
+  background: linear-gradient(to bottom, #f87171, #dc2626);
+}
+
+.bar-chart-scroll-wrap {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.simple-bar-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.bar-rect {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.axis-number-label {
+  font-size: 11px;
+  fill: #9ca3af;
+  font-family: inherit;
+}
+
+.bar-value-text {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+}
+
+.bar-value-text.revenue-text {
+  fill: #059669;
+}
+
+.bar-value-text.due-text {
+  fill: #dc2626;
+}
+
+.bar-period-label {
+  font-size: 11px;
+  fill: #6b7280;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.bar-period-label.active {
+  fill: #096dd9;
+  font-weight: 700;
 }

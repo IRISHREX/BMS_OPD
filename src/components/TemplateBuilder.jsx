@@ -89,12 +89,12 @@ const INITIAL_SECTIONS = [
     visible: true,
     style: { fontSize: 9, bold: false, color: "#0f172a" },
     columns: [
-      { key: "type", label: "Type", visible: true, width: "15%" },
-      { key: "name", label: "Medicine Name", visible: true, width: "35%" },
-      { key: "dose", label: "Dosage", visible: true, width: "15%" },
-      { key: "frequency", label: "Frequency", visible: true, width: "15%" },
-      { key: "duration", label: "Duration", visible: true, width: "10%" },
-      { key: "notes", label: "Instructions", visible: true, width: "10%" },
+      { key: "type", label: "Type", visible: true, width: "12%" },
+      { key: "name", label: "Medicine Name", visible: true, width: "32%" },
+      { key: "dose", label: "Dosage", visible: true, width: "14%" },
+      { key: "frequency", label: "Frequency", visible: true, width: "14%" },
+      { key: "duration", label: "Duration", visible: true, width: "14%" },
+      { key: "notes", label: "Instructions", visible: true, width: "14%" },
     ],
     sampleRows: [
       {
