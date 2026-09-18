@@ -40,11 +40,11 @@ import { RiExpandVerticalLine } from "react-icons/ri";
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [selectedAppointments, setSelectedAppointments] = useState([]);
-  const [filterOption, setFilterOption] = useState("Today");
-  const [customStart, setCustomStart] = useState("");
-  const [customEnd, setCustomEnd] = useState("");
-  const [searchTerm, setSearchTerm] = useState(""); // For text search
-  const [selectedDoctorId, setSelectedDoctorId] = useState(""); // For doctor filter
+  const [filterOption, setFilterOption] = useState(() => sessionStorage.getItem("dash_filterOption") || "Today");
+  const [customStart, setCustomStart] = useState(() => sessionStorage.getItem("dash_customStart") || "");
+  const [customEnd, setCustomEnd] = useState(() => sessionStorage.getItem("dash_customEnd") || "");
+  const [searchTerm, setSearchTerm] = useState(() => sessionStorage.getItem("dash_searchTerm") || ""); // For text search
+  const [selectedDoctorId, setSelectedDoctorId] = useState(() => sessionStorage.getItem("dash_selectedDoctorId") || ""); // For doctor filter
   const navigate = useNavigate();
   const location = useLocation();
   const [doctors, setDoctors] = useState([]); // For total count card
@@ -54,7 +54,17 @@ const Dashboard = () => {
   //   status: "Completed",
   //   prescribed: "filterPrescibed",
   // });
-  const [filterPrescibed, setfilterPrescibed] = useState("Unprescribed");
+  const [filterPrescibed, setfilterPrescibed] = useState(() => sessionStorage.getItem("dash_filterPrescibed") || "Unprescribed");
+  
+  useEffect(() => {
+    sessionStorage.setItem("dash_filterOption", filterOption);
+    sessionStorage.setItem("dash_customStart", customStart);
+    sessionStorage.setItem("dash_customEnd", customEnd);
+    sessionStorage.setItem("dash_searchTerm", searchTerm);
+    sessionStorage.setItem("dash_selectedDoctorId", selectedDoctorId);
+    sessionStorage.setItem("dash_filterPrescibed", filterPrescibed);
+  }, [filterOption, customStart, customEnd, searchTerm, selectedDoctorId, filterPrescibed]);
+
   const setupClickSound = useClickSound();
 
   const fmt = (n) => {

@@ -29,10 +29,10 @@ const fmt = (n) => {
 };
 const ReportsPage = () => {
   const [loading, setLoading] = useState(false);
-  const [start, setStart] = useState("");
-  const [end, setEnd] = useState("");
-  const [groupBy, setGroupBy] = useState("day");
-  const [doctorId, setDoctorId] = useState("");
+  const [start, setStart] = useState(() => sessionStorage.getItem("reports_start") || "");
+  const [end, setEnd] = useState(() => sessionStorage.getItem("reports_end") || "");
+  const [groupBy, setGroupBy] = useState(() => sessionStorage.getItem("reports_groupBy") || "day");
+  const [doctorId, setDoctorId] = useState(() => sessionStorage.getItem("reports_doctorId") || "");
   const [doctors, setDoctors] = useState([]);
   const [dashboardUser, setDashboardUser] = useState(null);
   const [includeAppointments, setIncludeAppointments] = useState(true);
@@ -41,7 +41,15 @@ const ReportsPage = () => {
   const [groups, setGroups] = useState([]);
   const [usePersisted, setUsePersisted] = useState(false);
   const [reportEntries, setReportEntries] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(() => sessionStorage.getItem("reports_searchTerm") || "");
+  
+  useEffect(() => {
+    sessionStorage.setItem("reports_start", start);
+    sessionStorage.setItem("reports_end", end);
+    sessionStorage.setItem("reports_groupBy", groupBy);
+    sessionStorage.setItem("reports_doctorId", doctorId);
+    sessionStorage.setItem("reports_searchTerm", searchTerm);
+  }, [start, end, groupBy, doctorId, searchTerm]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerLoading, setDrawerLoading] = useState(false);
   const [drawerAppointmentId, setDrawerAppointmentId] = useState(null);

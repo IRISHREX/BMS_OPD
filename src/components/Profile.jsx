@@ -494,6 +494,42 @@ const Profile = () => {
             </div>
            )}
 
+          {/* Prescription Template Section */}
+          {userDetails?.role === "Doctor" && (
+            <div className="profile-section prescription-template-section">
+              <h3>Prescription Template</h3>
+              <p className="security-text" style={{ marginBottom: "1rem" }}>
+                Select the layout for your prescription PDFs.
+              </p>
+              <div className="form-group">
+                <select 
+                  value={userDetails.prescriptionTemplate || "default"}
+                  onChange={async (e) => {
+                    const newTemplate = e.target.value;
+                    try {
+                      const res = await api.put(`/api/v1/user/doctor/update/${userDetails._id}`, {
+                        prescriptionTemplate: newTemplate
+                      });
+                      
+                      if (res.data.success) {
+                        setUserDetails({...userDetails, prescriptionTemplate: newTemplate});
+                        snackbar.success("Template updated successfully!");
+                      }
+                    } catch (error) {
+                      snackbar.error("Failed to update template");
+                    }
+                  }}
+                  className="form-control"
+                  style={{ padding: "8px", width: "100%", borderRadius: "4px", border: "1px solid #ccc" }}
+                >
+                  <option value="default">Default Template</option>
+                  <option value="Template 1: Right-side margin layout">Template 1: Right-side margin layout</option>
+                  <option value="Template 2: Left-side margin layout">Template 2: Left-side margin layout</option>
+                </select>
+              </div>
+            </div>
+          )}
+
           {/* Doctor Capacity Settings Section */}
 
           <CapacitySchedulerForm doctorId={userDetails._id} />

@@ -22,7 +22,12 @@ import { AiOutlineEdit } from "react-icons/ai";
 const Compounders = () => {
   const snackbar = useSnackbar();
   const [compounders, setCompounders] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(() => sessionStorage.getItem("compounders_searchTerm") || "");
+
+  useEffect(() => {
+    sessionStorage.setItem("compounders_searchTerm", searchTerm);
+  }, [searchTerm]);
+
   const [selected, setSelected] = useState(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateFields, setUpdateFields] = useState({});

@@ -22,8 +22,12 @@ import "./Doctors.css";
 
 const Doctors = () => {
   const snackbar = useSnackbar();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(() => sessionStorage.getItem("doctors_searchTerm") || "");
   const [selectedDoctor, setSelectedDoctor] = useState(null);
+  
+  useEffect(() => {
+    sessionStorage.setItem("doctors_searchTerm", searchTerm);
+  }, [searchTerm]);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const { isAuthenticated } = useContext(Context);

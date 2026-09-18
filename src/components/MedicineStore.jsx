@@ -25,8 +25,13 @@ import { BsArrowLeft } from "react-icons/bs";
 
 const MedicineStore = () => {
   const snackbar = useSnackbar();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(() => sessionStorage.getItem("medicines_searchTerm") || "");
   const [showModal, setShowModal] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  
+  useEffect(() => {
+    sessionStorage.setItem("medicines_searchTerm", searchTerm);
+  }, [searchTerm]);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentMedicine, setCurrentMedicine] = useState(null);
