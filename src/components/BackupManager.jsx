@@ -77,11 +77,22 @@ const BackupManager = () => {
   // Save custom thresholds
   const handleSaveSettings = async (e) => {
     e.preventDefault();
+    const limit = Number(customLimitMB);
+    const threshold = Number(customApptThreshold);
+    if (isNaN(limit) || limit <= 0) {
+      snackbar.warning("Storage limit must be a positive number in MB.");
+      return;
+    }
+    if (isNaN(threshold) || threshold <= 0) {
+      snackbar.warning("Appointment threshold must be a positive number.");
+      return;
+    }
+
     try {
       setSavingSettings(true);
       const { data } = await api.put("/api/v1/backup/settings", {
-        storageLimitMB: Number(customLimitMB),
-        appointmentThreshold: Number(customApptThreshold),
+        storageLimitMB: limit,
+        appointmentThreshold: threshold,
       });
       if (data.success) {
         snackbar.success("Threshold settings updated successfully");
@@ -89,7 +100,7 @@ const BackupManager = () => {
         fetchStats();
       }
     } catch (error) {
-      snackbar.error("Failed to save settings");
+      snackbar.error(error.response?.data?.message || "Failed to save settings");
     } finally {
       setSavingSettings(false);
     }
@@ -101,6 +112,16 @@ const BackupManager = () => {
       setDownloadingAppts(true);
       let url = `/api/v1/backup/export/appointments?range=${apptRange}`;
       if (apptRange === "custom") {
+        if (!customFrom && !customTo) {
+          snackbar.warning("Please select at least a From or To date for custom export.");
+          setDownloadingAppts(false);
+          return;
+        }
+        if (customFrom && customTo && new Date(customFrom) > new Date(customTo)) {
+          snackbar.warning("'From' date cannot be after 'To' date.");
+          setDownloadingAppts(false);
+          return;
+        }
         if (customFrom) url += `&from=${customFrom}`;
         if (customTo) url += `&to=${customTo}`;
       }

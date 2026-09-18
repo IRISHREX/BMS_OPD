@@ -14,7 +14,7 @@ import LineChartCard from "./LineChartCard";
 import "./ChartCards.css";
 import ToggleSwitch from "./ToggleSwitch";
 import Toolbar from "./Toolbar";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import { BsDownload, BsFileExcel, BsHeartPulse } from "react-icons/bs";
 import { IoRefresh } from "react-icons/io5";
 import useClickSound from "../hooks/useClickSound";
@@ -28,6 +28,7 @@ const fmt = (n) => {
   });
 };
 const ReportsPage = () => {
+  const snackbar = useSnackbar();
   const [loading, setLoading] = useState(false);
   const [start, setStart] = useState(() => sessionStorage.getItem("reports_start") || "");
   const [end, setEnd] = useState(() => sessionStorage.getItem("reports_end") || "");
@@ -222,7 +223,7 @@ const ReportsPage = () => {
       });
       setPatientsThisMonth(patientSet.size);
     } catch (err) {
-      toast.error("Failed to load report summary");
+      snackbar.error("Failed to load report summary");
     } finally {
       setLoading(false);
     }

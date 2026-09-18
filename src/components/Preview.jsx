@@ -64,8 +64,8 @@ const Preview = () => {
 
   const [dbTemplates, setDbTemplates] = useState([]);
   const allTemplates = [
-    ...BUILT_IN_TEMPLATES,
-    ...dbTemplates.filter(t => !BUILT_IN_TEMPLATES.some(b => b.name === t.name || b.layoutType === t.layoutType))
+    ...dbTemplates,
+    ...BUILT_IN_TEMPLATES.filter(b => !dbTemplates.some(t => t.name === b.name || t._id === b._id))
   ];
 
   const [selectedTemplateId, setSelectedTemplateId] = useState("template1");
@@ -73,12 +73,15 @@ const Preview = () => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const { data } = await api.get("/api/v1/template/my-templates");
+        const doctorParam = doctor?._id ? `?doctorId=${doctor._id}` : "";
+        const { data } = await api.get(`/api/v1/template/my-templates${doctorParam}`);
         if (data.success && data.templates?.length > 0) {
           setDbTemplates(data.templates);
           const defaultTmpl = data.templates.find(t => t.isDefault);
           if (defaultTmpl) {
             setSelectedTemplateId(defaultTmpl._id);
+          } else {
+            setSelectedTemplateId(data.templates[0]._id);
           }
         }
       } catch (error) {
@@ -88,7 +91,7 @@ const Preview = () => {
     if (isAuthenticated) {
       fetchTemplates();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, doctor?._id]);
 
   useEffect(() => {
     if (doctor?.prescriptionTemplate) {
@@ -99,7 +102,7 @@ const Preview = () => {
         setSelectedTemplateId(match._id);
       }
     }
-  }, [doctor]);
+  }, [doctor, dbTemplates]);
 
   useEffect(() => {
     if (!patientId) return;

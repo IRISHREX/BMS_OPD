@@ -163,6 +163,51 @@ const TemplateBuilder = () => {
                   </div>
                 </div>
 
+                <div className="grid-2" style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "15px"}}>
+                  <div className="form-group">
+                    <label>Header Height (mm)</label>
+                    <input type="number" className="form-control" value={formData.headerHeight ?? 50} onChange={e => setFormData({...formData, headerHeight: Number(e.target.value)})} min="0" max="100" />
+                  </div>
+                  <div className="form-group">
+                    <label>Footer Height (mm)</label>
+                    <input type="number" className="form-control" value={formData.footerHeight ?? 15} onChange={e => setFormData({...formData, footerHeight: Number(e.target.value)})} min="0" max="60" />
+                  </div>
+                </div>
+
+                <div className="grid-2" style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "15px"}}>
+                  <div className="form-group">
+                    <label>Font Size (pt)</label>
+                    <input type="number" className="form-control" value={formData.fontSize ?? 10} onChange={e => setFormData({...formData, fontSize: Number(e.target.value)})} min="6" max="16" />
+                  </div>
+                  <div className="form-group">
+                    <label>Border Style</label>
+                    <div style={{ marginTop: "8px" }}>
+                      <label style={{display: "flex", alignItems: "center", gap: "8px"}}>
+                        <input type="checkbox" checked={formData.showBorder !== false} onChange={e => setFormData({...formData, showBorder: e.target.checked})} />
+                        Show Table / Frame Border
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-group" style={{marginBottom: "15px"}}>
+                  <label>Section Visibility</label>
+                  <div style={{display: "flex", gap: "20px", marginTop: "8px", flexWrap: "wrap"}}>
+                    <label style={{display: "flex", alignItems: "center", gap: "6px"}}>
+                      <input type="checkbox" checked={formData.visibility?.vitals !== false} onChange={e => setFormData({...formData, visibility: {...formData.visibility, vitals: e.target.checked}})} />
+                      Vitals
+                    </label>
+                    <label style={{display: "flex", alignItems: "center", gap: "6px"}}>
+                      <input type="checkbox" checked={formData.visibility?.diagnosis !== false} onChange={e => setFormData({...formData, visibility: {...formData.visibility, diagnosis: e.target.checked}})} />
+                      Diagnosis
+                    </label>
+                    <label style={{display: "flex", alignItems: "center", gap: "6px"}}>
+                      <input type="checkbox" checked={formData.visibility?.advice !== false} onChange={e => setFormData({...formData, visibility: {...formData.visibility, advice: e.target.checked}})} />
+                      Advice
+                    </label>
+                  </div>
+                </div>
+
                 <div className="form-group" style={{marginBottom: "15px"}}>
                   <label>Layout Type</label>
                   <select className="form-control" value={formData.layoutType} onChange={e => setFormData({...formData, layoutType: e.target.value})}>

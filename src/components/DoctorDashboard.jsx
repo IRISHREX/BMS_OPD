@@ -75,7 +75,9 @@ const DoctorDashboard = ({ isReferralWorkflow = false, initialReferralForm = nul
     try {
       setLoadingHospitals(true);
       const { data } = await api.get("/api/v1/hospital/all?limit=50");
-      const activeHospitals = data.hospitals.filter(h => h.active && !h.blocked);
+      const activeHospitals = Array.isArray(data?.hospitals)
+        ? data.hospitals.filter(h => h.active && !h.blocked)
+        : [];
       setHospitals(activeHospitals);
     } catch (error) {
       console.error("Error fetching hospitals:", error);
@@ -195,8 +197,8 @@ Diagnosis: ${submissionData.diagnosis}
 Clinical Notes: ${submissionData.clinicalNotes}
 Urgency: ${submissionData.urgency}
 Required Care: ${submissionData.requiredCare || 'N/A'}
-Referral Number: ${data.referral.referralNumber}
-Status: ${data.referral.status}
+Referral Number: ${data?.referral?.referralNumber || 'N/A'}
+Status: ${data?.referral?.status || 'Pending'}
 Date: ${new Date().toLocaleString()}
         `.trim();
 

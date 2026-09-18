@@ -321,9 +321,29 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
 
   const isTwoColumn = isTemplate1 || isTemplate2;
 
-  const headerHeight = activeTemplate?.headerHeight || 50;
-  const footerHeight = activeTemplate?.footerHeight || 15;
+  const headerHeight = Number(activeTemplate?.headerHeight) || 50;
+  const footerHeight = Number(activeTemplate?.footerHeight) || 15;
   const doctorFullName = dr_data ? `Dr. ${dr_data.firstName || ""} ${dr_data.lastName || ""}`.trim() : "";
+
+  // Template customizations: margins, font size, visibility, border
+  const topMargin = Number(activeTemplate?.margins?.top) || 0;
+  const bottomMargin = Number(activeTemplate?.margins?.bottom) || 0;
+  const leftMargin = Number(activeTemplate?.margins?.left) || 0;
+  const rightMargin = Number(activeTemplate?.margins?.right) || 0;
+  const fontSize = activeTemplate?.fontSize ? `${activeTemplate.fontSize}pt` : "9pt";
+
+  const showVitals = activeTemplate?.visibility?.vitals !== false;
+  const showDiagnosis = activeTemplate?.visibility?.diagnosis !== false;
+  const showAdvice = activeTemplate?.visibility?.advice !== false;
+  const showBorder = activeTemplate?.showBorder !== false;
+
+  // Calculate dynamic frame dimensions to guarantee strictly 1-page PDF
+  const availableHeight = 297 - headerHeight - footerHeight - topMargin - bottomMargin - 6;
+  const frameHeight = Math.max(160, Math.min(235, availableHeight));
+  const frameWidth = Math.max(150, 190 - leftMargin - rightMargin);
+  const marginLeft = Math.max(2, 10 + leftMargin);
+  const marginTop = Math.max(1, 2 + topMargin);
+  const marginBottom = Math.max(2, 16 + bottomMargin);
 
   // Prepare Medicines and Empty Rows (up to 14 rows total to fill grid)
   const medList = Array.isArray(report?.medicineAdvice)
@@ -339,14 +359,16 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
       isRightSide ? {} : { borderRight: "1 solid #000" }
     ]}>
       {/* VITALS */}
-      <View style={styles.sidebar_section}>
-        <Text style={styles.sidebar_title}>VITALS</Text>
-        {report?.diagnosys?.BP && <Text style={styles.sidebar_item}>BP: {report.diagnosys.BP} mm of Hg</Text>}
-        {report?.diagnosys?.PR && <Text style={styles.sidebar_item}>PR: {report.diagnosys.PR} bpm</Text>}
-        {report?.diagnosys?.SPO2 && <Text style={styles.sidebar_item}>SPO2: {report.diagnosys.SPO2}% in RA</Text>}
-        {report?.diagnosys?.Temp && <Text style={styles.sidebar_item}>Temp: {report.diagnosys.Temp}°F</Text>}
-        {report?.diagnosys?.Others && <Text style={styles.sidebar_item}>Others: {report.diagnosys.Others}</Text>}
-      </View>
+      {showVitals && (
+        <View style={styles.sidebar_section}>
+          <Text style={styles.sidebar_title}>VITALS</Text>
+          {report?.diagnosys?.BP && <Text style={styles.sidebar_item}>BP: {report.diagnosys.BP} mm of Hg</Text>}
+          {report?.diagnosys?.PR && <Text style={styles.sidebar_item}>PR: {report.diagnosys.PR} bpm</Text>}
+          {report?.diagnosys?.SPO2 && <Text style={styles.sidebar_item}>SPO2: {report.diagnosys.SPO2}% in RA</Text>}
+          {report?.diagnosys?.Temp && <Text style={styles.sidebar_item}>Temp: {report.diagnosys.Temp}°F</Text>}
+          {report?.diagnosys?.Others && <Text style={styles.sidebar_item}>Others: {report.diagnosys.Others}</Text>}
+        </View>
+      )}
 
       {/* INVESTIGATIONS */}
       {report?.advice?.testAdvice?.length > 0 && (
@@ -359,14 +381,16 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
       )}
 
       {/* PROVISIONAL DIAGNOSIS */}
-      <View style={styles.sidebar_section}>
-        <Text style={styles.sidebar_title}>
-          {report?.diagnosys_heading ? report.diagnosys_heading.toUpperCase() : "PROVISIONAL DIAGNOSIS"}
-        </Text>
-        <Text style={styles.sidebar_item}>
-          {cleanTrailingComma(report?.initialComplain)}
-        </Text>
-      </View>
+      {showDiagnosis && (
+        <View style={styles.sidebar_section}>
+          <Text style={styles.sidebar_title}>
+            {report?.diagnosys_heading ? report.diagnosys_heading.toUpperCase() : "PROVISIONAL DIAGNOSIS"}
+          </Text>
+          <Text style={styles.sidebar_item}>
+            {cleanTrailingComma(report?.initialComplain)}
+          </Text>
+        </View>
+      )}
 
       {/* If Template 1 (Right-side margin), Dr Signature sits at bottom of this margin column */}
       {isRightSide && (
@@ -427,7 +451,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
       {isTemplate1 ? (
         // Template 1: Advice & Follow-up in Rx column (Doctor Name is on the right in Margin col)
         <View style={styles.rx_bottom_box}>
-          {report?.additionalAdvice && (
+          {showAdvice && report?.additionalAdvice && (
             <View style={styles.heading_values}>
               <Text style={styles.heading}>Advice: </Text>
               <Text>{report.additionalAdvice}</Text>
@@ -444,7 +468,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
         // Template 2: Advice & Follow-up on left, Doctor Name on right
         <View style={[styles.rx_bottom_box, { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end" }]}>
           <View style={{ flex: 1 }}>
-            {report?.additionalAdvice && (
+            {showAdvice && report?.additionalAdvice && (
               <View style={styles.heading_values}>
                 <Text style={styles.heading}>Advice: </Text>
                 <Text>{report.additionalAdvice}</Text>
@@ -477,7 +501,19 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
           /* =========================================================================
              TEMPLATE 1 & TEMPLATE 2 (TWO-COLUMN MARGIN LAYOUTS)
              ========================================================================= */
-          <View style={[styles.two_col_frame, { border: activeTemplate?.showBorder === false ? "none" : "1 solid #000" }]}>
+          <View style={[
+            styles.two_col_frame,
+            {
+              border: showBorder ? "1 solid #000" : "none",
+              width: `${frameWidth}mm`,
+              height: `${frameHeight}mm`,
+              marginLeft: `${marginLeft}mm`,
+              marginRight: `${marginLeft}mm`,
+              marginTop: `${marginTop}mm`,
+              marginBottom: `${marginBottom}mm`,
+              fontSize: fontSize,
+            }
+          ]}>
             {/* Upper Box: Patient Details + Date/BMI/Weight */}
             <View style={[styles.upper_box, { padding: "2mm" }]}>
               <View style={styles.upper_left}>
@@ -556,7 +592,18 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
              DEFAULT LAYOUT (ORIGINAL SINGLE COLUMN)
              ========================================================================= */
           <>
-            <View style={[styles.main_section, { border: activeTemplate?.showBorder === false ? "none" : "1 solid #000" }]}>
+            <View style={[
+              styles.main_section,
+              {
+                border: showBorder ? "1 solid #000" : "none",
+                width: `${frameWidth}mm`,
+                height: `${frameHeight}mm`,
+                marginLeft: `${marginLeft}mm`,
+                marginRight: `${marginLeft}mm`,
+                marginTop: `${marginTop}mm`,
+                fontSize: fontSize,
+              }
+            ]}>
               <View style={styles.upper_box}>
                 <View style={styles.upper_left}>
                   <View style={styles.personal_details}>

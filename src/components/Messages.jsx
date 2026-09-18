@@ -178,7 +178,7 @@ const Messages = () => {
 
   const updateMessageStatus = async (ids, read) => {
     const action = read ? "read" : "unread";
-    if (ids.length === 0) return toast.info("No messages selected");
+    if (ids.length === 0) return snackbar.info("No messages selected");
 
     try {
       await api.post(`/api/v1/message/bulk-update`, { ids, read });
