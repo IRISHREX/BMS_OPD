@@ -56,15 +56,24 @@ const Messages = () => {
     loading,
   } = useSelector((s) => s.messages);
 
-  const [filters, setFilters] = useState({
-    q: "",
-    email: "",
-    page: 1,
-    doctorId: "",
-    filterOption: "All",
-    customStart: "",
-    customEnd: "",
+  const [filters, setFilters] = useState(() => {
+    const saved = sessionStorage.getItem("messages_filters");
+    return saved
+      ? JSON.parse(saved)
+      : {
+          q: "",
+          email: "",
+          page: 1,
+          doctorId: "",
+          filterOption: "All",
+          customStart: "",
+          customEnd: "",
+        };
   });
+
+  useEffect(() => {
+    sessionStorage.setItem("messages_filters", JSON.stringify(filters));
+  }, [filters]);
 
   const [selected, setSelected] = useState([]);
   const [allDoctors, setAllDoctors] = useState([]);

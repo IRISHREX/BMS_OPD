@@ -7,12 +7,15 @@ import TrackReferralsTab from "./tabs/TrackReferralsTab";
 import api from "../utils/api";
 
 const DoctorDashboard = ({ isReferralWorkflow = false, initialReferralForm = null, setReferralForm: externalSetReferralForm = null }) => {
-  const [activeTab, setActiveTab] = useState(isReferralWorkflow ? "referral" : "referral");
-  const [searchFilters, setSearchFilters] = useState({
-    location: "",
-    specialty: "",
-    insurance: "",
-    nabh: false,
+  const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem("docDash_activeTab") || (isReferralWorkflow ? "referral" : "referral"));
+  const [searchFilters, setSearchFilters] = useState(() => {
+    const saved = sessionStorage.getItem("docDash_searchFilters");
+    return saved ? JSON.parse(saved) : {
+      location: "",
+      specialty: "",
+      insurance: "",
+      nabh: false,
+    };
   });
   const [selectedHospitals, setSelectedHospitals] = useState([]);
   const [hospitals, setHospitals] = useState([]);
@@ -45,6 +48,14 @@ const DoctorDashboard = ({ isReferralWorkflow = false, initialReferralForm = nul
   useEffect(() => {
     fetchHospitals();
   }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem("docDash_activeTab", activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    sessionStorage.setItem("docDash_searchFilters", JSON.stringify(searchFilters));
+  }, [searchFilters]);
 
   // Fetch referrals
   const fetchReferrals = async () => {

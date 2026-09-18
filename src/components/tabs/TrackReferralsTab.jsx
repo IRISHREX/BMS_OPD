@@ -17,14 +17,14 @@ const TrackReferralsTab = ({
   const snackbar = useSnackbar();
   const [allReferrals, setAllReferrals] = useState(initialReferrals || []);
   const [loading, setLoading] = useState(initialLoading);
-  const [typeFilter, setTypeFilter] = useState("all"); // all, patient_request, doctor_referral
+  const [typeFilter, setTypeFilter] = useState(() => sessionStorage.getItem("trackRef_type") || "all"); // all, patient_request, doctor_referral
   const [convertingId, setConvertingId] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [urgencyFilter, setUrgencyFilter] = useState("");
-  const [dateFilter, setDateFilter] = useState("all"); // all, today, yesterday, custom
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem("trackRef_search") || "");
+  const [statusFilter, setStatusFilter] = useState(() => sessionStorage.getItem("trackRef_status") || "");
+  const [urgencyFilter, setUrgencyFilter] = useState(() => sessionStorage.getItem("trackRef_urgency") || "");
+  const [dateFilter, setDateFilter] = useState(() => sessionStorage.getItem("trackRef_dateFilter") || "all"); // all, today, yesterday, custom
+  const [startDate, setStartDate] = useState(() => sessionStorage.getItem("trackRef_start") || "");
+  const [endDate, setEndDate] = useState(() => sessionStorage.getItem("trackRef_end") || "");
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({});
   const [deleting, setDeleting] = useState(null);
@@ -33,6 +33,16 @@ const TrackReferralsTab = ({
   useEffect(() => {
     fetchAllReferrals();
   }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem("trackRef_type", typeFilter);
+    sessionStorage.setItem("trackRef_search", searchQuery);
+    sessionStorage.setItem("trackRef_status", statusFilter);
+    sessionStorage.setItem("trackRef_urgency", urgencyFilter);
+    sessionStorage.setItem("trackRef_dateFilter", dateFilter);
+    sessionStorage.setItem("trackRef_start", startDate);
+    sessionStorage.setItem("trackRef_end", endDate);
+  }, [typeFilter, searchQuery, statusFilter, urgencyFilter, dateFilter, startDate, endDate]);
 
   const fetchAllReferrals = async () => {
     try {
