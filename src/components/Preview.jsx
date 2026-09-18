@@ -55,6 +55,52 @@ const Preview = () => {
   // Role check
   const canEdit = isAuthenticated && ["Admin", "Doctor"].includes(admin?.role);
 
+  // Built-in Templates
+  const BUILT_IN_TEMPLATES = [
+    { _id: "template1", name: "Template 1: Right-side margin layout", layoutType: "Template 1: Right-side margin layout" },
+    { _id: "template2", name: "Template 2: Left-side margin layout", layoutType: "Template 2: Left-side margin layout" },
+    { _id: "default", name: "Default Layout (Single Column)", layoutType: "default" },
+  ];
+
+  const [dbTemplates, setDbTemplates] = useState([]);
+  const allTemplates = [
+    ...BUILT_IN_TEMPLATES,
+    ...dbTemplates.filter(t => !BUILT_IN_TEMPLATES.some(b => b.name === t.name || b.layoutType === t.layoutType))
+  ];
+
+  const [selectedTemplateId, setSelectedTemplateId] = useState("template1");
+  
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        const { data } = await api.get("/api/v1/template/my-templates");
+        if (data.success && data.templates?.length > 0) {
+          setDbTemplates(data.templates);
+          const defaultTmpl = data.templates.find(t => t.isDefault);
+          if (defaultTmpl) {
+            setSelectedTemplateId(defaultTmpl._id);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load templates", error);
+      }
+    };
+    if (isAuthenticated) {
+      fetchTemplates();
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (doctor?.prescriptionTemplate) {
+      const match = allTemplates.find(
+        t => t.layoutType === doctor.prescriptionTemplate || t.name === doctor.prescriptionTemplate
+      );
+      if (match) {
+        setSelectedTemplateId(match._id);
+      }
+    }
+  }, [doctor]);
+
   useEffect(() => {
     if (!patientId) return;
 
@@ -66,11 +112,12 @@ const Preview = () => {
     };
   }, [patientId, dispatch]);
 
+  const activeTemplate = allTemplates.find(t => t._id === selectedTemplateId) || allTemplates[0];
 
   if (loading)
     return (
       <div className="prescription">
-        <span class="loader" style={{height:"3rem"}}></span>      
+        <span className="loader" style={{height:"3rem"}}></span>      
       </div>
     );
   if (error)
@@ -110,14 +157,34 @@ const Preview = () => {
   // --- UI ---
   return (
     <section className="page modern-preview">
-      <div className="back-btn-box" style={{ width: "100%" }}>
+      <div className="back-btn-box" style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <button className="back-btn add-btn" onClick={() => navigate("/")}>
           ← Go Back
         </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <label style={{ fontWeight: "bold", fontSize: "14px", color: "#333" }}>Prescription Template:</label>
+          <select 
+            className="form-control" 
+            value={selectedTemplateId} 
+            onChange={e => setSelectedTemplateId(e.target.value)}
+            style={{ 
+              padding: "6px 12px", 
+              borderRadius: "6px", 
+              border: "1px solid #1e40af", 
+              fontWeight: "600",
+              backgroundColor: "#f8fafc",
+              cursor: "pointer"
+            }}
+          >
+            {allTemplates.map(t => (
+              <option key={t._id} value={t._id}>{t.name}</option>
+            ))}
+          </select>
+        </div>
       </div>
       {report ? (
         <PDFViewer width="100%" height="600px">
-          <MyDocument header={headerImageUrl} footer={footerImageUrl} p_data={patient} dr_data={doctor} report={report} />
+          <MyDocument header={headerImageUrl} footer={footerImageUrl} p_data={patient} dr_data={doctor} report={report} activeTemplate={activeTemplate} />
         </PDFViewer>
       ) : (
         <div className="prescription">

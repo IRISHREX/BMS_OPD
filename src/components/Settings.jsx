@@ -44,6 +44,13 @@ const settings = [
     icon: "🧾",
     description: "Create, edit and manage invoices.",
     route: "/settings/invoices",
+  },
+  {
+    id: "templates",
+    name: "Prescription Templates",
+    icon: "📄",
+    description: "Create and manage custom PDF layouts for prescriptions.",
+    route: "/settings/templates",
   }
 ];
 

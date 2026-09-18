@@ -499,11 +499,11 @@ const Profile = () => {
             <div className="profile-section prescription-template-section">
               <h3>Prescription Template</h3>
               <p className="security-text" style={{ marginBottom: "1rem" }}>
-                Select the layout for your prescription PDFs.
+                Select your preferred default layout for prescriptions.
               </p>
               <div className="form-group">
                 <select 
-                  value={userDetails.prescriptionTemplate || "default"}
+                  value={userDetails.prescriptionTemplate || "Template 1: Right-side margin layout"}
                   onChange={async (e) => {
                     const newTemplate = e.target.value;
                     try {
@@ -513,7 +513,7 @@ const Profile = () => {
                       
                       if (res.data.success) {
                         setUserDetails({...userDetails, prescriptionTemplate: newTemplate});
-                        snackbar.success("Template updated successfully!");
+                        snackbar.success("Prescription template updated successfully!");
                       }
                     } catch (error) {
                       snackbar.error("Failed to update template");
@@ -522,9 +522,9 @@ const Profile = () => {
                   className="form-control"
                   style={{ padding: "8px", width: "100%", borderRadius: "4px", border: "1px solid #ccc" }}
                 >
-                  <option value="default">Default Template</option>
                   <option value="Template 1: Right-side margin layout">Template 1: Right-side margin layout</option>
                   <option value="Template 2: Left-side margin layout">Template 2: Left-side margin layout</option>
+                  <option value="default">Default Layout (Single Column)</option>
                 </select>
               </div>
             </div>

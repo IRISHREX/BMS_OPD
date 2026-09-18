@@ -38,6 +38,7 @@ import DoctorDashboard from "./components/DoctorDashboard";
 import CreateReferralTab from "./components/tabs/CreateReferralTab";
 import ReferralPage from "./components/ReferralPage";
 import HeaderFooterCreator from "./components/HeaderFooterCreator";
+import TemplateBuilder from "./components/TemplateBuilder";
 import PublicDoctorBooking from "./components/PublicDoctorBooking";
 
 const App = () => {
@@ -164,6 +165,11 @@ const App = () => {
         <Route path="/settings/header-footer" element={
           <RequireAuth allowedRoles={["Admin","Doctor"]}>
             <HeaderFooterCreator />
+          </RequireAuth>
+        } />
+        <Route path="/settings/templates" element={
+          <RequireAuth allowedRoles={["Admin","Doctor"]}>
+            <TemplateBuilder />
           </RequireAuth>
         } />
         <Route path="/preview/:patientId" element={<Preview />} />
