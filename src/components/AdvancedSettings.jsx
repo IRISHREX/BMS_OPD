@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { Context } from "../main";
 import "./Settings.css";
 
 const AdvancedSettings = () => {
   const navigate = useNavigate();
+  const { admin } = useContext(Context);
 
   return (
     <section className="page">
@@ -37,16 +39,18 @@ const AdvancedSettings = () => {
               <p>Export appointments and patients (Excel, CSV, PDF) and monitor storage.</p>
             </div>
           </div>
-          <div
-            className="settings-card"
-            onClick={() => navigate("/settings/advanced/logs")}
-            style={{ cursor: "pointer" }}
-          >
-            <div className="settings-card-body">
-              <h3>Logs</h3>
-              <p>View real-time audit trail, error logs, and system diagnostics.</p>
+          {admin?.role === "Admin" && (
+            <div
+              className="settings-card"
+              onClick={() => navigate("/settings/advanced/logs")}
+              style={{ cursor: "pointer" }}
+            >
+              <div className="settings-card-body">
+                <h3>Logs</h3>
+                <p>View real-time audit trail, error logs, and system diagnostics.</p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </section>
