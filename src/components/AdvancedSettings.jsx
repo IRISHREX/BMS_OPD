@@ -27,10 +27,14 @@ const AdvancedSettings = () => {
               <p>Manage third-party integrations (dummy).</p>
             </div>
           </div>
-          <div className="settings-card">
+          <div
+            className="settings-card"
+            onClick={() => navigate("/settings/advanced/backups")}
+            style={{ cursor: "pointer" }}
+          >
             <div className="settings-card-body">
-              <h3>Backups</h3>
-              <p>Configure backup schedule (dummy).</p>
+              <h3>Backups & Data Export</h3>
+              <p>Export appointments and patients (Excel, CSV, PDF) and monitor storage.</p>
             </div>
           </div>
           <div className="settings-card">

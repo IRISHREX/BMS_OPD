@@ -40,6 +40,7 @@ import ReferralPage from "./components/ReferralPage";
 import HeaderFooterCreator from "./components/HeaderFooterCreator";
 import TemplateBuilder from "./components/TemplateBuilder";
 import PublicDoctorBooking from "./components/PublicDoctorBooking";
+import BackupManager from "./components/BackupManager";
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated, admin, setAdmin } =
@@ -160,6 +161,11 @@ const App = () => {
         <Route path="/settings/advanced" element={
           <RequireAuth allowedRoles={["Admin"]}>
             <AdvancedSettings />
+          </RequireAuth>
+        } />
+        <Route path="/settings/advanced/backups" element={
+          <RequireAuth allowedRoles={["Admin"]}>
+            <BackupManager />
           </RequireAuth>
         } />
         <Route path="/settings/header-footer" element={
