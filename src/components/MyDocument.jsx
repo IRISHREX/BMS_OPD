@@ -311,19 +311,22 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
   const isTemplate1 = 
     templateIdentifier === "Template 1: Right-side margin layout" || 
     templateIdentifier === "right-margin" ||
-    templateIdentifier === "template1";
+    templateIdentifier === "template1" ||
+    activeTemplate?.layoutConfig?.layoutMode === "two-column-right";
 
   const isTemplate2 = 
     templateIdentifier === "Template 2: Left-side margin layout" || 
     templateIdentifier === "left-margin" || 
     templateIdentifier === "two-column" ||
-    templateIdentifier === "template2";
+    templateIdentifier === "template2" ||
+    activeTemplate?.layoutConfig?.layoutMode === "two-column-left";
 
   const isTwoColumn = isTemplate1 || isTemplate2;
 
   const headerHeight = Number(activeTemplate?.headerHeight) || 50;
   const footerHeight = Number(activeTemplate?.footerHeight) || 15;
   const doctorFullName = dr_data ? `Dr. ${dr_data.firstName || ""} ${dr_data.lastName || ""}`.trim() : "";
+  const primaryColor = activeTemplate?.layoutConfig?.primaryColor || "#000";
 
   // Template customizations: margins, font size, visibility, border
   const topMargin = Number(activeTemplate?.margins?.top) || 0;
