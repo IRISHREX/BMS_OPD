@@ -346,16 +346,18 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px 16px;
+  padding: 14px 20px;
   background: #fff;
-  border-radius: 8px;
-  box-shadow: var(--shadow-sm);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f1f5f9;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
 
 .medicine-list-item:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+  border-color: #e2e8f0;
   transform: translateY(-2px);
 }
 
@@ -367,6 +369,7 @@
 .medicine-name {
   font-weight: 600;
   color: var(--text-primary);
+  font-size: 1rem;
   display: block;
 }
 
@@ -376,16 +379,19 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-top: 2px;
+  display: block;
 }
 
 .medicine-type-badge {
-  padding: 4px 10px;
-  border-radius: 12px;
+  padding: 5px 12px;
+  border-radius: 20px;
   font-size: 12px;
-  font-weight: 500;
-  color: var(--text-primary);
+  font-weight: 600;
+  color: #334155;
   flex-shrink: 0;
   width: fit-content;
+  letter-spacing: 0.2px;
 }
 
 .medicine-actions {
@@ -397,13 +403,120 @@
 
 .action-buttons {
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 
+.action-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--bg-hover, #f1f5f9);
+  color: var(--text-secondary, #475569);
+  padding: 0;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.action-icon-btn svg {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 0.95rem;
+  width: 1em;
+  height: 1em;
+  fill: currentColor !important;
+  color: inherit !important;
+  transition: transform 0.2s ease;
+}
+
+.action-icon-btn:hover {
+  transform: translateY(-2px);
+}
+
+.action-icon-btn:active {
+  transform: translateY(0) scale(0.95);
+}
+
+/* View Details Action */
+.action-icon-btn.view-action,
+.action-icon-btn.view-btn {
+  background-color: #eff6ff !important;
+  border-color: #dbeafe !important;
+  color: #2563eb !important;
+}
+
+.action-icon-btn.view-action:hover,
+.action-icon-btn.view-btn:hover {
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.28);
+}
+
+.action-icon-btn.view-action:hover svg,
+.action-icon-btn.view-btn:hover svg {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* Edit Action */
+.action-icon-btn.edit-action,
+.action-icon-btn.edit-btn {
+  background-color: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+  color: #059669 !important;
+}
+
+.action-icon-btn.edit-action:hover,
+.action-icon-btn.edit-btn:hover {
+  background-color: #059669 !important;
+  border-color: #059669 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(5, 150, 105, 0.28);
+}
+
+.action-icon-btn.edit-action:hover svg,
+.action-icon-btn.edit-btn:hover svg {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* Delete Action */
+.action-icon-btn.delete-action,
+.action-icon-btn.delete-btn {
+  background-color: #fef2f2 !important;
+  border-color: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+.action-icon-btn.delete-action:hover,
+.action-icon-btn.delete-btn:hover {
+  background-color: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.28);
+}
+
+.action-icon-btn.delete-action:hover svg,
+.action-icon-btn.delete-btn:hover svg {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* Support legacy/generic .icon-btn classes in settings */
 .settings-page .icon-btn,
-.settings-container .icon-btn {
-  background: var(--bg-hover);
-  border: 1px solid var(--border-color);
+.settings-container .icon-btn,
+.medicine-settings .icon-btn,
+.icon-btn {
+  background: var(--bg-hover, #f1f5f9);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 6px;
   width: 32px;
   height: 32px;
@@ -411,31 +524,53 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1rem;
-  color: var(--text-secondary);
+  font-size: 0.95rem;
+  color: var(--text-secondary, #475569);
   transition: all 0.2s;
+  padding: 0;
 }
+
 .settings-page .icon-btn:hover,
-.settings-container .icon-btn:hover {
-  background: var(--border-color);
+.settings-container .icon-btn:hover,
+.medicine-settings .icon-btn:hover,
+.icon-btn:hover {
+  background: var(--border-color, #e2e8f0);
 }
+
 .settings-page .icon-btn.secondary,
-.settings-container .icon-btn.secondary {
+.settings-container .icon-btn.secondary,
+.medicine-settings .icon-btn.secondary,
+.icon-btn.secondary {
   background-color: #f0fdfa;
-  color: var(--secondary-color);
+  border-color: #ccfbf1;
+  color: var(--secondary-color, #0d9488);
 }
+
 .settings-page .icon-btn.secondary:hover,
-.settings-container .icon-btn.secondary:hover {
-  background-color: #ccfbf1;
+.settings-container .icon-btn.secondary:hover,
+.medicine-settings .icon-btn.secondary:hover,
+.icon-btn.secondary:hover {
+  background-color: #0d9488;
+  border-color: #0d9488;
+  color: #ffffff;
 }
+
 .settings-page .icon-btn.remove-btn,
-.settings-container .icon-btn.remove-btn {
-  background: var(--danger-bg);
-  color: var(--danger-color);
+.settings-container .icon-btn.remove-btn,
+.medicine-settings .icon-btn.remove-btn,
+.icon-btn.remove-btn {
+  background: var(--danger-bg, #fee2e2);
+  border-color: #fecaca;
+  color: var(--danger-color, #dc2626);
 }
+
 .settings-page .icon-btn.remove-btn:hover,
-.settings-container .icon-btn.remove-btn:hover {
-  background: #fecaca;
+.settings-container .icon-btn.remove-btn:hover,
+.medicine-settings .icon-btn.remove-btn:hover,
+.icon-btn.remove-btn:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
 }
 
 .medicine-list-item-skeleton {

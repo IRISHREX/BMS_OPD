@@ -10,7 +10,7 @@ import {
 import "./Settings.css";
 import MedicineCard from "./MedicineCard";
 import MedicineSearch from "./MedicineSearch";
-import { FaEye, FaPen, FaSearch } from "react-icons/fa";
+import { FaEye, FaEdit, FaSearch } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa6";
 import MedicineDrawer from "./MedicineDrawer";
 import Toolbar from "./Toolbar";
@@ -421,9 +421,6 @@ const MedicineSettings = () => {
                 </button>
                 <div className="catlog-title-wrap">
                   <h2>Medicine Catalog</h2>
-                  <span className="muted">
-                    Create, search and manage medicines used in prescriptions.
-                  </span>
                 </div>
               </div>
               <div className="filter-search-actions">
@@ -442,6 +439,12 @@ const MedicineSettings = () => {
                   onClick={() => navigate("/medicines")}
                 >
                   Manage Medicines
+                </button>
+                <button
+                  className="clear-btn"
+                  onClick={() => navigate("/tests")}
+                >
+                  Manage Test
                 </button>
               </div>
             </div>
@@ -588,30 +591,42 @@ const MedicineSettings = () => {
                             : "No tests"}
                         </div>
                         <div className="action-buttons">
-                          <FaEye
+                          <button
+                            type="button"
                             title="View Details"
-                            className="icon-btn"
+                            aria-label={`View details for ${m.name || "medicine"}`}
+                            className="action-icon-btn view-action"
                             onClick={(e) => {
                               e.stopPropagation();
                               setViewingAdvice(m);
                             }}
-                          />
-                          <FaPen
-                            title="Edit"
-                            className="icon-btn secondary"
+                          >
+                            <FaEye />
+                          </button>
+                          <button
+                            type="button"
+                            title="Edit Medical Advice"
+                            aria-label={`Edit ${m.name || "medicine"}`}
+                            className="action-icon-btn edit-action"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleOpenEditDrawer(m);
                             }}
-                          />
-                          <FaTrash
-                            title="Delete"
-                            className="icon-btn remove-btn"
+                          >
+                            <FaEdit />
+                          </button>
+                          <button
+                            type="button"
+                            title="Delete Medical Advice"
+                            aria-label={`Delete ${m.name || "medicine"}`}
+                            className="action-icon-btn delete-action"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDelete(m._id);
                             }}
-                          />
+                          >
+                            <FaTrash />
+                          </button>
                         </div>
                       </div>
                     </div>

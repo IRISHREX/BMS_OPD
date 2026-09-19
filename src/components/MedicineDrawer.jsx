@@ -108,11 +108,11 @@ const MedicineDrawer = ({
               <input placeholder="Duration" name="duration" value={m.duration} onChange={e => updateMedicineRow(idx, 'duration', e.target.value)} />
               <input placeholder="Notes" name="notes" value={m.notes} onChange={e => updateMedicineRow(idx, 'notes', e.target.value)} />
 
-              <button type="button" className="remove-btn" onClick={() => removeMedicineRow(idx)}><FaTrash/></button>
+              <button type="button" className="action-icon-btn delete-btn" title="Remove Medicine Row" aria-label="Remove medicine row" onClick={() => removeMedicineRow(idx)}><FaTrash/></button>
             </div>
           ))}
           <div style={{ display: 'flex', gap: 8 }}>
-            <button type="button" className="add-btn" onClick={addMedicineRow}>Add Medicine Row</button>
+            <button type="button" className="add-btn" onClick={addMedicineRow}>+ Add Medicine Row</button>
           </div>
 
           <h4>Structured Test Advice (optional)</h4>
@@ -122,11 +122,11 @@ const MedicineDrawer = ({
               <input placeholder="Type" value={t.testType} onChange={e => updateTestRow(idx, 'testType', e.target.value)} />
               <input placeholder="Precautions" value={t.precautions} onChange={e => updateTestRow(idx, 'precautions', e.target.value)} />
               <input placeholder="Date" type="date" value={t.testDate} onChange={e => updateTestRow(idx, 'testDate', e.target.value)} />
-              <button type="button" className="remove-btn" onClick={() => removeTestRow(idx)}><FaTrash/></button>
+              <button type="button" className="action-icon-btn delete-btn" title="Remove Test Row" aria-label="Remove test row" onClick={() => removeTestRow(idx)}><FaTrash/></button>
             </div>
           ))}
           <div style={{ display: 'flex', gap: 8 }}>
-            <button type="button" className="add-btn" onClick={addTestRow}>Add Test Row</button>
+            <button type="button" className="add-btn" onClick={addTestRow}>+ Add Test Row</button>
           </div>
 
           <label>Medication (text)</label>

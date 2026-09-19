@@ -43,6 +43,7 @@ import PublicDoctorBooking from "./components/PublicDoctorBooking";
 import BackupManager from "./components/BackupManager";
 import SystemLogs from "./components/SystemLogs";
 import DoctorCapacitySettings from "./components/DoctorCapacitySettings";
+import TestManagement from "./components/TestManagement";
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated, admin, setAdmin } =
@@ -123,6 +124,11 @@ const App = () => {
         <Route path="/medicines" element={
           <RequireAuth allowedRoles={["Admin","Doctor","Compounder"]}>
             <MedicineStore />
+          </RequireAuth>
+        } />
+        <Route path="/tests" element={
+          <RequireAuth allowedRoles={["Admin","Doctor","Compounder"]}>
+            <TestManagement />
           </RequireAuth>
         } />
         <Route path="/settings" element={

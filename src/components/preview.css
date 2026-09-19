@@ -411,7 +411,7 @@
   margin: 1.5rem 0 0.5rem 0;
 }
 
-.edit-btn {
+.edit-btn-bar .edit-btn {
   background: #215dd6;
   color: #fff;
   border: none;
@@ -423,7 +423,7 @@
   transition: background 0.2s;
 }
 
-.edit-btn:hover {
+.edit-btn-bar .edit-btn:hover {
   background: #0ab6b6;
 }
 
