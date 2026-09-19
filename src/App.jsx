@@ -42,6 +42,7 @@ import TemplateBuilder from "./components/TemplateBuilder";
 import PublicDoctorBooking from "./components/PublicDoctorBooking";
 import BackupManager from "./components/BackupManager";
 import SystemLogs from "./components/SystemLogs";
+import DoctorCapacitySettings from "./components/DoctorCapacitySettings";
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated, admin, setAdmin } =
@@ -182,6 +183,11 @@ const App = () => {
         <Route path="/settings/templates" element={
           <RequireAuth allowedRoles={["Admin","Doctor"]}>
             <TemplateBuilder />
+          </RequireAuth>
+        } />
+        <Route path="/settings/capacity" element={
+          <RequireAuth allowedRoles={["Admin","Doctor"]}>
+            <DoctorCapacitySettings />
           </RequireAuth>
         } />
         <Route path="/preview/:patientId" element={<Preview />} />

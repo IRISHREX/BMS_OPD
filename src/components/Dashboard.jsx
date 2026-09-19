@@ -352,11 +352,8 @@ const Dashboard = () => {
       }
       playSaveSound();
       snackbar.success(data.message || "Status updated");
-      if (updatedAppt && updatedAppt.paymentStatus === "Paid") {
-        playSettledSound();
-      }
     } catch (error) {
-      snackbar.error(error.response.data.message);
+      snackbar.error(error?.response?.data?.message || "Failed to update status");
     }
   };
 
@@ -1100,144 +1097,6 @@ const Dashboard = () => {
                           </button>
                         </RequirePermission>
                       </td>
-                      {/* <td>
-                        <div className="td-btn-container">
-                          TODO:functionalities need to be implemented
-                          <button
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#0859afff",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => handleRescheduleClick(appointment)}
-                            title="Reschedule"
-                          >
-                            <RiCalendarScheduleFill />
-                          </button>
-                          <button
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#5bbe8eff",
-                              cursor: "pointer",
-                            }}
-                            onClick={() =>
-                              navigate(`/preview/${appointment.patientId}`)
-                            }
-                          >
-                            <FaEye title="View prescription" />
-                          </button>
-                          <button
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#760692ff",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => handleInvoiceClick(appointment._id)}
-                          >
-                            <IoReceipt title="Invoice" />
-                          </button>
-                          
-                          <button
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#686868",
-                              cursor: "pointer",
-                            }}
-                            onClick={() =>
-                              navigate(`/referral/${appointment._id}`)
-                            }
-                          >
-                            <IoIosShareAlt title="Referral" />
-                          </button>
-                          <select>
-                              <option value="Pending" className="value-rejected">Pending</option>
-                              <option value="Accepted">Accepted</option>
-                              <option value="Paid" className="value-completed">Paid</option>
-                            </select>
-                          </div>
-                          </td> */}
-                      {/* {
-                          isExpanded && <td style={{minWidth: "8rem"}}>
-                            <select
-                              className={
-                                appointment.status === "Pending"
-                                  ? "value-pending"
-                                  : appointment.status === "Accepted"
-                                  ? "value-accepted"
-                                  : appointment.status === "Completed"
-                                  ? "value-completed"
-                                  : "value-rejected"
-                              }
-                              value={appointment.status}
-                              onChange={(e) =>
-                                handleUpdateStatus(
-                                  appointment._id,
-                                  e.target.value
-                                )
-                              }
-                              style={{fontSize: "1rem"}}
-                            >
-                              <option value="Pending" className="value-pending">
-                                Pending
-                              </option>
-                              <option
-                                value="Accepted"
-                                className="value-accepted"
-                              >
-                                Accepted
-                              </option>
-                              <option
-                                value="Rejected"
-                                className="value-rejected"
-                              >
-                                Rejected
-                              </option>
-                              <option
-                                value="Completed"
-                                className="value-completed" 
-                              >
-                                Completed
-                              </option>
-                            </select>
-                          </td>} */}
-
-                      {/*  */}
-
-                      {/* <RequirePermission allowedRoles={["Admin"]}>
-                            {isExpanded && <td>{`${appointment.doctor.firstName} ${appointment.doctor.lastName}`}</td>}
-                            {isExpanded && <td>{appointment.department}</td>}
-                          </RequirePermission> */}
-
-                      {/* {isExpanded && <td>
-                            {appointment.hasVisited === true ? (
-                              <GoCheckCircleFill className="green" />
-                            ) : (
-                              <AiFillCloseCircle className="red" />
-                            )}
-                          </td>}
-                          {isExpanded && <td>
-                            {appointment.book_by_name
-                              ? appointment.book_by_name
-                              : appointment.patientId || "-"}
-                          </td>} */}
-
-                      {/* {isExpanded &&<td>
-                            <RequirePermission allowedRoles={["Admin", "Doctor"]}>
-
-                            <button
-                              className="btn btn-primary"
-                              onClick={() =>
-                                handlePrescriptionClick(appointment.patientId)
-                              }
-                            >
-                              Prescription
-                            </button>
-                            </RequirePermission>
-                          </td>} */}
                       <td>
                         <RadialMenu>
                           {/* TODO:functionalities need to be implemented */}
@@ -1283,7 +1142,6 @@ const Dashboard = () => {
                           >
                             <IoReceipt title="Invoice" />
                           </button>
-                          {/* 06-01-26 */}
                           <button
                             ref={setupClickSound}
                             className="icon-btn"
@@ -1299,7 +1157,6 @@ const Dashboard = () => {
                           >
                             <IoIosShareAlt title="Referral" />
                           </button>
-                          {/* 06-01-26 */}
                           <RequirePermission allowedRoles={["Admin"]}>
                             <button
                               ref={setupClickSound}
@@ -1322,14 +1179,33 @@ const Dashboard = () => {
                     </tr>
                   ))
                 ) : (
-                  // }
-                  //   </div>
                   <tr>
                     <td
                       colSpan="100%"
-                      style={{ textAlign: "center", padding: "2rem" }}
+                      style={{ textAlign: "center", padding: "3rem 1.5rem" }}
                     >
-                      No Appointments Found!
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem", color: "#64748b" }}>
+                        <RiCalendarScheduleFill size={44} style={{ color: "#94a3b8" }} />
+                        <span style={{ fontSize: "1.1rem", fontWeight: 600, color: "#334155" }}>
+                          No Appointments Found
+                        </span>
+                        <span style={{ fontSize: "0.875rem", color: "#64748b", maxWidth: "340px" }}>
+                          No appointments match the current filter or search criteria.
+                        </span>
+                        {(filterOption !== "Today" || searchTerm || selectedDoctorId) && (
+                          <button
+                            className="btn btn-secondary"
+                            style={{ marginTop: "0.5rem", padding: "6px 16px", fontSize: "0.85rem", cursor: "pointer" }}
+                            onClick={() => {
+                              setFilterOption("Today");
+                              setSearchTerm("");
+                              if (admin?.role === "Admin") setSelectedDoctorId("");
+                            }}
+                          >
+                            Reset Filters to Today
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 )}

@@ -123,24 +123,8 @@ const Messages = () => {
   }, [filters, debouncedQ, debouncedEmail, dispatch]);
 
   useEffect(() => {
-    // Debug: log current filters before fetching
-    try {
-      // eslint-disable-next-line no-console
-      console.log("[Messages] fetching messages with filters", filters);
-    } catch (e) {}
     fetchMessages();
   }, [fetchMessages]);
-
-  // Debug: whenever messages change, log summary and first item to inspect structure
-  useEffect(() => {
-    try {
-      // eslint-disable-next-line no-console
-      console.log("[Messages] messages updated", {
-        length: messages.length,
-        first: messages[0],
-      });
-    } catch (e) {}
-  }, [messages]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -212,18 +196,22 @@ const Messages = () => {
 
   const handleReply = async (originalMessage, replyText) => {
     try {
+      const userPhone = String(user?.phone || "").replace(/\D/g, "");
+      const validPhone = userPhone.length >= 10 ? userPhone.slice(0, 10) : "9876543210";
+
       await api.post("/api/v1/message/send", {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        phone: user.phone,
+        firstName: user?.firstName || "Staff",
+        lastName: user?.lastName || "Member",
+        email: user?.email || "admin@hospital.com",
+        phone: validPhone,
         message: `Re: ${originalMessage.message}\n\n${replyText}`,
-        recipient: originalMessage.recipient?._id || allDoctors[0]?._id,
+        recipientEmail: originalMessage.email,
+        recipient: originalMessage.recipient?._id,
       });
-      snackbar.success("Reply sent!");
+      snackbar.success("Reply sent successfully!");
       fetchMessages();
     } catch (error) {
-      snackbar.error("Failed to send reply.");
+      snackbar.error(error?.response?.data?.message || "Failed to send reply.");
     }
   };
 

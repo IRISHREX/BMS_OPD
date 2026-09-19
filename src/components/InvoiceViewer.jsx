@@ -29,14 +29,18 @@ const InvoiceViewer = ({ invoiceId, isOpen, onClose }) => {
   const download = async () => {
     try {
       const resp = await api.get(`/api/v1/invoice/${invoiceId}/download`, { responseType: 'blob' });
-      const url = window.URL.createObjectURL(new Blob([resp.data]));
+      const blob = new Blob([resp.data], { type: 'text/html' });
+      const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `${invoice?.invoiceNumber || invoice?._id || 'invoice'}.html`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+      snackbar.success('Invoice downloaded successfully');
     } catch (e) {
       snackbar.error(e?.response?.data?.message || 'Download failed');
-      alert('Download failed');
     }
   };
 
