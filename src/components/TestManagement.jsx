@@ -1,17 +1,26 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { BsArrowLeft } from "react-icons/bs";
-import { FaSearch, FaEye, FaEdit, FaFlask, FaLayerGroup, FaPlus, FaTimes } from "react-icons/fa";
+import {
+  FaSearch,
+  FaEdit,
+  FaFlask,
+  FaPlus,
+  FaTimes,
+  FaSort,
+  FaSortUp,
+  FaSortDown,
+  FaFilter,
+} from "react-icons/fa";
 import { FaTrash } from "react-icons/fa6";
-import { LuFilterX } from "react-icons/lu";
+import { LuFilterX, LuPill, LuPlus } from "react-icons/lu";
 import Toolbar from "./Toolbar";
 import api from "../utils/api";
 import { useSnackbar } from "../context/SnackbarContext";
 import { playSaveSound, playDeleteSound, playLoadSound } from "../utils/soundUtils";
 import "./TestManagement.css";
 
-const STANDARD_TEST_TYPES = [
-  "All",
+const STANDARD_CATEGORIES = [
   "Blood Test",
   "Imaging",
   "Pathology",
@@ -26,74 +35,44 @@ const STANDARD_TEST_TYPES = [
   "General",
 ];
 
-const STANDARD_TEMPLATE_CATEGORIES = [
-  "All",
-  "General Health",
-  "Infectious Disease",
-  "Endocrinology",
-  "Orthopedics",
-  "Cardiology",
-  "Pre-Op Panel",
-  "Gastroenterology",
-  "Routine Profile",
-];
-
-const emptyTestForm = {
-  name: "",
-  type: "Blood Test",
-  precautions: "",
-  department: "",
-  description: "",
-  normalRange: "",
-  price: "",
-};
-
-const emptyTemplateForm = {
-  name: "",
-  tests: [{ testName: "" }],
-};
+const FILTER_CATEGORIES = ["All", ...STANDARD_CATEGORIES];
 
 const TestManagement = () => {
   const navigate = useNavigate();
   const snackbar = useSnackbar();
 
-  // Tab State: 'tests' or 'templates'
-  const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem("test_mgmt_tab") || "tests");
-
   // Tests State
   const [tests, setTests] = useState([]);
   const [loadingTests, setLoadingTests] = useState(false);
   const [testSearch, setTestSearch] = useState("");
-  const [testTypeFilter, setTestTypeFilter] = useState("All");
+  const [testCategoryFilter, setTestCategoryFilter] = useState("All");
+
+  // Sorting State
+  const [sortField, setSortField] = useState("name");
+  const [sortDirection, setSortDirection] = useState("asc");
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+
+  // Modal State
   const [showTestModal, setShowTestModal] = useState(false);
   const [editingTestId, setEditingTestId] = useState(null);
   const [editingTestName, setEditingTestName] = useState("");
-  const [testNames, setTestNames] = useState([""]);
-
-  // Templates State
-  const [templates, setTemplates] = useState([]);
-  const [loadingTemplates, setLoadingTemplates] = useState(false);
-  const [templateSearch, setTemplateSearch] = useState("");
-  const [templateCategoryFilter, setTemplateCategoryFilter] = useState("All");
-  const [showTemplateModal, setShowTemplateModal] = useState(false);
-  const [editingTemplateId, setEditingTemplateId] = useState(null);
-  const [templateForm, setTemplateForm] = useState(emptyTemplateForm);
-
-  // View Details Modal State
-  const [viewingItem, setViewingItem] = useState(null);
-  const [viewingType, setViewingType] = useState(null); // 'test' or 'template'
+  const [editingTestCategory, setEditingTestCategory] = useState("General");
+  const [testRows, setTestRows] = useState([{ name: "", category: "General" }]);
 
   // Submitting loader
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    sessionStorage.setItem("test_mgmt_tab", activeTab);
-  }, [activeTab]);
-
-  useEffect(() => {
     fetchTests();
-    fetchTemplates();
   }, []);
+
+  // Reset to page 1 whenever filters or page size change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [testSearch, testCategoryFilter, pageSize]);
 
   const fetchTests = async () => {
     setLoadingTests(true);
@@ -108,16 +87,27 @@ const TestManagement = () => {
     }
   };
 
-  const fetchTemplates = async () => {
-    setLoadingTemplates(true);
-    try {
-      const { data } = await api.get("/api/v1/test/templates/all");
-      setTemplates(data.templates || []);
-    } catch (err) {
-      console.error("Failed to fetch test templates", err);
-    } finally {
-      setLoadingTemplates(false);
+  // ==================== SORTING HANDLERS ====================
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
     }
+    setCurrentPage(1);
+  };
+
+  const renderSortIcon = (field) => {
+    if (sortField !== field) {
+      return <FaSort className="sort-icon inactive" />;
+    }
+    return sortDirection === "asc" ? (
+      <FaSortUp className="sort-icon active" />
+    ) : (
+      <FaSortDown className="sort-icon active" />
+    );
   };
 
   // ==================== TEST CRUD HANDLERS ====================
@@ -126,10 +116,12 @@ const TestManagement = () => {
     if (test) {
       setEditingTestId(test._id);
       setEditingTestName(test.name || "");
+      setEditingTestCategory(test.category || test.type || "General");
     } else {
       setEditingTestId(null);
       setEditingTestName("");
-      setTestNames([""]);
+      setEditingTestCategory("General");
+      setTestRows([{ name: "", category: "General" }]);
     }
     setShowTestModal(true);
   };
@@ -138,19 +130,25 @@ const TestManagement = () => {
     setShowTestModal(false);
     setEditingTestId(null);
     setEditingTestName("");
-    setTestNames([""]);
+    setEditingTestCategory("General");
+    setTestRows([{ name: "", category: "General" }]);
   };
 
-  const handleAddMoreTestName = () => {
-    setTestNames((prev) => [...prev, ""]);
+  const handleAddMoreTestRow = () => {
+    setTestRows((prev) => [
+      ...prev,
+      { name: "", category: prev[prev.length - 1]?.category || "General" },
+    ]);
   };
 
-  const handleRemoveTestName = (idx) => {
-    setTestNames((prev) => prev.filter((_, i) => i !== idx));
+  const handleRemoveTestRow = (idx) => {
+    setTestRows((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const handleTestNameChange = (idx, value) => {
-    setTestNames((prev) => prev.map((n, i) => (i === idx ? value : n)));
+  const handleTestRowChange = (idx, field, value) => {
+    setTestRows((prev) =>
+      prev.map((row, i) => (i === idx ? { ...row, [field]: value } : row))
+    );
   };
 
   const handleTestSubmit = async (e) => {
@@ -163,22 +161,32 @@ const TestManagement = () => {
           setSubmitting(false);
           return;
         }
-        await api.put(`/api/v1/test/${editingTestId}`, { name: editingTestName.trim() });
+        await api.put(`/api/v1/test/${editingTestId}`, {
+          name: editingTestName.trim(),
+          category: editingTestCategory.trim() || "General",
+        });
         playSaveSound();
         snackbar.success("Diagnostic test updated successfully!");
       } else {
-        const validNames = testNames.map((n) => n.trim()).filter(Boolean);
-        if (validNames.length === 0) {
-          snackbar.error("Please enter at least one test name");
+        const validRows = testRows
+          .map((r) => ({
+            name: (r.name || "").trim(),
+            category: (r.category || "General").trim() || "General",
+          }))
+          .filter((r) => r.name.length > 0);
+
+        if (validRows.length === 0) {
+          snackbar.error("Please enter at least one valid test name");
           setSubmitting(false);
           return;
         }
-        await api.post("/api/v1/test", { names: validNames });
+
+        await api.post("/api/v1/test", { tests: validRows });
         playSaveSound();
         snackbar.success(
-          validNames.length === 1
+          validRows.length === 1
             ? "Diagnostic test created successfully!"
-            : `${validNames.length} diagnostic tests created successfully!`
+            : `${validRows.length} diagnostic tests created successfully!`
         );
       }
       handleCloseTestModal();
@@ -202,156 +210,95 @@ const TestManagement = () => {
     }
   };
 
-  // ==================== TEMPLATE CRUD HANDLERS ====================
+  // ==================== FILTERING & SORTING ====================
 
-  const handleOpenTemplateModal = (template = null) => {
-    if (template) {
-      setEditingTemplateId(template._id);
-      setTemplateForm({
-        name: template.name || "",
-        tests:
-          Array.isArray(template.tests) && template.tests.length > 0
-            ? template.tests.map((t) => ({
-                testName: typeof t === "string" ? t : t.testName || t.name || "",
-              }))
-            : [{ testName: "" }],
-      });
-    } else {
-      setEditingTemplateId(null);
-      setTemplateForm(emptyTemplateForm);
-    }
-    setShowTemplateModal(true);
-  };
-
-  const handleCloseTemplateModal = () => {
-    setShowTemplateModal(false);
-    setEditingTemplateId(null);
-    setTemplateForm(emptyTemplateForm);
-  };
-
-  const handleAddTemplateTestRow = () => {
-    setTemplateForm((prev) => ({
-      ...prev,
-      tests: [...prev.tests, { testName: "" }],
-    }));
-  };
-
-  const handleRemoveTemplateTestRow = (idx) => {
-    setTemplateForm((prev) => ({
-      ...prev,
-      tests: prev.tests.filter((_, i) => i !== idx),
-    }));
-  };
-
-  const handleTemplateTestNameChange = (idx, value) => {
-    setTemplateForm((prev) => ({
-      ...prev,
-      tests: prev.tests.map((t, i) => (i === idx ? { ...t, testName: value } : t)),
-    }));
-  };
-
-  const handleTemplateSubmit = async (e) => {
-    e.preventDefault();
-    if (!templateForm.name.trim()) {
-      snackbar.error("Please enter a template name");
-      return;
-    }
-    const cleanTests = (templateForm.tests || [])
-      .map((t) => (typeof t === "string" ? t.trim() : (t.testName || "").trim()))
-      .filter(Boolean);
-
-    if (cleanTests.length === 0) {
-      snackbar.error("Please add at least one test to the template");
-      return;
-    }
-
-    const payload = {
-      name: templateForm.name.trim(),
-      tests: cleanTests.map((testName) => ({ testName })),
-    };
-
-    setSubmitting(true);
-    try {
-      if (editingTemplateId) {
-        await api.put(`/api/v1/test/templates/${editingTemplateId}`, payload);
-        playSaveSound();
-        snackbar.success("Test template updated successfully!");
-      } else {
-        await api.post("/api/v1/test/templates", payload);
-        playSaveSound();
-        snackbar.success("Test template created successfully!");
-      }
-      handleCloseTemplateModal();
-      fetchTemplates();
-    } catch (err) {
-      snackbar.error(err?.response?.data?.message || "Failed to save template");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDeleteTemplate = async (id, name) => {
-    if (!window.confirm(`Are you sure you want to delete template "${name}"?`)) return;
-    try {
-      await api.delete(`/api/v1/test/templates/${id}`);
-      playDeleteSound();
-      snackbar.success("Template deleted successfully!");
-      setTemplates((prev) => prev.filter((t) => t._id !== id));
-    } catch (err) {
-      snackbar.error(err?.response?.data?.message || "Failed to delete template");
-    }
-  };
-
-  // ==================== FILTERING & SEARCH ====================
-
-  const filteredTests = useMemo(() => {
-    return (tests || []).filter((t) => {
+  const filteredAndSortedTests = useMemo(() => {
+    const filtered = (tests || []).filter((t) => {
+      const testCat = t.category || t.type || "General";
       const matchSearch =
         !testSearch ||
         (t.name && t.name.toLowerCase().includes(testSearch.toLowerCase())) ||
-        (t.department && t.department.toLowerCase().includes(testSearch.toLowerCase())) ||
-        (t.description && t.description.toLowerCase().includes(testSearch.toLowerCase())) ||
-        (t.precautions && t.precautions.toLowerCase().includes(testSearch.toLowerCase()));
-
-      const matchType =
-        testTypeFilter === "All" ||
-        (t.type && t.type.toLowerCase() === testTypeFilter.toLowerCase());
-
-      return matchSearch && matchType;
-    });
-  }, [tests, testSearch, testTypeFilter]);
-
-  const filteredTemplates = useMemo(() => {
-    return (templates || []).filter((tp) => {
-      const matchSearch =
-        !templateSearch ||
-        (tp.name && tp.name.toLowerCase().includes(templateSearch.toLowerCase())) ||
-        (tp.description && tp.description.toLowerCase().includes(templateSearch.toLowerCase())) ||
-        (Array.isArray(tp.tests) &&
-          tp.tests.some((t) => t.testName && t.testName.toLowerCase().includes(templateSearch.toLowerCase()))) ||
-        (Array.isArray(tp.tags) &&
-          tp.tags.some((tg) => tg.toLowerCase().includes(templateSearch.toLowerCase())));
+        testCat.toLowerCase().includes(testSearch.toLowerCase());
 
       const matchCategory =
-        templateCategoryFilter === "All" ||
-        (tp.category && tp.category.toLowerCase() === templateCategoryFilter.toLowerCase());
+        testCategoryFilter === "All" ||
+        testCat.toLowerCase() === testCategoryFilter.toLowerCase();
 
       return matchSearch && matchCategory;
     });
-  }, [templates, templateSearch, templateCategoryFilter]);
+
+    return filtered.sort((a, b) => {
+      let valA = "";
+      let valB = "";
+      if (sortField === "name") {
+        valA = (a.name || "").toLowerCase();
+        valB = (b.name || "").toLowerCase();
+      } else if (sortField === "category") {
+        valA = (a.category || a.type || "General").toLowerCase();
+        valB = (b.category || b.type || "General").toLowerCase();
+      }
+
+      if (valA < valB) return sortDirection === "asc" ? -1 : 1;
+      if (valA > valB) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [tests, testSearch, testCategoryFilter, sortField, sortDirection]);
+
+  // ==================== PAGINATION CALCULATIONS ====================
+
+  const totalTests = filteredAndSortedTests.length;
+  const totalPages = Math.max(1, Math.ceil(totalTests / pageSize));
+  const paginatedTests = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredAndSortedTests.slice(start, start + pageSize);
+  }, [filteredAndSortedTests, currentPage, pageSize]);
+
+  const startIndex = totalTests === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const endIndex = Math.min(currentPage * pageSize, totalTests);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+    if (totalPages <= maxVisible + 2) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (currentPage > 3) pages.push("...");
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (currentPage < totalPages - 2) pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  };
 
   // Color generator for category badges
-  const getBadgeStyle = (type) => {
-    if (!type) return { bg: "#f1f5f9", color: "#475569" };
-    const lower = type.toLowerCase();
-    if (lower.includes("blood") || lower.includes("hematology")) return { bg: "#fee2e2", color: "#b91c1c" };
-    if (lower.includes("imaging") || lower.includes("radiology") || lower.includes("x-ray") || lower.includes("mri"))
+  const getBadgeStyle = (category) => {
+    if (!category) return { bg: "#f1f5f9", color: "#475569" };
+    const lower = category.toLowerCase();
+    if (lower.includes("blood") || lower.includes("hematology"))
+      return { bg: "#fee2e2", color: "#b91c1c" };
+    if (
+      lower.includes("imaging") ||
+      lower.includes("radiology") ||
+      lower.includes("x-ray") ||
+      lower.includes("mri") ||
+      lower.includes("ct") ||
+      lower.includes("usg") ||
+      lower.includes("ultrasound")
+    )
       return { bg: "#e0f2fe", color: "#0369a1" };
     if (lower.includes("urine")) return { bg: "#fef3c7", color: "#b45309" };
-    if (lower.includes("cardio")) return { bg: "#ffe4e6", color: "#e11d48" };
-    if (lower.includes("bio") || lower.includes("pathology")) return { bg: "#f3e8ff", color: "#7e22ce" };
-    if (lower.includes("infectious")) return { bg: "#ffedd5", color: "#c2410c" };
-    if (lower.includes("endo") || lower.includes("diabetes")) return { bg: "#dcfce7", color: "#15803d" };
+    if (lower.includes("cardio") || lower.includes("ecg") || lower.includes("echo"))
+      return { bg: "#ffe4e6", color: "#e11d48" };
+    if (lower.includes("bio") || lower.includes("pathology"))
+      return { bg: "#f3e8ff", color: "#7e22ce" };
+    if (lower.includes("micro") || lower.includes("infectious"))
+      return { bg: "#ffedd5", color: "#c2410c" };
+    if (lower.includes("serology")) return { bg: "#fce7f3", color: "#be185d" };
+    if (lower.includes("endo") || lower.includes("diabetes"))
+      return { bg: "#dcfce7", color: "#15803d" };
     if (lower.includes("ortho")) return { bg: "#ccfbf1", color: "#0f766e" };
     return { bg: "#f1f5f9", color: "#475569" };
   };
@@ -360,142 +307,106 @@ const TestManagement = () => {
     <section className="page test-management-page" style={{ minHeight: "100vh" }}>
       <Toolbar>
         <div className="test-mgmt-header-box">
-          {/* Header Row: Back + Title + Action Button */}
+          {/* Header Row: Back + Title with Counter + Actions */}
           <div className="test-mgmt-top-row">
             <div className="test-mgmt-left">
               <button
                 onClick={() => navigate("/settings/medicine")}
-                className="arrow-btn"
+                className="test-back-btn"
                 title="Back to Medicine Catalog"
                 aria-label="Back to Medicine Catalog"
               >
                 <BsArrowLeft />
               </button>
               <div className="test-mgmt-title-wrap">
-                <h2>Diagnostic Tests & Templates</h2>
-                <span className="muted">
-                  Configure individual laboratory/diagnostic tests and reusable test profiles.
+                <div className="test-title-line">
+                  <h2>Diagnostic Tests</h2>
+                  <span className="test-count-badge">
+                    {tests.length} {tests.length === 1 ? "Test" : "Tests"}
+                  </span>
+                </div>
+                <span className="test-mgmt-subtitle">
+                  Configure and manage laboratory and clinical diagnostic tests
                 </span>
               </div>
             </div>
 
             <div className="test-mgmt-actions">
               <button
-                className="clear-btn"
+                className="test-secondary-btn"
                 onClick={() => navigate("/settings/medicine")}
+                title="Go to Medicine Catalog"
               >
+                <LuPill className="medicine-btn-icon" />
                 Medicine Catalog
               </button>
-              {activeTab === "tests" ? (
-                <button
-                  className="add-btn test-primary-btn"
-                  onClick={() => handleOpenTestModal()}
-                >
-                  <FaPlus style={{ marginRight: "6px", fontSize: "0.85rem" }} />
-                  Create Test
-                </button>
-              ) : (
-                <button
-                  className="add-btn test-primary-btn"
-                  onClick={() => handleOpenTemplateModal()}
-                >
-                  <FaPlus style={{ marginRight: "6px", fontSize: "0.85rem" }} />
-                  Create Test Template
-                </button>
-              )}
+              <button
+                className="test-primary-btn"
+                onClick={() => handleOpenTestModal()}
+              >
+                <LuPlus className="btn-icon" />
+                Create Test
+              </button>
             </div>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="test-mgmt-tabs-row">
-            <button
-              className={`test-tab-btn ${activeTab === "tests" ? "active" : ""}`}
-              onClick={() => setActiveTab("tests")}
-            >
-              <FaFlask className="tab-icon" />
-              <span>Diagnostic Tests</span>
-              <span className="tab-badge">{tests.length}</span>
-            </button>
-            <button
-              className={`test-tab-btn ${activeTab === "templates" ? "active" : ""}`}
-              onClick={() => setActiveTab("templates")}
-            >
-              <FaLayerGroup className="tab-icon" />
-              <span>Test Templates (Panels)</span>
-              <span className="tab-badge">{templates.length}</span>
-            </button>
-          </div>
-
-          {/* Search & Filters Bar */}
+          {/* Search & Filters Unified Control Bar */}
           <div className="test-mgmt-filter-row">
             <div className="test-search-box">
               <FaSearch className="search-icon" />
               <input
                 type="text"
-                placeholder={
-                  activeTab === "tests"
-                    ? "Search tests by name, category, precautions..."
-                    : "Search templates by panel name, included test, tag..."
-                }
-                value={activeTab === "tests" ? testSearch : templateSearch}
-                onChange={(e) =>
-                  activeTab === "tests"
-                    ? setTestSearch(e.target.value)
-                    : setTemplateSearch(e.target.value)
-                }
+                placeholder="Search tests by name or category..."
+                value={testSearch}
+                onChange={(e) => setTestSearch(e.target.value)}
                 className="search-input"
               />
+              {testSearch && (
+                <button
+                  type="button"
+                  className="search-clear-btn"
+                  onClick={() => setTestSearch("")}
+                  title="Clear search"
+                >
+                  <FaTimes />
+                </button>
+              )}
             </div>
 
             <div className="test-filter-bar">
-              {activeTab === "tests" ? (
-                <div className="filter-group">
-                  <label className="muted">Type</label>
-                  <select
-                    value={testTypeFilter}
-                    onChange={(e) => setTestTypeFilter(e.target.value)}
-                  >
-                    {STANDARD_TEST_TYPES.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ) : (
-                <div className="filter-group">
-                  <label className="muted">Category</label>
-                  <select
-                    value={templateCategoryFilter}
-                    onChange={(e) => setTemplateCategoryFilter(e.target.value)}
-                  >
-                    {STANDARD_TEMPLATE_CATEGORIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+              <div className="filter-select-wrapper">
+                <FaFilter className="filter-select-icon" />
+                <select
+                  value={testCategoryFilter}
+                  onChange={(e) => setTestCategoryFilter(e.target.value)}
+                  className="filter-category-select"
+                >
+                  {FILTER_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat === "All" ? "All Categories" : cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-              {((activeTab === "tests" && (testSearch || testTypeFilter !== "All")) ||
-                (activeTab === "templates" && (templateSearch || templateCategoryFilter !== "All"))) && (
+              {(testSearch || testCategoryFilter !== "All") && (
                 <button
-                  className="clear-filter"
-                  title="Clear Filters"
+                  className="test-reset-filter-btn"
+                  title="Reset all filters"
                   onClick={() => {
-                    if (activeTab === "tests") {
-                      setTestSearch("");
-                      setTestTypeFilter("All");
-                    } else {
-                      setTemplateSearch("");
-                      setTemplateCategoryFilter("All");
-                    }
+                    setTestSearch("");
+                    setTestCategoryFilter("All");
                   }}
                 >
-                  <LuFilterX />
+                  <LuFilterX className="btn-icon-sm" />
+                  Reset
                 </button>
               )}
+
+              <div className="test-results-count">
+                Showing <strong>{filteredAndSortedTests.length}</strong> of{" "}
+                <strong>{tests.length}</strong>
+              </div>
             </div>
           </div>
         </div>
@@ -503,248 +414,231 @@ const TestManagement = () => {
 
       {/* Main Content Area */}
       <main className="test-mgmt-main-content">
-        {activeTab === "tests" ? (
-          // ==================== TAB 1: DIAGNOSTIC TESTS ====================
-          <div className="tests-list-section">
-            {loadingTests ? (
-              <div className="loading-state">
-                <span className="loader"></span>
-                <p>Loading diagnostic tests...</p>
-              </div>
-            ) : filteredTests.length === 0 ? (
-              <div className="empty-state-card">
-                <FaFlask className="empty-icon" />
-                <h3>No Diagnostic Tests Found</h3>
-                <p className="muted">
-                  {testSearch || testTypeFilter !== "All"
-                    ? "Try adjusting your search query or filter."
-                    : "Get started by creating your first clinical diagnostic test."}
-                </p>
-                <button
-                  className="add-btn test-primary-btn"
-                  onClick={() => handleOpenTestModal()}
-                  style={{ marginTop: "1rem" }}
-                >
-                  + Add Diagnostic Test
-                </button>
-              </div>
-            ) : (
-              <div className="tests-grid">
-                {filteredTests.map((test) => {
-                  const badge = getBadgeStyle(test.type);
-                  const hasBodyContent = test.precautions || test.description;
-                  return (
-                    <div
-                      key={test._id}
-                      className="test-card"
-                    >
-                      <div className="test-card-top">
-                        <div className="test-title-group">
-                          <h3 className="test-name">{test.name}</h3>
-                          {test.department && (
-                            <span className="test-department muted">
-                              Dept: {test.department}
-                            </span>
-                          )}
-                        </div>
-                        {test.type && (
-                          <span
-                            className="test-type-badge"
-                            style={{ backgroundColor: badge.bg, color: badge.color }}
-                          >
-                            {test.type}
+        <div className="tests-list-section">
+          {loadingTests ? (
+            <div className="loading-state">
+              <span className="loader"></span>
+              <p>Loading diagnostic tests...</p>
+            </div>
+          ) : filteredAndSortedTests.length === 0 ? (
+            <div className="empty-state-card">
+              <FaFlask className="empty-icon" />
+              <h3>No Diagnostic Tests Found</h3>
+              <p className="muted">
+                {testSearch || testCategoryFilter !== "All"
+                  ? "Try adjusting your search query or filter."
+                  : "Get started by creating your first clinical diagnostic test."}
+              </p>
+              <button
+                className="add-btn test-primary-btn"
+                onClick={() => handleOpenTestModal()}
+                style={{ marginTop: "1rem" }}
+              >
+                + Add Diagnostic Test
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Table View */}
+              <div className="test-table-container">
+                <table className="test-table">
+                  <thead>
+                    <tr>
+                      <th className="th-index">#</th>
+                      <th
+                        className={`th-name th-sortable ${
+                          sortField === "name" ? "sorted" : ""
+                        }`}
+                        onClick={() => handleSort("name")}
+                        title={`Sort by Test Name (${
+                          sortField === "name" && sortDirection === "asc"
+                            ? "Click for Descending"
+                            : "Click for Ascending"
+                        })`}
+                      >
+                        <div className="th-sort-wrapper">
+                          <span>Test Name</span>
+                          <span className="th-sort-icon-box">
+                            {renderSortIcon("name")}
                           </span>
-                        )}
-                      </div>
-
-                      {hasBodyContent && (
-                        <div className="test-card-body">
-                          {test.precautions && (
-                            <div className="test-info-row">
-                              <span className="info-label">Precautions:</span>
-                              <span className="info-value">{test.precautions}</span>
+                        </div>
+                      </th>
+                      <th
+                        className={`th-category th-sortable ${
+                          sortField === "category" ? "sorted" : ""
+                        }`}
+                        onClick={() => handleSort("category")}
+                        title={`Sort by Category (${
+                          sortField === "category" && sortDirection === "asc"
+                            ? "Click for Descending"
+                            : "Click for Ascending"
+                        })`}
+                      >
+                        <div className="th-sort-wrapper">
+                          <span>Category</span>
+                          <span className="th-sort-icon-box">
+                            {renderSortIcon("category")}
+                          </span>
+                        </div>
+                      </th>
+                      <th className="th-actions">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedTests.map((test, index) => {
+                      const categoryName = test.category || test.type || "General";
+                      const badge = getBadgeStyle(categoryName);
+                      const serialNumber = (currentPage - 1) * pageSize + index + 1;
+                      return (
+                        <tr key={test._id} className="test-table-row">
+                          <td className="td-index">{serialNumber}</td>
+                          <td className="td-name">
+                            <span className="test-table-name-text">{test.name}</span>
+                          </td>
+                          <td className="td-category">
+                            <span
+                              className="test-type-badge"
+                              style={{
+                                backgroundColor: badge.bg,
+                                color: badge.color,
+                              }}
+                            >
+                              {categoryName}
+                            </span>
+                          </td>
+                          <td className="td-actions">
+                            <div className="table-action-buttons">
+                              <button
+                                type="button"
+                                title="Edit Test"
+                                aria-label={`Edit ${test.name}`}
+                                className="action-icon-btn edit-action"
+                                onClick={() => handleOpenTestModal(test)}
+                              >
+                                <FaEdit />
+                              </button>
+                              <button
+                                type="button"
+                                title="Delete Test"
+                                aria-label={`Delete ${test.name}`}
+                                className="action-icon-btn delete-action"
+                                onClick={() => handleDeleteTest(test._id, test.name)}
+                              >
+                                <FaTrash />
+                              </button>
                             </div>
-                          )}
-                          {test.description && (
-                            <p className="test-description-snippet">
-                              {test.description}
-                            </p>
-                          )}
-                        </div>
-                      )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
 
-                      <div className="test-card-footer">
-                        <div className="action-buttons">
-                          <button
-                            type="button"
-                            title="Edit Test"
-                            aria-label={`Edit ${test.name}`}
-                            className="action-icon-btn edit-action"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenTestModal(test);
-                            }}
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            type="button"
-                            title="Delete Test"
-                            aria-label={`Delete ${test.name}`}
-                            className="action-icon-btn delete-action"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteTest(test._id, test.name);
-                            }}
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        ) : (
-          // ==================== TAB 2: TEST TEMPLATES ====================
-          <div className="templates-list-section">
-            {loadingTemplates ? (
-              <div className="loading-state">
-                <span className="loader"></span>
-                <p>Loading test templates...</p>
-              </div>
-            ) : filteredTemplates.length === 0 ? (
-              <div className="empty-state-card">
-                <FaLayerGroup className="empty-icon" />
-                <h3>No Test Templates Found</h3>
-                <p className="muted">
-                  {templateSearch || templateCategoryFilter !== "All"
-                    ? "Try adjusting your search query or filter."
-                    : "Create bundled test panels to prescribe multiple lab tests in one click."}
-                </p>
-                <button
-                  className="add-btn test-primary-btn"
-                  onClick={() => handleOpenTemplateModal()}
-                  style={{ marginTop: "1rem" }}
-                >
-                  + Create Test Template
-                </button>
-              </div>
-            ) : (
-              <div className="templates-grid">
-                {filteredTemplates.map((template) => {
-                  const badge = getBadgeStyle(template.category);
-                  const testCount = Array.isArray(template.tests) ? template.tests.length : 0;
-                  return (
-                    <div
-                      key={template._id}
-                      className="template-card"
-                      onClick={() => {
-                        setViewingItem(template);
-                        setViewingType("template");
-                      }}
+              {/* Pagination Controls Footer */}
+              <div className="test-pagination-wrapper">
+                <div className="pagination-info">
+                  Showing <strong>{startIndex}</strong> to <strong>{endIndex}</strong> of{" "}
+                  <strong>{totalTests}</strong> tests
+                </div>
+
+                <div className="pagination-controls-group">
+                  <div className="rows-per-page">
+                    <label>Rows:</label>
+                    <select
+                      value={pageSize}
+                      onChange={(e) => setPageSize(Number(e.target.value))}
                     >
-                      <div className="template-card-header">
-                        <div>
-                          <h3 className="template-name">{template.name}</h3>
-                          <span
-                            className="template-category-badge"
-                            style={{ backgroundColor: badge.bg, color: badge.color }}
-                          >
-                            {template.category || "General Profile"}
-                          </span>
-                        </div>
-                        <span className="template-test-count-pill">
-                          {testCount} Test{testCount === 1 ? "" : "s"}
+                      <option value={10}>10</option>
+                      <option value={15}>15</option>
+                      <option value={25}>25</option>
+                      <option value={50}>50</option>
+                      <option value={100}>100</option>
+                    </select>
+                  </div>
+
+                  <div className="pagination-btns">
+                    <button
+                      className="page-nav-btn"
+                      disabled={currentPage <= 1}
+                      onClick={() => setCurrentPage(1)}
+                      title="First Page"
+                    >
+                      «
+                    </button>
+                    <button
+                      className="page-nav-btn"
+                      disabled={currentPage <= 1}
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      title="Previous Page"
+                    >
+                      ‹ Prev
+                    </button>
+
+                    {getPageNumbers().map((item, idx) =>
+                      item === "..." ? (
+                        <span key={`ellipsis-${idx}`} className="pagination-ellipsis">
+                          ...
                         </span>
-                      </div>
+                      ) : (
+                        <button
+                          key={item}
+                          className={`page-num-btn ${
+                            item === currentPage ? "active" : ""
+                          }`}
+                          onClick={() => setCurrentPage(item)}
+                        >
+                          {item}
+                        </button>
+                      )
+                    )}
 
-                      {template.description && (
-                        <p className="template-desc">{template.description}</p>
-                      )}
-
-                      <div className="template-tests-preview">
-                        <span className="preview-heading">Included Tests:</span>
-                        <div className="tests-chips-wrap">
-                          {(template.tests || []).slice(0, 5).map((t, i) => (
-                            <span key={i} className="test-chip">
-                              {t.testName}
-                            </span>
-                          ))}
-                          {(template.tests || []).length > 5 && (
-                            <span className="test-chip more-chip">
-                              +{template.tests.length - 5} more
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="template-card-footer">
-                        <div className="action-buttons">
-                          <button
-                            type="button"
-                            title="View Template Details"
-                            aria-label={`View details for ${template.name}`}
-                            className="action-icon-btn view-action"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setViewingItem(template);
-                              setViewingType("template");
-                            }}
-                          >
-                            <FaEye />
-                          </button>
-                          <button
-                            type="button"
-                            title="Edit Template"
-                            aria-label={`Edit ${template.name}`}
-                            className="action-icon-btn edit-action"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenTemplateModal(template);
-                            }}
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            type="button"
-                            title="Delete Template"
-                            aria-label={`Delete ${template.name}`}
-                            className="action-icon-btn delete-action"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteTemplate(template._id, template.name);
-                            }}
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                    <button
+                      className="page-nav-btn"
+                      disabled={currentPage >= totalPages}
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      title="Next Page"
+                    >
+                      Next ›
+                    </button>
+                    <button
+                      className="page-nav-btn"
+                      disabled={currentPage >= totalPages}
+                      onClick={() => setCurrentPage(totalPages)}
+                      title="Last Page"
+                    >
+                      »
+                    </button>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
-        )}
+            </>
+          )}
+        </div>
       </main>
 
       {/* ==================== MODAL: ADD / EDIT DIAGNOSTIC TEST ==================== */}
       {showTestModal && (
         <div className="modal-overlay" onClick={handleCloseTestModal}>
-          <div className="modal-content test-modal-content simple-test-modal" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal-content test-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-header">
-              <h3>{editingTestId ? "Edit Diagnostic Test" : "Add New Diagnostic Test"}</h3>
+              <h3>
+                {editingTestId
+                  ? "Edit Diagnostic Test"
+                  : "Add New Diagnostic Test"}
+              </h3>
               <button className="close-btn" onClick={handleCloseTestModal}>
                 <FaTimes />
               </button>
             </div>
             <form onSubmit={handleTestSubmit} className="modal-body test-form">
               {editingTestId ? (
-                <div className="form-row">
-                  <div className="form-group full-width">
+                // Single Test Edit Form
+                <div className="single-test-edit-fields">
+                  <div className="form-group">
                     <label>Test Name *</label>
                     <input
                       type="text"
@@ -755,27 +649,74 @@ const TestManagement = () => {
                       autoFocus
                     />
                   </div>
+
+                  <div className="form-group" style={{ marginTop: "12px" }}>
+                    <label>Test Category</label>
+                    <select
+                      value={editingTestCategory}
+                      onChange={(e) => setEditingTestCategory(e.target.value)}
+                    >
+                      {STANDARD_CATEGORIES.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               ) : (
+                // Multi-Test Create Form
                 <div className="multi-test-create-wrapper">
-                  <label className="input-label-header">Test Name *</label>
+                  <div className="multi-test-header-labels">
+                    <span className="col-label test-name-col-label">
+                      Test Name *
+                    </span>
+                    <span className="col-label test-cat-col-label">
+                      Test Category
+                    </span>
+                  </div>
+
                   <div className="test-name-inputs-list">
-                    {testNames.map((name, idx) => (
+                    {testRows.map((row, idx) => (
                       <div key={idx} className="multi-test-input-row">
-                        <input
-                          type="text"
-                          required={idx === 0}
-                          placeholder={`Enter test name (e.g. Complete Blood Count (CBC))`}
-                          value={name}
-                          onChange={(e) => handleTestNameChange(idx, e.target.value)}
-                          autoFocus={idx === 0}
-                        />
-                        {testNames.length > 1 && (
+                        <div className="row-input-wrap test-name-input-wrap">
+                          <input
+                            type="text"
+                            required={idx === 0}
+                            placeholder="e.g. Complete Blood Count (CBC)"
+                            value={row.name}
+                            onChange={(e) =>
+                              handleTestRowChange(idx, "name", e.target.value)
+                            }
+                            autoFocus={idx === 0}
+                          />
+                        </div>
+
+                        <div className="row-input-wrap test-cat-select-wrap">
+                          <select
+                            value={row.category}
+                            onChange={(e) =>
+                              handleTestRowChange(
+                                idx,
+                                "category",
+                                e.target.value
+                              )
+                            }
+                          >
+                            {STANDARD_CATEGORIES.map((cat) => (
+                              <option key={cat} value={cat}>
+                                {cat}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {testRows.length > 1 && (
                           <button
                             type="button"
                             className="action-icon-btn delete-action remove-test-row-btn"
-                            title="Remove Test Row"
-                            onClick={() => handleRemoveTestName(idx)}
+                            title="Remove Row"
+                            onClick={() => handleRemoveTestRow(idx)}
                           >
                             <FaTrash />
                           </button>
@@ -783,121 +724,23 @@ const TestManagement = () => {
                       </div>
                     ))}
                   </div>
+
                   <button
                     type="button"
                     className="add-more-test-btn"
-                    onClick={handleAddMoreTestName}
+                    onClick={handleAddMoreTestRow}
                   >
-                    <FaPlus style={{ fontSize: "0.75rem", marginRight: "4px" }} />
+                    <LuPlus style={{ fontSize: "0.85rem", marginRight: "4px" }} />
                     Add more
                   </button>
                 </div>
               )}
 
               <div className="modal-footer">
-                <button type="button" className="btn secondary" onClick={handleCloseTestModal}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn add-btn test-primary-btn" disabled={submitting}>
-                  {submitting
-                    ? "Saving..."
-                    : editingTestId
-                    ? "Update Test"
-                    : testNames.filter((n) => n.trim()).length > 1
-                    ? "Create Tests"
-                    : "Create Test"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ==================== MODAL: ADD / EDIT TEST TEMPLATE ==================== */}
-      {showTemplateModal && (
-        <div className="modal-overlay" onClick={handleCloseTemplateModal}>
-          <div className="modal-content template-modal-content simple-template-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{editingTemplateId ? "Edit Test Template" : "Create Test Template"}</h3>
-              <button className="close-btn" onClick={handleCloseTemplateModal}>
-                <FaTimes />
-              </button>
-            </div>
-            <form onSubmit={handleTemplateSubmit} className="modal-body template-form">
-              <div className="form-row">
-                <div className="form-group full-width">
-                  <label>Template Name *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Fever & Infection Panel"
-                    value={templateForm.name}
-                    onChange={(e) =>
-                      setTemplateForm({ ...templateForm, name: e.target.value })
-                    }
-                    autoFocus
-                  />
-                </div>
-              </div>
-
-              {/* Template Tests Builder */}
-              <div className="template-builder-section">
-                <div className="builder-header">
-                  <h4>Included Tests in this Profile</h4>
-                  <button
-                    type="button"
-                    className="add-btn small-btn"
-                    onClick={handleAddTemplateTestRow}
-                  >
-                    <FaPlus style={{ marginRight: "4px", fontSize: "0.75rem" }} />
-                    Add Test Row
-                  </button>
-                </div>
-
-                <datalist id="available-diagnostic-tests">
-                  {tests.map((test) => (
-                    <option key={test._id} value={test.name} />
-                  ))}
-                </datalist>
-
-                <div className="builder-rows-container">
-                  {templateForm.tests.map((t, idx) => (
-                    <div key={idx} className="builder-test-row simple-builder-row">
-                      <div className="row-number">#{idx + 1}</div>
-
-                      <div className="row-field test-name-field" style={{ flex: 1 }}>
-                        <input
-                          type="text"
-                          required
-                          list="available-diagnostic-tests"
-                          placeholder="Enter or select test name (e.g. Complete Blood Count)"
-                          value={t.testName}
-                          onChange={(e) =>
-                            handleTemplateTestNameChange(idx, e.target.value)
-                          }
-                        />
-                      </div>
-
-                      {templateForm.tests.length > 1 && (
-                        <button
-                          type="button"
-                          className="action-icon-btn delete-action"
-                          title="Remove Test Row"
-                          onClick={() => handleRemoveTemplateTestRow(idx)}
-                        >
-                          <FaTrash />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="modal-footer">
                 <button
                   type="button"
                   className="btn secondary"
-                  onClick={handleCloseTemplateModal}
+                  onClick={handleCloseTestModal}
                 >
                   Cancel
                 </button>
@@ -908,139 +751,14 @@ const TestManagement = () => {
                 >
                   {submitting
                     ? "Saving..."
-                    : editingTemplateId
-                    ? "Update Template"
-                    : "Create Template"}
+                    : editingTestId
+                    ? "Update Test"
+                    : testRows.filter((r) => r.name.trim()).length > 1
+                    ? "Create Tests"
+                    : "Create Test"}
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* ==================== VIEW DETAILS MODAL ==================== */}
-      {viewingItem && (
-        <div className="modal-overlay" onClick={() => setViewingItem(null)}>
-          <div className="modal-content view-details-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>
-                {viewingType === "test"
-                  ? viewingItem.name
-                  : `${viewingItem.name} (Template)`}
-              </h3>
-              <button className="close-btn" onClick={() => setViewingItem(null)}>
-                <FaTimes />
-              </button>
-            </div>
-            <div className="modal-body">
-              {viewingType === "test" ? (
-                <div className="test-details-sheet">
-                  <div className="detail-item">
-                    <span className="detail-label">Type / Category:</span>
-                    <span
-                      className="test-type-badge"
-                      style={getBadgeStyle(viewingItem.type)}
-                    >
-                      {viewingItem.type || "General"}
-                    </span>
-                  </div>
-
-                  {viewingItem.department && (
-                    <div className="detail-item">
-                      <span className="detail-label">Department:</span>
-                      <span className="detail-value">{viewingItem.department}</span>
-                    </div>
-                  )}
-
-                  {viewingItem.precautions && (
-                    <div className="detail-item">
-                      <span className="detail-label">Precautions:</span>
-                      <span className="detail-value">{viewingItem.precautions}</span>
-                    </div>
-                  )}
-
-                  {viewingItem.normalRange && (
-                    <div className="detail-item">
-                      <span className="detail-label">Normal Range:</span>
-                      <span className="detail-value">{viewingItem.normalRange}</span>
-                    </div>
-                  )}
-
-                  {viewingItem.description && (
-                    <div className="detail-item full">
-                      <span className="detail-label">Description:</span>
-                      <p className="detail-desc-text">{viewingItem.description}</p>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="template-details-sheet">
-                  {viewingItem.category && viewingItem.category !== "General Profile" && (
-                    <div className="detail-item">
-                      <span className="detail-label">Category:</span>
-                      <span
-                        className="template-category-badge"
-                        style={getBadgeStyle(viewingItem.category)}
-                      >
-                        {viewingItem.category}
-                      </span>
-                    </div>
-                  )}
-
-                  {viewingItem.description && (
-                    <div className="detail-item full">
-                      <span className="detail-label">Description:</span>
-                      <p className="detail-desc-text">{viewingItem.description}</p>
-                    </div>
-                  )}
-
-                  {viewingItem.tags && viewingItem.tags.length > 0 && (
-                    <div className="detail-item full">
-                      <span className="detail-label">Tags:</span>
-                      <div className="tags-container">
-                        {viewingItem.tags.map((tag, i) => (
-                          <span key={i} className="tag tag-blue">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="detail-item full" style={{ marginTop: "0.75rem" }}>
-                    <span className="detail-label">
-                      Included Tests ({viewingItem.tests?.length || 0}):
-                    </span>
-                    <div className="template-view-tests-list">
-                      {(viewingItem.tests || []).map((t, i) => (
-                        <div key={i} className="template-view-test-item">
-                          <span className="test-item-num">#{i + 1}</span>
-                          <span className="test-item-name">{t.testName || t.name || (typeof t === "string" ? t : "")}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="modal-footer">
-              <button className="btn secondary" onClick={() => setViewingItem(null)}>
-                Close
-              </button>
-              <button
-                className="btn add-btn test-primary-btn"
-                onClick={() => {
-                  if (viewingType === "test") {
-                    handleOpenTestModal(viewingItem);
-                  } else {
-                    handleOpenTemplateModal(viewingItem);
-                  }
-                  setViewingItem(null);
-                }}
-              >
-                Edit Details
-              </button>
-            </div>
           </div>
         </div>
       )}

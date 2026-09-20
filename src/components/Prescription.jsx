@@ -3,6 +3,7 @@ import AutoSuggestInput from "./AutoSuggestInput";
 import AutoSuggestInputforSymptom from "./AutoSuggestInputforSymptom";
 import useSymptomSuggestions from "./useSymptomSuggestions";
 import useMedicineSuggestions from "./useMedicineSuggestions";
+import useDiagnosticTestSuggestions from "./useDiagnosticTestSuggestions";
 import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "../context/SnackbarContext";
@@ -39,6 +40,7 @@ const Prescription = ({ patientId, onClose }) => {
   const dispatch = useDispatch();
   const symptomSuggestions = useSymptomSuggestions();
   const medSuggestions = useMedicineSuggestions();
+  const { tests: diagnosticTests } = useDiagnosticTestSuggestions();
   // server-driven complaint suggestions while typing
   const [complaintQuery, setComplaintQuery] = useState("");
   const [complaintSuggestions, setComplaintSuggestions] = useState([]);
@@ -52,20 +54,46 @@ const Prescription = ({ patientId, onClose }) => {
     clinicalFindings: false,
   });
 
-  // Derived test suggestions (flatten testAdvice from advices)
+  // Derived test suggestions: Diagnostic Tests from DB (/tests) + symptom advice tests
   const testSuggestions = useMemo(() => {
     const map = new Map();
+
+    // 1. All saved Diagnostic Tests from DB
+    (diagnosticTests || []).forEach((t) => {
+      const key = (t.name || "").trim();
+      if (!key) return;
+      const lowerKey = key.toLowerCase();
+      map.set(lowerKey, {
+        name: key,
+        label: key,
+        category: t.category || "General",
+        composition: t.category || "General",
+        testType: t.category || "General",
+      });
+    });
+
+    // 2. Merge any additional test items from symptom suggestions
     (symptomSuggestions || []).forEach((a) => {
       if (Array.isArray(a.testAdvice)) {
         a.testAdvice.forEach((t) => {
           const key = (t.testName || "").trim();
           if (!key) return;
-          if (!map.has(key)) map.set(key, { name: key, ...t });
+          const lowerKey = key.toLowerCase();
+          if (!map.has(lowerKey)) {
+            map.set(lowerKey, {
+              name: key,
+              label: key,
+              category: t.testType || "General",
+              composition: t.testType || "General",
+              ...t,
+            });
+          }
         });
       }
     });
+
     return Array.from(map.values());
-  }, [symptomSuggestions]);
+  }, [diagnosticTests, symptomSuggestions]);
   const [temp_complain, setTemp_complain] = useState([
     "Fever",
     "Cough",
@@ -2381,7 +2409,7 @@ const Prescription = ({ patientId, onClose }) => {
                               handleTestAdviceChange(
                                 idx,
                                 "testType",
-                                item.testType || ""
+                                item.category || item.testType || ""
                               );
                               handleTestAdviceChange(
                                 idx,
