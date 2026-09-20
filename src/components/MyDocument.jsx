@@ -436,6 +436,14 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
           </View>
         ))}
 
+        {/* Advice Right after Medicines */}
+        {showAdvice && report?.additionalAdvice && (
+          <View style={{ padding: "2mm", borderBottom: "1 solid #e0e0e0" }}>
+            <Text style={styles.heading}>Advice: </Text>
+            <Text style={{ marginTop: "1mm", fontSize: "9pt" }}>{report.additionalAdvice}</Text>
+          </View>
+        )}
+
         {/* Empty rows to maintain table structure and vertical grid lines */}
         {Array.from({ length: emptyRowsNeeded }).map((_, index) => (
           <View key={`empty-${index}`} style={styles.table_row_empty}>
@@ -454,12 +462,6 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
       {isTemplate1 ? (
         // Template 1: Advice & Follow-up in Rx column (Doctor Name is on the right in Margin col)
         <View style={styles.rx_bottom_box}>
-          {showAdvice && report?.additionalAdvice && (
-            <View style={styles.heading_values}>
-              <Text style={styles.heading}>Advice: </Text>
-              <Text>{report.additionalAdvice}</Text>
-            </View>
-          )}
           {report?.followUp && (
             <View style={styles.heading_values}>
               <Text style={styles.heading}>Follow-up Date: </Text>
@@ -471,12 +473,6 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
         // Template 2: Advice & Follow-up on left, Doctor Name on right
         <View style={[styles.rx_bottom_box, { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end" }]}>
           <View style={{ flex: 1 }}>
-            {showAdvice && report?.additionalAdvice && (
-              <View style={styles.heading_values}>
-                <Text style={styles.heading}>Advice: </Text>
-                <Text>{report.additionalAdvice}</Text>
-              </View>
-            )}
             {report?.followUp && (
               <View style={styles.heading_values}>
                 <Text style={styles.heading}>Follow-up Date: </Text>
@@ -774,17 +770,18 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                     </View>
                   )
                 ))}
+                
+                {report?.additionalAdvice && (
+                  <View style={{ padding: "2mm", borderTop: "1 solid #000" }}>
+                    <Text style={styles.heading}>Advice:</Text>
+                    <Text style={{ marginTop: "1mm", fontSize: "9pt" }}>{report.additionalAdvice}</Text>
+                  </View>
+                )}
               </View>
             </View>
 
             <View style={styles.seal} fixed>
               <View style={styles.seal_left}>
-                {report?.additionalAdvice && (
-                  <View style={styles.heading_values}>
-                    <Text style={styles.heading}>Advice:</Text>
-                    <Text>{report.additionalAdvice}</Text>
-                  </View>
-                )}
                 {report?.followUp && (
                   <View style={styles.heading_values}>
                     <Text style={styles.heading}>Follow-up Date:</Text>

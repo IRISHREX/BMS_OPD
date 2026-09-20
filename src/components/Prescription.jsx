@@ -4,6 +4,7 @@ import AutoSuggestInputforSymptom from "./AutoSuggestInputforSymptom";
 import useSymptomSuggestions from "./useSymptomSuggestions";
 import useMedicineSuggestions from "./useMedicineSuggestions";
 import useDiagnosticTestSuggestions from "./useDiagnosticTestSuggestions";
+import useAdviceSuggestions from "./useAdviceSuggestions";
 import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "../context/SnackbarContext";
@@ -41,6 +42,7 @@ const Prescription = ({ patientId, onClose }) => {
   const symptomSuggestions = useSymptomSuggestions();
   const medSuggestions = useMedicineSuggestions();
   const { tests: diagnosticTests } = useDiagnosticTestSuggestions();
+  const { advices: adviceSuggestions } = useAdviceSuggestions();
   // server-driven complaint suggestions while typing
   const [complaintQuery, setComplaintQuery] = useState("");
   const [complaintSuggestions, setComplaintSuggestions] = useState([]);
@@ -1163,6 +1165,29 @@ const Prescription = ({ patientId, onClose }) => {
     }
   }
 
+  const handleSaveCatalog = async () => {
+    // Top middle save catalog logic
+    const catalogName = prompt("Enter a name for this Professional Diagnosis Catalog:", diagnosys_heading || "Provisional Diagnosis");
+    if (!catalogName || !catalogName.trim()) return;
+
+    try {
+      const payload = {
+        name: catalogName.trim(),
+        symptoms: selectedComplaints.map((c) => (typeof c === "object" ? c.name : c)),
+        medicines: medicineAdvice,
+        testAdvice: testAdviceRows,
+        diet: dietAdvice,
+        medication: medicationAdvice,
+      };
+
+      await api.post("/api/v1/medical", payload);
+      snackbar.success("Catalog saved successfully!");
+      playSaveSound();
+    } catch (err) {
+      snackbar.error(err?.response?.data?.message || "Failed to save catalog");
+    }
+  };
+
   const handleClose = () => {
     if (isDirty) {
       snackbar.confirm("You have unsaved changes. Discard and close?", () => {
@@ -1211,6 +1236,16 @@ const Prescription = ({ patientId, onClose }) => {
         <p className="sub-header">
           {name} | {gender} | {age}years
         </p>
+        <div style={{ position: "absolute", top: "1rem", left: "50%", transform: "translateX(-50%)" }}>
+          <button
+            className="btn btn-primary"
+            onClick={handleSaveCatalog}
+            title="Save the current medicines, tests, and advice as a Professional Diagnosis Catalog"
+            style={{ fontSize: "0.85rem", padding: "0.3rem 0.6rem" }}
+          >
+            <FaSave style={{ marginRight: "0.3rem" }} /> Save Catalog
+          </button>
+        </div>
       </div>
       <div
         className="shortcuts-hint"
@@ -2529,12 +2564,43 @@ const Prescription = ({ patientId, onClose }) => {
           className="pres-form-group full-width toggle-content"
           style={{ borderRadius: "0.5rem" }}
         >
-          <label>Advice</label>
-          <textarea
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+            <label style={{ margin: 0 }}>Advice</label>
+            <button
+              type="button"
+              className="icon-btn edit-btn"
+              style={{ padding: "0.3rem", color: "#3b82f6", background: "none", border: "none", cursor: "pointer" }}
+              disabled={!additionalAdvice || !additionalAdvice.trim()}
+              onClick={async () => {
+                const text = additionalAdvice.trim();
+                if (!text) return;
+                const adviceName = prompt("Enter a short name for this Advice template:");
+                if (!adviceName || !adviceName.trim()) return;
+                try {
+                  await api.post("/api/v1/advice", {
+                    name: adviceName.trim(),
+                    advice: text
+                  });
+                  snackbar.success("Advice template saved successfully!");
+                  playSaveSound();
+                } catch(err) {
+                  snackbar.error("Failed to save advice template");
+                }
+              }}
+              title="Save the current text as a reusable Advice template"
+            >
+              <FaSave size={18} />
+            </button>
+          </div>
+          <AutoSuggestInput
             value={additionalAdvice}
             onChange={(e) => setAdditionalAdvice(e.target.value)}
-            placeholder="Enter advice..."
-            rows={2}
+            onSelect={(item, label) => {
+              const text = (item && typeof item === "object") ? item.advice : label;
+              setAdditionalAdvice((prev) => prev ? prev + "\n" + text : text);
+            }}
+            suggestions={adviceSuggestions}
+            placeholder="Search or enter advice..."
           />
         </div>
 

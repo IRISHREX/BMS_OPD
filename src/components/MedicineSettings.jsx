@@ -432,7 +432,7 @@ const MedicineSettings = () => {
                     setDrawerOpen(true);
                   }}
                 >
-                  + Create Medical Advice
+                  + Create Medical Catalog
                 </button>
                 <button
                   className="clear-btn"
@@ -445,6 +445,12 @@ const MedicineSettings = () => {
                   onClick={() => navigate("/tests")}
                 >
                   Manage Test
+                </button>
+                <button
+                  className="clear-btn"
+                  onClick={() => navigate("/settings/advice")}
+                >
+                  Manage Advice
                 </button>
               </div>
             </div>

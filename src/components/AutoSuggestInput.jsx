@@ -3,7 +3,6 @@ import "./AutoSuggestInput.css";
 
 export default function AutoSuggestInput({ value, onChange, suggestions = [], placeholder = "", single = false, onSelect, ...props }) {
   const [show, setShow] = useState(false);
-  const [filtered, setFiltered] = useState([]);
   const [highlight, setHighlight] = useState(0);
   const ref = useRef();
 
@@ -34,12 +33,8 @@ export default function AutoSuggestInput({ value, onChange, suggestions = [], pl
     return () => document.removeEventListener("mousedown", handle);
   }, [show]);
 
-  useEffect(() => {
-    const last = getLastToken(value);
-    if (!last) setFiltered(suggestions);
-    else setFiltered(suggestions.filter(s => labelOf(s).toLowerCase().includes(last.toLowerCase())));
-    setHighlight(0);
-  }, [value, suggestions, single]);
+  const last = getLastToken(value);
+  const filtered = !last ? suggestions : suggestions.filter(s => labelOf(s).toLowerCase().includes(last.toLowerCase()));
 
   function handleKey(e) {
     // if user types a comma, show suggestions for the new token
@@ -87,6 +82,7 @@ export default function AutoSuggestInput({ value, onChange, suggestions = [], pl
         autoComplete="off"
         onChange={e => {
           onChange(e);
+          setHighlight(0);
           const v = e.target.value || '';
           if (single) setShow(true);
           // Show suggestions if there's a non-empty token (last part of string)

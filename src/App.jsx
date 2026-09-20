@@ -44,6 +44,7 @@ import BackupManager from "./components/BackupManager";
 import SystemLogs from "./components/SystemLogs";
 import DoctorCapacitySettings from "./components/DoctorCapacitySettings";
 import TestManagement from "./components/TestManagement";
+import AdviceManagement from "./components/AdviceManagement";
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated, admin, setAdmin } =
@@ -129,6 +130,16 @@ const App = () => {
         <Route path="/tests" element={
           <RequireAuth allowedRoles={["Admin","Doctor","Compounder"]}>
             <TestManagement />
+          </RequireAuth>
+        } />
+        <Route path="/settings/tests" element={
+          <RequireAuth allowedRoles={["Admin","Doctor","Compounder"]}>
+            <TestManagement />
+          </RequireAuth>
+        } />
+        <Route path="/settings/advice" element={
+          <RequireAuth allowedRoles={["Admin","Doctor","Compounder"]}>
+            <AdviceManagement />
           </RequireAuth>
         } />
         <Route path="/settings" element={

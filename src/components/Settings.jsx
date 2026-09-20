@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUserCircle, FaPills, FaShieldAlt, FaHospital, FaCog, FaReceipt, FaFileInvoice, FaHeading, FaClipboardList } from "react-icons/fa";
+import { FaUserCircle, FaPills, FaShieldAlt, FaHospital, FaCog, FaReceipt, FaFileInvoice, FaHeading, FaClipboardList, FaCommentMedical } from "react-icons/fa";
+import { FaStethoscope } from "react-icons/fa";
 import "./Settings.css";
 
 const settings = [
@@ -45,6 +46,20 @@ const settings = [
     icon: <FaPills size={28} color="#10b981" />,
     description: "Manage medicines: add, edit or delete medicine records.",
     route: "/settings/medicine",
+  },
+  {
+    id: "tests",
+    name: "Diagnostic Tests",
+    icon: <FaStethoscope size={28} color="#eab308" />,
+    description: "Manage test catalog for prescriptions.",
+    route: "/settings/tests",
+  },
+  {
+    id: "advice",
+    name: "Manage Advice",
+    icon: <FaCommentMedical size={28} color="#f43f5e" />,
+    description: "Manage advice templates and instructions.",
+    route: "/settings/advice",
   },
   {
     id: "roles",
