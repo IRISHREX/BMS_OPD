@@ -508,16 +508,18 @@ const Profile = () => {
                   onChange={async (e) => {
                     const newTemplate = e.target.value;
                     try {
-                      const res = await api.put(`/api/v1/user/doctor/update/${userDetails._id}`, {
-                        prescriptionTemplate: newTemplate
+                      const res = await api.put(`/api/v1/user/prescription-template`, {
+                        templateName: newTemplate,
+                        doctorId: userDetails._id,
                       });
                       
                       if (res.data.success) {
                         setUserDetails({...userDetails, prescriptionTemplate: newTemplate});
-                        snackbar.success("Prescription template updated successfully!");
+                        localStorage.setItem("defaultPrescriptionTemplate", newTemplate);
+                        snackbar.success("Prescription template saved in database successfully!");
                       }
                     } catch (error) {
-                      snackbar.error("Failed to update template");
+                      snackbar.error("Failed to update template in database");
                     }
                   }}
                   className="form-control"
@@ -525,6 +527,7 @@ const Profile = () => {
                 >
                   <option value="Template 1: Right-side margin layout">Template 1: Right-side margin layout</option>
                   <option value="Template 2: Left-side margin layout">Template 2: Left-side margin layout</option>
+                  <option value="Template 3: Orthopedic Layout">Template 3: Orthopedic Layout</option>
                   <option value="default">Default Layout (Single Column)</option>
                 </select>
               </div>

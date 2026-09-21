@@ -12,7 +12,7 @@ import {
   FaSortDown,
 } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa6";
-import { LuFilterX, LuPlus, LuLayers } from "react-icons/lu";
+import { LuFilterX, LuPlus, LuLayers, LuPill } from "react-icons/lu";
 import { useSnackbar } from "../context/SnackbarContext";
 import {
   fetchMedicinesRequest,

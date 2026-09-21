@@ -63,13 +63,44 @@ const Preview = () => {
     { _id: "default", name: "Default Layout (Single Column)", layoutType: "default" },
   ];
 
+  const findMatchingTemplate = (target, list) => {
+    if (!target) return null;
+    const cleanTarget = String(target).toLowerCase().trim();
+    return list.find(t => {
+      const id = String(t._id || t.id || "").toLowerCase();
+      const name = String(t.name || "").toLowerCase();
+      const layout = String(t.layoutType || "").toLowerCase();
+      return (
+        id === cleanTarget ||
+        name === cleanTarget ||
+        layout === cleanTarget ||
+        (cleanTarget.includes("template 3") && (id.includes("template3") || name.includes("template 3") || layout.includes("template 3"))) ||
+        (cleanTarget.includes("orthopedic") && (name.includes("orthopedic") || layout.includes("orthopedic") || id.includes("template3"))) ||
+        (cleanTarget.includes("template 2") && (id.includes("template2") || name.includes("template 2") || layout.includes("template 2"))) ||
+        (cleanTarget.includes("template 1") && (id.includes("template1") || name.includes("template 1") || layout.includes("template 1"))) ||
+        (cleanTarget === "default" && (id === "default" || name.includes("single column") || layout === "default"))
+      );
+    });
+  };
+
+  const getInitialDefaultId = () => {
+    const savedId = localStorage.getItem("defaultPrescriptionTemplateId");
+    const savedName = localStorage.getItem("defaultPrescriptionTemplate");
+    const candidate = savedId || savedName;
+    if (candidate) {
+      const match = findMatchingTemplate(candidate, BUILT_IN_TEMPLATES);
+      if (match) return match._id;
+    }
+    return "template1";
+  };
+
   const [dbTemplates, setDbTemplates] = useState([]);
   const allTemplates = [
     ...dbTemplates,
     ...BUILT_IN_TEMPLATES.filter(b => !dbTemplates.some(t => t.name === b.name || t._id === b._id))
   ];
 
-  const [selectedTemplateId, setSelectedTemplateId] = useState("template1");
+  const [selectedTemplateId, setSelectedTemplateId] = useState(getInitialDefaultId);
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -78,7 +109,23 @@ const Preview = () => {
         const { data } = await api.get(`/api/v1/template/my-templates${doctorParam}`);
         if (data.success && data.templates?.length > 0) {
           setDbTemplates(data.templates);
+          
           const defaultTmpl = data.templates.find(t => t.isDefault);
+          const savedTarget = localStorage.getItem("defaultPrescriptionTemplate") || localStorage.getItem("defaultPrescriptionTemplateId");
+          
+          const combined = [
+            ...data.templates,
+            ...BUILT_IN_TEMPLATES.filter(b => !data.templates.some(t => t.name === b.name || t._id === b._id))
+          ];
+
+          if (savedTarget) {
+            const m = findMatchingTemplate(savedTarget, combined);
+            if (m) {
+              setSelectedTemplateId(m._id);
+              return;
+            }
+          }
+
           if (defaultTmpl) {
             setSelectedTemplateId(defaultTmpl._id);
           } else {
@@ -95,15 +142,28 @@ const Preview = () => {
   }, [isAuthenticated, doctor?._id]);
 
   useEffect(() => {
-    if (doctor?.prescriptionTemplate) {
-      const match = allTemplates.find(
-        t => t.layoutType === doctor.prescriptionTemplate || t.name === doctor.prescriptionTemplate
-      );
+    const doctorPref = doctor?.prescriptionTemplate;
+    const adminPref = admin?.prescriptionTemplate;
+    const localPref = localStorage.getItem("defaultPrescriptionTemplate") || localStorage.getItem("defaultPrescriptionTemplateId");
+
+    let targetPref = null;
+    if (doctorPref && doctorPref !== "default") {
+      targetPref = doctorPref;
+    } else if (localPref) {
+      targetPref = localPref;
+    } else if (adminPref && adminPref !== "default") {
+      targetPref = adminPref;
+    } else if (doctorPref) {
+      targetPref = doctorPref;
+    }
+
+    if (targetPref) {
+      const match = findMatchingTemplate(targetPref, allTemplates);
       if (match) {
         setSelectedTemplateId(match._id);
       }
     }
-  }, [doctor, dbTemplates]);
+  }, [doctor, admin, dbTemplates]);
 
   useEffect(() => {
     if (!patientId) return;

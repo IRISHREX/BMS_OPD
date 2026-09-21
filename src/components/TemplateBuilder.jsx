@@ -149,7 +149,9 @@ const TemplateBuilder = () => {
   const navigate = useNavigate();
   const snackbar = useSnackbar();
 
-  const [currentDefault, setCurrentDefault] = useState("Template 1: Right-side margin layout");
+  const [currentDefault, setCurrentDefault] = useState(
+    () => localStorage.getItem("defaultPrescriptionTemplate") || "Template 1: Right-side margin layout"
+  );
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [previewTemplate, setPreviewTemplate] = useState(null);
@@ -163,6 +165,7 @@ const TemplateBuilder = () => {
         const { data: userData } = await api.get("/api/v1/user/me");
         if (userData?.user?.prescriptionTemplate) {
           setCurrentDefault(userData.user.prescriptionTemplate);
+          localStorage.setItem("defaultPrescriptionTemplate", userData.user.prescriptionTemplate);
           setLoading(false);
           return;
         }
@@ -170,6 +173,7 @@ const TemplateBuilder = () => {
         // 2. Fallback to admin context
         if (admin?.prescriptionTemplate) {
           setCurrentDefault(admin.prescriptionTemplate);
+          localStorage.setItem("defaultPrescriptionTemplate", admin.prescriptionTemplate);
           setLoading(false);
           return;
         }
@@ -180,7 +184,9 @@ const TemplateBuilder = () => {
         if (tmplData?.success && tmplData.templates?.length > 0) {
           const defaultTmpl = tmplData.templates.find((t) => t.isDefault);
           if (defaultTmpl) {
-            setCurrentDefault(defaultTmpl.name || defaultTmpl.layoutType);
+            const defName = defaultTmpl.name || defaultTmpl.layoutType;
+            setCurrentDefault(defName);
+            localStorage.setItem("defaultPrescriptionTemplate", defName);
           }
         }
       } catch (err) {
@@ -198,35 +204,28 @@ const TemplateBuilder = () => {
     try {
       setUpdatingId(tmpl.id);
 
-      // 1. Update Doctor's user profile
-      const doctorId = admin?._id;
-      if (doctorId) {
-        try {
-          await api.put(`/api/v1/user/doctor/update/${doctorId}`, {
-            prescriptionTemplate: tmpl.name,
-          });
-        } catch (e) {
-          console.warn("Doctor update API warning (proceeding):", e);
-        }
+      // Persist in localStorage for instant seamless retrieval across all pages & printers
+      localStorage.setItem("defaultPrescriptionTemplate", tmpl.name);
+      localStorage.setItem("defaultPrescriptionTemplateId", tmpl.id);
+      localStorage.setItem("defaultPrescriptionLayoutType", tmpl.layoutType);
+
+      if (admin) {
+        admin.prescriptionTemplate = tmpl.name;
       }
 
-      // 2. Sync to Template database collection (marks as isDefault)
-      try {
-        await api.post("/api/v1/template", {
-          name: tmpl.name,
-          layoutType: tmpl.layoutType,
-          isDefault: true,
-        });
-      } catch (e) {
-        console.warn("Template DB sync warning:", e);
-      }
+      // 1. Explicitly save to Database for this Doctor / Admin (and sync across hospital if Admin)
+      await api.put("/api/v1/user/prescription-template", {
+        templateName: tmpl.name,
+        doctorId: admin?._id,
+        applyToAllDoctors: admin?.role === "Admin",
+      });
 
       // Update local state
       setCurrentDefault(tmpl.name);
-      snackbar.success(`"${tmpl.name}" is now your default prescription template!`);
+      snackbar.success(`"${tmpl.name}" is now saved in database as your default template!`);
     } catch (err) {
       console.error("Error setting default template", err);
-      snackbar.error("Failed to set default template. Please try again.");
+      snackbar.error("Failed to set default template in database. Please try again.");
     } finally {
       setUpdatingId(null);
     }
