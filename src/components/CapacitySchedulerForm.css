@@ -1,480 +1,611 @@
 .capacity-scheduler-form {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  margin-top: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e8e8e8;
+  background: transparent;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Inter', sans-serif;
 }
 
-.form-header {
-  margin-bottom: 2rem;
-  border-bottom: 2px solid #f0f0f0;
-  padding-bottom: 1.5rem;
-}
-
-.form-header h3 {
-  color: #1a1a1a;
-  margin: 0 0 0.5rem 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.form-header p {
-  color: #666;
-  margin: 0;
-  font-size: 0.95rem;
-}
-
-/* Capacity Form Section */
-.capacity-form-section {
-  background: linear-gradient(135deg, #f5f7fa 0%, #f8f9fa 100%);
-  border-radius: 5px;
-  padding: 2rem;
-  margin-bottom: 2.5rem;
-  border-left: 4px solid #2196f3;
-}
-
-.capacity-form-section h4 {
-  margin: 0 0 1.5rem 0;
-  color: #1a1a1a;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.capacity-form {
+/* Header */
+.cs-header {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-group label {
-  font-weight: 600;
-  color: #333;
-  font-size: 0.9rem;
-}
-
-.form-group input[type="date"],
-.form-group input[type="number"],
-.form-group textarea {
-  /* padding: 0.75rem;
-  border: 1px solid #ddd; */
-  font-size: 0.938rem;
-  /* font-family: inherit; */
-  transition: all 0.2s ease;
-}
-
-/* .form-group input[type="date"]:focus,
-.form-group input[type="number"]:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #2196f3;
-  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
-} */
-
-.capacity-input-wrapper {
-  position: relative;
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 1px solid #f1f5f9;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-.capacity-input-wrapper input {
-  flex: 1;
-}
-
-.capacity-badge {
-  background: #e3f2fd;
-  color: #1976d2;
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 70px;
-  max-height: 150px;
-}
-
-.form-group small {
-  color: #999;
-  font-size: 0.8rem;
-}
-
-.checkbox-group {
+.cs-header-left {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-top: 0.5rem;
 }
 
-.checkbox-group label {
+.cs-icon-box {
+  background: #eef2ff;
+  color: #4f46e5;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-weight: 500;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.cs-header h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.cs-header p {
   margin: 0;
-  cursor: pointer;
+  color: #64748b;
+  font-size: 0.9rem;
 }
 
-.checkbox-group input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-}
-
-.holiday-badge {
-  background: #fce4ec;
-  color: #c2185b;
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
+.cs-date-range-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: #475569;
   font-weight: 600;
+  font-size: 0.9rem;
 }
 
-.capacity-form-submit {
-  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+/* Set Capacity Form Box */
+.cs-form-box {
+  background: white;
+  padding: 2rem;
+  margin: 1.5rem 0;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cs-form-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.cs-form-title svg {
+  color: #3b82f6;
+  background: #eff6ff;
+  border-radius: 50%;
+  padding: 2px;
+}
+
+.cs-form-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.cs-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cs-form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.cs-form-group input[type="date"],
+.cs-form-group input[type="number"],
+.cs-form-group input[type="text"] {
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #1e293b;
+  outline: none;
+  transition: all 0.2s;
+  background: #f8fafc;
+}
+
+.cs-form-group input:focus {
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Date Range Inputs */
+.cs-date-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cs-to {
+  color: #94a3b8;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+/* Capacity Input */
+.cs-capacity-input {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cs-capacity-input input {
+  width: 80px;
+}
+
+.cs-range-hint {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.cs-notes-group {
+  flex: 1;
+  min-width: 250px;
+}
+
+/* Toggle Switch */
+.cs-toggle-group {
+  align-items: center;
+  padding-bottom: 4px;
+}
+
+.cs-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.cs-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.cs-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #cbd5e1;
+  transition: .4s;
+}
+
+.cs-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .cs-slider {
+  background-color: #3b82f6;
+}
+
+input:focus + .cs-slider {
+  box-shadow: 0 0 1px #3b82f6;
+}
+
+input:checked + .cs-slider:before {
+  transform: translateX(20px);
+}
+
+.cs-slider.round {
+  border-radius: 24px;
+}
+
+.cs-slider.round:before {
+  border-radius: 50%;
+}
+
+/* Submit Button */
+.cs-submit-group {
+  padding-bottom: 2px;
+}
+
+.cs-btn-submit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #3b82f6;
   color: white;
   border: none;
-  padding: 0.9rem 1.8rem;
-  border-radius: 6px;
-  font-size: 1rem;
+  padding: 10px 20px;
+  border-radius: 8px;
   font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  align-self: flex-start;
-  margin-top: 0.5rem;
+  transition: all 0.2s;
+  height: 42px;
 }
 
-.capacity-form-submit.btn-primary {
-  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+.cs-btn-submit:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-1px);
 }
 
-.capacity-form-submit:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.3);
-}
-
-.capacity-form-submit:disabled {
+.cs-btn-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* Capacity List Section */
-.capacity-list-section {
-  background: linear-gradient(135deg, #f9fafb 0%, #fcfcfc 100%);
-  border-radius: 5px;
-  padding: 2rem;
-  border-left: 4px solid #4caf50;
-}
-
-.capacity-list-section h4 {
-  margin: 0 0 1.5rem 0;
-  color: #1a1a1a;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.loading-text,
-.empty-text {
-  text-align: center;
-  color: #999;
-  padding: 2rem;
-  font-size: 0.95rem;
-}
-
-.capacity-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-}
-
-.capacity-card {
+/* Schedule List Box */
+.cs-list-box {
   background: white;
-  border-radius: 10px;
-  padding: 1.5rem;
-  border: 1px solid #e0e0e0;
-  transition: all 0.3s ease;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.capacity-card:hover {
-  border-color: #2196f3;
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.12);
-}
-
-.capacity-card-header {
+.cs-list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 2rem;
 }
 
-.date-info {
+.cs-list-title {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
 }
 
-.date-info strong {
-  font-size: 1rem;
-  color: #333;
-}
-
-.badge-holiday {
-  background: #fff3e0;
-  color: #e65100;
-  padding: 0.25rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.toggle-btn {
-  background: #f5f5f5;
-  border: 1px solid #ddd;
-  padding: 0.5rem 1rem;
+.cs-list-title svg {
+  color: #3b82f6;
+  background: #eff6ff;
+  padding: 4px;
   border-radius: 6px;
+}
+
+.cs-list-summary {
+  background: #f1f5f9;
+  color: #334155;
+  padding: 4px 12px;
+  border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
-  cursor: pointer;
+}
+
+.cs-empty {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.cs-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Card Styling */
+.cs-card {
+  display: flex;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
   transition: all 0.2s ease;
 }
 
-.toggle-btn.working {
-  background: #c8e6c9;
-  color: #1b5e20;
-  border-color: #66bb6a;
+.cs-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.toggle-btn.non-working {
-  background: #ffcdd2;
-  color: #b71c1c;
-  border-color: #ef5350;
-}
-.toggle-btn.btn {
-  background: #f5f5f5;
-  border: 1px solid #ddd;
+.cs-card.cs-off-day {
+  background: #f8fafc;
 }
 
-.capacity-card-body {
+/* Left Date Box */
+.cs-card-date {
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  width: 120px;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  border-left: 4px solid #3b82f6;
 }
 
-.capacity-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+.cs-off-day .cs-card-date {
+  border-left-color: #94a3b8;
+  background: #f1f5f9;
 }
 
-.stat-item {
+.cs-day-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 1px;
+}
+
+.cs-month-day {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 4px 0;
+}
+
+.cs-year {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Middle Details */
+.cs-card-details {
+  flex: 1;
+  padding: 1.5rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  justify-content: center;
+  gap: 1.5rem;
 }
 
-.stat-label {
-  color: #999;
-  font-size: 0.8rem;
-  font-weight: 600;
+.cs-stats-row {
+  display: flex;
+  gap: 2rem;
+}
+
+.cs-stat-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 100px;
+}
+
+.cs-notes-box {
+  flex: 1;
+  border-left: 1px solid #e2e8f0;
+  padding-left: 2rem;
+}
+
+.cs-stat-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.stat-value {
-  color: #333;
-  font-size: 1.2rem;
+.cs-stat-val {
+  font-size: 1.25rem;
   font-weight: 700;
+  color: #0f172a;
 }
 
-.capacity-bar-wrapper {
+.cs-note-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+/* Progress Bar */
+.cs-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.cs-progress-bg {
+  flex: 1;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.cs-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.cs-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: #f1f5f9;
+}
+
+.cs-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.cs-status-pill.green .cs-dot { background: #10b981; }
+.cs-status-pill.yellow .cs-dot { background: #f59e0b; }
+.cs-status-pill.red .cs-dot { background: #ef4444; }
+
+.cs-status-pill.green { color: #047857; background: #d1fae5; }
+.cs-status-pill.yellow { color: #b45309; background: #fef3c7; }
+.cs-status-pill.red { color: #b91c1c; background: #fee2e2; }
+
+/* Right Actions */
+.cs-card-actions {
+  padding: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  position: relative;
+}
+
+.cs-badge-working {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #dcfce7;
+  color: #166534;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.cs-badge-off {
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.cs-menu-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cs-menu-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.cs-dropdown-menu {
+  position: absolute;
+  top: 3.5rem;
+  right: 1.5rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-}
-
-.capacity-bar-bg {
-  background: #e8e8e8;
-  height: 14px;
-  border-radius: 8px;
+  min-width: 120px;
+  z-index: 10;
   overflow: hidden;
-  border: 1px solid #ddd;
 }
 
-.capacity-bar-fill {
-  height: 100%;
-  transition: width 0.3s ease, background-color 0.3s ease;
+.cs-dropdown-menu button {
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cs-dropdown-menu button:hover {
+  background: #f8fafc;
+}
+
+.cs-dropdown-menu button.cs-danger {
+  color: #ef4444;
+}
+
+.cs-dropdown-menu button.cs-danger:hover {
+  background: #fef2f2;
+}
+
+/* Info Tip */
+.cs-info-tip {
+  margin-top: 1.5rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
   border-radius: 8px;
-}
-
-.capacity-status-bar {
+  padding: 1rem 1.5rem;
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.status-badge {
-  padding: 0.4rem 0.9rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.warning-badge {
-  background: #ffebee;
-  color: #c62828;
-  padding: 0.4rem 0.9rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.capacity-notes {
-  background: #f5f5f5;
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
+  align-items: flex-start;
+  gap: 12px;
+  color: #1e3a8a;
   font-size: 0.9rem;
-  color: #666;
-  border-left: 3px solid #2196f3;
 }
 
-.capacity-notes strong {
-  color: #333;
-}
-
-/* Info Box */
-.info-box {
-  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
-  border-radius: 5px;
-  padding: 1.2rem;
-  margin-top: 2rem;
-  border-left: 4px solid #2196f3;
-}
-
-.info-box p {
-  margin: 0;
-  color: #555;
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.info-box strong {
-  color: #333;
-}
-/*  */
-.capacity-scheduler-form .form-header h3 {
+.cs-info-tip svg {
   font-size: 1.25rem;
-  color: #656565;
-  display: flex;
-  align-items: center;
-  column-gap: 10px;
-}
-.capacity-scheduler-form .form-header h3 svg {
-  color: #715dbb;
+  flex-shrink: 0;
+  color: #3b82f6;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-
-  .capacity-stats {
-    grid-template-columns: 1fr;
-  }
-
-  .capacity-form-section {
-    padding: 1.5rem;
-  }
-
-  .capacity-list-section {
-    padding: 1.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .capacity-scheduler-form {
-    padding: 1.5rem;
-    border-radius: 8px;
-  }
-
-  .form-header {
-    padding-bottom: 1rem;
-  }
-
-  .form-header h3 {
-    font-size: 1.25rem;
-  }
-
-  .capacity-card-header {
+/* Responsive */
+@media (max-width: 900px) {
+  .cs-card {
     flex-direction: column;
-    align-items: flex-start;
+  }
+  
+  .cs-card-date {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+    flex-direction: row;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .cs-month-day {
+    margin: 0;
+  }
+
+  .cs-stats-row {
+    flex-wrap: wrap;
     gap: 1rem;
   }
-
-  .toggle-btn {
-    align-self: flex-end;
+  
+  .cs-notes-box {
+    border-left: none;
+    padding-left: 0;
+    min-width: 100%;
   }
 
-  .capacity-stats {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .capacity-scheduler-form {
-    padding: 1rem;
+  .cs-card-actions {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0;
   }
 
-  .form-header h3 {
-    font-size: 1.1rem;
-  }
-
-  .form-header p {
-    font-size: 0.85rem;
-  }
-
-  .capacity-form-section,
-  .capacity-list-section {
-    padding: 1rem;
-  }
-
-  .capacity-card {
-    padding: 1rem;
-  }
-
-  .date-info {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .capacity-form-submit {
-    width: 100%;
-    padding: 0.8rem;
-  }
-
-  .stat-value {
-    font-size: 1rem;
+  .cs-badge-working, .cs-badge-off {
+    display: none;
   }
 }
