@@ -1,6 +1,74 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Image, Svg, Path } from '@react-pdf/renderer';
 import { dobToAge } from "../utils/ageUtils";
+import DynamicTemplate from "./DynamicTemplate";
+
+// Crisp Vector Icons for Orthopedic Template headers (safe for all PDF engines)
+const IconUser = () => (
+  <Svg width={9} height={9} viewBox="0 0 24 24" style={{ marginRight: 3 }}>
+    <Path fill="#0a4a75" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+  </Svg>
+);
+
+const IconHeart = () => (
+  <Svg width={9} height={9} viewBox="0 0 24 24" style={{ marginRight: 3 }}>
+    <Path fill="#0a4a75" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+  </Svg>
+);
+
+const IconClipboard = () => (
+  <Svg width={9} height={9} viewBox="0 0 24 24" style={{ marginRight: 3 }}>
+    <Path fill="#0a4a75" d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+  </Svg>
+);
+
+const IconHistory = () => (
+  <Svg width={9} height={9} viewBox="0 0 24 24" style={{ marginRight: 3 }}>
+    <Path fill="#0a4a75" d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" />
+  </Svg>
+);
+
+const IconStethoscope = () => (
+  <Svg width={9} height={9} viewBox="0 0 24 24" style={{ marginRight: 3 }}>
+    <Path fill="#0a4a75" d="M19 8h-1V3H6v5H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-6H8V5h10v2z" />
+  </Svg>
+);
+
+const IconLab = () => (
+  <Svg width={9} height={9} viewBox="0 0 24 24" style={{ marginRight: 3 }}>
+    <Path fill="#0a4a75" d="M20.8 18.4L15 7.6V4h1c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1s.45 1 1 1h1v3.6L3.2 18.4C2.45 19.8 3.45 22 5.04 22h13.92c1.59 0 2.59-2.2 1.84-3.6zM6 19l4.5-8.4V4h3v6.6L18 19H6z" />
+  </Svg>
+);
+
+const IconRadiology = () => (
+  <Svg width={9} height={9} viewBox="0 0 24 24" style={{ marginRight: 3 }}>
+    <Path fill="#0a4a75" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+  </Svg>
+);
+
+const IconTarget = () => (
+  <Svg width={9} height={9} viewBox="0 0 24 24" style={{ marginRight: 3 }}>
+    <Path fill="#0a4a75" d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3-8c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3 3 1.34 3 3z" />
+  </Svg>
+);
+
+const IconSearch = () => (
+  <Svg width={9} height={9} viewBox="0 0 24 24" style={{ marginRight: 3 }}>
+    <Path fill="#0a4a75" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+  </Svg>
+);
+
+const IconAdvice = () => (
+  <Svg width={9} height={9} viewBox="0 0 24 24" style={{ marginRight: 3 }}>
+    <Path fill="#0a4a75" d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
+  </Svg>
+);
+
+const IconCalendar = () => (
+  <Svg width={9} height={9} viewBox="0 0 24 24" style={{ marginRight: 3 }}>
+    <Path fill="#0a4a75" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
+  </Svg>
+);
 
 const formatDate = (date) =>
   date ? new Date(date).toLocaleDateString("en-GB") : ""; // dd/mm/yyyy
@@ -287,6 +355,80 @@ const styles = StyleSheet.create({
     fontSize: "7pt",
     color: "#666",
   },
+
+  // --- Template 3: Exact Replica Ortho Styles ---
+  ortho_frame: {
+    marginHorizontal: "5mm",
+    marginTop: "2mm",
+    marginBottom: "2mm",
+    width: "200mm",
+    height: "235mm",
+    display: "flex",
+    flexDirection: "column",
+    backgroundColor: "#fff",
+    fontSize: "8pt",
+  },
+  ortho_row_flex: {
+    flexDirection: "row",
+    gap: "1.5mm",
+    marginBottom: "1.5mm"
+  },
+  ortho_panel: {
+    border: "1 solid #c0d1e5",
+    borderRadius: 4,
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    backgroundColor: "#fff"
+  },
+  ortho_header: {
+    backgroundColor: "#e8f0fe",
+    color: "#0a4a75",
+    fontWeight: "bold",
+    padding: "1.5mm 2mm",
+    fontSize: "8.5pt",
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottom: "1 solid #c0d1e5",
+  },
+  ortho_content: {
+    padding: "2mm",
+    color: "#333",
+  },
+  ortho_field_row: {
+    flexDirection: "row",
+    marginBottom: "1mm",
+    alignItems: "flex-end"
+  },
+  ortho_label: {
+    fontWeight: "bold",
+    marginRight: "2mm",
+    color: "#0a4a75",
+    fontSize: "7.5pt"
+  },
+  ortho_value: {
+    flex: 1,
+    borderBottom: "1 solid #c0d1e5",
+    minHeight: "4mm",
+  },
+  ortho_value_short: {
+    borderBottom: "1 solid #c0d1e5",
+    minHeight: "4mm",
+    minWidth: "15mm"
+  },
+  ortho_checkbox: {
+    width: "2.5mm",
+    height: "2.5mm",
+    border: "1 solid #0a4a75",
+    marginRight: "1mm",
+    marginBottom: "0.5mm"
+  },
+  ortho_check_item: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: "3mm",
+    marginBottom: "1mm"
+  },
 });
 
 // Helper for clinical findings text
@@ -303,23 +445,30 @@ const getClinicalText = (clinical_findings) => {
 // Create Document Component
 const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, activeTemplate }) => {
   // Resolve layout type
-  const templateIdentifier = 
+  const templateIdentifier =
     (typeof activeTemplate === "string" ? activeTemplate : activeTemplate?.layoutType || activeTemplate?.name) ||
     dr_data?.prescriptionTemplate ||
     "default";
 
-  const isTemplate1 = 
-    templateIdentifier === "Template 1: Right-side margin layout" || 
+  const isTemplate1 =
+    templateIdentifier === "Template 1: Right-side margin layout" ||
     templateIdentifier === "right-margin" ||
     templateIdentifier === "template1" ||
     activeTemplate?.layoutConfig?.layoutMode === "two-column-right";
 
-  const isTemplate2 = 
-    templateIdentifier === "Template 2: Left-side margin layout" || 
-    templateIdentifier === "left-margin" || 
+  const isTemplate2 =
+    templateIdentifier === "Template 2: Left-side margin layout" ||
+    templateIdentifier === "left-margin" ||
     templateIdentifier === "two-column" ||
     templateIdentifier === "template2" ||
     activeTemplate?.layoutConfig?.layoutMode === "two-column-left";
+
+  const isTemplate3 =
+    templateIdentifier === "Template 3: Orthopedic Layout" ||
+    templateIdentifier === "template3" ||
+    activeTemplate?.layoutConfig?.layoutMode === "ortho";
+
+  const isDynamicJson = templateIdentifier === "dynamic-json";
 
   const isTwoColumn = isTemplate1 || isTemplate2;
 
@@ -355,10 +504,25 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
   const TOTAL_GRID_ROWS = 14;
   const emptyRowsNeeded = Math.max(0, TOTAL_GRID_ROWS - Math.min(medList.length, 14));
 
+  // Extract Female Patient Obstetric Info & Others Vitals
+  const femaleParts = [];
+  const g = report?.femaleTests?.Gravida || report?.Gravida;
+  const p = report?.femaleTests?.Parity || report?.Parity;
+  const lmp = report?.femaleTests?.LMP || report?.LMP;
+  const edd = report?.femaleTests?.EDD || report?.EDD;
+  const pog = report?.femaleTests?.POG || report?.POG;
+  if (g) femaleParts.push(`G:${g}`);
+  if (p && p !== "0+0" && p !== "+") femaleParts.push(`P:${p}`);
+  if (lmp) femaleParts.push(`LMP:${formatDate(lmp)}`);
+  if (pog) femaleParts.push(`POG:${pog}`);
+  if (edd) femaleParts.push(`EDD:${formatDate(edd)}`);
+  const femaleStr = femaleParts.join(" ");
+  const othersText = [femaleStr, report?.diagnosys?.Others].filter(Boolean).join(" | ");
+
   // Render Sidebar / Margin Component (Vitals, Investigations, Provisional Diagnosis)
   const renderMarginContent = (isRightSide) => (
     <View style={[
-      styles.margin_col, 
+      styles.margin_col,
       isRightSide ? {} : { borderRight: "1 solid #000" }
     ]}>
       {/* VITALS */}
@@ -493,10 +657,294 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={[styles.header_section, { maxHeight: `${headerHeight}mm` }]} fixed>
-          <Image style={styles.header_image} src={header || "/G.Jakaria_header.png"} />
+          <Image style={styles.header_image} src={header || "/G.Jakaria_Header.jpeg"} />
         </View>
 
-        {isTwoColumn ? (
+        {isDynamicJson ? (
+          <DynamicTemplate
+            layoutConfig={activeTemplate?.layoutConfig || []}
+            dataContext={{ p_data, report, doctorFullName, dr_data }}
+            styles={styles}
+          />
+        ) : isTemplate3 ? (
+          /* =========================================================================
+             TEMPLATE 3 (ORTHOPEDIC LAYOUT)
+             ========================================================================= */
+          <View style={[
+            styles.ortho_frame,
+            {
+              border: showBorder ? "1 solid #c0d1e5" : "none",
+              width: `${frameWidth}mm`,
+              height: `${frameHeight}mm`,
+              marginLeft: `${marginLeft}mm`,
+              marginRight: `${marginLeft}mm`,
+              marginTop: `${marginTop}mm`,
+              marginBottom: `${marginBottom}mm`,
+              fontSize: fontSize,
+            }
+          ]}>
+            {/* ROW 1 */}
+            <View style={styles.ortho_row_flex}>
+              {/* Patient Box */}
+              <View style={[styles.ortho_panel, { flex: 1.5 }]}>
+                <View style={styles.ortho_header}>
+                  <IconUser />
+                  <Text>Patient Details</Text>
+                </View>
+                <View style={styles.ortho_content}>
+                  <View style={styles.ortho_field_row}>
+                    <Text style={styles.ortho_label}>Name:</Text>
+                    <Text style={styles.ortho_value}>{p_data.name}</Text>
+                  </View>
+                  <View style={styles.ortho_field_row}>
+                    <Text style={styles.ortho_label}>Age / Sex:</Text>
+                    <Text style={styles.ortho_value}>{p_data.dob ? dobToAge(p_data.dob) : p_data.age ? `${p_data.age} yrs` : ""} / {p_data.gender}</Text>
+                  </View>
+                  <View style={styles.ortho_field_row}>
+                    <Text style={styles.ortho_label}>UHID / Reg. No.:</Text>
+                    <Text style={styles.ortho_value}>{p_data.appointmentId || p_data.nic || p_data._id}</Text>
+                  </View>
+                  <View style={styles.ortho_field_row}>
+                    <Text style={styles.ortho_label}>Contact No.:</Text>
+                    <Text style={styles.ortho_value}>{p_data.phone}</Text>
+                  </View>
+                  <View style={styles.ortho_field_row}>
+                    <Text style={styles.ortho_label}>Address:</Text>
+                    <Text style={styles.ortho_value}></Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Date & Vitals Column */}
+              <View style={{ flex: 1, display: "flex", flexDirection: "column", gap: "1.5mm" }}>
+                {/* Date Box */}
+                <View style={[styles.ortho_panel, { flex: 1 }]}>
+                  <View style={[styles.ortho_content, { padding: "1.5mm" }]}>
+                    <View style={styles.ortho_field_row}>
+                      <Text style={styles.ortho_label}>Date:</Text>
+                      <Text style={styles.ortho_value}>{formatDate(report?.createdAt || p_data.updatedAt)}</Text>
+                    </View>
+                    <View style={styles.ortho_field_row}>
+                      <Text style={styles.ortho_label}>Prescription No.:</Text>
+                      <Text style={styles.ortho_value}></Text>
+                    </View>
+                    <View style={[styles.ortho_field_row, { marginTop: "2mm", justifyContent: "space-between" }]}>
+                      <View style={{ flexDirection: "row", alignItems: "center" }}><View style={styles.ortho_checkbox} /><Text>OPD</Text></View>
+                      <View style={{ flexDirection: "row", alignItems: "center" }}><View style={styles.ortho_checkbox} /><Text>Follow-up</Text></View>
+                      <View style={{ flexDirection: "row", alignItems: "center" }}><View style={styles.ortho_checkbox} /><Text>Emergency</Text></View>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Vitals Box */}
+                <View style={[styles.ortho_panel, { flex: 1.1 }]}>
+                  <View style={[styles.ortho_header, { padding: "1mm 2mm" }]}>
+                    <IconHeart />
+                    <Text>Vitals</Text>
+                  </View>
+                  <View style={[styles.ortho_content, { padding: "1.5mm 2mm" }]}>
+                    {/* Row 1: BP & PR */}
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: "1mm" }}>
+                      <View style={{ flexDirection: "row", alignItems: "flex-end", flex: 1 }}>
+                        <Text style={styles.ortho_label}>BP:</Text>
+                        <Text style={styles.ortho_value}>{report?.diagnosys?.BP || ""}</Text>
+                        <Text style={{ marginLeft: "1mm", color: "#666", fontSize: "6.5pt" }}>mm of Hg</Text>
+                      </View>
+                      <View style={{ flexDirection: "row", alignItems: "flex-end", flex: 1, marginLeft: "2mm" }}>
+                        <Text style={styles.ortho_label}>PR:</Text>
+                        <Text style={styles.ortho_value}>{report?.diagnosys?.PR || ""}</Text>
+                        <Text style={{ marginLeft: "1mm", color: "#666", fontSize: "6.5pt" }}>bpm</Text>
+                      </View>
+                    </View>
+
+                    {/* Row 2: SPO2 & Temp */}
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: "1mm" }}>
+                      <View style={{ flexDirection: "row", alignItems: "flex-end", flex: 1 }}>
+                        <Text style={styles.ortho_label}>SPO2:</Text>
+                        <Text style={styles.ortho_value}>{report?.diagnosys?.SPO2 || ""}</Text>
+                        <Text style={{ marginLeft: "1mm", color: "#666", fontSize: "6.5pt" }}>% in RA</Text>
+                      </View>
+                      <View style={{ flexDirection: "row", alignItems: "flex-end", flex: 1, marginLeft: "2mm" }}>
+                        <Text style={styles.ortho_label}>Temp:</Text>
+                        <Text style={styles.ortho_value}>{report?.diagnosys?.Temp || ""}</Text>
+                        <Text style={{ marginLeft: "1mm", color: "#666", fontSize: "6.5pt" }}>°F</Text>
+                      </View>
+                    </View>
+
+                    {/* Row 3: BMI & Others (with female patient obstetric details) */}
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
+                      <View style={{ flexDirection: "row", alignItems: "flex-end", flex: 1 }}>
+                        <Text style={styles.ortho_label}>BMI:</Text>
+                        <Text style={styles.ortho_value}>{report?.diagnosys?.BMI || ""}</Text>
+                        <Text style={{ marginLeft: "1mm", color: "#666", fontSize: "6.5pt" }}>kg/m²</Text>
+                      </View>
+                      <View style={{ flexDirection: "row", alignItems: "flex-end", flex: 1.2, marginLeft: "2mm" }}>
+                        <Text style={styles.ortho_label}>Others:</Text>
+                        <Text style={[styles.ortho_value, { fontSize: "6.5pt" }]}>{othersText}</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* ROW 2 */}
+            <View style={styles.ortho_row_flex}>
+              <View style={[styles.ortho_panel, { flex: 1 }]}>
+                <View style={styles.ortho_header}>
+                  <IconClipboard />
+                  <Text>Chief Complaints (max 2-3)</Text>
+                </View>
+                <View style={[styles.ortho_content, { minHeight: "15mm" }]}>
+                  <Text>{cleanTrailingComma(report?.presentingComplaints)}</Text>
+                </View>
+              </View>
+              <View style={[styles.ortho_panel, { flex: 2 }]}>
+                <View style={styles.ortho_header}>
+                  <IconHistory />
+                  <Text>Medical History</Text>
+                </View>
+                <View style={[styles.ortho_content, { minHeight: "15mm" }]}>
+                  <Text>{cleanTrailingComma(report?.medicalHistory)}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* ROW 3 */}
+            <View style={styles.ortho_row_flex}>
+              <View style={[styles.ortho_panel, { flex: 1 }]}>
+                <View style={styles.ortho_header}>
+                  <IconStethoscope />
+                  <Text>On Examination</Text>
+                </View>
+                <View style={[styles.ortho_content, { minHeight: "22mm" }]}>
+                  <Text>{getClinicalText(report?.clinical_findings)}</Text>
+                </View>
+              </View>
+              <View style={[styles.ortho_panel, { flex: 1 }]}>
+                <View style={styles.ortho_header}>
+                  <IconLab />
+                  <Text>Laboratory Findings (if available)</Text>
+                </View>
+                <View style={[styles.ortho_content, { minHeight: "22mm" }]}>
+                </View>
+              </View>
+              <View style={[styles.ortho_panel, { flex: 1 }]}>
+                <View style={styles.ortho_header}>
+                  <IconRadiology />
+                  <Text>Radiological Findings (if available)</Text>
+                </View>
+                <View style={[styles.ortho_content, { minHeight: "22mm" }]}>
+                </View>
+              </View>
+            </View>
+
+            {/* ROW 4 */}
+            <View style={[styles.ortho_panel, { marginBottom: "1.5mm" }]}>
+              <View style={styles.ortho_header}>
+                <IconTarget />
+                <Text>Provisional / Working Diagnosis</Text>
+              </View>
+              <View style={[styles.ortho_content, { minHeight: "10mm" }]}>
+                <Text>{cleanTrailingComma(report?.initialComplain)}</Text>
+              </View>
+            </View>
+
+            {/* ROW 5 (Rx) */}
+            <View style={[styles.ortho_panel, { flex: 1, marginBottom: "1.5mm" }]}>
+              <View style={[styles.ortho_header, { backgroundColor: "#e2ffe2", color: "#166534", justifyContent: "center" }]}>
+                <Text>Rx MEDICATIONS</Text>
+              </View>
+              <View style={[styles.table_header, { backgroundColor: "#f9f9f9", borderTop: "none" }]}>
+                <Text style={[styles.cell_sn, styles.cell_border]}>Sl.</Text>
+                <Text style={[styles.cell_med, styles.cell_border]}>Medicine</Text>
+                <Text style={[styles.cell_type, styles.cell_border]}>Strength</Text>
+                <Text style={[styles.cell_dose, styles.cell_border]}>Dose & Route</Text>
+                <Text style={[styles.cell_freq, styles.cell_border]}>Frequency</Text>
+                <Text style={[styles.cell_dur, styles.cell_border]}>Duration</Text>
+                <Text style={[styles.cell_dur, { flex: 1 }]}>Instructions</Text>
+              </View>
+              {medList.slice(0, 6).map((med, index) => (
+                <View key={index} style={styles.table_row}>
+                  <Text style={[styles.cell_sn, styles.cell_border_light]}>{index + 1}</Text>
+                  <Text style={[styles.cell_med, styles.cell_border_light]}>{med.name || ""}</Text>
+                  <Text style={[styles.cell_type, styles.cell_border_light]}>{med.type || ""}</Text>
+                  <Text style={[styles.cell_dose, styles.cell_border_light]}>{med.dose ? `${med.dose} ${med.route || ""}` : med.route || ""}</Text>
+                  <Text style={[styles.cell_freq, styles.cell_border_light]}>{med.frequency || ""}</Text>
+                  <Text style={[styles.cell_dur, styles.cell_border_light]}>{med.duration || ""}</Text>
+                  <Text style={[styles.cell_dur, { flex: 1 }]}>{med.instruction || ""}</Text>
+                </View>
+              ))}
+              {Array.from({ length: Math.max(0, 6 - medList.length) }).map((_, index) => (
+                <View key={`empty-${index}`} style={styles.table_row_empty}>
+                  <Text style={[styles.cell_sn, styles.cell_border_light]}> </Text>
+                  <Text style={[styles.cell_med, styles.cell_border_light]}> </Text>
+                  <Text style={[styles.cell_type, styles.cell_border_light]}> </Text>
+                  <Text style={[styles.cell_dose, styles.cell_border_light]}> </Text>
+                  <Text style={[styles.cell_freq, styles.cell_border_light]}> </Text>
+                  <Text style={[styles.cell_dur, styles.cell_border_light]}> </Text>
+                  <Text style={[styles.cell_dur, { flex: 1 }]}> </Text>
+                </View>
+              ))}
+            </View>
+
+            {/* ROW 6 */}
+            <View style={styles.ortho_row_flex}>
+              <View style={[styles.ortho_panel, { flex: 1 }]}>
+                <View style={styles.ortho_header}>
+                  <IconSearch />
+                  <Text>Further Investigations Required</Text>
+                </View>
+                <View style={[styles.ortho_content, { minHeight: "18mm" }]}>
+                  {report?.advice?.testAdvice?.length > 0 ? (
+                    report.advice.testAdvice.map((t, idx) => (
+                      <Text key={idx} style={{ fontSize: "7.5pt", color: "#333", marginBottom: "1mm" }}>- {t.testName}</Text>
+                    ))
+                  ) : null}
+                </View>
+              </View>
+              <View style={[styles.ortho_panel, { flex: 1 }]}>
+                <View style={styles.ortho_header}>
+                  <IconAdvice />
+                  <Text>Advice</Text>
+                </View>
+                <View style={[styles.ortho_content, { minHeight: "18mm" }]}>
+                  <Text>{report?.additionalAdvice}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* ROW 7 */}
+            <View style={[styles.ortho_row_flex, { alignItems: "center", justifyContent: "space-between", marginBottom: 0 }]}>
+              <View style={[styles.ortho_panel, { width: "50%" }]}>
+                <View style={styles.ortho_header}>
+                  <IconCalendar />
+                  <Text>Follow Up</Text>
+                </View>
+                <View style={[styles.ortho_content, { minHeight: "10mm", justifyContent: "center" }]}>
+                  {report?.followUp ? (
+                    <View style={styles.ortho_field_row}>
+                      <Text style={styles.ortho_label}>Review after:</Text>
+                      <Text style={{ fontWeight: "bold" }}>{formatDate(report.followUp)}</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.ortho_field_row}>
+                      <Text style={styles.ortho_label}>Review after:</Text>
+                      <Text style={styles.ortho_value_short}></Text>
+                      <Text> Days / Weeks</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+
+              {/* Doctor Signature (outside of all panels) */}
+              <View style={{ width: "45%", alignItems: "flex-end", justifyContent: "flex-end", paddingRight: "6mm", paddingBottom: "2mm" }}>
+                <Text style={styles.doctor_sign}>{doctorFullName}</Text>
+              </View>
+            </View>
+
+          </View>
+        ) : isTwoColumn ? (
           /* =========================================================================
              TEMPLATE 1 & TEMPLATE 2 (TWO-COLUMN MARGIN LAYOUTS)
              ========================================================================= */
@@ -523,8 +971,8 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                     {p_data.dob
                       ? dobToAge(p_data.dob)
                       : p_data.age
-                      ? `${p_data.age} years`
-                      : ""}
+                        ? `${p_data.age} years`
+                        : ""}
                   </Text>
                   {p_data.phone && <Text>, +91{p_data.phone}</Text>}
                 </View>
@@ -612,8 +1060,8 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                       {p_data.dob
                         ? dobToAge(p_data.dob)
                         : p_data.age
-                        ? `${p_data.age} years`
-                        : ""}
+                          ? `${p_data.age} years`
+                          : ""}
                     </Text>
                     {p_data.phone && <Text>,+91{p_data.phone}</Text>}
                   </View>
@@ -770,7 +1218,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                     </View>
                   )
                 ))}
-                
+
                 {report?.additionalAdvice && (
                   <View style={{ padding: "2mm", borderTop: "1 solid #000" }}>
                     <Text style={styles.heading}>Advice:</Text>
@@ -801,12 +1249,15 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
           <Image style={styles.footer_image} src={footer || "/G.Jakaria_footer1.png"} />
         </View>
 
-        {/* Template label at bottom if Template 1 or 2 */}
+        {/* Template label at bottom if Template 1, 2, or 3 */}
         {isTemplate1 && (
           <Text style={styles.bottom_label}>Template 1: Right-side margin layout</Text>
         )}
         {isTemplate2 && (
           <Text style={styles.bottom_label}>Template 2: Left-side margin layout</Text>
+        )}
+        {isTemplate3 && (
+          <Text style={styles.bottom_label}>Template 3: Orthopedic Layout</Text>
         )}
       </Page>
     </Document>

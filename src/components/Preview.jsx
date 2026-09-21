@@ -49,7 +49,7 @@ const Preview = () => {
     return `${cleanBase}${cleanPath}`;
   };
 
-  const headerImageUrl = getFullImageUrl(doctor?.headerImage, "/Header.png");
+  const headerImageUrl = getFullImageUrl(doctor?.headerImage, "/Header.jpeg");
   const footerImageUrl = getFullImageUrl(doctor?.signImage, "/Footer.png");
 
   // Role check
@@ -59,6 +59,7 @@ const Preview = () => {
   const BUILT_IN_TEMPLATES = [
     { _id: "template1", name: "Template 1: Right-side margin layout", layoutType: "Template 1: Right-side margin layout" },
     { _id: "template2", name: "Template 2: Left-side margin layout", layoutType: "Template 2: Left-side margin layout" },
+    { _id: "template3", name: "Template 3: Orthopedic Layout", layoutType: "Template 3: Orthopedic Layout" },
     { _id: "default", name: "Default Layout (Single Column)", layoutType: "default" },
   ];
 
@@ -69,7 +70,7 @@ const Preview = () => {
   ];
 
   const [selectedTemplateId, setSelectedTemplateId] = useState("template1");
-  
+
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
@@ -120,7 +121,7 @@ const Preview = () => {
   if (loading)
     return (
       <div className="prescription">
-        <span className="loader" style={{height:"3rem"}}></span>      
+        <span className="loader" style={{ height: "3rem" }}></span>
       </div>
     );
   if (error)
@@ -148,8 +149,8 @@ const Preview = () => {
   const medicines = Array.isArray(report?.medicineAdvice)
     ? report.medicineAdvice.filter((m) => m.name) // Filter out empty/unselected medicines
     : report?.medicineAdvice
-    ? [report?.medicineAdvice]
-    : [];
+      ? [report?.medicineAdvice]
+      : [];
   console.log(medicines);
   const previewFollowup =
     (report && report.advice && report.advice.followup_date) ||
@@ -166,14 +167,14 @@ const Preview = () => {
         </button>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <label style={{ fontWeight: "bold", fontSize: "14px", color: "#333" }}>Prescription Template:</label>
-          <select 
-            className="form-control" 
-            value={selectedTemplateId} 
+          <select
+            className="form-control"
+            value={selectedTemplateId}
             onChange={e => setSelectedTemplateId(e.target.value)}
-            style={{ 
-              padding: "6px 12px", 
-              borderRadius: "6px", 
-              border: "1px solid #1e40af", 
+            style={{
+              padding: "6px 12px",
+              borderRadius: "6px",
+              border: "1px solid #1e40af",
               fontWeight: "600",
               backgroundColor: "#f8fafc",
               cursor: "pointer"

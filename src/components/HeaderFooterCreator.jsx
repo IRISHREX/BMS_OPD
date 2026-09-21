@@ -270,10 +270,10 @@ const HeaderFooterCreator = () => {
 
   const downloadHeader = () => {
     const canvas = headerCanvasRef.current;
-    canvas.toBlob(function(blob) {
+    canvas.toBlob(function (blob) {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.download = 'Header.jpg';
+      link.download = 'Header.jpeg';
       link.href = url;
       document.body.appendChild(link);
       link.click();
@@ -284,7 +284,7 @@ const HeaderFooterCreator = () => {
 
   const downloadFooter = () => {
     const canvas = footerCanvasRef.current;
-    canvas.toBlob(function(blob) {
+    canvas.toBlob(function (blob) {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.download = 'Footer.jpg';
