@@ -55,7 +55,7 @@ const Dashboard = () => {
   //   prescribed: "filterPrescibed",
   // });
   const [filterPrescibed, setfilterPrescibed] = useState(() => sessionStorage.getItem("dash_filterPrescibed") || "Unprescribed");
-  
+
   useEffect(() => {
     sessionStorage.setItem("dash_filterOption", filterOption);
     sessionStorage.setItem("dash_customStart", customStart);
@@ -180,7 +180,7 @@ const Dashboard = () => {
           if (a.patientId) patientsMonth.add(String(a.patientId));
           if (paid) paidMonth += price;
         }
-      } catch (e) {}
+      } catch (e) { }
     });
 
     return {
@@ -218,15 +218,15 @@ const Dashboard = () => {
           prev.map((a) =>
             a._id === appointmentId
               ? {
-                  ...a,
-                  paymentStatus,
-                  status:
-                    paymentStatus === "Refund"
-                      ? "Canceled"
-                      : paymentStatus === "Paid" && a.status === "Pending"
-                        ? "Accepted"
-                        : a.status,
-                }
+                ...a,
+                paymentStatus,
+                status:
+                  paymentStatus === "Refund"
+                    ? "Canceled"
+                    : paymentStatus === "Paid" && a.status === "Pending"
+                      ? "Accepted"
+                      : a.status,
+              }
               : a,
           ),
         );
@@ -835,8 +835,7 @@ const Dashboard = () => {
                                 const q = searchTerm.toLowerCase().trim();
                                 const name = (
                                   appointment.name ||
-                                  `${appointment.firstName || ""} ${
-                                    appointment.lastName || ""
+                                  `${appointment.firstName || ""} ${appointment.lastName || ""
                                   }`
                                 ).toLowerCase();
                                 const phone = (

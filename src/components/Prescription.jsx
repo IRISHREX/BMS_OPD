@@ -55,6 +55,7 @@ const Prescription = ({ patientId, onClose }) => {
     medicalHistory: false,
     clinicalFindings: false,
   });
+  const [obgynOpen, setObgynOpen] = useState(true);
 
   // Derived test suggestions: Diagnostic Tests from DB (/tests) + symptom advice tests
   const testSuggestions = useMemo(() => {
@@ -1224,274 +1225,387 @@ const Prescription = ({ patientId, onClose }) => {
   }, [diagnosys.Height, diagnosys.Weight]);
 
 
+  const getBmiStatus = (bmi) => {
+    const val = parseFloat(bmi);
+    if (!val || isNaN(val)) return { text: "", cls: "" };
+    if (val < 18.5) return { text: "Underweight", cls: "underweight" };
+    if (val < 25.0) return { text: "Normal", cls: "normal" };
+    if (val < 30.0) return { text: "Overweight", cls: "overweight" };
+    return { text: "Obese", cls: "obese" };
+  };
+
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="loading-state" style={{ minHeight: "50vh" }}>
+        <span className="loader"></span>
+        <p>Loading prescription...</p>
+      </div>
+    );
   }
 
   return (
-    // <section className="main">
-    <div className=" content-box" ref={rootRef}>
-      <div className="pres-header">
-        Prescription
-        <p className="sub-header">
-          {name} | {gender} | {age}years
-        </p>
-        <div style={{ position: "absolute", top: "1rem", left: "50%", transform: "translateX(-50%)" }}>
+    <div className="content-box" ref={rootRef}>
+      {/* Integrated Modal Header */}
+      <header className="pres-modal-header">
+        <div className="pres-header-left">
+          <div className="patient-avatar-badge">
+            {name ? name.slice(0, 2).toUpperCase() : "PT"}
+          </div>
+          <div className="patient-info-wrap">
+            <div className="patient-title-line">
+              <h2 className="patient-name-text">{name || "Patient Prescription"}</h2>
+            </div>
+            <div className="patient-meta-row">
+              <span className="patient-meta-chip highlight">
+                {gender || "Patient"} • {age ? `${age} yrs` : "N/A"}
+              </span>
+              <span className="patient-meta-chip">
+                ID: #{nic || (patientId ? patientId.slice(-6).toUpperCase() : "OPD")}
+              </span>
+              <span className="patient-meta-chip">
+                Date: {todayStr}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="pres-header-actions">
+          {isDirty ? (
+            <span className="pres-status-badge dirty" title="You have unsaved changes">
+              <span className="status-dot warning"></span> Unsaved
+            </span>
+          ) : (
+            <span className="pres-status-badge clean" title="All changes are saved">
+              <span className="status-dot success"></span> Saved
+            </span>
+          )}
+
           <button
-            className="btn btn-primary"
+            type="button"
+            className="btn-save-catalog"
             onClick={handleSaveCatalog}
-            title="Save the current medicines, tests, and advice as a Professional Diagnosis Catalog"
-            style={{ fontSize: "0.85rem", padding: "0.3rem 0.6rem" }}
+            title="Save current prescription as a reusable clinical catalog"
           >
-            <FaSave style={{ marginRight: "0.3rem" }} /> Save Catalog
+            <FaSave /> Save Catalog
+          </button>
+
+          <div
+            className="shortcuts-badge-btn"
+            title="Keyboard Shortcuts:&#10;• Enter / Ctrl+Enter: Next field&#10;• Tab / Enter+Tab: Next section&#10;• Ctrl+P / Enter+P: Save & Print"
+          >
+            ⌨ Shortcuts
+          </div>
+
+          <button
+            type="button"
+            className="pres-modal-close-btn"
+            onClick={handleClose}
+            title="Close (Esc)"
+            aria-label="Close Prescription Modal"
+          >
+            <IoIosClose />
           </button>
         </div>
-      </div>
-      <div
-        className="shortcuts-hint"
-        style={{
-          margin: "0.5rem 0 1rem 0",
-          color: "#334155",
-          fontSize: "0.9rem",
-          opacity: 0.4,
-        }}
-      >
-        Shortcuts: <kbd>Enter/Tab</kbd>=next field, <kbd>Tab</kbd>+
-        <kbd>Enter</kbd>
-        =Go to the top, <kbd>Ctrl/⌘</kbd>+<kbd>Enter</kbd>=next field,{" "}
-        <kbd>Ctrl/⌘</kbd>+<kbd>P</kbd>=Save & Print
-      </div>
+      </header>
 
-      <div className="form-main">
-        {gender.toLowerCase() === "female" && (
-          <div
-            className="pres-form-group pres-form-row toggle-content"
-            style={{ borderRadius: "0.5rem" }}
-          >
-            <div className="pres-form-row">
-              <div className="pres-form-group">
-                <label>Gravida</label>
-                <AutoSuggestInput
-                  single
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  value={gravida}
-                  onChange={(e) => {
-                    const v = e.target.value.replace(/\D/g, ""); // Allow only digits
-                    setGravida(v);
-                  }}
-                  suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
-                  placeholder="G"
-                />
+      {/* Main Prescription Body */}
+      <div className="pres-form-body">
+        {/* 1. Obstetric History Card (Females Only) */}
+        {gender && gender.toLowerCase() === "female" && (
+          <div className="pres-card obgyn-card">
+            <div
+              className="pres-card-header clickable"
+              onClick={() => setObgynOpen((prev) => !prev)}
+            >
+              <div className="card-title-group">
+                <span className="card-icon">🤰</span>
+                <h3>Obstetric History (OB-GYN)</h3>
+                {POG && <span className="pog-badge">{POG}</span>}
               </div>
-              <div className="pres-form-group">
-                <label>Parity</label>
-                <div className="parity-box">
-                  <AutoSuggestInput
-                    single
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    value={parity?.Pa}
-                    onChange={(e) => {
-                      const v = e.target.value.replace(/\D/g, ""); // Allow only digits
-                      setParity({ ...parity, Pa: v });
-                    }}
-                    suggestions={Array.from({ length: 16 }, (_, i) =>
-                      String(i)
-                    )}
-                    placeholder="P"
-                  />
-                  <div style={{ padding: "0.55rem", textAlign: "center" }}>
-                    +
+              <span className="collapse-toggle-icon">
+                {obgynOpen ? <FaChevronUp /> : <FaChevronDown />}
+              </span>
+            </div>
+
+            {obgynOpen && (
+              <div className="pres-card-body">
+                <div className="form-grid-4">
+                  <div className="pres-form-group">
+                    <label>Gravida</label>
+                    <AutoSuggestInput
+                      single
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={gravida}
+                      onChange={(e) => {
+                        const v = e.target.value.replace(/\D/g, "");
+                        setGravida(v);
+                      }}
+                      suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
+                      placeholder="G"
+                    />
                   </div>
-                  <AutoSuggestInput
-                    single
+
+                  <div className="pres-form-group">
+                    <label>Parity (Pa + Pb)</label>
+                    <div className="segmented-parity-input">
+                      <AutoSuggestInput
+                        single
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={parity?.Pa}
+                        onChange={(e) => {
+                          const v = e.target.value.replace(/\D/g, "");
+                          setParity({ ...parity, Pa: v });
+                        }}
+                        suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
+                        placeholder="Pa"
+                      />
+                      <span className="parity-plus-divider">+</span>
+                      <AutoSuggestInput
+                        single
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={parity?.Pb}
+                        onChange={(e) => {
+                          const v = e.target.value.replace(/\D/g, "");
+                          setParity({ ...parity, Pb: v });
+                        }}
+                        suggestions={Array.from({ length: 16 }, (_, i) => String(i))}
+                        placeholder="Pb"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pres-form-group">
+                    <label>LMP (Last Menstrual Period)</label>
+                    <input
+                      type="date"
+                      value={LMP}
+                      onChange={(e) => setLMP(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="pres-form-group">
+                    <label>EDD (Expected Delivery Date)</label>
+                    <input
+                      type="date"
+                      value={EDD}
+                      onChange={handleEddChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-grid-3">
+                  <div className="pres-form-group">
+                    <label>LCB (Last Child Birth)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 2 years ago"
+                      value={LCB}
+                      onChange={(e) => setLCB(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="pres-form-group">
+                    <label>MOD (Mode of Delivery)</label>
+                    <select value={MOD} onChange={(e) => setMOD(e.target.value)}>
+                      <option value="">Select MOD</option>
+                      <option value="NVD">NVD (Normal Vaginal Delivery)</option>
+                      <option value="LUCS">LUCS (Lower Uterine C-Section)</option>
+                    </select>
+                  </div>
+
+                  <div className="pres-form-group">
+                    <label>POG (Period of Gestation)</label>
+                    <div className="pog-display-box">
+                      {POG || "Calculated from LMP / EDD"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 2. Patient Vitals & Biometrics Card */}
+        <div className="pres-card vitals-card">
+          <div className="pres-card-header">
+            <div className="card-title-group">
+              <span className="card-icon">🩺</span>
+              <h3>Patient Vitals & Biometrics</h3>
+            </div>
+          </div>
+          <div className="pres-card-body">
+            <div className="vitals-grid">
+              <div className="vital-input-box">
+                <label>Blood Pressure</label>
+                <div className="input-with-affix">
+                  <input
                     type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    value={parity?.Pb}
+                    placeholder="120/80"
+                    maxLength={7}
+                    value={diagnosys.BP}
+                    onChange={(e) =>
+                      setDiagnosys({ ...diagnosys, BP: e.target.value })
+                    }
+                  />
+                  <span className="unit-affix">mmHg</span>
+                </div>
+              </div>
+
+              <div className="vital-input-box">
+                <label>Pulse Rate</label>
+                <div className="input-with-affix">
+                  <input
+                    type="number"
+                    min="20"
+                    max="500"
+                    placeholder="72"
+                    value={diagnosys.PR}
                     onChange={(e) => {
-                      const v = e.target.value.replace(/\D/g, ""); // Allow only digits
-                      setParity({ ...parity, Pb: v });
+                      const v = e.target.value;
+                      setDiagnosys({ ...diagnosys, PR: v && v > 500 ? 500 : v });
                     }}
-                    suggestions={Array.from({ length: 16 }, (_, i) =>
-                      String(i)
-                    )}
-                    placeholder="P"
+                  />
+                  <span className="unit-affix">bpm</span>
+                </div>
+              </div>
+
+              <div className="vital-input-box">
+                <label>SpO₂ (Oxygen)</label>
+                <div className="input-with-affix">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    inputMode="numeric"
+                    placeholder="98"
+                    value={diagnosys.SPO2}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setDiagnosys({ ...diagnosys, SPO2: v && v > 100 ? 100 : v });
+                    }}
+                  />
+                  <span className="unit-affix">% in RA</span>
+                </div>
+              </div>
+
+              <div className="vital-input-box">
+                <label>Temperature</label>
+                <div className="input-with-affix">
+                  <input
+                    type="number"
+                    min="50"
+                    max="200"
+                    placeholder="98.6"
+                    value={diagnosys.Temp}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setDiagnosys({ ...diagnosys, Temp: v && v > 200 ? 200 : v });
+                    }}
+                  />
+                  <span className="unit-affix">°F</span>
+                </div>
+              </div>
+
+              <div className="vital-input-box">
+                <label>Height</label>
+                <div className="input-with-affix">
+                  <input
+                    type="number"
+                    min="30"
+                    max="250"
+                    placeholder="165"
+                    value={diagnosys.Height}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setDiagnosys({
+                        ...diagnosys,
+                        Height: v && v > 250 ? 250 : v,
+                      });
+                    }}
+                  />
+                  <span className="unit-affix">cm</span>
+                </div>
+              </div>
+
+              <div className="vital-input-box">
+                <label>Weight</label>
+                <div className="input-with-affix">
+                  <input
+                    type="number"
+                    min="1"
+                    max="300"
+                    placeholder="65"
+                    value={diagnosys.Weight}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setDiagnosys({
+                        ...diagnosys,
+                        Weight: v && v > 300 ? 300 : v,
+                      });
+                    }}
+                  />
+                  <span className="unit-affix">kg</span>
+                </div>
+              </div>
+
+              <div className="vital-input-box">
+                <div className="label-with-pill">
+                  <label>BMI</label>
+                  {diagnosys.BMI && (
+                    <span
+                      className={`bmi-status-pill ${
+                        getBmiStatus(diagnosys.BMI).cls
+                      }`}
+                    >
+                      {getBmiStatus(diagnosys.BMI).text}
+                    </span>
+                  )}
+                </div>
+                <div className="input-with-affix">
+                  <input
+                    type="text"
+                    readOnly
+                    placeholder="Auto Calculated"
+                    value={diagnosys.BMI}
+                  />
+                  <span className="unit-affix">kg/m²</span>
+                </div>
+              </div>
+
+              <div className="vital-input-box">
+                <label>Other Clinical Notes</label>
+                <div className="input-with-affix no-affix">
+                  <input
+                    type="text"
+                    placeholder="e.g. RBS, Fasting Sugar..."
+                    value={diagnosys.Others}
+                    onChange={(e) =>
+                      setDiagnosys({ ...diagnosys, Others: e.target.value })
+                    }
                   />
                 </div>
               </div>
-              <div className="pres-form-group">
-                <label>LMP</label>
-                <input
-                  style={{ display: "flex", alignItems: "center" }}
-                  type="date"
-                  value={LMP}
-                  onChange={(e) => setLMP(e.target.value)}
-                />
-              </div>
-              <div className="pres-form-group">
-                <label>EDD</label>
-                <input
-                  style={{ display: "flex", alignItems: "center" }}
-                  type="date"
-                  // readOnly
-                  value={EDD}
-                  onChange={(e) => setEDD(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="pres-form-row">
-              <div className="pres-form-group">
-                <label>LCB</label>
-                <input
-                  type="text"
-                  value={LCB}
-                  onChange={(e) => setLCB(e.target.value)}
-                />
-              </div>
-              <div className="pres-form-group">
-                <label>MOD</label>
-                <select value={MOD} onChange={(e) => setMOD(e.target.value)}>
-                  <option value="">Select MOD</option>
-                  <option value="NVD">NVD</option>
-                  <option value="LUCS">LUCS</option>
-                </select>
-              </div>
-              <div className="pres-form-group">
-                <label>POG</label>
-                <input
-                  type="text"
-                  value={POG}
-                  readOnly
-                  placeholder="Calculated from EDD"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-        <div
-          className="pres-form-group pres-form-row toggle-content"
-          style={{ borderRadius: "0.5rem" }}
-        >
-          <div className="pres-form-row">
-            <div className="pres-form-group">
-              <label>BP (mm of Hg)</label>
-              <input
-                type="text"
-                placeholder="BP (e.g., 120/80 mmHg)"
-                maxLength={7}
-                value={diagnosys.BP}
-                onChange={(e) =>
-                  setDiagnosys({ ...diagnosys, BP: e.target.value })
-                }
-              />
-            </div>
-            <div className="pres-form-group">
-              <label>PR (bpm)</label>
-              <input
-                type="number"
-                // placeholder="PR (bpm)"
-                min="20"
-                max="500"
-                value={diagnosys.PR}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setDiagnosys({ ...diagnosys, PR: v && v > 500 ? 500 : v });
-                }}
-              />
-            </div>
-            <div className="pres-form-group">
-              <label>SPO2 (% in RA)</label>
-              <input
-                type="number"
-                // placeholder="SPO2 (%)"
-                min="0"
-                max="100"
-                inputMode="numeric"
-                value={diagnosys.SPO2}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setDiagnosys({ ...diagnosys, SPO2: v && v > 100 ? 100 : v });
-                }}
-              />
-            </div>
-            <div className="pres-form-group">
-              <label>Temp (F)</label>
-              <input
-                type="number"
-                // placeholder="Temp (F)"
-                min="50"
-                max="200"
-                value={diagnosys.Temp}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setDiagnosys({ ...diagnosys, Temp: v && v > 200 ? 200 : v });
-                }}
-              />
-            </div>
-          </div>
-          <div className="pres-form-row">
-            <div className="pres-form-group">
-              <label>Height (cm)</label>
-              <input
-                type="number"
-                // placeholder="Height (cm)"
-                min="30"
-                max="250"
-                value={diagnosys.Height}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setDiagnosys({
-                    ...diagnosys,
-                    Height: v && v > 250 ? 250 : v,
-                  });
-                }}
-              />
-            </div>
-            <div className="pres-form-group">
-              <label>Weight (kg)</label>
-              <input
-                type="number"
-                // placeholder="Weight (kg)"
-                min="1"
-                max="300"
-                value={diagnosys.Weight}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setDiagnosys({
-                    ...diagnosys,
-                    Weight: v && v > 300 ? 300 : v,
-                  });
-                }}
-              />
-            </div>
-            <div className="pres-form-group">
-              <label>BMI</label>
-              <input value={diagnosys.BMI} readOnly />
-            </div>
-            <div className="pres-form-group">
-              <label>Others</label>
-              <input
-                value={diagnosys.Others}
-                onChange={(e) =>
-                  setDiagnosys({ ...diagnosys, Others: e.target.value })
-                }
-              />
             </div>
           </div>
         </div>
 
-        <div className="pres-form-group full-width toggle-section">
-          <label
-            className="toggle-title"
-            style={{ justifyContent: "start", gap: "0.5rem" }}
-          >
-            Presenting Complaints
-            <div
-              className="refresh-btn"
+        {/* 3. Presenting Complaints Card */}
+        <div className="pres-card complaints-card">
+          <div className="pres-card-header">
+            <div className="card-title-group">
+              <span className="card-icon">💬</span>
+              <h3>Presenting Complaints</h3>
+            </div>
+            <button
+              type="button"
+              className="refresh-ai-btn"
+              title="Analyze complaints and fetch associated diagnoses"
               onClick={async () => {
                 try {
                   const complaints_arr = complaints.split(",");
@@ -1504,48 +1618,43 @@ const Prescription = ({ patientId, onClose }) => {
 
                   for (const query of complaints_arr_cln) {
                     try {
-                      // console.log("|", query.trim(), "|");
                       const { data } = await api.get(
                         `/api/v1/medical/advance-search-symptoms`,
-                        {
-                          params: { query },
-                        }
+                        { params: { query } }
                       );
                       diseases.push(...data.results);
-                      // console.log(data.results);
                     } catch (err) {
-                      console.log(
-                        "Failed to fetch advices for query:",
-                        query,
-                        err
-                      );
+                      console.log("Failed to fetch advices for query:", query, err);
                     }
                   }
-                  // console.log("Diseases fetched:", diseases);
 
                   for (const d of diseases) {
                     if (!uniqueDiseases.includes(d)) {
                       uniqueDiseases.push(d);
                     }
                   }
-                  // console.log("Unique Diseases:", uniqueDiseases);
                   dispatch(changeSdisease(uniqueDiseases));
+                  snackbar.success("Associated diagnoses updated!");
                 } catch (err) {
-                  console.log("Failed to process diagnoses");
+                  snackbar.error("Failed to process diagnoses");
                 }
               }}
             >
               <TbRefresh />
-            </div>
-          </label>
-          <div className="pres-form-group pres-form-row toggle-content">
-            <div className="pres-form-row" style={{ gap: "0.5rem" }}>
+              <span>Analyze & Suggest</span>
+            </button>
+          </div>
+
+          <div className="pres-card-body">
+            <div className="quick-chips-container">
+              <span className="quick-chips-label">Quick Select:</span>
               {temp_complain.map((com) => (
                 <button
-                  className={
-                    "medicalHistory-btns" +
-                    (complaints.includes(com) ? "-active" : "")
-                  }
+                  key={com}
+                  type="button"
+                  className={`quick-chip ${
+                    complaints.includes(com) ? "active" : ""
+                  }`}
                   onClick={() => {
                     complaints.includes(com + ", ")
                       ? setComplaints(complaints.replace(com + ", ", ""))
@@ -1556,48 +1665,52 @@ const Prescription = ({ patientId, onClose }) => {
                       : setComplaints(complaints + com + ", ");
                   }}
                 >
+                  {complaints.includes(com) ? "✓ " : "+ "}
                   {com}
                 </button>
               ))}
             </div>
+
             <AutoSuggestInputforSymptom
               value={complaints || ""}
-              onChange={(e) => {
-                setComplaints(e.target.value);
-              }}
-              onSelect={(item, newValue) => {
-                setComplaints(newValue);
-              }}
-              placeholder="Enter presenting complaints..."
+              onChange={(e) => setComplaints(e.target.value)}
+              onSelect={(item, newValue) => setComplaints(newValue)}
+              placeholder="Type to search or enter custom presenting complaints..."
             />
           </div>
         </div>
-        <div className="pres-form-group full-width pres-form-row toggle-section">
-          <label
-            onClick={() => {
+
+        {/* 4. Medical History Card */}
+        <div className="pres-card history-card">
+          <div
+            className="pres-card-header clickable"
+            onClick={() =>
               setToggleOpen({
                 ...toggleOpen,
                 medicalHistory: !toggleOpen.medicalHistory,
-              });
-            }}
-            className="toggle-title"
+              })
+            }
           >
-            Medical History
-            {toggleOpen.medicalHistory == true ? (
-              <FaChevronUp />
-            ) : (
-              <FaChevronDown />
-            )}
-          </label>
-          {toggleOpen.medicalHistory == true && (
-            <div className="pres-form-group pres-form-row toggle-content">
-              <div className="pres-form-row" style={{ gap: "0.5rem" }}>
-                {temp_medicalHistory.map((history, index) => (
+            <div className="card-title-group">
+              <span className="card-icon">📋</span>
+              <h3>Medical & Past History</h3>
+            </div>
+            <span className="collapse-toggle-icon">
+              {toggleOpen.medicalHistory ? <FaChevronUp /> : <FaChevronDown />}
+            </span>
+          </div>
+
+          {toggleOpen.medicalHistory && (
+            <div className="pres-card-body">
+              <div className="quick-chips-container">
+                <span className="quick-chips-label">Common Conditions:</span>
+                {temp_medicalHistory.map((history) => (
                   <button
-                    className={
-                      "medicalHistory-btns" +
-                      (medicalHistory.includes(history) ? "-active" : "")
-                    }
+                    key={history}
+                    type="button"
+                    className={`quick-chip ${
+                      medicalHistory.includes(history) ? "active" : ""
+                    }`}
                     onClick={() => {
                       medicalHistory.includes(history + ", ")
                         ? setMedicalHistory(
@@ -1608,806 +1721,859 @@ const Prescription = ({ patientId, onClose }) => {
                             medicalHistory.replace(history + ",", "")
                           )
                         : medicalHistory.includes(history)
-                        ? setMedicalHistory(medicalHistory.replace(history, ""))
+                        ? setMedicalHistory(
+                            medicalHistory.replace(history, "")
+                          )
                         : setMedicalHistory(medicalHistory + history + ", ");
                     }}
                   >
+                    {medicalHistory.includes(history) ? "✓ " : "+ "}
                     {history}
                   </button>
                 ))}
               </div>
               <input
-                placeholder="Enter medical history..."
+                placeholder="Enter medical history, comorbidities, previous surgeries..."
                 value={medicalHistory}
                 onChange={(e) => setMedicalHistory(e.target.value)}
               />
             </div>
           )}
         </div>
-        <div className="pres-form-group toggle-section">
-          <label
-            className="toggle-title"
-            onClick={() => {
+
+        {/* 5. Clinical Examination (On Examination) Card */}
+        <div className="pres-card exam-card">
+          <div
+            className="pres-card-header clickable"
+            onClick={() =>
               setToggleOpen({
                 ...toggleOpen,
                 clinicalFindings: !toggleOpen.clinicalFindings,
-              });
-            }}
+              })
+            }
           >
-            On Examination
-            {toggleOpen.clinicalFindings == true ? (
-              <FaChevronUp />
-            ) : (
-              <FaChevronDown />
-            )}
-          </label>
-          {toggleOpen.clinicalFindings == true && (
-            <div className="toggle-content ">
-              <div className="pres-form-row">
-                <label>Patient is</label>
-              </div>
-              <div className="pres-form-row">
-                <div className="pres-form-group">
-                  <select
-                    value={clinical_findings.patientCondition.c1}
-                    onChange={(e) => {
-                      setClinical_findings({
-                        ...clinical_findings,
-                        patientCondition: {
-                          ...clinical_findings.patientCondition,
-                          c1: e.target.value,
-                        },
-                      });
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="Alert">Alert</option>
-                  </select>
-                </div>
-                <div className="pres-form-group">
-                  <select
-                    value={clinical_findings.patientCondition.c2}
-                    onChange={(e) => {
-                      setClinical_findings({
-                        ...clinical_findings,
-                        patientCondition: {
-                          ...clinical_findings.patientCondition,
-                          c2: e.target.value,
-                        },
-                      });
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="Conscious">Conscious</option>
-                    <option value="Semi conscious">Semi conscious</option>
-                    <option value="Unconscious">Unconscious</option>
-                  </select>
-                </div>
-                <div className="pres-form-group">
-                  <select
-                    value={clinical_findings.patientCondition.c3}
-                    onChange={(e) => {
-                      setClinical_findings({
-                        ...clinical_findings,
-                        patientCondition: {
-                          ...clinical_findings.patientCondition,
-                          c3: e.target.value,
-                        },
-                      });
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="Co-operative">Co-operative</option>
-                    <option value="Confused">Confused</option>
-                    <option value="Drowsy">Drowsy</option>
-                  </select>
-                </div>
-                <div className="pres-form-group">
-                  <select
-                    value={clinical_findings.patientCondition.c4}
-                    onChange={(e) => {
-                      setClinical_findings({
-                        ...clinical_findings,
-                        patientCondition: {
-                          ...clinical_findings.patientCondition,
-                          c4: e.target.value,
-                        },
-                      });
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="Active">Active</option>
-                    <option value="Looking Toxic">Looking Toxic</option>
-                    <option value="Ill-looking">Ill-looking</option>
-                  </select>
-                </div>
-              </div>
+            <div className="card-title-group">
+              <span className="card-icon">🔍</span>
+              <h3>On Examination (Physical & Systemic Findings)</h3>
+            </div>
+            <span className="collapse-toggle-icon">
+              {toggleOpen.clinicalFindings ? <FaChevronUp /> : <FaChevronDown />}
+            </span>
+          </div>
 
-              <div className="pres-form-row">
-                <div className="pres-form-group">
-                  <label className="OE-label">Polar</label>
-                  <select
-                    value={clinical_findings.polar}
-                    onChange={(e) => {
-                      setClinical_findings({...clinical_findings, polar: e.target.value});
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="Absent">Absent</option>
-                    <option value="Mild">Mild</option>
-                    <option value="Moderate">Moderate</option>
-                    <option value="Severe">Severe</option>
-                  </select>
-                </div>
-                <div className="pres-form-group">
-                  <label className="OE-label">Icterus</label>
-                  <select
-                    value={clinical_findings.icterus}
-                    onChange={(e) => {
-                      setClinical_findings({...clinical_findings, icterus: e.target.value});
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="Absent">Absent</option>
-                    <option value="Mild">Mild</option>
-                    <option value="Moderate">Moderate</option>
-                    <option value="Severe">Severe</option>
-                  </select>
-                </div>
-                <div className="pres-form-group">
-                  <label className="OE-label">Edema</label>
-                  <select
-                    value={clinical_findings.edema}
-                    onChange={(e) => {
-                      setClinical_findings({...clinical_findings, edema: e.target.value});
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="Absent">Absent</option>
-                    <option value="Present">Present</option>
-                    <option value="B/L Pedal">B/L Pedal</option>
-                  </select>
-                </div>
-                <div className="pres-form-group">
-                  <label className="OE-label">Cyanosis</label>
-                  <select
-                    value={clinical_findings.cyanosis}
-                    onChange={(e) => {
-                      setClinical_findings({...clinical_findings, cyanosis: e.target.value});
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="Absent">Absent</option>
-                    <option value="Present">Present</option>
-                  </select>
-                </div>
-                <div className="pres-form-group">
-                  <label className="OE-label">Clubbing</label>
-                  <select
-                    value={clinical_findings.clubbing}
-                    onChange={(e) => {
-                      setClinical_findings({...clinical_findings, clubbing: e.target.value});
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="Absent">Absent</option>
-                    <option value="Present">Present</option>
-                  </select>
-                </div>
-                <div className="pres-form-group">
-                  <label className="OE-label">Lymph Nodes</label>
-                  <select
-                    value={clinical_findings.lymph_nodes}
-                    onChange={(e) => {
-                      setClinical_findings({...clinical_findings, lymph_nodes: e.target.value});
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="Not Palpable">Not Palpable</option>
-                    <option value="Palpable">Palpable</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="pres-form-row">
-                <div className="pres-form-group">
-                  <label className="OE-label">Chest</label>
-                  <select
-                    value={clinical_findings.chest}
-                    onChange={(e) => {
-                      setClinical_findings({...clinical_findings, chest: e.target.value});
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="B/L VBS">B/L VBS</option>
-                    <option value="Wheeze">Wheeze</option>
-                    <option value="Crepitations">Crepitations</option>
-                    <option value="Rhonchi/Wheeze">Rhonchi/Wheeze</option>
-                  </select>
-                </div>
-                <div className="pres-form-group">
-                  <label className="OE-label">CVS</label>
-                  <select
-                    value={clinical_findings.cvs}
-                    onChange={(e) => {
-                      setClinical_findings({...clinical_findings, cvs: e.target.value});
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="S1,S2 normal">S1,S2 normal</option>
-                    <option value="Mid-Diastolic murmur">
-                      Mid-Diastolic murmur
-                    </option>
-                    <option value="Pansystolic murmur">
-                      Pansystolic murmur
-                    </option>
-                    <option value="Mid-systolic murmur">
-                      Mid-systolic murmur
-                    </option>
-                    <option value="Systolic murmur">Systolic murmur</option>
-                    <option value="Diastolic murmur">Diastolic murmur</option>
-                  </select>
-                </div>
-                <div className="pres-form-group">
-                  <label className="OE-label">Per Abdomen</label>
-                  <div className="pres-form-row">
-                    <div className="pres-form-group">
-                      <select
-                        value={clinical_findings.per_abdomen.pt}
-                        onChange={(e) => {
-                          setClinical_findings({...clinical_findings, per_abdomen: {
-                            ...clinical_findings.per_abdomen, pt: e.target.value
-                          }});
-                        }}
-                      >
-                        <option value="">Select</option>
-                        <option value="Soft, Nontender">Soft, Nontender</option>
-                        <option value="Tender">Tender</option>
-                      </select>
-                    </div>
-                    <div className="pres-form-group">
-                      {clinical_findings.per_abdomen.pt !== "Tender" ? (
-                      <select
-                        value={clinical_findings.per_abdomen.pv}
-                        onChange={(e) => {
-                          setClinical_findings({...clinical_findings, per_abdomen: {
-                            ...clinical_findings.per_abdomen, pv: e.target.value
-                          }});
-                        }}
-                      >
-                        <option value="">Select</option>
-                        <option value="No Organomegaly">No Organomegaly</option>
-                        <option value="Hepatomegaly">Hepatomegaly</option>
-                        <option value="Spleenomegaly">Spleenomegaly</option>
-                        <option value="Hepatospleenomegaly">
-                          Hepatospleenomegaly
-                        </option>
-                        </select>
-                          
-                      ) :(
-                      <select
-                        value={clinical_findings.per_abdomen.pv}
-                        onChange={(e) => {
-                          setClinical_findings({...clinical_findings, per_abdomen: {
-                            ...clinical_findings.per_abdomen, pv: e.target.value
-                          }});
-                        }}
-                      >
-                        {/* for Tender  */}
-                        <option value="">Select</option>
-                        <option value="Epigastric">Epigastric</option>
-                        <option value="hypogastric">hypogastric</option>
-                        <option value="Umbilical">Umbilical</option>
-                        <option value="RUQ">RUQ</option>
-                        <option value="LUQ">LUQ</option>
-                        <option value="RIF">RIF</option>
-                        <option value="LIF">LIF</option>
-                        <option value="Rt. Lumber">Rt. Lumber</option>
-                        <option value="Lt. Lumber">Lt. Lumber</option>
-                        <option value="Both Lumber">Both Lumber</option>
-                        <option value="Lower Abd.">Lower Abd.</option>
-                        <option value="Upper Abd.">Upper Abd.</option>
-                      </select>
-                      )}
-                    </div>
+          {toggleOpen.clinicalFindings && (
+            <div className="pres-card-body">
+              <div>
+                <div className="exam-section-label">General Condition</div>
+                <div className="form-grid-4">
+                  <div className="pres-form-group">
+                    <select
+                      value={clinical_findings.patientCondition.c1}
+                      onChange={(e) => {
+                        setClinical_findings({
+                          ...clinical_findings,
+                          patientCondition: {
+                            ...clinical_findings.patientCondition,
+                            c1: e.target.value,
+                          },
+                        });
+                      }}
+                    >
+                      <option value="">Consciousness</option>
+                      <option value="Alert">Alert</option>
+                    </select>
+                  </div>
+                  <div className="pres-form-group">
+                    <select
+                      value={clinical_findings.patientCondition.c2}
+                      onChange={(e) => {
+                        setClinical_findings({
+                          ...clinical_findings,
+                          patientCondition: {
+                            ...clinical_findings.patientCondition,
+                            c2: e.target.value,
+                          },
+                        });
+                      }}
+                    >
+                      <option value="">Mental State</option>
+                      <option value="Conscious">Conscious</option>
+                      <option value="Semi conscious">Semi conscious</option>
+                      <option value="Unconscious">Unconscious</option>
+                    </select>
+                  </div>
+                  <div className="pres-form-group">
+                    <select
+                      value={clinical_findings.patientCondition.c3}
+                      onChange={(e) => {
+                        setClinical_findings({
+                          ...clinical_findings,
+                          patientCondition: {
+                            ...clinical_findings.patientCondition,
+                            c3: e.target.value,
+                          },
+                        });
+                      }}
+                    >
+                      <option value="">Cooperation</option>
+                      <option value="Co-operative">Co-operative</option>
+                      <option value="Confused">Confused</option>
+                      <option value="Drowsy">Drowsy</option>
+                    </select>
+                  </div>
+                  <div className="pres-form-group">
+                    <select
+                      value={clinical_findings.patientCondition.c4}
+                      onChange={(e) => {
+                        setClinical_findings({
+                          ...clinical_findings,
+                          patientCondition: {
+                            ...clinical_findings.patientCondition,
+                            c4: e.target.value,
+                          },
+                        });
+                      }}
+                    >
+                      <option value="">Appearance</option>
+                      <option value="Active">Active</option>
+                      <option value="Looking Toxic">Looking Toxic</option>
+                      <option value="Ill-looking">Ill-looking</option>
+                    </select>
                   </div>
                 </div>
               </div>
 
-              <div className="pres-form-row">
-                <div className="pres-form-group">
-                  <label className="OE-label">Others</label>
-                  <input type="text" 
+              <div>
+                <div className="exam-section-label">General Signs</div>
+                <div className="form-grid-4" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+                  <div className="pres-form-group">
+                    <label>Pallor</label>
+                    <select
+                      value={clinical_findings.polar}
+                      onChange={(e) =>
+                        setClinical_findings({
+                          ...clinical_findings,
+                          polar: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select Pallor</option>
+                      <option value="Absent">Absent</option>
+                      <option value="Mild">Mild</option>
+                      <option value="Moderate">Moderate</option>
+                      <option value="Severe">Severe</option>
+                    </select>
+                  </div>
+
+                  <div className="pres-form-group">
+                    <label>Icterus</label>
+                    <select
+                      value={clinical_findings.icterus}
+                      onChange={(e) =>
+                        setClinical_findings({
+                          ...clinical_findings,
+                          icterus: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select Icterus</option>
+                      <option value="Absent">Absent</option>
+                      <option value="Mild">Mild</option>
+                      <option value="Moderate">Moderate</option>
+                      <option value="Severe">Severe</option>
+                    </select>
+                  </div>
+
+                  <div className="pres-form-group">
+                    <label>Edema</label>
+                    <select
+                      value={clinical_findings.edema}
+                      onChange={(e) =>
+                        setClinical_findings({
+                          ...clinical_findings,
+                          edema: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select Edema</option>
+                      <option value="Absent">Absent</option>
+                      <option value="Present">Present</option>
+                      <option value="B/L Pedal">B/L Pedal</option>
+                    </select>
+                  </div>
+
+                  <div className="pres-form-group">
+                    <label>Cyanosis</label>
+                    <select
+                      value={clinical_findings.cyanosis}
+                      onChange={(e) =>
+                        setClinical_findings({
+                          ...clinical_findings,
+                          cyanosis: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select Cyanosis</option>
+                      <option value="Absent">Absent</option>
+                      <option value="Present">Present</option>
+                    </select>
+                  </div>
+
+                  <div className="pres-form-group">
+                    <label>Clubbing</label>
+                    <select
+                      value={clinical_findings.clubbing}
+                      onChange={(e) =>
+                        setClinical_findings({
+                          ...clinical_findings,
+                          clubbing: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select Clubbing</option>
+                      <option value="Absent">Absent</option>
+                      <option value="Present">Present</option>
+                    </select>
+                  </div>
+
+                  <div className="pres-form-group">
+                    <label>Lymph Nodes</label>
+                    <select
+                      value={clinical_findings.lymph_nodes}
+                      onChange={(e) =>
+                        setClinical_findings({
+                          ...clinical_findings,
+                          lymph_nodes: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select Lymph Nodes</option>
+                      <option value="Not Palpable">Not Palpable</option>
+                      <option value="Palpable">Palpable</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="exam-section-label">Systemic Examination</div>
+                <div className="form-grid-3">
+                  <div className="pres-form-group">
+                    <label>Chest</label>
+                    <select
+                      value={clinical_findings.chest}
+                      onChange={(e) =>
+                        setClinical_findings({
+                          ...clinical_findings,
+                          chest: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select Chest Sound</option>
+                      <option value="B/L VBS">B/L VBS</option>
+                      <option value="Wheeze">Wheeze</option>
+                      <option value="Crepitations">Crepitations</option>
+                      <option value="Rhonchi/Wheeze">Rhonchi/Wheeze</option>
+                    </select>
+                  </div>
+
+                  <div className="pres-form-group">
+                    <label>CVS</label>
+                    <select
+                      value={clinical_findings.cvs}
+                      onChange={(e) =>
+                        setClinical_findings({
+                          ...clinical_findings,
+                          cvs: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select Heart Sound</option>
+                      <option value="S1,S2 normal">S1,S2 normal</option>
+                      <option value="Mid-Diastolic murmur">Mid-Diastolic murmur</option>
+                      <option value="Pansystolic murmur">Pansystolic murmur</option>
+                      <option value="Mid-systolic murmur">Mid-systolic murmur</option>
+                      <option value="Systolic murmur">Systolic murmur</option>
+                      <option value="Diastolic murmur">Diastolic murmur</option>
+                    </select>
+                  </div>
+
+                  <div className="pres-form-group">
+                    <label>Per Abdomen</label>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <select
+                        style={{ flex: 1 }}
+                        value={clinical_findings.per_abdomen.pt}
+                        onChange={(e) => {
+                          setClinical_findings({
+                            ...clinical_findings,
+                            per_abdomen: {
+                              ...clinical_findings.per_abdomen,
+                              pt: e.target.value,
+                            },
+                          });
+                        }}
+                      >
+                        <option value="">Tenderness</option>
+                        <option value="Soft, Nontender">Soft, Nontender</option>
+                        <option value="Tender">Tender</option>
+                      </select>
+
+                      <select
+                        style={{ flex: 1 }}
+                        value={clinical_findings.per_abdomen.pv}
+                        onChange={(e) => {
+                          setClinical_findings({
+                            ...clinical_findings,
+                            per_abdomen: {
+                              ...clinical_findings.per_abdomen,
+                              pv: e.target.value,
+                            },
+                          });
+                        }}
+                      >
+                        {clinical_findings.per_abdomen.pt !== "Tender" ? (
+                          <>
+                            <option value="">Organomegaly</option>
+                            <option value="No Organomegaly">No Organomegaly</option>
+                            <option value="Hepatomegaly">Hepatomegaly</option>
+                            <option value="Spleenomegaly">Spleenomegaly</option>
+                            <option value="Hepatospleenomegaly">
+                              Hepatospleenomegaly
+                            </option>
+                          </>
+                        ) : (
+                          <>
+                            <option value="">Quadrant</option>
+                            <option value="Epigastric">Epigastric</option>
+                            <option value="hypogastric">hypogastric</option>
+                            <option value="Umbilical">Umbilical</option>
+                            <option value="RUQ">RUQ</option>
+                            <option value="LUQ">LUQ</option>
+                            <option value="RIF">RIF</option>
+                            <option value="LIF">LIF</option>
+                            <option value="Rt. Lumber">Rt. Lumber</option>
+                            <option value="Lt. Lumber">Lt. Lumber</option>
+                            <option value="Both Lumber">Both Lumber</option>
+                            <option value="Lower Abd.">Lower Abd.</option>
+                            <option value="Upper Abd.">Upper Abd.</option>
+                          </>
+                        )}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pres-form-group" style={{ marginTop: "12px" }}>
+                  <label>Other Examination Findings</label>
+                  <input
+                    type="text"
+                    placeholder="Enter any additional examination details..."
                     value={clinical_findings.others}
-                    onChange={(e)=>setClinical_findings({...clinical_findings, others: e.target.value})}
+                    onChange={(e) =>
+                      setClinical_findings({
+                        ...clinical_findings,
+                        others: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </div>
             </div>
           )}
         </div>
-        <div>
-          <div className="pres-form-group full-width toggle-section">
-            <label style={{ justifyContent: "start", gap: "0.5rem" }}>
+
+        {/* 6. Provisional Diagnosis Card */}
+        <div className="pres-card diagnosis-card">
+          <div className="pres-card-header">
+            <div className="card-title-group">
+              <span className="card-icon">🩺</span>
               <select
-                // style={{ padding: "0", border: "none", fontSize: "1rem" }}
-                style={{
-                  background: "#dae4f1",
-                  marginBottom: "0",
-                  borderRadius: "0.5rem 0.5rem 0 0",
-                  padding: "0.5rem 1rem",
-                  fontWeight: "600",
-                  color: "#1e293b",
-                }}
-                className="toggle-title"
+                className="diagnosis-type-select"
                 value={diagnosys_heading}
                 onChange={(e) => setDiagnosys_heading(e.target.value)}
               >
-                <option value="Provisional Diagnosis">
-                  Provisional Diagnosis
-                </option>
-                <option value="Diagnosis">Diagnosis</option>
-                <option value="Diffential Diagnosis">
-                  Diffential Diagnosis
-                </option>
+                <option value="Provisional Diagnosis">Provisional Diagnosis</option>
+                <option value="Diagnosis">Confirmed Diagnosis</option>
+                <option value="Diffential Diagnosis">Differential Diagnosis</option>
               </select>
-              <div
-                className="refresh-btn"
-                onClick={async () => {
-                  try {
-                    const rDiagnosis_arr = rDiagnosis.split(",");
-                    const rDiagnosis_arr_cln = rDiagnosis_arr.filter(
-                      (d) => d.trim() !== ""
-                    );
-
-                    const medicinesMap = new Map(); // Use Map with name as key for true deduplication
-
-                    // Fix: use for...of instead of .map() to properly await async calls
-                    for (const query of rDiagnosis_arr_cln) {
-                      try {
-                        // console.log("|", query.trim(), "|");
-                        const { data } = await api.get(
-                          `/api/v1/medical/suggestions/advices`,
-                          { params: { q: query.trim(), limit: 20 } }
-                        );
-
-                        // console.log(data.advices);
-
-                        // Flatten medicines into Map (deduplicate by medicine name)
-                        if (data.advices && Array.isArray(data.advices)) {
-                          data.advices.forEach((a) => {
-                            if (a.medicines && Array.isArray(a.medicines)) {
-                              a.medicines.forEach((med) => {
-                                // Use medicine name as key to prevent duplicates
-                                const key = (med.name || "")
-                                  .toLowerCase()
-                                  .trim();
-                                if (key && !medicinesMap.has(key)) {
-                                  medicinesMap.set(key, med);
-                                }
-                              });
-                            }
-                          });
-                        }
-                      } catch (err) {
-                        console.log(
-                          "Failed to fetch advices for query:",
-                          query,
-                          err
-                        );
-                      }
-                    }
-
-                    // Convert Map back to array and update state
-                    const finalMedicines = Array.from(medicinesMap.values());
-                    console.log("Final medicines:", finalMedicines);
-                    setMedicineAdvice(finalMedicines);
-                  } catch (err) {
-                    console.log("Failed to process diagnoses");
-                  }
-                }}
-              >
-                <TbRefresh />
-              </div>
-            </label>
-            <div
-              className="pres-form-group pres-form-row toggle-content"
-              style={{ borderRadius: "0 0.5rem 0.5rem 0.5rem" }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  gap: "0.5rem",
-                  flexDirection: "column",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    width: "100%",
-                    gap: "0.5rem",
-                  }}
-                >
-                  <AutoSuggestInput
-                    style={{ flex: 1 }}
-                    value={rDiagnosis}
-                    // value={initialComplain}
-                    onChange={(e) => {
-                      // allow manual typing to show in the input
-                      // setInitialComplain(e.target.value);
-                      dispatch(change(e.target.value));
-                      setComplaintQuery(e.target.value);
-                      // debounce server query (only for last token after last comma)
-                      if (complainDebounceRef.current)
-                        clearTimeout(complainDebounceRef.current);
-                      complainDebounceRef.current = setTimeout(async () => {
-                        const val = e.target.value || "";
-                        // Token to search is the last part of the string after a comma, or the whole string if no comma.
-                        const lastToken = (val.split(",").pop() || "").trim();
-                        if (!lastToken) {
-                          setComplaintSuggestions([]);
-                          return;
-                        }
-                        try {
-                          setIsFetchingComplaints(true);
-                          const { data } = await api.get(
-                            `/api/v1/medical/suggestions/advices`,
-                            { params: { q: lastToken, limit: 100 } }
-                          );
-                          // server returns advices
-                          setComplaintSuggestions(
-                            (data.advices || []).map((a) => ({
-                              ...a,
-                              label: a.name,
-                            }))
-                          );
-                        } catch (err) {
-                          setComplaintSuggestions([]);
-                        } finally {
-                          setIsFetchingComplaints(false);
-                        }
-                      }, 280);
-                    }}
-                    suggestions={
-                      complaintSuggestions.length
-                        ? complaintSuggestions
-                        : symptomSuggestions
-                    }
-                    placeholder="Type to search complaints or symptoms..."
-                    onSelect={(item, newVal) => {
-                      // determine label
-                      const label =
-                        item && typeof item === "object"
-                          ? item.name ||
-                            (typeof newVal === "string" ? newVal : "")
-                          : typeof newVal === "string"
-                          ? newVal
-                          : item || "";
-                      // Replace last partial token (if present) or append selected label as a new token.
-                      // AutoSuggestInput already updated the value via onChange. Just ensure trailing comma and space.
-                      setComplaintSuggestions([]);
-                      // track selected complaints list (preserve old behavior)
-                      setSelectedComplaints((prev) => {
-                        const names = new Set(
-                          (prev || []).map((p) => p.name || p)
-                        );
-                        if (item && typeof item === "object") {
-                          if (names.has(item.name)) return prev || [];
-                          return [...(prev || []), item];
-                        }
-                        if (names.has(label)) return prev || [];
-                        return [...(prev || []), label];
-                      });
-                      // append mapped items to medicines/tests/diet if item is object
-                      if (item && typeof item === "object")
-                        autoPopulateFromComplaint(item, true, true);
-                      else autoPopulateFromComplaint(label, false, true);
-                    }}
-                  />
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 8,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {(selectedComplaints || []).map((c, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        padding: "6px 10px",
-                        background: "#e8f2ff",
-                        border: "1px solid #dae4f1",
-                        borderRadius: 6,
-                      }}
-                    >
-                      <span>{typeof c === "string" ? c : c.name}</span>
-                      <button
-                        type="button"
-                        className="remove-btn"
-                        style={{
-                          marginLeft: 8,
-                          display: "inline-flex",
-                          alignItems: "center",
-                        }}
-                        onClick={() =>
-                          setSelectedComplaints((prev) =>
-                            prev.filter((_, idx) => idx !== i)
-                          )
-                        }
-                      >
-                        <BsTrash />
-                      </button>
-                    </div>
-                  ))}
-                  {analyzeResult && (
-                    <div
-                      style={{
-                        padding: "6px 10px",
-                        background: "#ecfdf5",
-                        borderRadius: 6,
-                      }}
-                    >
-                      <strong>Analyze applied</strong>
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
+
+            <button
+              type="button"
+              className="refresh-ai-btn"
+              title="Fetch treatment protocols and medicines based on diagnosis"
+              onClick={async () => {
+                try {
+                  const rDiagnosis_arr = rDiagnosis.split(",");
+                  const rDiagnosis_arr_cln = rDiagnosis_arr.filter(
+                    (d) => d.trim() !== ""
+                  );
+
+                  const medicinesMap = new Map();
+
+                  for (const query of rDiagnosis_arr_cln) {
+                    try {
+                      const { data } = await api.get(
+                        `/api/v1/medical/suggestions/advices`,
+                        { params: { q: query.trim(), limit: 20 } }
+                      );
+
+                      if (data.advices && Array.isArray(data.advices)) {
+                        data.advices.forEach((a) => {
+                          if (a.medicines && Array.isArray(a.medicines)) {
+                            a.medicines.forEach((med) => {
+                              const key = (med.name || "").toLowerCase().trim();
+                              if (key && !medicinesMap.has(key)) {
+                                medicinesMap.set(key, med);
+                              }
+                            });
+                          }
+                        });
+                      }
+                    } catch (err) {
+                      console.log("Failed to fetch advices for query:", query, err);
+                    }
+                  }
+
+                  const finalMedicines = Array.from(medicinesMap.values());
+                  setMedicineAdvice(finalMedicines);
+                  snackbar.success("Medicine advice loaded for diagnosis!");
+                } catch (err) {
+                  snackbar.error("Failed to process diagnoses");
+                }
+              }}
+            >
+              <TbRefresh />
+              <span>Load Treatment Protocol</span>
+            </button>
+          </div>
+
+          <div className="pres-card-body">
+            <AutoSuggestInput
+              value={rDiagnosis}
+              onChange={(e) => {
+                dispatch(change(e.target.value));
+                setComplaintQuery(e.target.value);
+                if (complainDebounceRef.current)
+                  clearTimeout(complainDebounceRef.current);
+                complainDebounceRef.current = setTimeout(async () => {
+                  const val = e.target.value || "";
+                  const lastToken = (val.split(",").pop() || "").trim();
+                  if (!lastToken) {
+                    setComplaintSuggestions([]);
+                    return;
+                  }
+                  try {
+                    setIsFetchingComplaints(true);
+                    const { data } = await api.get(
+                      `/api/v1/medical/suggestions/advices`,
+                      { params: { q: lastToken, limit: 100 } }
+                    );
+                    setComplaintSuggestions(
+                      (data.advices || []).map((a) => ({
+                        ...a,
+                        label: a.name,
+                      }))
+                    );
+                  } catch (err) {
+                    setComplaintSuggestions([]);
+                  } finally {
+                    setIsFetchingComplaints(false);
+                  }
+                }, 280);
+              }}
+              suggestions={
+                complaintSuggestions.length
+                  ? complaintSuggestions
+                  : symptomSuggestions
+              }
+              placeholder="Type diagnosis (e.g. Acute Bronchitis, Type 2 Diabetes, Typhoid)..."
+              onSelect={(item, newVal) => {
+                const label =
+                  item && typeof item === "object"
+                    ? item.name || (typeof newVal === "string" ? newVal : "")
+                    : typeof newVal === "string"
+                    ? newVal
+                    : item || "";
+                setComplaintSuggestions([]);
+                setSelectedComplaints((prev) => {
+                  const names = new Set((prev || []).map((p) => p.name || p));
+                  if (item && typeof item === "object") {
+                    if (names.has(item.name)) return prev || [];
+                    return [...(prev || []), item];
+                  }
+                  if (names.has(label)) return prev || [];
+                  return [...(prev || []), label];
+                });
+                if (item && typeof item === "object")
+                  autoPopulateFromComplaint(item, true, true);
+                else autoPopulateFromComplaint(label, false, true);
+              }}
+            />
+
+            {(selectedComplaints || []).length > 0 && (
+              <div className="selected-complaints-tags">
+                {selectedComplaints.map((c, i) => (
+                  <div key={i} className="complaint-tag-pill">
+                    <span>{typeof c === "string" ? c : c.name}</span>
+                    <button
+                      type="button"
+                      className="complaint-tag-remove"
+                      title="Remove"
+                      onClick={() =>
+                        setSelectedComplaints((prev) =>
+                          prev.filter((_, idx) => idx !== i)
+                        )
+                      }
+                    >
+                      <BsTrash />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        <div>
-          <div className="pres-form-group full-width medicine-section">
-            <label>Medicine Advice</label>
-            <div className="medicine-data">
-              <div className="medicine-head medicine-row">
-                <span></span>
-                <span>Medicine Name</span>
-                <span>Type</span>
-                <span>Dose</span>
-                <span>Route</span>
-                <span>Frequency</span>
-                <span>Duration</span>
-                <span>notes</span>
-                <span>Action</span>
-              </div>
-              <div className="medicines-list">
-                {medicineAdvice.map((m, idx) => (
-                  <div className="medicine-row" key={idx}>
-                    <div className="medicine-checkbox">
+        {/* 7. Medicine Advice Table Card */}
+        <div className="pres-card medicine-card">
+          <div className="pres-card-header">
+            <div className="card-title-group">
+              <span className="card-icon">💊</span>
+              <h3>Prescription Medicines & Dosing</h3>
+              <span className="patient-meta-chip highlight">
+                {medicineAdvice.filter((m) => m.selected).length} of{" "}
+                {medicineAdvice.length} Selected
+              </span>
+            </div>
+
+            <button
+              type="button"
+              className="btn-add-med-row"
+              onClick={() =>
+                setMedicineAdvice([
+                  ...medicineAdvice,
+                  {
+                    name: "",
+                    type: "",
+                    dose: "",
+                    frequency: "",
+                    route: "",
+                    duration: "",
+                    notes: "",
+                    selected: true,
+                  },
+                ])
+              }
+            >
+              + Add Medicine
+            </button>
+          </div>
+
+          <div className="pres-card-body" style={{ padding: 0 }}>
+            <div className="medicine-table-wrap">
+              <table className="medicine-table">
+                <thead>
+                  <tr>
+                    <th className="th-check">
                       <input
                         type="checkbox"
-                        checked={m.selected}
-                        onChange={(e) => {
-                          const copy = [...medicineAdvice];
-                          copy[idx] = {
-                            ...copy[idx],
-                            selected: e.target.checked,
-                          };
-                          setMedicineAdvice(copy);
-                        }}
-                      />
-                    </div>
-                    <AutoSuggestInput
-                      single
-                      placeholder="Name"
-                      value={m.name || ""}
-                      suggestions={medSuggestions.medicines}
-                      onChange={(e) => {
-                        const copy = [...medicineAdvice];
-                        copy[idx] = { ...copy[idx], name: e.target.value };
-                        setMedicineAdvice(copy);
-                      }}
-                      onSelect={(item, label) => {
-                        // item can be medicine object (from useMedicineSuggestions) or string
-                        const copy = [...medicineAdvice];
-                        if (item && typeof item === "object") {
-                          copy[idx] = {
-                            ...copy[idx],
-                            name: item.name || label || copy[idx].name,
-                            type: item.type || copy[idx].type,
-                            dose: item.dose || copy[idx].dose,
-                            frequency: item.frequency || copy[idx].frequency,
-                            route: item.route || copy[idx].route,
-                            duration: item.duration || copy[idx].duration,
-                            notes: item.notes || copy[idx].notes,
-                            selected: item.selected || copy[idx].selected,
-                          };
-                        } else {
-                          copy[idx] = { ...copy[idx], name: label || item };
+                        checked={
+                          medicineAdvice.length > 0 &&
+                          medicineAdvice.every((m) => m.selected)
                         }
-                        setMedicineAdvice(copy);
-                      }}
-                    />
-                    <AutoSuggestInput
-                      single
-                      placeholder="Type"
-                      value={m.type || ""}
-                      suggestions={medSuggestions.lists.types}
-                      onChange={(e) => {
-                        const copy = [...medicineAdvice];
-                        copy[idx] = { ...copy[idx], type: e.target.value };
-                        setMedicineAdvice(copy);
-                      }}
-                    />
-                    <AutoSuggestInput
-                      single
-                      placeholder="Dose"
-                      value={m.dose || ""}
-                      suggestions={medSuggestions.lists.doses}
-                      onChange={(e) => {
-                        const copy = [...medicineAdvice];
-                        copy[idx] = { ...copy[idx], dose: e.target.value };
-                        setMedicineAdvice(copy);
-                      }}
-                    />
-                    <AutoSuggestInput
-                      single
-                      placeholder="Route"
-                      value={m.route || ""}
-                      suggestions={medSuggestions.lists.routes}
-                      onChange={(e) => {
-                        const copy = [...medicineAdvice];
-                        copy[idx] = { ...copy[idx], route: e.target.value };
-                        setMedicineAdvice(copy);
-                      }}
-                    />
-                    <AutoSuggestInput
-                      single
-                      placeholder="Frequency"
-                      value={m.frequency || ""}
-                      suggestions={medSuggestions.lists.frequencies}
-                      onChange={(e) => {
-                        const copy = [...medicineAdvice];
-                        copy[idx] = {
-                          ...copy[idx],
-                          frequency: e.target.value,
-                        };
-                        setMedicineAdvice(copy);
-                      }}
-                    />
-                    <AutoSuggestInput
-                      single
-                      placeholder="Duration"
-                      value={m.duration || ""}
-                      suggestions={medSuggestions.lists.durations}
-                      onChange={(e) => {
-                        const copy = [...medicineAdvice];
-                        copy[idx] = {
-                          ...copy[idx],
-                          duration: e.target.value,
-                        };
-                        setMedicineAdvice(copy);
-                      }}
-                    />
-                    <AutoSuggestInput
-                      single
-                      placeholder="Notes"
-                      value={m.notes || ""}
-                      suggestions={medSuggestions.lists.notes}
-                      onChange={(e) => {
-                        const copy = [...medicineAdvice];
-                        copy[idx] = {
-                          ...copy[idx],
-                          notes: e.target.value,
-                        };
-                        setMedicineAdvice(copy);
-                      }}
-                    />
-                    <div className="medicine-actions">
-                      <button
-                        type="button"
-                        className="remove-btn"
-                        onClick={() => {
-                          const copy = [...medicineAdvice];
-                          copy.splice(idx, 1);
-                          setMedicineAdvice(copy);
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setMedicineAdvice(
+                            medicineAdvice.map((m) => ({
+                              ...m,
+                              selected: checked,
+                            }))
+                          );
+                        }}
+                        title="Select/Deselect all medicines"
+                      />
+                    </th>
+                    <th style={{ width: "24%" }}>Medicine Name</th>
+                    <th style={{ width: "10%" }}>Form / Type</th>
+                    <th style={{ width: "10%" }}>Dose</th>
+                    <th style={{ width: "10%" }}>Route</th>
+                    <th style={{ width: "12%" }}>Frequency</th>
+                    <th style={{ width: "10%" }}>Duration</th>
+                    <th style={{ width: "16%" }}>Instructions / Notes</th>
+                    <th style={{ width: "80px", textAlign: "center" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {medicineAdvice.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={9}
+                        style={{
+                          textAlign: "center",
+                          padding: "2rem",
+                          color: "#94a3b8",
                         }}
                       >
-                        <BsTrash />
-                      </button>
-                      {m.name &&
-                        !medSuggestions.medicines.find(
-                          (med) =>
-                            med.name.toLowerCase() === m.name.toLowerCase()
-                        ) && (
-                          <button
-                            type="button"
-                            className="save-btn"
-                            title="Save this medicine to the database"
-                            onClick={() => {
-                              dispatch(addMedicineRequest({ name: m.name }));
-                              snackbar.success(`Medicine "${m.name}" saved!`);
+                        No medicines added yet. Click "+ Add Medicine" or select a Diagnosis above to load a protocol.
+                      </td>
+                    </tr>
+                  ) : (
+                    medicineAdvice.map((m, idx) => (
+                      <tr key={idx}>
+                        <td className="td-check">
+                          <input
+                            type="checkbox"
+                            checked={m.selected || false}
+                            onChange={(e) => {
+                              const copy = [...medicineAdvice];
+                              copy[idx] = {
+                                ...copy[idx],
+                                selected: e.target.checked,
+                              };
+                              setMedicineAdvice(copy);
                             }}
-                          >
-                            <FaSave />
-                          </button>
-                        )}
-                    </div>
-                  </div>
-                ))}
-                <div className="medicine-actions">
+                          />
+                        </td>
+                        <td>
+                          <AutoSuggestInput
+                            single
+                            placeholder="Medicine name"
+                            value={m.name || ""}
+                            suggestions={medSuggestions.medicines}
+                            onChange={(e) => {
+                              const copy = [...medicineAdvice];
+                              copy[idx] = { ...copy[idx], name: e.target.value };
+                              setMedicineAdvice(copy);
+                            }}
+                            onSelect={(item, label) => {
+                              const copy = [...medicineAdvice];
+                              if (item && typeof item === "object") {
+                                copy[idx] = {
+                                  ...copy[idx],
+                                  name: item.name || label || copy[idx].name,
+                                  type: item.type || copy[idx].type,
+                                  dose: item.dose || copy[idx].dose,
+                                  frequency: item.frequency || copy[idx].frequency,
+                                  route: item.route || copy[idx].route,
+                                  duration: item.duration || copy[idx].duration,
+                                  notes: item.notes || copy[idx].notes,
+                                  selected: item.selected !== undefined ? item.selected : true,
+                                };
+                              } else {
+                                copy[idx] = {
+                                  ...copy[idx],
+                                  name: label || item,
+                                  selected: true,
+                                };
+                              }
+                              setMedicineAdvice(copy);
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <AutoSuggestInput
+                            single
+                            placeholder="Type"
+                            value={m.type || ""}
+                            suggestions={medSuggestions.lists.types}
+                            onChange={(e) => {
+                              const copy = [...medicineAdvice];
+                              copy[idx] = { ...copy[idx], type: e.target.value };
+                              setMedicineAdvice(copy);
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <AutoSuggestInput
+                            single
+                            placeholder="Dose"
+                            value={m.dose || ""}
+                            suggestions={medSuggestions.lists.doses}
+                            onChange={(e) => {
+                              const copy = [...medicineAdvice];
+                              copy[idx] = { ...copy[idx], dose: e.target.value };
+                              setMedicineAdvice(copy);
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <AutoSuggestInput
+                            single
+                            placeholder="Route"
+                            value={m.route || ""}
+                            suggestions={medSuggestions.lists.routes}
+                            onChange={(e) => {
+                              const copy = [...medicineAdvice];
+                              copy[idx] = { ...copy[idx], route: e.target.value };
+                              setMedicineAdvice(copy);
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <AutoSuggestInput
+                            single
+                            placeholder="Frequency"
+                            value={m.frequency || ""}
+                            suggestions={medSuggestions.lists.frequencies}
+                            onChange={(e) => {
+                              const copy = [...medicineAdvice];
+                              copy[idx] = {
+                                ...copy[idx],
+                                frequency: e.target.value,
+                              };
+                              setMedicineAdvice(copy);
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <AutoSuggestInput
+                            single
+                            placeholder="Duration"
+                            value={m.duration || ""}
+                            suggestions={medSuggestions.lists.durations}
+                            onChange={(e) => {
+                              const copy = [...medicineAdvice];
+                              copy[idx] = {
+                                ...copy[idx],
+                                duration: e.target.value,
+                              };
+                              setMedicineAdvice(copy);
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <AutoSuggestInput
+                            single
+                            placeholder="e.g. After meals"
+                            value={m.notes || ""}
+                            suggestions={medSuggestions.lists.notes}
+                            onChange={(e) => {
+                              const copy = [...medicineAdvice];
+                              copy[idx] = {
+                                ...copy[idx],
+                                notes: e.target.value,
+                              };
+                              setMedicineAdvice(copy);
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <div className="medicine-table-actions">
+                            <button
+                              type="button"
+                              className="tbl-icon-btn delete"
+                              title="Delete row"
+                              onClick={() => {
+                                const copy = [...medicineAdvice];
+                                copy.splice(idx, 1);
+                                setMedicineAdvice(copy);
+                              }}
+                            >
+                              <BsTrash />
+                            </button>
+                            {m.name &&
+                              !medSuggestions.medicines.find(
+                                (med) =>
+                                  med.name.toLowerCase() ===
+                                  m.name.toLowerCase()
+                              ) && (
+                                <button
+                                  type="button"
+                                  className="tbl-icon-btn save-master"
+                                  title="Save this new medicine to Master Database"
+                                  onClick={() => {
+                                    dispatch(
+                                      addMedicineRequest({ name: m.name })
+                                    );
+                                    snackbar.success(
+                                      `Medicine "${m.name}" saved to database!`
+                                    );
+                                  }}
+                                >
+                                  <FaSave />
+                                </button>
+                              )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+
+              <div className="medicine-table-footer-controls">
+                <button
+                  type="button"
+                  className="btn-add-med-row"
+                  onClick={() =>
+                    setMedicineAdvice([
+                      ...medicineAdvice,
+                      {
+                        name: "",
+                        type: "",
+                        dose: "",
+                        frequency: "",
+                        route: "",
+                        duration: "",
+                        notes: "",
+                        selected: true,
+                      },
+                    ])
+                  }
+                >
+                  + Add Medicine
+                </button>
+                {medicineAdvice.length > 0 && (
                   <button
                     type="button"
-                    className="add-btn"
-                    onClick={() =>
-                      setMedicineAdvice([
-                        ...medicineAdvice,
-                        {
-                          name: "",
-                          type: "",
-                          dose: "",
-                          frequency: "",
-                          route: "",
-                          duration: "",
-                          selected: true,
-                        },
-                      ])
-                    }
-                  >
-                    Add Medicine
-                  </button>
-                  <button
-                    type="button"
-                    className="clear-btn"
+                    className="btn-clear-all-meds"
                     onClick={() => setMedicineAdvice([])}
                   >
                     Clear All
                   </button>
-                </div>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="toggle-section">
-          <div className="pres-form-row">
-            {["Test Advice"].map((testType, index) => (
-              <label
-                key={index}
-                style={{ marginRight: "1rem" }}
-                className="toggle-title"
-              >
+        {/* 8. Diagnostic Tests Advice Card */}
+        <div className="pres-card tests-card">
+          <div className="pres-card-header">
+            <div className="card-title-group">
+              <span className="card-icon">🧪</span>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", margin: 0 }}>
                 <input
                   type="checkbox"
-                  value={testType}
-                  checked={selectedTestTypes.includes(testType)}
-                  onChange={(e) => handleCheckboxToggle(e, testType)}
-                  style={{ marginRight: "1rem" }}
-                />{" "}
-                {testType}
+                  value="Test Advice"
+                  checked={selectedTestTypes.includes("Test Advice")}
+                  onChange={(e) => handleCheckboxToggle(e, "Test Advice")}
+                  style={{ width: "18px", height: "18px", cursor: "pointer", accentColor: "var(--pres-primary)" }}
+                />
+                <h3>Diagnostic Lab Tests & Investigations</h3>
               </label>
-            ))}
+            </div>
+
+            {selectedTestTypes.includes("Test Advice") && (
+              <button
+                type="button"
+                className="btn-add-med-row"
+                onClick={addNewTestAdviceRow}
+              >
+                + Add Test
+              </button>
+            )}
           </div>
-          {/* Test Advice Table */}
+
           {selectedTestTypes.includes("Test Advice") && (
-            <div
-              className="pres-form-group full-width toggle-content"
-              style={{
-                overflowX: "auto",
-                borderRadius: "0 0.5rem 0.5rem 0.5rem",
-              }}
-            >
-              {/* <label>Test Name</label> */}
+            <div className="pres-card-body">
               <table className="test-advice-table">
-                <thead>
-                  <tr>
-                    <th></th>
-                    {/* <th style={{ minWidth: "9rem", textAlign: "left" }}>
-                      Test Name
-                    </th> */}
-                    <th></th>
-                    {/* <th>Test Type</th>
-                    <th>Precautions</th>
-                    <th>Test Date</th> */}
-                  </tr>
-                </thead>
                 <tbody>
                   {testAdviceRows.map((row, idx) => (
                     <tr key={idx}>
-                      <td>
+                      <td style={{ width: "36px", textAlign: "center" }}>
                         <input
                           type="checkbox"
                           checked={row.selected}
@@ -2418,12 +2584,13 @@ const Prescription = ({ patientId, onClose }) => {
                               e.target.checked
                             )
                           }
+                          style={{ width: "17px", height: "17px", cursor: "pointer", accentColor: "var(--pres-primary)" }}
                         />
                       </td>
                       <td>
                         <AutoSuggestInput
                           single
-                          placeholder="Test Name"
+                          placeholder="Search or enter diagnostic test name (e.g. CBC, USG Abdomen, Lipid Profile)..."
                           value={row.testName}
                           suggestions={testSuggestions}
                           onChange={(e) =>
@@ -2434,7 +2601,6 @@ const Prescription = ({ patientId, onClose }) => {
                             )
                           }
                           onSelect={(item, label) => {
-                            // item will be test object with name and possibly testType/precautions/testDate
                             if (item && typeof item === "object") {
                               handleTestAdviceChange(
                                 idx,
@@ -2466,11 +2632,11 @@ const Prescription = ({ patientId, onClose }) => {
                           }}
                         />
                       </td>
-                      <td>
+                      <td style={{ width: "40px" }}>
                         <button
                           type="button"
-                          className="remove-btn"
-                          style={{ width: "100%" }}
+                          className="tbl-icon-btn delete"
+                          title="Delete test row"
                           onClick={() => {
                             const copy = [...testAdviceRows];
                             copy.splice(idx, 1);
@@ -2480,197 +2646,134 @@ const Prescription = ({ patientId, onClose }) => {
                           <BsTrash />
                         </button>
                       </td>
-                      {/* <td>
-                        <input
-                          type="text"
-                          value={row.testType}
-                          onChange={(e) =>
-                            handleTestAdviceChange(
-                              idx,
-                              "testType",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          value={row.precautions}
-                          onChange={(e) =>
-                            handleTestAdviceChange(
-                              idx,
-                              "precautions",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </td>
-                      <td>
-                        <input
-                          style={{ display: "flex", alignItems: "center" }}
-                          type="date"
-                          value={row.testDate}
-                          onChange={(e) =>
-                            handleTestAdviceChange(
-                              idx,
-                              "testDate",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </td> */}
                     </tr>
                   ))}
                 </tbody>
               </table>
+
               <button
                 type="button"
-                className="add-btn"
+                className="btn-add-med-row"
                 onClick={addNewTestAdviceRow}
-                style={{ marginTop: 8 }}
+                style={{ width: "fit-content", marginTop: "6px" }}
               >
-                Add Test Row
+                + Add Another Test
               </button>
             </div>
           )}
-          {/* Medication Advice Textarea */}
-          {/* {selectedTestTypes.includes("Medication") && (
-            <div className="pres-form-group full-width">
-              <label>Medication Advice</label>
-              <textarea
-                value={medicationAdvice}
-                onChange={(e) => setMedicationAdvice(e.target.value)}
-                placeholder="Enter medication advice..."
-                rows={2}
-              />
-            </div>
-          )} */}
-          {/* Diet Advice Textarea */}
-          {/* {selectedTestTypes.includes("Diet") && (
-            <div className="pres-form-group full-width">
-              <label>Diet Advice</label>
-              <textarea
-                value={dietAdvice}
-                onChange={(e) => setDietAdvice(e.target.value)}
-                placeholder="Enter diet advice..."
-                rows={2}
-              />
-            </div>
-          )} */}
         </div>
 
-        <div
-          className="pres-form-group full-width toggle-content"
-          style={{ borderRadius: "0.5rem" }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-            <label style={{ margin: 0 }}>Advice</label>
+        {/* 9. Clinical Advice & Patient Instructions Card */}
+        <div className="pres-card advice-card">
+          <div className="pres-card-header">
+            <div className="card-title-group">
+              <span className="card-icon">💡</span>
+              <h3>Clinical Care Advice & Diet Instructions</h3>
+            </div>
+
             <button
               type="button"
-              className="icon-btn edit-btn"
-              style={{ padding: "0.3rem", color: "#3b82f6", background: "none", border: "none", cursor: "pointer" }}
+              className="save-advice-template-btn"
               disabled={!additionalAdvice || !additionalAdvice.trim()}
               onClick={async () => {
                 const text = additionalAdvice.trim();
                 if (!text) return;
-                const adviceName = prompt("Enter a short name for this Advice template:");
+                const adviceName = prompt("Enter a title for this reusable Advice Template:");
                 if (!adviceName || !adviceName.trim()) return;
                 try {
                   await api.post("/api/v1/advice", {
                     name: adviceName.trim(),
-                    advice: text
+                    advice: text,
                   });
                   snackbar.success("Advice template saved successfully!");
                   playSaveSound();
-                } catch(err) {
+                } catch (err) {
                   snackbar.error("Failed to save advice template");
                 }
               }}
-              title="Save the current text as a reusable Advice template"
+              title="Save current advice text as a reusable template in Care Advice settings"
             >
-              <FaSave size={18} />
+              <FaSave /> Save as Template
             </button>
           </div>
-          <AutoSuggestInput
-            value={additionalAdvice}
-            onChange={(e) => setAdditionalAdvice(e.target.value)}
-            onSelect={(item, label) => {
-              const text = (item && typeof item === "object") ? item.advice : label;
-              setAdditionalAdvice((prev) => prev ? prev + "\n" + text : text);
-            }}
-            suggestions={adviceSuggestions}
-            placeholder="Search or enter advice..."
-          />
+
+          <div className="pres-card-body">
+            <AutoSuggestInput
+              value={additionalAdvice}
+              onChange={(e) => setAdditionalAdvice(e.target.value)}
+              onSelect={(item, label) => {
+                const text = item && typeof item === "object" ? item.advice : label;
+                setAdditionalAdvice((prev) => (prev ? prev + "\n" + text : text));
+              }}
+              suggestions={adviceSuggestions}
+              placeholder="Search or enter care guidelines, dietary restrictions, precautions..."
+            />
+          </div>
         </div>
 
-        {/* <div className="pres-form-row"> */}
-        <div
-          className="pres-form-group toggle-content"
-          style={{ borderRadius: "0.5rem" }}
-        >
-          <label>Next Follow-up Date</label>
-          <input
-            style={{ display: "flex", alignItems: "center" }}
-            type="date"
-            min={todayStr}
-            value={followUp}
-            onChange={(e) => {
-              const v = e.target.value;
-              setFollowUp(v);
-            }}
-          />
+        {/* 10. Next Follow-Up Scheduling Card */}
+        <div className="pres-card followup-card">
+          <div className="pres-card-header">
+            <div className="card-title-group">
+              <span className="card-icon">📅</span>
+              <h3>Next Follow-Up Date</h3>
+            </div>
+          </div>
+
+          <div className="pres-card-body">
+            <div className="form-grid-3">
+              <div className="pres-form-group">
+                <input
+                  type="date"
+                  min={todayStr}
+                  value={followUp}
+                  onChange={(e) => setFollowUp(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
         </div>
-        {/* </div> */}
       </div>
 
-      <div className="wizard-footer">
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <FaSave
-            title="Save"
-            onClick={() => handleSave(false)}
-            disabled={!isDirty}
-            style={{ fontSize: "2rem", color: "#096dd9", cursor: "pointer" }}
-          />
+      {/* Elevated Sticky Action Footer */}
+      <footer className="pres-modal-footer">
+        <div className="footer-left">
           <button
-            className="btn btn-primary"
-            onClick={() => handleSave(true)}
-            disabled={!isDirty}
+            type="button"
+            className="footer-cancel-btn"
+            onClick={handleClose}
           >
-            <BsPrinter />
+            Cancel / Close
           </button>
-        </div>
-        <div className="cross-box">
           {isDirty ? (
-            <span
-              style={{
-                cursor: "pointer",
-                fontSize: "2rem",
-                color: "#e3ea20ff",
-                position: "fixed",
-                top: "0.2rem",
-                right: "3.5rem",
-              }}
-            >
-              <TbLoader3 />
+            <span className="footer-status-indicator dirty">
+              <TbLoader3 className="spin-icon" /> Unsaved changes
             </span>
           ) : (
-            <span style={{ color: "#0f766e" }}>Saved</span>
+            <span className="footer-status-indicator clean">
+              ✓ All changes saved
+            </span>
           )}
-          <IoIosCloseCircleOutline
-            onClick={handleClose}
-            title="Close"
-            style={{
-              cursor: "pointer",
-              fontSize: "2rem",
-              color: "#f03368ff",
-              position: "fixed",
-              top: "0.2rem",
-              left: "3.5rem",
-            }}
-          />
         </div>
-      </div>
+
+        <div className="footer-right">
+          <button
+            type="button"
+            className="footer-save-draft-btn"
+            onClick={() => handleSave(false)}
+          >
+            <FaSave /> Save Draft
+          </button>
+          <button
+            type="button"
+            className="footer-primary-print-btn"
+            onClick={() => handleSave(true)}
+            title="Save prescription and generate printable preview (Ctrl+P)"
+          >
+            <BsPrinter /> Save & Print <kbd>Ctrl+P</kbd>
+          </button>
+        </div>
+      </footer>
     </div>
   );
 };
