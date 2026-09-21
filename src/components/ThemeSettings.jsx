@@ -10,13 +10,9 @@ import "./GeneralSettings.css";
 
 
 const themes = [
-  { key: "theme-light", name: "Light (Medical Blue)" },
-  { key: "theme-teal", name: "Light (Clinical Teal)" },
-  { key: "theme-dark", name: "Dark" },
-  { key: "theme-cyberpunk", name: "Cyberpunk" },
-  { key: "theme-blackpink", name: "Black Pink" },
-  { key: "theme-retro", name: "Retro" },
-  { key: "theme-darkgreen", name: "Dark Green" },
+  { key: "theme-teal", name: "Clinical Teal (Default)" },
+  { key: "theme-light", name: "Medical Blue" },
+  { key: "theme-dark", name: "Dark Mode" },
 ];
 
 const GeneralSettings = () => {

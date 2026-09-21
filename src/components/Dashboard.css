@@ -157,6 +157,12 @@
   align-items: center;
   gap: 0.5rem;
 }
+.dashboard-title-block h1 {
+  color: var(--text-main, #0c4e4c);
+  font-weight: 700;
+  margin: 0;
+}
+
 .dashboard-title-block .add-form-btn {
   display: flex;
   align-items: center;
@@ -167,10 +173,17 @@
   padding: 5px;
   justify-content: center;
   font-size: 25px;
-  background: rgb(39, 23, 118);
+  background: var(--btn-gradient, linear-gradient(135deg, #1a9e9b, #2f78c8));
   color: rgb(255, 255, 255);
   border: none;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(26, 158, 155, 0.25);
+  transition: all 0.2s ease;
+}
+
+.dashboard-title-block .add-form-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(26, 158, 155, 0.35);
 }
 .filter-box .prescribed-filter {
   background: #1c6ea4;
@@ -215,7 +228,8 @@
 }
 /* .page.doctors,  */
 .page.bg-light-blue {
-  background-color: #e2e8f0;
+  background: transparent;
+  min-height: calc(100vh - 64px);
   padding: 0;
 }
 .page.bg-light-blue .container {

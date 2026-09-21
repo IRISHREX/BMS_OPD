@@ -9,9 +9,12 @@ const defaultCustom = {
 };
 
 const normalize = (t) => {
-  if (!t) return 'theme-light';
+  if (!t) return 'theme-teal';
   if (t === 'light') return 'theme-light';
   if (t === 'dark') return 'theme-dark';
+  if (['theme-cyberpunk', 'theme-blackpink', 'theme-darkgreen'].includes(t)) {
+    return 'theme-dark';
+  }
   return t;
 };
 

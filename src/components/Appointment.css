@@ -23,7 +23,9 @@
   flex-shrink: 0;
 }
 
-h2 {
+.appointment-container h2,
+.appointment-card h2,
+.appointment-form h2 {
   color: #6d60ae;
   text-align: center;
   font-weight: 600;

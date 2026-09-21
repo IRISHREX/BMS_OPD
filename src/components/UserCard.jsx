@@ -65,7 +65,7 @@ const UserCard = ({
               fontWeight: 700,
               fontSize: "1rem",
               margin: "0.5rem 0",
-              color: "#271776",
+              color: "var(--text-main, #0c4e4c)",
             }}
           >{`${user.firstName} ${user.lastName}`}</h3>
           <div

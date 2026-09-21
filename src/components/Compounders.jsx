@@ -118,8 +118,8 @@ const Compounders = () => {
                   key={el._id}
                   user={el}
                   extraLines={[
-                    <div key="doctors">
-                      <strong>Assigned Doctors:</strong>{" "}
+                    <div key="doctors" style={{ marginTop: "0.25rem" }}>
+                      <strong style={{ color: "var(--accent, #1a9e9b)" }}>Assigned Doctors:</strong>{" "}
                       {(el.assignedDoctors || []).length > 0
                         ? el.assignedDoctors
                             .map((d) => `${d.firstName} ${d.lastName}`)

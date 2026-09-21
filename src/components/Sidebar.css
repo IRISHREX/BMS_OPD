@@ -34,13 +34,8 @@
 }
 
 .theme-dark .bms-sidebar {
-  background: #111827;
+  background: #0d131f;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.theme-cyberpunk .bms-sidebar {
-  background: #0f051d;
-  border-right: 1px solid #00ffcc44;
 }
 
 /* Width per mode */

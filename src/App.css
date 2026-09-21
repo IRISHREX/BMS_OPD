@@ -871,7 +871,7 @@ body {
 .doctors h1 {
   /* color: #3939d9f2; */
   /* margin-bottom: 30px; */
-  color: #2a3686;
+  color: var(--text-main, #0c4e4c);
   font-size: 2rem;
 }
 @media (max-width: 485px) {
@@ -1258,58 +1258,292 @@ input[type="time"]:before {
   --sidebar-bg: var(--color-teal-900, #0c4e4c);
 }
 .theme-dark {
-  --bg-main: #181818;
-  --bg-card: #232323;
-  --accent: #0b74ff;
-  --btn-gradient: linear-gradient(140deg, #232323, #0b74ff);
-  --text-main: #fff;
-  --text-accent: #0b74ff;
-  --app-font: "Inter, system-ui, -apple-system, sans-serif";
-  --sidebar-bg: var(--bg-card);
+  --bg-main: #0b0f17;
+  --bg-card: #151d2c;
+  --bg-subtle: #1e293b;
+  --border-color: #243044;
+  --border-teal: #14b8a6;
+  --accent: #00d2ff;
+  --accent-teal: #14b8a6;
+  --btn-gradient: linear-gradient(135deg, #00d2ff, #2563eb);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-accent: #ffffff;
+  --app-font: "Inter", system-ui, -apple-system, sans-serif;
+  --sidebar-bg: #0d131f;
 }
-.theme-cyberpunk {
-  --bg-main: linear-gradient(135deg, #f35f02, #9c07f2, #24243e);
-  --bg-card: #232946;
-  --accent: #ff008d;
-  --btn-gradient: linear-gradient(140deg, #ff008d, #00fff7);
-  --text-main: #fff;
-  --text-accent: #ff008d;
-  --app-font: "Orbitron, sans-serif";
-  --sidebar-bg: linear-gradient(
-    135deg,
-    rgba(246, 8, 167, 0.8) 0%,
-    rgba(252, 211, 8, 0.8) 100%
-  );
+
+/* ==========================================================================
+   COMPREHENSIVE DARK THEME STABILIZATION
+   ========================================================================== */
+body.theme-dark {
+  background-color: #0b0f17 !important;
+  color: #f8fafc !important;
 }
-.theme-blackpink {
-  --bg-main: #1a001a;
-  --bg-card: #ffb6e6;
-  --accent: #ff008d;
-  --btn-gradient: linear-gradient(140deg, #ffb6e6, #ff008d);
-  --text-main: #1a001a;
-  --text-accent: #fff;
-  --app-font: "Poppins, sans-serif";
-  --sidebar-bg: rgba(20, 0, 20, 0.6);
+
+.theme-dark .page {
+  background: transparent !important;
+  color: #f8fafc !important;
 }
-.theme-retro {
-  --bg-main: #f5e9da;
-  --bg-card: #ffe066;
-  --accent: #ff6f3c;
-  --btn-gradient: linear-gradient(140deg, #ffe066, #ff6f3c);
-  --text-main: #2d1e2f;
-  --text-accent: #ff6f3c;
-  --app-font: "Georgia, serif";
-  --sidebar-bg: rgba(255, 230, 120, 0.2);
+
+/* Headings & Title Blocks */
+.theme-dark h1,
+.theme-dark h2,
+.theme-dark h3,
+.theme-dark h4,
+.theme-dark .dashboard-title-block h1,
+.theme-dark .doctors h1,
+.theme-dark .reports-title,
+.theme-dark .settings-page h2,
+.theme-dark .breadcrumb-title,
+.theme-dark .role-title-group h1 {
+  color: #f8fafc !important;
 }
-.theme-darkgreen {
-  --bg-main: #0d1b1e;
-  --bg-card: #1b2a2f;
-  --accent: #00b894;
-  --btn-gradient: linear-gradient(140deg, #1b2a2f, #00b894);
-  --text-main: #fff;
-  --text-accent: #00b894;
-  --app-font: "Roboto, sans-serif";
-  --sidebar-bg: rgba(10, 30, 30, 0.6);
+
+.theme-dark p,
+.theme-dark .reports-subtitle,
+.theme-dark .role-title-group p,
+.theme-dark .text-muted {
+  color: #94a3b8 !important;
+}
+
+/* Cards, Panels & Surfaces */
+.theme-dark .card,
+.theme-dark .doc-card,
+.theme-dark .doc-card__inner,
+.theme-dark .pro-card,
+.theme-dark .settings-card,
+.theme-dark .reports-top-bar,
+.theme-dark .reports-page .card,
+.theme-dark .role-control-card,
+.theme-dark .role-table-card,
+.theme-dark .role-kpi-card,
+.theme-dark .chart-card,
+.theme-dark .white-box,
+.theme-dark .appointment-card,
+.theme-dark .backup-card,
+.theme-dark .syslogs-card,
+.theme-dark .template-builder-card,
+.theme-dark .prescription-container,
+.theme-dark .glass-panel {
+  background: #151d2c !important;
+  border-color: #243044 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.theme-dark .role-kpi-card.all .role-kpi-icon-wrap { background: #1e293b !important; color: #94a3b8 !important; }
+.theme-dark .role-kpi-card.active { background: #142a3e !important; border-color: #00d2ff !important; }
+
+/* Top Header Bar */
+.theme-dark .top-header-bar {
+  background: #0d131f !important;
+  border-bottom: 1px solid #243044 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Tables */
+.theme-dark table th,
+.theme-dark .role-table th,
+.theme-dark .reports-table th,
+.theme-dark .syslogs-table th {
+  background: #111827 !important;
+  color: #94a3b8 !important;
+  border-bottom: 1.5px solid #243044 !important;
+}
+
+.theme-dark table td,
+.theme-dark .role-table td,
+.theme-dark .reports-table td,
+.theme-dark .syslogs-table td {
+  border-bottom: 1px solid #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+.theme-dark table tr:hover td,
+.theme-dark .role-table tr:hover td {
+  background: #1c2638 !important;
+}
+
+.theme-dark table tr.selected td,
+.theme-dark .role-table tr.selected td {
+  background: #142a3e !important;
+}
+
+.theme-dark .cell-id-badge code {
+  background: #1e293b !important;
+  color: #93c5fd !important;
+}
+
+/* Forms, Inputs, Selects & Textareas */
+.theme-dark input:not([type="checkbox"]):not([type="radio"]),
+.theme-dark select,
+.theme-dark textarea,
+.theme-dark .role-select,
+.theme-dark .compounders-search-input,
+.theme-dark .reports-search-box input,
+.theme-dark .reports-filter-item input,
+.theme-dark .reports-filter-item select,
+.theme-dark .form-input {
+  background: #111827 !important;
+  border: 1.5px solid #334155 !important;
+  color: #f8fafc !important;
+}
+
+.theme-dark input::placeholder,
+.theme-dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+.theme-dark input:focus,
+.theme-dark select:focus,
+.theme-dark textarea:focus,
+.theme-dark .role-select:focus,
+.theme-dark .form-input:focus {
+  border-color: #00d2ff !important;
+  box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.2) !important;
+}
+
+/* Tabs & Segmented Controls */
+.theme-dark .role-tabs-wrap,
+.theme-dark .reports-view-segmented {
+  background: #0f172a !important;
+}
+
+.theme-dark .role-tab-btn,
+.theme-dark .reports-view-tab {
+  color: #94a3b8 !important;
+}
+
+.theme-dark .role-tab-btn.active,
+.theme-dark .reports-view-tab.active {
+  background: #1e293b !important;
+  color: #00d2ff !important;
+}
+
+.theme-dark .role-tab-badge {
+  background: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.theme-dark .role-tab-btn.active .role-tab-badge {
+  background: #00d2ff !important;
+  color: #0f172a !important;
+}
+
+/* Action Buttons */
+.theme-dark .role-back-btn,
+.theme-dark .role-refresh-btn,
+.theme-dark .role-page-btn,
+.theme-dark .role-action-icon-btn,
+.theme-dark .persisted-nav-btn,
+.theme-dark .reports-action-btn,
+.theme-dark .btn-icon,
+.theme-dark .icon-btn {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.theme-dark .role-back-btn:hover,
+.theme-dark .role-refresh-btn:hover,
+.theme-dark .role-page-btn:hover:not(:disabled),
+.theme-dark .role-action-icon-btn:hover,
+.theme-dark .btn-icon:hover,
+.theme-dark .icon-btn:hover {
+  background: #283548 !important;
+  color: #ffffff !important;
+  border-color: #00d2ff !important;
+}
+
+.theme-dark .role-pagination-bar {
+  background: #151d2c !important;
+  border-top: 1px solid #243044 !important;
+}
+
+.theme-dark .persisted-nav-btn.active {
+  background: #00d2ff !important;
+  color: #0f172a !important;
+  font-weight: 700;
+  border-color: #00d2ff !important;
+}
+
+/* Modals & Dialogs */
+.theme-dark .role-modal-card,
+.theme-dark .role-modal-header,
+.theme-dark .role-modal-footer,
+.theme-dark .edit-form-modal,
+.theme-dark .edit-form-content,
+.theme-dark .modal-content,
+.theme-dark .ReactModal__Content,
+.theme-dark .update-modal-content,
+.theme-dark .invoice-drawer-content {
+  background: #151d2c !important;
+  border-color: #243044 !important;
+  color: #f8fafc !important;
+}
+
+.theme-dark .role-modal-header {
+  border-bottom: 1px solid #243044 !important;
+}
+
+.theme-dark .role-modal-footer {
+  border-top: 1px solid #243044 !important;
+}
+
+.theme-dark .role-modal-close-btn:hover {
+  background: #243044 !important;
+  color: #ffffff !important;
+}
+
+.theme-dark .role-selected-list {
+  background: #111827 !important;
+  border-color: #243044 !important;
+}
+
+.theme-dark .role-selected-item {
+  border-bottom-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+.theme-dark .role-copy-id-btn {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+}
+
+.theme-dark .role-copy-id-btn:hover {
+  background: #283548 !important;
+  color: #ffffff !important;
+}
+
+.theme-dark .role-detail-hero {
+  border-bottom-color: #243044 !important;
+}
+
+.theme-dark .role-detail-hero-info h3,
+.theme-dark .role-detail-val,
+.theme-dark .role-user-fullname {
+  color: #f8fafc !important;
+}
+
+.theme-dark .role-detail-label,
+.theme-dark .role-kpi-label,
+.theme-dark .role-user-nic,
+.theme-dark .role-contact-phone,
+.theme-dark .reports-page .card .label {
+  color: #94a3b8 !important;
+}
+
+.theme-dark .role-contact-email {
+  color: #cbd5e1 !important;
+}
+
+.theme-dark .reports-page .card .value {
+  color: #00d2ff !important;
+}
+
+.theme-dark .reports-top-bar {
+  border-bottom: 2.5px solid #00d2ff !important;
 }
 /* Custom user theme (overrides via inline style or .theme-custom) */
 /* .theme-custom: custom variables are applied dynamically at runtime */

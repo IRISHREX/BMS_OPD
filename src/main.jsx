@@ -9,9 +9,12 @@ import { hydrateTheme } from './store/themeSlice';
 // Apply saved theme on initial load (normalize legacy keys)
 const _raw = localStorage.getItem("dashboard-theme");
 const _normalize = (t) => {
-  if (!t) return 'theme-light';
+  if (!t) return 'theme-teal';
   if (t === 'light') return 'theme-light';
   if (t === 'dark') return 'theme-dark';
+  if (['theme-cyberpunk', 'theme-blackpink', 'theme-darkgreen'].includes(t)) {
+    return 'theme-dark';
+  }
   return t;
 };
 const savedTheme = _normalize(_raw);
@@ -62,26 +65,17 @@ const AppWrapper = () => {
       root.style.removeProperty('--bg-main');
       root.style.removeProperty('--accent');
     }
-    // Apply theme-specific font families for visibility
+    // Apply theme-specific font families and sidebar colors
     const root = document.documentElement;
     if (theme === 'theme-dark') {
       root.style.setProperty('--app-font', 'Inter, system-ui, -apple-system, sans-serif');
-      root.style.setProperty('--sidebar-bg', 'var(--bg-card)');
+      root.style.setProperty('--sidebar-bg', '#0d131f');
     } else if (theme === 'theme-light') {
       root.style.setProperty('--app-font', 'Montserrat, system-ui, -apple-system, sans-serif');
       root.style.setProperty('--sidebar-bg', '#173a5e');
-    } else if (theme === 'theme-teal') {
-      root.style.setProperty('--app-font', 'Montserrat, system-ui, -apple-system, sans-serif');
-      root.style.setProperty('--sidebar-bg', '#0c4e4c');
-    } else if (theme === 'theme-cyberpunk') {
-      root.style.setProperty('--app-font', 'Orbitron, sans-serif');
-      root.style.setProperty('--sidebar-bg', 'rgba(20,15,40,0.6)');
-    } else if (theme === 'theme-blackpink') {
-      root.style.setProperty('--app-font', 'Poppins, sans-serif');
-      root.style.setProperty('--sidebar-bg', 'rgba(20,0,20,0.6)');
     } else {
       root.style.setProperty('--app-font', 'Montserrat, system-ui, -apple-system, sans-serif');
-      root.style.setProperty('--sidebar-bg', '#173a5e');
+      root.style.setProperty('--sidebar-bg', '#0c4e4c');
     }
   }, [theme]);
 

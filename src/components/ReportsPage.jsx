@@ -661,7 +661,7 @@ const ReportsPage = () => {
                   {loading ? (
                     <BsHeartPulse style={{ color: "#ef4444" }} />
                   ) : (
-                    <IoRefresh style={{ color: "#096dd9" }} />
+                    <IoRefresh style={{ color: "var(--accent, #1a9e9b)" }} />
                   )}
                 </button>
                 <button
@@ -1081,7 +1081,7 @@ const ReportsPage = () => {
                       </button>
                       <button
                         className="btn-small"
-                        style={{ background: "#096dd9", color: "#fff" }}
+                        style={{ background: "var(--accent, #1a9e9b)", color: "#fff" }}
                         onClick={() => handleDownloadInvoice({ appointmentId: inv._id })}
                       >
                         Download

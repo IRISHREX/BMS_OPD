@@ -53,8 +53,8 @@
 
 .form-input:focus {
   outline: none;
-  border-color: #271776;
-  box-shadow: 0 0 0 3px rgba(39, 23, 118, 0.1);
+  border-color: var(--accent, #1a9e9b);
+  box-shadow: 0 0 0 3px rgba(26, 158, 155, 0.15);
 }
 
 /* .form-input::placeholder {
@@ -93,14 +93,14 @@
 }
 
 .btn-submit {
-  background: #271776;
+  background: var(--btn-gradient, linear-gradient(135deg, #1a9e9b, #2f78c8));
   color: #fff;
 }
 
 .btn-submit:hover {
-  background: #1e1159;
+  filter: brightness(1.1);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(39, 23, 118, 0.3);
+  box-shadow: 0 4px 12px rgba(26, 158, 155, 0.3);
 }
 
 .btn-submit:active,

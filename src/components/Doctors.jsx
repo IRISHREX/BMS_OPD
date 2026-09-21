@@ -215,37 +215,37 @@ const Doctors = () => {
                 }}
               >
                 <div>
-                  <span style={{ fontWeight: 600, color: "#271776" }}>
+                  <span style={{ fontWeight: 600, color: "var(--accent, #1a9e9b)" }}>
                     Email:
                   </span>{" "}
                   {selectedDoctor.email}
                 </div>
                 <div>
-                  <span style={{ fontWeight: 600, color: "#271776" }}>
+                  <span style={{ fontWeight: 600, color: "var(--accent, #1a9e9b)" }}>
                     Phone:
                   </span>{" "}
                   {selectedDoctor.phone}
                 </div>
                 <div>
-                  <span style={{ fontWeight: 600, color: "#271776" }}>
+                  <span style={{ fontWeight: 600, color: "var(--accent, #1a9e9b)" }}>
                     NIC:
                   </span>{" "}
                   {selectedDoctor.nic}
                 </div>
                 <div>
-                  <span style={{ fontWeight: 600, color: "#271776" }}>
+                  <span style={{ fontWeight: 600, color: "var(--accent, #1a9e9b)" }}>
                     Gender:
                   </span>{" "}
                   {selectedDoctor.gender}
                 </div>
                 <div>
-                  <span style={{ fontWeight: 600, color: "#271776" }}>
+                  <span style={{ fontWeight: 600, color: "var(--accent, #1a9e9b)" }}>
                     Department:
                   </span>{" "}
                   {selectedDoctor.doctorDepartment}
                 </div>
                 <div>
-                  <span style={{ fontWeight: 600, color: "#271776" }}>
+                  <span style={{ fontWeight: 600, color: "var(--accent, #1a9e9b)" }}>
                     DOB:
                   </span>{" "}
                   {selectedDoctor.dob
@@ -254,7 +254,7 @@ const Doctors = () => {
                 </div>
                 {selectedDoctor.consultationFee && (
                   <div>
-                    <span style={{ fontWeight: 600, color: "#271776" }}>
+                    <span style={{ fontWeight: 600, color: "var(--accent, #1a9e9b)" }}>
                       Consultation Fee:
                     </span>{" "}
                     Rs. {selectedDoctor.consultationFee}
@@ -262,7 +262,7 @@ const Doctors = () => {
                 )}
                 {selectedDoctor.qualifications && (
                   <div>
-                    <span style={{ fontWeight: 600, color: "#271776" }}>
+                    <span style={{ fontWeight: 600, color: "var(--accent, #1a9e9b)" }}>
                       Qualifications:
                     </span>{" "}
                     {selectedDoctor.qualifications}
@@ -294,7 +294,7 @@ const Doctors = () => {
               style={{
                 width: "100%",
                 padding: "0.75rem 1.5rem",
-                background: "#271776",
+                background: "var(--btn-gradient, linear-gradient(135deg, #1a9e9b, #2f78c8))",
                 color: "white",
                 border: "none",
                 borderRadius: "4px",
