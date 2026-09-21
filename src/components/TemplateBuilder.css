@@ -1,740 +1,552 @@
-/* TemplateBuilder.css - Microsoft Word-style WYSIWYG Prescription Designer */
+/* TemplateBuilder.css - Prescription Templates Gallery & Default Selector */
 
-.tmpl-builder-page.page {
+.tmpl-gallery-page {
   margin-left: 6.5rem;
   width: calc(100% - 6.5rem);
   max-width: calc(100% - 6.5rem);
-  padding: 0 !important;
-  height: 100vh;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: #f1f5f9;
+  padding: 1.5rem 2rem 3rem 2rem;
+  background: #f8fafc;
   border-top-left-radius: 3.125rem;
   border-bottom-left-radius: 3.125rem;
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  transition: background 0.3s;
+  color: #1e293b;
 }
 
-.tmpl-builder-page * {
-  box-sizing: border-box;
+@media (max-width: 900px) {
+  .tmpl-gallery-page {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+    padding: 1rem;
+  }
 }
 
-/* ==========================================================================
-   1. TOP NAVIGATION & WORD RIBBON
-   ========================================================================== */
-.tmpl-builder-topbar {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0.45rem 1rem;
+/* Header */
+.tmpl-gallery-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  flex-shrink: 0;
-  z-index: 20;
+  align-items: flex-start;
+  margin-bottom: 1.75rem;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.tmpl-builder-title-group {
+.tmpl-header-left {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.tmpl-builder-back-btn {
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  color: #334155;
-  padding: 0.35rem 0.65rem;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  white-space: nowrap;
-  transition: all 0.15s;
-}
-
-.tmpl-builder-back-btn:hover {
-  background: #e2e8f0;
-}
-
-.tmpl-builder-name-input {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #0f172a;
-  border: 1px solid transparent;
-  padding: 0.2rem 0.4rem;
-  border-radius: 6px;
-  outline: none;
-  background: transparent;
-  transition: all 0.15s;
-  width: 100%;
-  max-width: 280px;
-}
-
-.tmpl-builder-name-input:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-.tmpl-builder-name-input:focus {
-  background: #ffffff;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
-}
-
-.tmpl-builder-top-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-
-.tmpl-builder-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.38rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #334155;
-  white-space: nowrap;
-  transition: all 0.15s;
-}
-
-.tmpl-builder-btn:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
-}
-
-.tmpl-builder-btn.primary {
-  background: #2563eb;
-  color: #ffffff;
-  border-color: #2563eb;
-}
-
-.tmpl-builder-btn.primary:hover {
-  background: #1d4ed8;
-}
-
-.tmpl-builder-default-label {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #475569;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-/* --- Word-Style Ribbon Toolbar --- */
-.tmpl-builder-ribbon {
-  background: #ffffff;
-  border-bottom: 1px solid #cbd5e1;
-  padding: 0.4rem 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-}
-
-.tmpl-ribbon-group {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  border-right: 1px solid #e2e8f0;
-  padding-right: 0.75rem;
-}
-
-.tmpl-ribbon-group:last-child {
-  border-right: none;
-  padding-right: 0;
-}
-
-.tmpl-ribbon-label {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-right: 0.15rem;
-}
-
-.tmpl-ribbon-select {
-  padding: 0.3rem 0.5rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 0.76rem;
-  background: #fff;
-  color: #334155;
-  outline: none;
-  cursor: pointer;
-}
-
-.tmpl-ribbon-btn {
-  width: 26px;
-  height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #475569;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.78rem;
-  transition: all 0.12s;
-}
-
-.tmpl-ribbon-btn:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-}
-
-.tmpl-ribbon-btn.active {
-  background: #e0f2fe;
-  color: #0284c7;
-  border-color: #38bdf8;
-}
-
-.tmpl-ribbon-color-picker {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.tmpl-ribbon-color-input {
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  border: 1px solid #cbd5e1;
-  border-radius: 4px;
-  cursor: pointer;
-  background: none;
-}
-
-/* ==========================================================================
-   2. MAIN 3-PANE WORKSPACE LAYOUT
-   ========================================================================= */
-.tmpl-builder-workspace {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-}
-
-/* Left Sidebar: Schema Keys & Components */
-.tmpl-builder-sidebar-left {
-  width: 250px;
-  background: #ffffff;
-  border-right: 1px solid #e2e8f0;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  overflow-y: auto;
-}
-
-.tmpl-sidebar-header {
-  padding: 0.75rem 1rem 0.5rem 1rem;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.tmpl-sidebar-header h3 {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 0.15rem;
-}
-
-.tmpl-sidebar-header p {
-  font-size: 0.72rem;
-  color: #64748b;
-  line-height: 1.3;
-}
-
-.tmpl-sidebar-content {
-  padding: 0.75rem 1rem;
-  display: flex;
-  flex-direction: column;
   gap: 1rem;
 }
 
-.tmpl-schema-category {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.tmpl-schema-cat-title {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #475569;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.tmpl-schema-pill-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-.tmpl-schema-tag {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #334155;
-  font-size: 0.72rem;
-  font-weight: 500;
-  padding: 0.2rem 0.45rem;
-  border-radius: 4px;
+.tmpl-back-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  cursor: grab;
-  user-select: none;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: all 0.15s;
-}
-
-.tmpl-schema-tag:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
-  color: #0f172a;
-}
-
-.tmpl-schema-tag.active {
-  background: #eff6ff;
-  border-color: #93c5fd;
-  color: #1d4ed8;
-}
-
-/* ==========================================================================
-   3. CENTER CANVAS: MICROSOFT WORD A4 DOCUMENT
-   ========================================================================= */
-.tmpl-builder-canvas-area {
-  flex: 1;
-  background: #e2e8f0;
-  overflow-y: auto;
-  overflow-x: auto;
-  padding: 1.5rem 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-/* A4 Document Sheet */
-.tmpl-a4-sheet {
+  gap: 0.5rem;
   background: #ffffff;
-  width: 680px;
-  max-width: 100%;
-  min-height: 960px;
-  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.12), 0 4px 8px -4px rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  transition: all 0.2s ease;
-  user-select: none;
-  flex-shrink: 0;
-}
-
-/* Document Header Area */
-.tmpl-doc-header {
-  border-bottom: 2px dashed #cbd5e1;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: #fafbfc;
-  padding: 0.5rem 1rem;
-  transition: height 0.15s;
-}
-
-.tmpl-doc-header-content {
-  text-align: center;
-  width: 100%;
-}
-
-.tmpl-doc-header-title {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: #0f172a;
-  margin-bottom: 2px;
-}
-
-.tmpl-doc-header-sub {
-  font-size: 0.76rem;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.tmpl-height-handle {
-  position: absolute;
-  bottom: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #2563eb;
-  color: #ffffff;
-  font-size: 0.62rem;
-  font-weight: 700;
-  padding: 1px 7px;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 0.5rem 0.85rem;
   border-radius: 8px;
-  cursor: ns-resize;
-  z-index: 10;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-/* Document Body Area */
-.tmpl-doc-body {
-  padding: 0.85rem 1.15rem;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-/* Patient Demographics Box */
-.tmpl-patient-box {
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  padding: 0.5rem 0.75rem;
-  background: #ffffff;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  align-items: center;
-}
-
-.tmpl-patient-item {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.75rem;
-}
-
-.tmpl-patient-item strong {
-  color: #475569;
-  font-weight: 600;
-}
-
-.tmpl-patient-item span {
-  color: #0f172a;
-  font-weight: 500;
-  background: #f8fafc;
-  padding: 1px 5px;
-  border-radius: 4px;
-  border: 1px dashed #cbd5e1;
-}
-
-/* Layout Columns Container */
-.tmpl-columns-layout {
-  display: flex;
-  gap: 0.75rem;
-  flex: 1;
-  min-height: 420px;
-}
-
-.tmpl-col-left {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-}
-
-.tmpl-col-right {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  min-width: 0;
-  overflow: hidden;
-}
-
-/* Draggable Prescription Section Card */
-.tmpl-section-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  overflow: hidden;
-  transition: all 0.15s ease;
-  position: relative;
-  width: 100%;
-}
-
-.tmpl-section-card:hover {
-  border-color: #93c5fd;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
-}
-
-.tmpl-section-card.selected {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-}
-
-.tmpl-section-header {
-  background: #f8fafc;
-  padding: 0.35rem 0.65rem;
-  border-bottom: 1px solid #f1f5f9;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: grab;
-}
-
-.tmpl-section-title-wrap {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  overflow: hidden;
-}
-
-.tmpl-drag-handle {
-  color: #94a3b8;
-  font-size: 0.75rem;
-  cursor: grab;
-  flex-shrink: 0;
-}
-
-.tmpl-section-title {
-  font-size: 0.76rem;
-  font-weight: 700;
-  color: #1e293b;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.tmpl-section-tools {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  flex-shrink: 0;
-}
-
-.tmpl-tool-btn {
-  background: none;
-  border: none;
-  color: #94a3b8;
-  font-size: 0.7rem;
-  padding: 2px 3px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.tmpl-tool-btn:hover {
-  background: #e2e8f0;
-  color: #334155;
-}
-
-.tmpl-section-content {
-  padding: 0.55rem 0.75rem;
-  font-size: 0.76rem;
-  color: #334155;
-}
-
-/* Vitals Grid Preview */
-.tmpl-vitals-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.35rem;
-}
-
-.tmpl-vital-pill {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 4px;
-  padding: 0.2rem 0.35rem;
-  text-align: center;
-}
-
-.tmpl-vital-pill-lbl {
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-}
-
-.tmpl-vital-pill-val {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-/* Medicine / Rx Table in Canvas - FIXED WIDTH TO PREVENT OVERFLOW */
-.tmpl-rx-table-container {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.tmpl-rx-table {
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
-  font-size: 0.72rem;
-}
-
-.tmpl-rx-table th {
-  background: #f1f5f9;
-  color: #334155;
-  font-weight: 700;
-  text-align: left;
-  padding: 0.35rem 0.45rem;
-  border: 1px solid #cbd5e1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tmpl-rx-table td {
-  padding: 0.35rem 0.45rem;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Column Toggle Bar for Rx Table */
-.tmpl-rx-col-toggles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  margin-bottom: 0.45rem;
-  padding-bottom: 0.35rem;
-  border-bottom: 1px dashed #e2e8f0;
-}
-
-.tmpl-rx-col-pill {
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 10px;
-  border: 1px solid #cbd5e1;
-  background: #f8fafc;
-  color: #475569;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  white-space: nowrap;
-}
-
-.tmpl-rx-col-pill.active {
-  background: #eff6ff;
-  color: #2563eb;
-  border-color: #93c5fd;
-}
-
-/* Document Footer Area */
-.tmpl-doc-footer {
-  border-top: 2px dashed #cbd5e1;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: #fafbfc;
-  padding: 0.45rem 1rem;
-  margin-top: auto;
-}
-
-.tmpl-doc-footer-content {
-  text-align: center;
-  font-size: 0.72rem;
-  color: #64748b;
-}
-
-/* ==========================================================================
-   4. RIGHT PROPERTY INSPECTOR
-   ========================================================================= */
-.tmpl-builder-sidebar-right {
-  width: 250px;
-  background: #ffffff;
-  border-left: 1px solid #e2e8f0;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  overflow-y: auto;
-}
-
-.tmpl-inspector-header {
-  padding: 0.75rem 1rem 0.5rem 1rem;
-  border-bottom: 1px solid #f1f5f9;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.tmpl-inspector-header h3 {
   font-size: 0.85rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-.tmpl-inspector-content {
-  padding: 0.75rem 1rem;
+.tmpl-back-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.tmpl-header-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.tmpl-header-subtitle {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+/* Active Default Banner */
+.tmpl-active-banner {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.06);
+}
+
+.tmpl-active-banner-info {
+  display: flex;
+  align-items: center;
   gap: 0.85rem;
 }
 
-.tmpl-field-group {
+.tmpl-active-banner-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #ffffff;
   display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
 }
 
-.tmpl-field-label {
-  font-size: 0.75rem;
-  font-weight: 600;
+.tmpl-active-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #1e40af;
+  margin-bottom: 2px;
+}
+
+.tmpl-active-banner-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Templates Grid */
+.tmpl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Template Card */
+.tmpl-card {
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+.tmpl-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08), 0 6px 8px -6px rgba(0, 0, 0, 0.04);
+  border-color: #93c5fd;
+}
+
+.tmpl-card.is-active-default {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px #2563eb, 0 10px 15px -3px rgba(37, 99, 235, 0.12);
+}
+
+/* Blueprint Miniature Canvas */
+.tmpl-blueprint-wrap {
+  background: #f8fafc;
+  padding: 1.25rem 1.25rem 0.75rem 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.tmpl-blueprint {
+  width: 220px;
+  height: 280px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 6px;
+  color: #64748b;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.tmpl-card:hover .tmpl-blueprint {
+  transform: scale(1.02);
+}
+
+/* Blueprint Header */
+.bp-header {
+  height: 24px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
   color: #475569;
 }
 
-.tmpl-field-input {
-  padding: 0.35rem 0.55rem;
+/* Blueprint Layouts */
+.bp-body-flex {
+  flex: 1;
+  display: flex;
+  gap: 5px;
+}
+
+.bp-main-rx {
+  flex: 2;
+  background: #f1f5f9;
+  border: 1px dashed #cbd5e1;
+  border-radius: 2px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.bp-margin-col {
+  flex: 1;
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  border-radius: 2px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.bp-line {
+  height: 4px;
+  background: #cbd5e1;
+  border-radius: 1px;
+}
+
+.bp-line.thin {
+  height: 2px;
+}
+
+.bp-line.blue {
+  background: #93c5fd;
+}
+
+.bp-line.green {
+  background: #86efac;
+}
+
+/* Ortho Blueprint */
+.bp-ortho-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bp-ortho-row {
+  display: flex;
+  gap: 4px;
+}
+
+.bp-ortho-box {
+  flex: 1;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 2px;
+  padding: 3px;
+  min-height: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bp-ortho-box.blue {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.bp-ortho-box.amber {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+/* Single Column Blueprint */
+.bp-single-flow {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.bp-demographics-strip {
+  height: 20px;
+  background: #f1f5f9;
   border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 0.78rem;
+  border-radius: 2px;
+  padding: 3px;
+}
+
+.bp-full-table {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 2px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* Blueprint Footer */
+.bp-footer {
+  height: 16px;
+  background: #f1f5f9;
+  border-top: 1px solid #e2e8f0;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+/* Card Content */
+.tmpl-card-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.tmpl-card-badge-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tmpl-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.tmpl-badge.badge-blue {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.tmpl-badge.badge-purple {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.tmpl-badge.badge-green {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.tmpl-badge.badge-slate {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.tmpl-card-title {
+  margin: 0 0 0.4rem 0;
+  font-size: 1.15rem;
+  font-weight: 700;
   color: #0f172a;
-  outline: none;
-  width: 100%;
 }
 
-.tmpl-field-input:focus {
-  border-color: #2563eb;
+.tmpl-card-desc {
+  margin: 0 0 1rem 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: #475569;
 }
 
-@media (max-width: 485px) {
-  .tmpl-builder-page.page {
-    margin-left: 4rem;
-    width: calc(100% - 4rem);
-    max-width: calc(100% - 4rem);
-    border-top-left-radius: 1.5rem;
-    border-bottom-left-radius: 1.5rem;
-  }
+.tmpl-features-list {
+  margin: 0 0 1.25rem 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 0.85rem;
+}
+
+.tmpl-feature-item {
+  font-size: 0.8rem;
+  color: #334155;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.tmpl-feature-icon {
+  color: #10b981;
+  font-size: 0.75rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* Card Actions */
+.tmpl-card-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 0.65rem;
+}
+
+.tmpl-btn-default {
+  flex: 1;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.tmpl-btn-default:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.tmpl-btn-default:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.tmpl-btn-active-badge {
+  flex: 1;
+  background: #10b981;
+  color: #ffffff;
+  border: none;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+  cursor: default;
+}
+
+.tmpl-btn-preview {
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.tmpl-btn-preview:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+/* Preview Modal */
+.tmpl-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.tmpl-modal-container {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 900px;
+  max-width: 95vw;
+  height: 90vh;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.tmpl-modal-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+}
+
+.tmpl-modal-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tmpl-modal-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.3rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.tmpl-modal-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.tmpl-modal-content {
+  flex: 1;
+  background: #475569;
+  overflow: hidden;
 }
