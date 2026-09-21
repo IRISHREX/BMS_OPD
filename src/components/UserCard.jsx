@@ -21,7 +21,7 @@ const UserCard = ({
 
   return (
     <div
-      className="doc-card pro-card"
+      className="doc-card pro-card glass-panel hover-glow"
       // style={{
       //   boxShadow: "0 4px 24px rgba(39,23,118,0.12)",
       //   borderRadius: "18px",

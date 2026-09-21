@@ -47,7 +47,12 @@ const MessageCard = ({
           <span>{message.firstName} {message.lastName}</span>
           <span className="message-contact">{message.email} • {message.phone}</span>
         </div>
-        <p className={`message-body ${isExpanded ? 'expanded' : ''}`}>
+        <p 
+          className={`message-body ${isExpanded ? 'expanded' : ''}`}
+          onClick={() => setIsExpanded(!isExpanded)}
+          style={{ cursor: 'pointer' }}
+          title={isExpanded ? "Click to collapse" : "Click to expand"}
+        >
           {(() => {
             const text = message.message || '';
             const isLongMessage = text.length > 100;
@@ -97,9 +102,6 @@ const MessageCard = ({
               return (
                 <>
                   {renderContent(text.substring(0, 100))}...
-                  <button onClick={() => setIsExpanded(true)} className="btn-link">
-                    <FiChevronDown />
-                  </button>
                 </>
               );
             }
@@ -107,11 +109,6 @@ const MessageCard = ({
             return (
               <>
                 {renderContent(text)}
-                {isLongMessage && (
-                  <button onClick={() => setIsExpanded(false)} className="btn-link">
-                    <FiChevronUp />
-                  </button>
-                )}
               </>
             );
           })()}

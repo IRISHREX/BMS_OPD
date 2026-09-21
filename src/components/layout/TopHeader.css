@@ -1,0 +1,176 @@
+/* TopHeader.css */
+.top-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 2rem;
+  background: var(--bg-card, #ffffff);
+  border-bottom: 1px solid var(--border-color, rgba(158, 201, 243, 0.35));
+  box-shadow: 0 2px 10px rgba(23, 58, 94, 0.04);
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.top-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.drawer-toggle-btn {
+  background: var(--accent, #2f78c8);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.35rem;
+  transition: transform 0.15s, background 0.2s;
+  box-shadow: 0 2px 8px rgba(47, 120, 200, 0.25);
+}
+
+.drawer-toggle-btn:hover {
+  transform: scale(1.05);
+  background: #2563a8;
+}
+
+.breadcrumb-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.breadcrumb-sub {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-teal, #1a9e9b);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.breadcrumb-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main, #173a5e);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.top-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+/* Mode Switcher Pill */
+.mode-switcher-pill {
+  display: flex;
+  background: var(--bg-main, #e7f1fb);
+  padding: 4px;
+  border-radius: 10px;
+  gap: 4px;
+  border: 1px solid var(--border-color, #9ec9f3);
+}
+
+.mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-main, #173a5e);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-btn:hover {
+  color: var(--accent, #2f78c8);
+  background: #ffffff;
+}
+
+.mode-btn.active {
+  background: var(--accent, #2f78c8);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(47, 120, 200, 0.25);
+}
+
+.mode-btn svg {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* User Pill */
+.user-pill-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 12px;
+  background: var(--bg-subtle, #f3fbfb);
+  border: 1px solid var(--border-teal, #cdeeee);
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.user-pill-badge:hover {
+  background: var(--color-teal-100, #cdeeee);
+  border-color: var(--accent-teal, #1a9e9b);
+}
+
+.user-avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent, #2f78c8);
+}
+
+.user-avatar-icon {
+  font-size: 1.9rem;
+  color: var(--accent, #2f78c8);
+}
+
+.user-info-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.user-info-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main, #173a5e);
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-info-role {
+  font-size: 0.68rem;
+  color: var(--accent-teal, #1a9e9b);
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+@media (max-width: 768px) {
+  .top-header-bar {
+    padding: 0.75rem 1rem;
+  }
+  .breadcrumb-title {
+    font-size: 1.05rem;
+  }
+  .user-info-text {
+    display: none;
+  }
+}

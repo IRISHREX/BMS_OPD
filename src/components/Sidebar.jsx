@@ -1,11 +1,21 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { TiHome } from "react-icons/ti";
-import { FaBell, FaRegFileAlt, FaUserMd, FaUserNurse, FaChartBar } from "react-icons/fa";
+import {
+  FaBell,
+  FaRegFileAlt,
+  FaUserMd,
+  FaUserNurse,
+  FaChartBar,
+  FaChevronLeft,
+  FaChevronRight,
+  FaTimes,
+} from "react-icons/fa";
+import { RiCalendarScheduleFill } from "react-icons/ri";
 import { IoMdSettings } from "react-icons/io";
 import { FiLogOut } from "react-icons/fi";
-import { BiAlignLeft } from "react-icons/bi";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { MdLocalHospital } from "react-icons/md";
 
 import api from "../utils/api";
 import { useSnackbar } from "../context/SnackbarContext";
@@ -13,15 +23,23 @@ import { Context } from "../main";
 import { logout } from "../store/authSlice";
 import { playClickSound } from "../utils/soundUtils";
 import RequirePermission from "./RequirePermission";
+import { useSidebar, SIDEBAR_MODES } from "../context/SidebarContext";
 import "./Sidebar.css";
 
 const Sidebar = () => {
   const snackbar = useSnackbar();
-  const [show, setShow] = useState(false);
   const dispatch = useDispatch();
-  const navigateTo = useNavigate();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const { isAuthenticated, setIsAuthenticated, setAdmin } = useContext(Context);
+  const { isAuthenticated, setIsAuthenticated, setAdmin, admin } = useContext(Context);
+  const {
+    sidebarMode,
+    toggleSidebarMode,
+    isDrawerOpen,
+    closeDrawer,
+    isMobile,
+  } = useSidebar();
 
   const handleLogout = async () => {
     playClickSound();
@@ -31,90 +49,211 @@ const Sidebar = () => {
         withCredentials: true,
       });
 
-      // 1. Update Redux & Context state
       dispatch(logout());
       setIsAuthenticated(false);
       setAdmin({});
       snackbar.success(res?.data?.message || "Logged out successfully");
 
-      // 2. Clear storage but keep logout marker
       localStorage.clear();
       sessionStorage.clear();
       sessionStorage.setItem("logged_out", "true");
-
-      // 3. Navigate to login
       window.location.href = "/login";
     } catch (err) {
-      // Even if logout fails, attempt to clear local state and redirect
       dispatch(logout());
       setIsAuthenticated(false);
       setAdmin({});
       localStorage.clear();
       sessionStorage.clear();
       sessionStorage.setItem("logged_out", "true");
-      snackbar.error(err?.response?.data?.message || 'Logout failed');
+      snackbar.error(err?.response?.data?.message || "Logout failed");
       window.location.href = "/login";
     }
   };
 
-  const createNavAction = (path) => () => {
+  const handleNav = (path) => {
     playClickSound();
-    navigateTo(path);
-    setShow(false);
+    navigate(path);
+    if (isMobile || sidebarMode === SIDEBAR_MODES.HIDDEN) {
+      closeDrawer();
+    }
   };
 
-  const navActions = {
-    home: createNavAction("/"),
-    doctors: createNavAction("/doctors"),
-    "doctor-dashboard": createNavAction("/doctor-dashboard"),
-    messages: createNavAction("/messages"),
-    reports: createNavAction("/reports"),
-    addNewDoctor: createNavAction("/doctor/addnew"),
-    addNewHelper: createNavAction("/helper/addnew"),
-    compounders: createNavAction("/compounders"),
-    settings: createNavAction("/settings"),
+  if (!isAuthenticated) return null;
+
+  const isCurrentRoute = (path) => {
+    if (path === "/" && location.pathname === "/") return true;
+    if (path !== "/" && location.pathname.startsWith(path)) return true;
+    return false;
   };
+
+  const navItems = [
+    {
+      name: "Dashboard",
+      path: "/",
+      icon: TiHome,
+      roles: ["Admin", "Doctor", "Compounder"],
+    },
+    {
+      name: "Doctor Workspace",
+      path: "/doctor-dashboard",
+      icon: FaChartBar,
+      roles: ["Admin", "Doctor"],
+    },
+
+    {
+      name: "Doctors Directory",
+      path: "/doctors",
+      icon: FaUserMd,
+      roles: ["Admin"],
+    },
+    {
+      name: "Assistants",
+      path: "/compounders",
+      icon: FaUserNurse,
+      roles: ["Admin", "Doctor"],
+    },
+    {
+      name: "Messages",
+      path: "/messages",
+      icon: FaBell,
+      roles: ["Admin", "Doctor", "Compounder"],
+    },
+    {
+      name: "Reports",
+      path: "/reports",
+      icon: FaRegFileAlt,
+      roles: ["Admin", "Doctor", "Compounder"],
+    },
+    {
+      name: "Settings",
+      path: "/settings",
+      icon: IoMdSettings,
+      roles: ["Admin", "Doctor", "Compounder"],
+    },
+  ];
+
+  // Determine CSS classes based on mode & drawer state
+  const isDrawer = isMobile || sidebarMode === SIDEBAR_MODES.HIDDEN;
+  const sidebarClasses = [
+    "bms-sidebar",
+    `mode-${sidebarMode}`,
+    isDrawer ? "drawer-mode" : "",
+    isDrawer && isDrawerOpen ? "drawer-open" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const isFull = !isDrawer && sidebarMode === SIDEBAR_MODES.FULL;
 
   return (
-    <>
-      <nav
-        style={!isAuthenticated ? { display: "none" } : { display: "flex" }}
-        className={show ? "show sidebar" : "sidebar"}
-      >
-        <div className="links">
-          <TiHome className="sidebar-icon" onClick={navActions.home} title="Dashboard" />
-          
-          <RequirePermission allowedRoles={["Admin", "Doctor"]}>
-            <FaChartBar className="sidebar-icon" onClick={navActions['doctor-dashboard']} title="Doctor Dashboard" />
-          </RequirePermission>
-
-          <RequirePermission allowedRoles={["Admin"]}>
-            <FaUserMd className="sidebar-icon" onClick={navActions.doctors} title="Doctors" />
-          </RequirePermission>
-
-          <RequirePermission allowedRoles={["Admin", "Doctor"]}>
-            <FaUserNurse className="sidebar-icon" onClick={navActions.compounders} title="Assistants" />
-          </RequirePermission>
-
-          <RequirePermission allowedRoles={["Admin", "Doctor", "Compounder"]}>
-            <FaBell className="sidebar-icon" onClick={navActions.messages} title="Messages" />
-            <FaRegFileAlt className="sidebar-icon" onClick={navActions.reports} title="Reports" />
-          </RequirePermission>
-
-          <RequirePermission allowedRoles={["Admin", "Doctor"]}>
-            <IoMdSettings className="sidebar-icon" onClick={navActions.settings} title="Settings" />
-          </RequirePermission>
-
-          <FiLogOut className="sidebar-icon" onClick={handleLogout} title="Logout" />
+    <aside className={sidebarClasses}>
+      {/* Brand Header */}
+      <div className="sidebar-brand-header">
+        <div className="brand-logo-wrap" onClick={() => handleNav("/")}>
+          <div className="brand-logo-icon">
+            <MdLocalHospital />
+          </div>
+          {(isFull || isDrawer) && (
+            <div className="brand-text-box">
+              <span className="brand-title">BMS OPD</span>
+              <span className="brand-subtitle">Clinical Portal</span>
+            </div>
+          )}
         </div>
-      </nav>
-      <div
-        className="wrapper"
-        style={!isAuthenticated ? { display: "none" } : { display: "flex" }}
-      >
-        <BiAlignLeft className="hamburger icon-btn" onClick={() => { playClickSound(); setShow(!show); }} />
+
+        {/* Close button inside drawer */}
+        {isDrawer && isDrawerOpen && (
+          <button
+            className="drawer-close-btn"
+            onClick={closeDrawer}
+            title="Close Menu"
+          >
+            <FaTimes />
+          </button>
+        )}
+
+        {/* Collapse / Expand toggle button (Desktop only) */}
+        {!isDrawer && (
+          <button
+            className="sidebar-collapse-toggle"
+            onClick={() => {
+              playClickSound();
+              toggleSidebarMode();
+            }}
+            title={isFull ? "Collapse to Compact View" : "Expand to Full View"}
+            aria-label="Toggle Sidebar"
+          >
+            {isFull ? <FaChevronLeft /> : <FaChevronRight />}
+          </button>
+        )}
       </div>
-    </>
+
+      {/* Navigation Links */}
+      <nav className="sidebar-nav-container">
+        <ul className="sidebar-nav-list">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = isCurrentRoute(item.path);
+
+            return (
+              <RequirePermission key={item.path} allowedRoles={item.roles}>
+                <li className="sidebar-nav-item">
+                  <button
+                    className={`sidebar-nav-link ${active ? "active" : ""}`}
+                    onClick={() => handleNav(item.path)}
+                    data-tooltip={item.name}
+                    aria-label={item.name}
+                  >
+                    <div className="nav-icon-box">
+                      <Icon className="nav-icon" />
+                    </div>
+                    {(isFull || isDrawer) && (
+                      <span className="nav-label">{item.name}</span>
+                    )}
+                    {active && <div className="active-indicator" />}
+                  </button>
+                </li>
+              </RequirePermission>
+            );
+          })}
+        </ul>
+      </nav>
+
+      {/* User / Logout Footer */}
+      <div className="sidebar-footer">
+        {(isFull || isDrawer) ? (
+          <div className="sidebar-user-card">
+            <div className="user-details">
+              <span className="user-name">
+                {admin?.name || admin?.firstName || "Staff"}
+              </span>
+              <span className="user-role-badge">
+                {admin?.role || "Medical"}
+              </span>
+            </div>
+            <button
+              className="footer-logout-btn"
+              onClick={handleLogout}
+              title="Logout"
+              aria-label="Logout"
+            >
+              <FiLogOut />
+            </button>
+          </div>
+        ) : (
+          <button
+            className="footer-logout-btn-compact"
+            onClick={handleLogout}
+            data-tooltip="Logout"
+            aria-label="Logout"
+          >
+            <div className="nav-icon-box">
+              <FiLogOut className="nav-icon" />
+            </div>
+          </button>
+        )}
+      </div>
+    </aside>
   );
 };
 

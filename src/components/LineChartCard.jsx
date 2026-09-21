@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import CountUp from 'react-countup';
+import AnimatedSvgNumber from './AnimatedSvgNumber';
 import './ChartCards.css';
 
 const fmtVal = (n) => {
@@ -20,13 +22,13 @@ const LineChartCard = ({ data, title }) => {
     );
   }
 
-  const chartHeight = 220;
+  const chartHeight = 180;
   const paddingLeft = 55;
   const paddingRight = 35;
   const paddingTop = 35;
   const paddingBottom = 40;
   const availableHeight = chartHeight - paddingTop - paddingBottom;
-  const chartWidth = Math.max(380, data.length * 50);
+  const chartWidth = Math.max(250, data.length * 50);
 
   const maxVal = Math.max(...data.map(d => Number(d.value) || 0), 100);
   const pointGap = data.length > 1 ? (chartWidth - paddingLeft - paddingRight) / (data.length - 1) : 0;
@@ -44,14 +46,16 @@ const LineChartCard = ({ data, title }) => {
     <div className="chart-card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
         <h3>{title}</h3>
-        <span style={{ fontSize: '11px', color: '#6b7280' }}>Total: ₹{data.reduce((s, it) => s + (Number(it.value) || 0), 0).toLocaleString()}</span>
+        <span style={{ fontSize: '11px', color: '#6b7280' }}>
+          Total: <CountUp end={data.reduce((s, it) => s + (Number(it.value) || 0), 0)} separator="," prefix="₹" duration={2} />
+        </span>
       </div>
       <div className="line-chart-container" style={{ overflowX: 'auto' }}>
         <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} width="100%" height={chartHeight} style={{ minWidth: `${chartWidth}px` }}>
           <defs>
             <linearGradient id="lineAreaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#096dd9" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#096dd9" stopOpacity="0.0" />
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
             </linearGradient>
           </defs>
 
@@ -70,7 +74,7 @@ const LineChartCard = ({ data, title }) => {
           {/* Polyline */}
           <polyline
             fill="none"
-            stroke="#096dd9"
+            stroke="#10b981"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -91,33 +95,34 @@ const LineChartCard = ({ data, title }) => {
                   cx={pt.x}
                   cy={pt.y}
                   r={isHov ? 6 : 4}
-                  fill="#096dd9"
+                  fill="#10b981"
                   stroke="#ffffff"
                   strokeWidth="2"
                 />
                 {/* Number shown above point */}
                 {pt.value > 0 && (
-                  <text
+                  <AnimatedSvgNumber
+                    value={pt.value}
+                    prefix="₹"
                     x={pt.x}
                     y={pt.y - 8}
                     textAnchor="middle"
-                    fill="#096dd9"
+                    fill="#10b981"
                     fontSize="11px"
                     fontWeight="700"
-                  >
-                    {fmtVal(pt.value)}
-                  </text>
+                  />
                 )}
                 {/* X axis period label */}
                 <text
                   x={pt.x}
-                  y={chartHeight - paddingBottom + 16}
-                  textAnchor="middle"
+                  y={chartHeight - paddingBottom + 20}
+                  textAnchor="end"
                   className="axis-label"
                   fill="#6b7280"
                   fontSize="10px"
+                  transform={`rotate(-45 ${pt.x} ${chartHeight - paddingBottom + 20})`}
                 >
-                  {pt.name}
+                  {pt.name && pt.name.length === 10 ? pt.name.substring(5) : pt.name}
                 </text>
               </g>
             );

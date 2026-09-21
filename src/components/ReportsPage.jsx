@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useState, useEffect, useContext, useMemo } from "react";
+import CountUp from "react-countup";
 import { useSelector } from "react-redux";
 import api from "../utils/api";
 import "./ReportsPage.css";
@@ -610,17 +611,22 @@ const ReportsPage = () => {
                     </select>
                   </div>
 
-                  <div className="reports-filter-item">
-                    <label htmlFor="report-payment-filter">Filter</label>
-                    <select
-                      id="report-payment-filter"
-                      value={paymentTypeFilter}
-                      onChange={(e) => setPaymentTypeFilter(e.target.value)}
-                    >
-                      <option value="all">All (Paid & Due)</option>
-                      <option value="paid">Paid Only</option>
-                      <option value="due">Due Only</option>
-                    </select>
+                  <div className="reports-filter-item payment-toggles" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                    <button 
+                      className={`btn-cls ${paymentTypeFilter === 'all' ? 'active' : 'secondary'}`} 
+                      onClick={() => setPaymentTypeFilter('all')}
+                      style={{ padding: '6px 12px', fontSize: '0.85rem' }}
+                    >All</button>
+                    <button 
+                      className={`btn-cls ${paymentTypeFilter === 'paid' ? 'active' : 'secondary'}`} 
+                      onClick={() => setPaymentTypeFilter('paid')}
+                      style={{ padding: '6px 12px', fontSize: '0.85rem' }}
+                    >Paid</button>
+                    <button 
+                      className={`btn-cls ${paymentTypeFilter === 'due' ? 'active' : 'secondary'}`} 
+                      onClick={() => setPaymentTypeFilter('due')}
+                      style={{ padding: '6px 12px', fontSize: '0.85rem' }}
+                    >Due</button>
                   </div>
                 </>
               )}
@@ -724,7 +730,9 @@ const ReportsPage = () => {
       <div className="reports-cards">
         <div className="card">
           <p className="label">Total Amount</p>
-          <h2 className="value">₹{fmt(totals.invoiced)}</h2>
+          <h2 className="value">
+            <CountUp end={totals.invoiced || 0} separator="," prefix="₹" duration={2} />
+          </h2>
           <small>
             Paid: ₹{fmt(totals.paid)} • Due: ₹{fmt(totals.totalDue)}
           </small>
@@ -733,17 +741,23 @@ const ReportsPage = () => {
           <>
             <div className="card">
               <p className="label">Total Patients</p>
-              <h2 className="value">{totalPatients}</h2>
+              <h2 className="value">
+                <CountUp end={totalPatients || 0} separator="," duration={2} />
+              </h2>
               <small>All time registered</small>
             </div>
             <div className="card">
               <p className="label">Patients This Period</p>
-              <h2 className="value">{patientsThisMonth}</h2>
+              <h2 className="value">
+                <CountUp end={patientsThisMonth || 0} separator="," duration={2} />
+              </h2>
               <small>Appointments: {totalAppointments}</small>
             </div>
             <div className="card">
               <p className="label">Report Records</p>
-              <h2 className="value">{usePersisted ? reportTotal : filteredSummaryGroups.length}</h2>
+              <h2 className="value">
+                <CountUp end={usePersisted ? reportTotal : filteredSummaryGroups.length} separator="," duration={2} />
+              </h2>
               <small>{usePersisted ? "Total entries" : "Periods grouped"}</small>
             </div>
           </>

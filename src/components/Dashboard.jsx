@@ -37,6 +37,11 @@ import RadialMenu from "./RadialMenu";
 import useClickSound from "../hooks/useClickSound";
 import { RiExpandVerticalLine } from "react-icons/ri";
 
+import PieChartCard from "./PieChartCard";
+import LineChartCard from "./LineChartCard";
+import SimpleBarChart from "./SimpleBarChart";
+import "./ChartCards.css";
+
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [selectedAppointments, setSelectedAppointments] = useState([]);
@@ -88,6 +93,31 @@ const Dashboard = () => {
   const [isExpanded, setIsExpanded] = useState(
     () => typeof window !== "undefined" && window.innerWidth > 900
   );
+
+  const [dashboardTotals, setDashboardTotals] = useState({ paid: 0, due: 0 });
+  const [dashboardGroups, setDashboardGroups] = useState([]);
+
+  useEffect(() => {
+    const fetchDashboardCharts = async () => {
+      try {
+        const { data } = await api.get('/api/v1/invoice/stats?group=day');
+        const groups = Array.isArray(data.groups) ? data.groups : [];
+        setDashboardTotals({
+          paid: Number(data.totalEarning || 0),
+          due: Number(data.totalDue || 0)
+        });
+        setDashboardGroups(groups.map(g => ({
+          period: g.period,
+          revenue: g.totalEarning,
+          due: g.totalDue,
+          count: g.count
+        })));
+      } catch (e) {
+        console.error("Failed to load dashboard chart data");
+      }
+    };
+    fetchDashboardCharts();
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -596,41 +626,29 @@ const Dashboard = () => {
   return (
     <>
       <section className="dashboard page">
-        <div className="banner">
-          <div className="firstBox">
-            <div className="doctor-imgbox">
-              <img src="/doc.png" alt="docImg" />
-            </div>
-            <div className="content">
-              <div>
-                <p>Hello ,</p>
-                <h5>{admin?.firstName ? `${admin.firstName} ${admin.lastName || ''}`.trim() : (admin?.role || '')}</h5>
-              </div>
-              <p>
-                Welcome to your dashboard! Here you can manage appointments,
-                view patient information, and oversee your medical practice with
-                ease. If you have any questions or need assistance, feel free to
-                reach out to our support team.{" "}
-                <b>Biomechasoft +91 9609436103</b>
-              </p>
-            </div>
-          </div>
-          <div className="secondBox">
-            <p>Total Appointments</p>
-            <h3>{appointments?.length}</h3>
-          </div>
-          <RequirePermission allowedRoles={["Admin"]}>
-            <div className="thirdBox">
-              <p>Registered Doctors</p>
-              <h3>{doctors.length}</h3>
-            </div>
-          </RequirePermission>
+        <div className="charts-container dashboard-charts" style={{ marginTop: '0' }}>
+          <PieChartCard
+            title="Collections Breakdown"
+            data={[
+              { name: "Paid", value: dashboardTotals.paid || 0 },
+              { name: "Due", value: dashboardTotals.due || 0 },
+              { name: "Refund", value: dashboardTotals.refund || 0 },
+            ]}
+          />
+          <LineChartCard
+            title="Revenue Trend"
+            data={dashboardGroups.map((g) => ({
+              name: g.period,
+              value: g.revenue || 0,
+            }))}
+          />
+          <SimpleBarChart data={dashboardGroups} />
         </div>
         {/* Role-based quick metrics */}
         <div className="dashboard-metrics-container">
-          <div className="dashboard-metric-card blue">
+          <div className="dashboard-metric-card blue hover-glow">
             <div className="dashboard-metric-icon">
-              <FaUserMd size={28} color="#0859af" />
+              <FaUserMd size={28} color="#00d2ff" />
             </div>
             <div className="dashboard-metric-content">
               <div className="dashboard-metric-header">
@@ -650,9 +668,9 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="dashboard-metric-card red">
+          <div className="dashboard-metric-card red hover-glow">
             <div className="dashboard-metric-icon">
-              <FaUsers size={28} color="#b91c1c" />
+              <FaUsers size={28} color="#8a2be2" />
             </div>
             <div className="dashboard-metric-content">
               <div className="dashboard-metric-header">

@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import CountUp from "react-countup";
+import { Context } from "../main";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import { useSnackbar } from "../context/SnackbarContext";
@@ -277,23 +279,23 @@ const BackupManager = () => {
           <div className="storage-stats-grid">
             <div className="stat-item">
               <div className="stat-item-label">Total Storage</div>
-              <div className="stat-item-value">{stats.usedMB} MB</div>
+              <div className="stat-item-value"><CountUp end={stats.usedMB || 0} decimals={2} duration={2} /> MB</div>
             </div>
             <div className="stat-item">
               <div className="stat-item-label">Appointments Size</div>
-              <div className="stat-item-value">{stats.breakdown?.appointmentsMB || 0} MB</div>
+              <div className="stat-item-value"><CountUp end={stats.breakdown?.appointmentsMB || 0} decimals={2} duration={2} /> MB</div>
             </div>
             <div className="stat-item">
               <div className="stat-item-label">Users / Patients Size</div>
-              <div className="stat-item-value">{stats.breakdown?.usersMB || 0} MB</div>
+              <div className="stat-item-value"><CountUp end={stats.breakdown?.usersMB || 0} decimals={2} duration={2} /> MB</div>
             </div>
             <div className="stat-item">
               <div className="stat-item-label">Total Appointments</div>
-              <div className="stat-item-value">{stats.totalAppointments}</div>
+              <div className="stat-item-value"><CountUp end={stats.totalAppointments || 0} duration={2} /></div>
             </div>
             <div className="stat-item">
               <div className="stat-item-label">Total Patients</div>
-              <div className="stat-item-value">{stats.totalPatients}</div>
+              <div className="stat-item-value"><CountUp end={stats.totalPatients || 0} duration={2} /></div>
             </div>
           </div>
 

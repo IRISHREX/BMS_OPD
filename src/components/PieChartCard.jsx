@@ -1,4 +1,5 @@
 import React from 'react';
+import CountUp from 'react-countup';
 import './ChartCards.css';
 
 const PieChartCard = ({ data, title }) => {
@@ -11,7 +12,7 @@ const PieChartCard = ({ data, title }) => {
     );
   }
 
-  const COLORS = ['#10b981', '#ef4444', '#f59e0b', '#6366f1'];
+  const COLORS = ['#10b981', '#ef4444', '#3b82f6', '#f59e0b'];
   const total = data.reduce((sum, item) => sum + (Number(item.value) || 0), 0);
 
   let startAngle = 0;
@@ -58,11 +59,11 @@ const PieChartCard = ({ data, title }) => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
         <h3>{title}</h3>
         <span style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600' }}>
-          Total: ₹{total.toLocaleString()}
+          Total: <CountUp end={total} separator="," prefix="₹" duration={2} />
         </span>
       </div>
       <div className="pie-chart-container">
-        <svg viewBox="0 0 100 100" width="130" height="130">
+        <svg viewBox="0 0 100 100" width="160" height="160">
           {total > 0 ? (
             slices
           ) : (
@@ -86,7 +87,7 @@ const PieChartCard = ({ data, title }) => {
                   }}
                 ></div>
                 <div style={{ fontSize: '12px', lineHeight: 1.2 }}>
-                  <strong>{item.name}:</strong> ₹{val.toLocaleString()} <span style={{ color: '#6b7280', fontSize: '11px' }}>({pct}%)</span>
+                  <strong>{item.name}:</strong> <CountUp end={val} separator="," prefix="₹" duration={2} /> <span style={{ color: '#6b7280', fontSize: '11px' }}>({pct}%)</span>
                 </div>
               </div>
             );

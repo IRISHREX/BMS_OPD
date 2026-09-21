@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import CountUp from "react-countup";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import { useSnackbar } from "../context/SnackbarContext";
@@ -446,7 +447,7 @@ const SystemLogs = () => {
                 </button>
               </div>
               <div className="syslogs-stat-val" style={{ fontSize: "1.35rem" }}>
-                {stats.totalLogs} / {stats.maxLogsLimit || 500}{" "}
+                <CountUp end={stats.totalLogs || 0} duration={2} /> / {stats.maxLogsLimit || 500}{" "}
                 <span style={{ fontSize: "0.85rem", fontWeight: 500, color: "#64748b" }}>
                   ({stats.capacityPercent || 0}%)
                 </span>
@@ -476,7 +477,7 @@ const SystemLogs = () => {
           <div className="syslogs-stat-card total">
             <div className="syslogs-stat-info">
               <div className="syslogs-stat-label">Total Filtered</div>
-              <div className="syslogs-stat-val">{totalLogs}</div>
+              <div className="syslogs-stat-val"><CountUp end={totalLogs || 0} duration={2} /></div>
             </div>
             <div className="syslogs-stat-icon">
               <FaShieldAlt />
@@ -487,7 +488,7 @@ const SystemLogs = () => {
             <div className="syslogs-stat-info">
               <div className="syslogs-stat-label">Errors (Today)</div>
               <div className="syslogs-stat-val" style={{ color: stats.todayErrors > 0 ? "#dc2626" : undefined }}>
-                {stats.todayErrors}
+                <CountUp end={stats.todayErrors || 0} duration={2} />
               </div>
             </div>
             <div className="syslogs-stat-icon">

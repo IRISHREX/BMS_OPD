@@ -463,26 +463,7 @@ const TemplateBuilder = () => {
         </div>
 
         <div className="tmpl-builder-top-actions">
-          {/* Saved Templates Dropdown */}
-          <select
-            className="tmpl-ribbon-select"
-            value={selectedTemplateId}
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val === "new") handleLoadTemplate("new");
-              else {
-                const found = templates.find((t) => t._id === val);
-                handleLoadTemplate(found);
-              }
-            }}
-          >
-            <option value="new">+ Create New Template</option>
-            {templates.map((t) => (
-              <option key={t._id} value={t._id}>
-                {t.name} {t.isDefault ? "★ (Default)" : ""}
-              </option>
-            ))}
-          </select>
+          {/* Removed dropdown, moved to sidebar */}
 
           {/* Set as default checkbox */}
           <label className="tmpl-builder-default-label">
@@ -653,6 +634,30 @@ const TemplateBuilder = () => {
           </div>
 
           <div className="tmpl-sidebar-content">
+            {/* My Saved Templates */}
+            <div className="tmpl-schema-category" style={{ marginBottom: '1.5rem', borderBottom: '1px solid #334155', paddingBottom: '1rem' }}>
+              <div className="tmpl-schema-cat-title">
+                <FaSave style={{ color: "#f59e0b" }} /> My Saved Templates
+              </div>
+              <div className="tmpl-schema-pill-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <button 
+                  className={`btn-cls ${selectedTemplateId === 'new' ? 'active' : 'secondary'}`}
+                  onClick={() => handleLoadTemplate("new")}
+                >
+                  + Create New Template
+                </button>
+                {templates.map((t) => (
+                  <button 
+                    key={t._id}
+                    className={`btn-cls ${selectedTemplateId === t._id ? 'active' : 'secondary'}`}
+                    onClick={() => handleLoadTemplate(t)}
+                    style={{ textAlign: 'left', padding: '6px 12px', fontSize: '0.85rem' }}
+                  >
+                    {t.name} {t.isDefault ? "★" : ""}
+                  </button>
+                ))}
+              </div>
+            </div>
             {/* Patient Info Keys */}
             <div className="tmpl-schema-category">
               <div className="tmpl-schema-cat-title">

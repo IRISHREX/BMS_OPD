@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import AnimatedSvgNumber from './AnimatedSvgNumber';
 import './SimpleBarChart.css';
 
 const fmtVal = (n) => {
@@ -26,7 +27,7 @@ const SimpleBarChart = ({ data }) => {
   const maxDue = Math.max(...data.map(d => Number(d.due || d.totalDue || 0)));
   const maxVal = Math.max(maxRevenue, maxDue, 100);
 
-  const chartHeight = 260;
+  const chartHeight = 200;
   const paddingLeft = 60;
   const paddingRight = 30;
   const paddingTop = 40;
@@ -35,7 +36,7 @@ const SimpleBarChart = ({ data }) => {
 
   const barWidth = Math.min(34, Math.max(16, Math.floor(400 / (data.length * 2 + 1))));
   const groupMargin = Math.min(28, Math.max(12, Math.floor(200 / (data.length + 1))));
-  const chartWidth = Math.max(480, data.length * (barWidth * 2 + groupMargin) + paddingLeft + paddingRight);
+  const chartWidth = Math.max(250, data.length * (barWidth * 2 + groupMargin) + paddingLeft + paddingRight);
 
   // Y-axis grid ticks (0, 50%, 100%)
   const yTicks = [
@@ -142,16 +143,18 @@ const SimpleBarChart = ({ data }) => {
                     className="bar-rect"
                     opacity={isHovered ? 1 : 0.9}
                   />
-                  {/* Revenue Value Number */}
+                  {/* Revenue Value (Animated) */}
                   {revenue > 0 && (
-                    <text
+                    <AnimatedSvgNumber
+                      value={revenue}
+                      prefix="₹"
                       x={x1 + barWidth / 2}
-                      y={revY - 6}
+                      y={revY - 5}
                       textAnchor="middle"
-                      className="bar-value-text revenue-text"
-                    >
-                      {fmtVal(revenue)}
-                    </text>
+                      fill="#10b981"
+                      fontSize="10px"
+                      fontWeight="600"
+                    />
                   )}
 
                   {/* Due Bar */}
@@ -165,26 +168,30 @@ const SimpleBarChart = ({ data }) => {
                     className="bar-rect"
                     opacity={isHovered ? 1 : 0.9}
                   />
-                  {/* Due Value Number */}
+                  {/* Due Value (Animated) */}
                   {due > 0 && (
-                    <text
+                    <AnimatedSvgNumber
+                      value={due}
+                      prefix="₹"
                       x={x2 + barWidth / 2}
-                      y={dueY - 6}
+                      y={dueY - 5}
                       textAnchor="middle"
-                      className="bar-value-text due-text"
-                    >
-                      {fmtVal(due)}
-                    </text>
+                      fill="#ef4444"
+                      fontSize="10px"
+                      fontWeight="600"
+                    />
                   )}
 
                   {/* X Axis Period Label */}
                   <text
-                    x={x1 + barWidth}
+                    x={x1 + barWidth / 2}
                     y={chartHeight - paddingBottom + 18}
-                    textAnchor="middle"
+                    textAnchor="end"
                     className={`bar-period-label ${isHovered ? 'active' : ''}`}
+                    fontSize="10px"
+                    transform={`rotate(-45 ${x1 + barWidth / 2} ${chartHeight - paddingBottom + 18})`}
                   >
-                    {d.period}
+                    {d.period && d.period.length === 10 ? d.period.substring(5) : d.period}
                   </text>
 
                   {/* Hover tooltip */}

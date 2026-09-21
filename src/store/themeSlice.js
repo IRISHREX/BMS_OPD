@@ -4,8 +4,8 @@ const defaultCustom = {
   btnRadius: 8,
   btnOpacity: 1,
   textSize: 16,
-  bgMain: '#e5e5e5',
-  accent: '#3939d9f2',
+  bgMain: '#e7f1fb',
+  accent: '#2f78c8',
 };
 
 const normalize = (t) => {

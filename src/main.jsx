@@ -39,9 +39,9 @@ const AppWrapper = () => {
   }, [auth.isAuthenticated, auth.admin]);
 
   React.useEffect(() => {
-  // Remove known theme classes, then add current normalized theme
-  document.body.classList.remove('theme-light', 'theme-dark', 'theme-cyberpunk', 'theme-blackpink', 'theme-retro', 'theme-darkgreen', 'theme-custom');
-  document.body.classList.add(theme);
+    // Remove known theme classes, then add current normalized theme
+    document.body.classList.remove('theme-light', 'theme-teal', 'theme-dark', 'theme-cyberpunk', 'theme-blackpink', 'theme-retro', 'theme-darkgreen', 'theme-custom');
+    document.body.classList.add(theme);
     document.body.style.transition = 'background 0.3s, color 0.3s';
 
     // If custom theme, apply variables globally
@@ -69,7 +69,10 @@ const AppWrapper = () => {
       root.style.setProperty('--sidebar-bg', 'var(--bg-card)');
     } else if (theme === 'theme-light') {
       root.style.setProperty('--app-font', 'Montserrat, system-ui, -apple-system, sans-serif');
-      root.style.setProperty('--sidebar-bg', 'transparent');
+      root.style.setProperty('--sidebar-bg', '#173a5e');
+    } else if (theme === 'theme-teal') {
+      root.style.setProperty('--app-font', 'Montserrat, system-ui, -apple-system, sans-serif');
+      root.style.setProperty('--sidebar-bg', '#0c4e4c');
     } else if (theme === 'theme-cyberpunk') {
       root.style.setProperty('--app-font', 'Orbitron, sans-serif');
       root.style.setProperty('--sidebar-bg', 'rgba(20,15,40,0.6)');
@@ -78,7 +81,7 @@ const AppWrapper = () => {
       root.style.setProperty('--sidebar-bg', 'rgba(20,0,20,0.6)');
     } else {
       root.style.setProperty('--app-font', 'Montserrat, system-ui, -apple-system, sans-serif');
-      root.style.setProperty('--sidebar-bg', 'transparent');
+      root.style.setProperty('--sidebar-bg', '#173a5e');
     }
   }, [theme]);
 

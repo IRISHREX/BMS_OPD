@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { IoCloudUploadOutline } from "react-icons/io5";
+import { IoCloudUploadOutline, IoPersonOutline, IoMedicalOutline, IoWarningOutline } from "react-icons/io5";
 
 
 const CreateReferralTab = ({
@@ -22,11 +22,11 @@ const CreateReferralTab = ({
   return (
     <div className="tab-content">
       <div className="form-component">
-        <form className="create_referral_form" onSubmit={handleSubmit}>
-          <h2>Create Referral Request</h2>
+        <form className="create_referral_form glass-panel" onSubmit={handleSubmit}>
+          <h2>Create Referral</h2>
 
           <div className="form-section">
-            <h4>Patient Information</h4>
+            <h4><IoPersonOutline /> Patient Info</h4>
             <div className="grid-container">
               <div className="form-group">
                 <label>Patient Name *</label>
@@ -84,7 +84,7 @@ const CreateReferralTab = ({
           </div>
 
           <div className="form-section">
-            <h4>Clinical Information</h4>
+            <h4><IoMedicalOutline /> Clinical Info</h4>
             <div className="grid-container">
               <div className="form-group">
                 <label>Diagnosis *</label>
@@ -132,7 +132,7 @@ const CreateReferralTab = ({
           </div>
 
           <div className="form-section">
-            <h4>Urgency Level *</h4>
+            <h4><IoWarningOutline /> Urgency</h4>
             <div className="radio-group">
               {["routine", "urgent", "emergency"].map((level) => (
                 <label key={level} className="radio-label">

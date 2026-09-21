@@ -85,7 +85,7 @@ const Settings = () => {
           {settings.map((s) => (
             <div
               key={s.id}
-              className="settings-card"
+              className="settings-card glass-panel hover-glow"
               onClick={() => navigate(s.route)}
               role="button"
               tabIndex={0}

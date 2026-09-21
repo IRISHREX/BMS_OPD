@@ -16,6 +16,39 @@
   --pres-success: #10b981;
   --pres-warning: #f59e0b;
   --pres-danger: #ef4444;
+  --bg: var(--bg-main, #e7f1fb);
+  --card: #ffffff;
+  --muted: #536b82;
+  --primary-1: #1a9e9b;
+  --primary-2: #2f78c8;
+  --accent: #2f78c8;
+}
+
+.main {
+  background: var(--bg);
+  min-height: 100vh;
+  padding: 0;
+  width: 100%;
+  font-family: "Inter", sans-serif;
+  color: #334155;
+}
+
+.step-slide {
+  position: relative;
+  /* height: fit-content; */
+  /* background: #e6eef8; */
+  border-radius: 2px;
+  margin: 1rem 0 2rem 0;
+}
+.container {
+  max-width: 90%;
+  margin: 0 auto;
+  background: var(--card);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px rgba(14, 35, 58, 0.08);
+  padding: 2rem;
+  padding-bottom: 6.25rem; /* leave space for fixed footer */
+  border: 1px solid rgba(15, 23, 42, 0.04);
 }
 
 /* Modal Content Box Wrapper */

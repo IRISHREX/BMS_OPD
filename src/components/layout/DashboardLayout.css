@@ -1,0 +1,90 @@
+/* DashboardLayout.css */
+
+.dashboard-shell {
+  min-height: 100vh;
+  display: flex;
+  width: 100%;
+  background: transparent;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.dashboard-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-width: 0;
+  flex: 1;
+  transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fluid margin & width based on active sidebar mode */
+.dashboard-shell.mode-full:not(.is-drawer-layout) .dashboard-content-wrapper {
+  margin-left: var(--sidebar-full-width, 250px);
+  width: calc(100% - var(--sidebar-full-width, 250px));
+}
+
+.dashboard-shell.mode-compact:not(.is-drawer-layout) .dashboard-content-wrapper {
+  margin-left: var(--sidebar-compact-width, 72px);
+  width: calc(100% - var(--sidebar-compact-width, 72px));
+}
+
+.dashboard-shell.is-drawer-layout .dashboard-content-wrapper,
+.dashboard-shell.mode-hidden .dashboard-content-wrapper {
+  margin-left: 0;
+  width: 100%;
+}
+
+.dashboard-main-area {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Backdrop for slide-out drawer */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 999;
+  animation: backdropFadeIn 0.2s ease;
+}
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Floating Drawer Trigger for Mobile & Hidden mode */
+.floating-drawer-toggle {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 99;
+  background: var(--accent, #2f78c8);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.4rem;
+  box-shadow: 0 2px 10px rgba(47, 120, 200, 0.35);
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.floating-drawer-toggle:hover {
+  transform: scale(1.05);
+  background: #2563a8;
+}

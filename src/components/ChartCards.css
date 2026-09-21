@@ -4,6 +4,10 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 1rem;
   margin-bottom: 1rem;
+  background-image: 
+    linear-gradient(to right, rgba(9, 109, 217, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(9, 109, 217, 0.04) 1px, transparent 1px);
+  background-size: 15px 15px;
 }
 
 .chart-card h3 {
