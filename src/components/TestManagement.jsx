@@ -13,7 +13,7 @@ import {
   FaFilter,
 } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa6";
-import { LuFilterX, LuPill, LuPlus } from "react-icons/lu";
+import { LuFilterX, LuPlus } from "react-icons/lu";
 import Toolbar from "./Toolbar";
 import api from "../utils/api";
 import { useSnackbar } from "../context/SnackbarContext";
@@ -311,10 +311,10 @@ const TestManagement = () => {
           <div className="test-mgmt-top-row">
             <div className="test-mgmt-left">
               <button
-                onClick={() => navigate("/settings/medicine")}
+                onClick={() => navigate(-1)}
                 className="test-back-btn"
-                title="Back to Medicine Catalog"
-                aria-label="Back to Medicine Catalog"
+                title="Back"
+                aria-label="Back to previous page"
               >
                 <BsArrowLeft />
               </button>
@@ -332,14 +332,6 @@ const TestManagement = () => {
             </div>
 
             <div className="test-mgmt-actions">
-              <button
-                className="test-secondary-btn"
-                onClick={() => navigate("/settings/medicine")}
-                title="Go to Medicine Catalog"
-              >
-                <LuPill className="medicine-btn-icon" />
-                Medicine Catalog
-              </button>
               <button
                 className="test-primary-btn"
                 onClick={() => handleOpenTestModal()}

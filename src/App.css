@@ -45,144 +45,95 @@ body {
   width: calc(100% - 6.5rem);
   overflow-x: hidden;
 }
+/* ==========================================================================
+   Modern Interlocking Dual-Gear Loader
+   ========================================================================== */
 .loader {
-  width: 60px;
-  height: 40px;
+  width: 58px;
+  height: 44px;
   position: relative;
   display: inline-block;
-  --base-color: #f6f9fa; /*use your base color*/
-  overflow: hidden;
   margin-inline: auto;
+  vertical-align: middle;
+  filter: drop-shadow(0 2px 5px rgba(79, 70, 229, 0.15));
 }
+
+/* Primary Large Gear (8 precision teeth) */
 .loader::before {
   content: "";
   left: 0;
   top: 0;
   position: absolute;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background-color: #09011f;
-  background-image:
-    radial-gradient(
-      circle 8px at 18px 18px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 4px at 18px 0px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 4px at 0px 18px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 4px at 36px 18px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 4px at 18px 36px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 4px at 30px 5px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 4px at 30px 5px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 4px at 30px 30px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 4px at 5px 30px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 4px at 5px 5px,
-      var(--base-color) 100%,
-      transparent 0
+  background:
+    radial-gradient(circle 12px at center, #4f46e5 99%, transparent 100%),
+    conic-gradient(
+      #4f46e5 0deg 22.5deg,
+      transparent 22.5deg 45deg,
+      #4f46e5 45deg 67.5deg,
+      transparent 67.5deg 90deg,
+      #4f46e5 90deg 112.5deg,
+      transparent 112.5deg 135deg,
+      #4f46e5 135deg 157.5deg,
+      transparent 157.5deg 180deg,
+      #4f46e5 180deg 202.5deg,
+      transparent 202.5deg 225deg,
+      #4f46e5 225deg 247.5deg,
+      transparent 247.5deg 270deg,
+      #4f46e5 270deg 292.5deg,
+      transparent 292.5deg 315deg,
+      #4f46e5 315deg 337.5deg,
+      transparent 337.5deg 360deg
     );
-  background-repeat: no-repeat;
+  mask: radial-gradient(circle 6px at center, transparent 95%, black 100%);
+  -webkit-mask: radial-gradient(circle 6px at center, transparent 95%, black 100%);
+  animation: gearSpin 3s linear infinite;
   box-sizing: border-box;
-  animation: rotationBack 3s linear infinite;
 }
+
+/* Secondary Interlocking Small Gear (6 precision teeth) */
 .loader::after {
   content: "";
-  left: 35px;
-  top: 15px;
+  left: 28px;
+  top: 16px;
   position: absolute;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background-color: #0e0000;
-  background-image:
-    radial-gradient(
-      circle 5px at 12px 12px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 2.5px at 12px 0px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 2.5px at 0px 12px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 2.5px at 24px 12px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 2.5px at 12px 24px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 2.5px at 20px 3px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 2.5px at 20px 3px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 2.5px at 20px 20px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 2.5px at 3px 20px,
-      var(--base-color) 100%,
-      transparent 0
-    ),
-    radial-gradient(
-      circle 2.5px at 3px 3px,
-      var(--base-color) 100%,
-      transparent 0
+  background:
+    radial-gradient(circle 8px at center, #0ea5e9 99%, transparent 100%),
+    conic-gradient(
+      #0ea5e9 0deg 30deg,
+      transparent 30deg 60deg,
+      #0ea5e9 60deg 90deg,
+      transparent 90deg 120deg,
+      #0ea5e9 120deg 150deg,
+      transparent 150deg 180deg,
+      #0ea5e9 180deg 210deg,
+      transparent 210deg 240deg,
+      #0ea5e9 240deg 270deg,
+      transparent 270deg 300deg,
+      #0ea5e9 300deg 330deg,
+      transparent 330deg 360deg
     );
-  background-repeat: no-repeat;
+  mask: radial-gradient(circle 4px at center, transparent 95%, black 100%);
+  -webkit-mask: radial-gradient(circle 4px at center, transparent 95%, black 100%);
+  animation: gearSpinReverse 2.25s linear infinite;
   box-sizing: border-box;
-  animation: rotationBack 4s linear infinite reverse;
 }
-@keyframes rotationBack {
+
+@keyframes gearSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes gearSpinReverse {
   0% {
     transform: rotate(0deg);
   }

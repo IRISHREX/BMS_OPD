@@ -12,7 +12,7 @@ import {
   FaSortDown,
 } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa6";
-import { LuFilterX, LuPill, LuPlus, LuLayers } from "react-icons/lu";
+import { LuFilterX, LuPlus, LuLayers } from "react-icons/lu";
 import { useSnackbar } from "../context/SnackbarContext";
 import {
   fetchMedicinesRequest,
@@ -217,16 +217,16 @@ const MedicineStore = () => {
           <div className="medicine-store-top-row">
             <div className="medicine-store-left">
               <button
-                onClick={() => navigate("/settings/medicine")}
+                onClick={() => navigate(-1)}
                 className="medicine-back-btn"
-                title="Back to Medicine Catalog"
-                aria-label="Back to Medicine Catalog"
+                title="Back"
+                aria-label="Back to previous page"
               >
                 <BsArrowLeft />
               </button>
               <div className="medicine-store-title-wrap">
                 <div className="medicine-title-line">
-                  <h2>Medicine Store</h2>
+                  <h2>Medicine Master</h2>
                   <span className="medicine-count-badge">
                     {medicines ? medicines.length : 0}{" "}
                     {medicines?.length === 1 ? "Medicine" : "Medicines"}
@@ -247,15 +247,6 @@ const MedicineStore = () => {
               >
                 <LuLayers className="bulk-btn-icon" />
                 Bulk Import
-              </button>
-              <button
-                type="button"
-                className="medicine-secondary-btn"
-                onClick={() => navigate("/settings/medicine")}
-                title="Go to Medicine Catalog"
-              >
-                <LuPill className="medicine-btn-icon" />
-                Medicine Catalog
               </button>
               <button
                 type="button"
