@@ -1324,7 +1324,7 @@ const Appointment = () => {
       >
         <div className="preview-modal-header">
           <div className="preview-header-brand">
-            <img src="/logo.svg" alt="logo" className="preview-logo" />
+            <img src="/logo-old.png" alt="logo" className="preview-logo" />
             <div>
               <h2 className="preview-title">Appointment Preview</h2>
               <p className="preview-subtitle">Verify all patient, clinical & billing details before saving</p>

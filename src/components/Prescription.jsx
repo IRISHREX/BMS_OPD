@@ -16,10 +16,24 @@ import {
   IoIosCloseCircle,
   IoIosCloseCircleOutline,
 } from "react-icons/io";
-import { FaSave } from "react-icons/fa";
+import { FaSave, FaChevronDown, FaChevronUp, FaKeyboard } from "react-icons/fa";
+import {
+  FaHeartPulse,
+  FaStethoscope,
+  FaCommentMedical,
+  FaFileMedical,
+  FaUserDoctor,
+  FaFileLines,
+  FaVial,
+  FaXRay,
+  FaPills,
+  FaVials,
+  FaLightbulb,
+  FaCalendarCheck,
+  FaPersonPregnant,
+  FaCheck,
+} from "react-icons/fa6";
 import { BsPrinter, BsTrash } from "react-icons/bs";
-import { FaChevronDown } from "react-icons/fa";
-import { FaChevronUp } from "react-icons/fa";
 import { TbLoader3, TbRefresh } from "react-icons/tb";
 import { useSelector, useDispatch } from "react-redux";
 import { change } from "../store/diagnosisSlice";
@@ -56,7 +70,7 @@ const Prescription = ({ patientId, onClose }) => {
     clinicalFindings: false,
     availableReports: true,
   });
-  const [obgynOpen, setObgynOpen] = useState(true);
+  const [obgynOpen, setObgynOpen] = useState(false);
 
   // Derived test suggestions: Diagnostic Tests from DB (/tests) + symptom advice tests
   const testSuggestions = useMemo(() => {
@@ -187,6 +201,101 @@ const Prescription = ({ patientId, onClose }) => {
       .map(([k, v]) => v)
       .join("\n");
   };
+
+  const buildNormalizedSnapshot = (stateObj = {}) => {
+    const diag = stateObj.diagnosys || {};
+    const h = (diag.Height || "").toString().trim();
+    const w = (diag.Weight || "").toString().trim();
+    let computedBmi = (diag.BMI || "").toString().trim();
+    if (h && w) {
+      const hM = parseFloat(h) / 100;
+      const wK = parseFloat(w);
+      if (hM > 0 && wK > 0) {
+        computedBmi = (wK / (hM * hM)).toFixed(2);
+      }
+    }
+
+    const pa = (stateObj.parity?.Pa || "").toString().trim();
+    const pb = (stateObj.parity?.Pb || "").toString().trim();
+    const parityStr = (pa || pb) ? `${pa}+${pb}` : "";
+
+    const medAdviceList = (stateObj.medicineAdvice || []).map((m) => ({
+      name: (m.name || m.label || "").trim(),
+      type: (m.type || "").trim(),
+      dose: (m.dose || "").trim(),
+      frequency: (m.frequency || "").trim(),
+      route: (m.route || "mouth").trim(),
+      duration: (m.duration || "").trim(),
+      notes: (m.notes || "").trim(),
+      selected: Boolean(m.selected),
+    }));
+
+    const testAdvList = (stateObj.testAdviceRows || [])
+      .filter((r) => (r.testName || "").trim() !== "")
+      .map((r) => ({
+        testName: (r.testName || "").trim(),
+        testType: (r.testType || "").trim(),
+        precautions: (r.precautions || "").trim(),
+        testDate: (r.testDate || "").trim(),
+        selected: Boolean(r.selected),
+      }));
+
+    return JSON.stringify({
+      initialComplain: (stateObj.rDiagnosis || "").trim(),
+      presentingComplaints: (stateObj.complaints || "").trim(),
+      medicalHistory: (stateObj.medicalHistory || "").trim(),
+      pathologyReport: (stateObj.pathologyReport || "").trim(),
+      radiologyReport: (stateObj.radiologyReport || "").trim(),
+      clinical_findings: {
+        patientCondition: {
+          c1: (stateObj.clinical_findings?.patientCondition?.c1 || "").trim(),
+          c2: (stateObj.clinical_findings?.patientCondition?.c2 || "").trim(),
+          c3: (stateObj.clinical_findings?.patientCondition?.c3 || "").trim(),
+          c4: (stateObj.clinical_findings?.patientCondition?.c4 || "").trim(),
+        },
+        polar: (stateObj.clinical_findings?.polar || "").trim(),
+        icterus: (stateObj.clinical_findings?.icterus || "").trim(),
+        edema: (stateObj.clinical_findings?.edema || "").trim(),
+        cyanosis: (stateObj.clinical_findings?.cyanosis || "").trim(),
+        clubbing: (stateObj.clinical_findings?.clubbing || "").trim(),
+        lymph_nodes: (stateObj.clinical_findings?.lymph_nodes || "").trim(),
+        chest: (stateObj.clinical_findings?.chest || "").trim(),
+        cvs: (stateObj.clinical_findings?.cvs || "").trim(),
+        per_abdomen: {
+          pt: (stateObj.clinical_findings?.per_abdomen?.pt || "").trim(),
+          pv: (stateObj.clinical_findings?.per_abdomen?.pv || "").trim(),
+        },
+        others: (stateObj.clinical_findings?.others || "").trim(),
+      },
+      diagnosys_heading: stateObj.diagnosys_heading || "Provisional Diagnosis",
+      femaleTests: {
+        Gravida: (stateObj.gravida || "").toString().trim(),
+        Parity: parityStr,
+        LMP: (stateObj.LMP || "").trim(),
+        EDD: (stateObj.EDD || "").trim(),
+        POG: (stateObj.POG || "").trim(),
+        LCB: (stateObj.LCB || "").trim(),
+        MOD: (stateObj.MOD || "").trim(),
+      },
+      diagnosys: {
+        BP: (diag.BP || "").toString().trim(),
+        PR: (diag.PR || "").toString().trim(),
+        SPO2: (diag.SPO2 || "").toString().trim(),
+        Temp: (diag.Temp || "").toString().trim(),
+        Height: h,
+        Weight: w,
+        BMI: computedBmi,
+        Others: (diag.Others || "").trim(),
+      },
+      additionalAdvice: (stateObj.additionalAdvice || "").trim(),
+      followUp: (stateObj.followUp || "").trim(),
+      medicineAdvice: medAdviceList,
+      testAdvice: testAdvList,
+      medicationAdvice: (stateObj.medicationAdvice || "").trim(),
+      dietAdvice: (stateObj.dietAdvice || "").trim(),
+    });
+  };
+
   const [originalPayload, setOriginalPayload] = useState(null);
   const [isDirty, setIsDirty] = useState(false);
   // Checkbox toggle for advice types
@@ -406,38 +515,37 @@ const Prescription = ({ patientId, onClose }) => {
             if (adv.diet) sel.push("Diet");
             setSelectedTestTypes(sel);
           }
-          // capture original payload for dirty-check
-          const initialAdviceObj = (() => {
-            if (!r.advice) return {};
-            if (typeof r.advice === "string") return { medication: r.advice };
-            return r.advice;
-          })();
-          const payloadSnap = {
-            // initialComplain: r.initialComplain || "",
-            initialComplain: r.initialComplain || rDiagnosis || "",
+          let pPa = "";
+          let pPb = "";
+          const pStr = r.femaleTests?.Parity || r.Parity || "";
+          if (pStr && pStr.includes("+")) {
+            const parts = pStr.split("+");
+            pPa = parts[0] || "";
+            pPb = parts[1] || "";
+          } else if (pStr) {
+            pPa = pStr;
+          }
+
+          let initTests = [];
+          if (typeof adv === "object" && adv && Array.isArray(adv.testAdvice)) {
+            initTests = adv.testAdvice;
+          }
+
+          const rawDiag = r.diagnosys || {
+            BP: "",
+            PR: "",
+            SPO2: "",
+            Temp: "",
+            Height: "",
+            Weight: "",
+            BMI: "",
+            Others: "",
+          };
+
+          const initSnap = buildNormalizedSnapshot({
+            rDiagnosis: r.initialComplain || "",
+            complaints: r.presentingComplaints || "",
             medicalHistory: r.medicalHistory || "",
-            clinical_findings: r.clinical_findings || {
-              patientCondition: {
-                c1: "",
-                c2: "",
-                c3: "",
-                c4: "",
-              },
-              polar: "",
-              icterus: "",
-              edema: "",
-              cyanosis: "",
-              clubbing: "",
-              lymph_nodes: "",
-              chest: "",
-              cvs: "",
-              per_abdomen: {
-                pt: "",
-                pv: "",
-              },
-              others: "",
-            },
-            diagnosys_heading: r.diagnosys_heading || "Provisional Diagnosis",
             pathologyReport:
               r.pathologyReport ||
               r.pathologicalReport ||
@@ -448,16 +556,16 @@ const Prescription = ({ patientId, onClose }) => {
               r.radiologicalReport ||
               r.availableReports?.radiology ||
               "",
-            femaleTests: {
-              Gravida: r.femaleTests?.Gravida || r.gravida || "",
-              Parity: r.femaleTests?.Parity || "",
-              LMP: r.femaleTests?.LMP || r.LMP || "",
-              EDD: r.femaleTests?.EDD || r.EDD || "",
-              POG: r.femaleTests?.POG || "",
-              LCB: r.femaleTests?.LCB || "",
-              MOD: r.femaleTests?.MOD || "",
-            },
-            diagnosys: r.diagnosys || {},
+            clinical_findings: r.clinical_findings || {},
+            diagnosys_heading: r.diagnosys_heading || "Provisional Diagnosis",
+            gravida: r.femaleTests?.Gravida || r.Gravida || "",
+            parity: { Pa: pPa, Pb: pPb },
+            LMP: r.femaleTests?.LMP || r.LMP || "",
+            EDD: r.femaleTests?.EDD || r.EDD || "",
+            POG: r.femaleTests?.POG || r.POG || "",
+            LCB: r.femaleTests?.LCB || r.LCB || "",
+            MOD: r.femaleTests?.MOD || r.MOD || "",
+            diagnosys: rawDiag,
             additionalAdvice: r.additionalAdvice || "",
             followUp: r.followUp || "",
             medicineAdvice: Array.isArray(r.medicineAdvice)
@@ -465,9 +573,14 @@ const Prescription = ({ patientId, onClose }) => {
               : r.medicineAdvice
               ? [r.medicineAdvice]
               : [],
-            advice: initialAdviceObj,
-          };
-          setOriginalPayload(payloadSnap);
+            testAdviceRows: initTests,
+            medicationAdvice:
+              typeof adv === "string" ? adv : adv?.medication || "",
+            dietAdvice: adv?.diet || "",
+          });
+
+          setOriginalPayload(initSnap);
+          setIsDirty(false);
         }
       } catch (e) {
         // ignore
@@ -481,66 +594,44 @@ const Prescription = ({ patientId, onClose }) => {
 
   // compute dirty state whenever key fields change
   useEffect(() => {
+    if (loading || !originalPayload) {
+      setIsDirty(false);
+      return;
+    }
     try {
-      const currentAdvice = {};
-      if (selectedTestTypes.includes("Test Advice"))
-        currentAdvice.testAdvice = testAdviceRows.filter(
-          (r) => r.testName && r.testName.trim() !== ""
-        );
-      if (selectedTestTypes.includes("Medication"))
-        currentAdvice.medication = medicationAdvice;
-      if (selectedTestTypes.includes("Diet")) currentAdvice.diet = dietAdvice;
-      const currentSnap = {
-        // initialComplain: initialComplain || "",
-        initialComplain: rDiagnosis || "",
-        medicalHistory: medicalHistory || "",
-        pathologyReport: pathologyReport || "",
-        radiologyReport: radiologyReport || "",
-        clinical_findings: clinical_findings || {
-          patientCondition: {
-            c1: "",
-            c2: "",
-            c3: "",
-            c4: "",
-          },
-          polar: "",
-          icterus: "",
-          edema: "",
-          cyanosis: "",
-          clubbing: "",
-          lymph_nodes: "",
-          chest: "",
-          cvs: "",
-          per_abdomen: {
-            pt: "",
-            pv: "",
-          },
-          others: "",
-        },
-        diagnosys_heading: diagnosys_heading || "Provisional Diagnosis",
-        femaleTests: {
-          Gravida: gravida || "",
-          Parity: `${parity.Pa}+${parity.Pb}`,
-          LMP: LMP || "",
-          EDD: EDD || "",
-          POG: POG || "",
-          LCB: LCB || "",
-          MOD: MOD || "",
-        },
-        diagnosys: diagnosys || {},
-        additionalAdvice: additionalAdvice || "",
-        followUp: followUp || "",
-        medicineAdvice: medicineAdvice || [],
-        advice: currentAdvice,
-      };
-      const dirty =
-        JSON.stringify(originalPayload) !== JSON.stringify(currentSnap);
+      const currentSnap = buildNormalizedSnapshot({
+        rDiagnosis,
+        complaints,
+        medicalHistory,
+        pathologyReport,
+        radiologyReport,
+        clinical_findings,
+        diagnosys_heading,
+        gravida,
+        parity,
+        LMP,
+        EDD,
+        POG,
+        LCB,
+        MOD,
+        diagnosys,
+        additionalAdvice,
+        followUp,
+        medicineAdvice,
+        testAdviceRows,
+        medicationAdvice,
+        dietAdvice,
+      });
+      const dirty = originalPayload !== currentSnap;
       setIsDirty(Boolean(dirty));
     } catch (e) {
       setIsDirty(false);
     }
   }, [
+    loading,
+    originalPayload,
     rDiagnosis,
+    complaints,
     medicalHistory,
     clinical_findings,
     diagnosys_heading,
@@ -561,7 +652,6 @@ const Prescription = ({ patientId, onClose }) => {
     MOD,
     pathologyReport,
     radiologyReport,
-    originalPayload,
   ]);
 
   useEffect(() => {
@@ -1148,51 +1238,30 @@ const Prescription = ({ patientId, onClose }) => {
       playSaveSound();
       snackbar.success("Prescription saved");
       // refresh original snapshot to current state
-      const advSaved = adviceToSave;
-      const newSnap = {
-        // initialComplain: initialComplain || "",
-        initialComplain: rDiagnosis || "",
-        medicalHistory: medicalHistory || "",
-        pathologyReport: pathologyReport || "",
-        radiologyReport: radiologyReport || "",
-        clinical_findings: clinical_findings || {
-          patientCondition: {
-            c1: "",
-            c2: "",
-            c3: "",
-            c4: "",
-          },
-          polar: "",
-          icterus: "",
-          edema: "",
-          cyanosis: "",
-          clubbing: "",
-          lymph_nodes: "",
-          chest: "",
-          cvs: "",
-          per_abdomen: {
-            pt: "",
-            pv: "",
-          },
-          others: "",
-        },
-        diagnosys_heading: diagnosys_heading || "Provisional Diagnosis",
-        femaleTests: {
-          Gravida: gravida || "",
-          Parity: `${parity.Pa}+${parity.Pb}`,
-          LMP: LMP || "",
-          EDD: EDD || "",
-          POG: POG || "",
-          LCB: LCB || "",
-          MOD: MOD || "",
-        },
-        diagnosys: diagnosys || {},
+      const savedSnap = buildNormalizedSnapshot({
+        rDiagnosis,
+        complaints,
+        medicalHistory,
+        pathologyReport,
+        radiologyReport,
+        clinical_findings,
+        diagnosys_heading,
+        gravida,
+        parity,
+        LMP,
+        EDD,
+        POG,
+        LCB,
+        MOD,
+        diagnosys,
+        additionalAdvice,
+        followUp,
         medicineAdvice: selectedMedicines,
-        advice: advSaved, // Contains selected tests
-        additionalAdvice: additionalAdvice || "",
-        followUp: followUp || "",
-      };
-      setOriginalPayload(newSnap);
+        testAdviceRows: selectedTests,
+        medicationAdvice,
+        dietAdvice,
+      });
+      setOriginalPayload(savedSnap);
       setIsDirty(false);
       if (printAfter) {
         if (onClose) onClose();
@@ -1332,7 +1401,7 @@ const Prescription = ({ patientId, onClose }) => {
             className="shortcuts-badge-btn"
             title="Keyboard Shortcuts:&#10;• Enter / Ctrl+Enter: Next field&#10;• Tab / Enter+Tab: Next section&#10;• Ctrl+P / Enter+P: Save & Print"
           >
-            ⌨ Shortcuts
+            <FaKeyboard style={{ marginRight: "4px" }} /> Shortcuts
           </div>
 
           <button
@@ -1357,7 +1426,7 @@ const Prescription = ({ patientId, onClose }) => {
               onClick={() => setObgynOpen((prev) => !prev)}
             >
               <div className="card-title-group">
-                <span className="card-icon">🤰</span>
+                <span className="card-icon"><FaPersonPregnant /></span>
                 <h3>Obstetric History (OB-GYN)</h3>
                 {POG && <span className="pog-badge">{POG}</span>}
               </div>
@@ -1474,7 +1543,7 @@ const Prescription = ({ patientId, onClose }) => {
         <div className="pres-card vitals-card">
           <div className="pres-card-header">
             <div className="card-title-group">
-              <span className="card-icon">🩺</span>
+              <span className="card-icon"><FaHeartPulse /></span>
               <h3>Patient Vitals & Biometrics</h3>
             </div>
           </div>
@@ -1638,7 +1707,7 @@ const Prescription = ({ patientId, onClose }) => {
         <div className="pres-card complaints-card">
           <div className="pres-card-header">
             <div className="card-title-group">
-              <span className="card-icon">💬</span>
+              <span className="card-icon"><FaCommentMedical /></span>
               <h3>Presenting Complaints</h3>
             </div>
             <button
@@ -1704,7 +1773,11 @@ const Prescription = ({ patientId, onClose }) => {
                       : setComplaints(complaints + com + ", ");
                   }}
                 >
-                  {complaints.includes(com) ? "✓ " : "+ "}
+                  {complaints.includes(com) ? (
+                    <FaCheck style={{ marginRight: "4px", fontSize: "0.72rem" }} />
+                  ) : (
+                    "+ "
+                  )}
                   {com}
                 </button>
               ))}
@@ -1731,7 +1804,7 @@ const Prescription = ({ patientId, onClose }) => {
             }
           >
             <div className="card-title-group">
-              <span className="card-icon">📋</span>
+              <span className="card-icon"><FaFileMedical /></span>
               <h3>Medical & Past History</h3>
             </div>
             <span className="collapse-toggle-icon">
@@ -1766,7 +1839,11 @@ const Prescription = ({ patientId, onClose }) => {
                         : setMedicalHistory(medicalHistory + history + ", ");
                     }}
                   >
-                    {medicalHistory.includes(history) ? "✓ " : "+ "}
+                    {medicalHistory.includes(history) ? (
+                      <FaCheck style={{ marginRight: "4px", fontSize: "0.72rem" }} />
+                    ) : (
+                      "+ "
+                    )}
                     {history}
                   </button>
                 ))}
@@ -1792,7 +1869,7 @@ const Prescription = ({ patientId, onClose }) => {
             }
           >
             <div className="card-title-group">
-              <span className="card-icon">🔍</span>
+              <span className="card-icon"><FaUserDoctor /></span>
               <h3>On Examination (Physical & Systemic Findings)</h3>
             </div>
             <span className="collapse-toggle-icon">
@@ -2134,7 +2211,7 @@ const Prescription = ({ patientId, onClose }) => {
             }
           >
             <div className="card-title-group">
-              <span className="card-icon">📋</span>
+              <span className="card-icon"><FaFileLines /></span>
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 600 }}>
                   Available Test Reports
@@ -2154,7 +2231,7 @@ const Prescription = ({ patientId, onClose }) => {
               <div className="form-grid-2">
                 <div className="pres-form-group">
                   <label style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, fontSize: "0.85rem", color: "#334155", marginBottom: "6px" }}>
-                    🧪 Pathological Test Report
+                    <FaVial className="report-tab-icon" /> Pathological Test Report
                   </label>
                   <textarea
                     rows={3}
@@ -2166,7 +2243,7 @@ const Prescription = ({ patientId, onClose }) => {
                 </div>
                 <div className="pres-form-group">
                   <label style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, fontSize: "0.85rem", color: "#334155", marginBottom: "6px" }}>
-                    🩻 Radiological Test Report
+                    <FaXRay className="report-tab-icon" /> Radiological Test Report
                   </label>
                   <textarea
                     rows={3}
@@ -2185,7 +2262,7 @@ const Prescription = ({ patientId, onClose }) => {
         <div className="pres-card diagnosis-card">
           <div className="pres-card-header">
             <div className="card-title-group">
-              <span className="card-icon">🩺</span>
+              <span className="card-icon"><FaStethoscope /></span>
               <select
                 className="diagnosis-type-select"
                 value={diagnosys_heading}
@@ -2338,7 +2415,7 @@ const Prescription = ({ patientId, onClose }) => {
         <div className="pres-card medicine-card">
           <div className="pres-card-header">
             <div className="card-title-group">
-              <span className="card-icon">💊</span>
+              <span className="card-icon"><FaPills /></span>
               <h3>Prescription Medicines & Dosing</h3>
               <span className="patient-meta-chip highlight">
                 {medicineAdvice.filter((m) => m.selected).length} of{" "}
@@ -2641,7 +2718,7 @@ const Prescription = ({ patientId, onClose }) => {
         <div className="pres-card tests-card">
           <div className="pres-card-header">
             <div className="card-title-group">
-              <span className="card-icon">🧪</span>
+              <span className="card-icon"><FaVials /></span>
               <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", margin: 0 }}>
                 <input
                   type="checkbox"
@@ -2765,7 +2842,7 @@ const Prescription = ({ patientId, onClose }) => {
         <div className="pres-card advice-card">
           <div className="pres-card-header">
             <div className="card-title-group">
-              <span className="card-icon">💡</span>
+              <span className="card-icon"><FaLightbulb /></span>
               <h3>Clinical Care Advice & Diet Instructions</h3>
             </div>
 
@@ -2813,7 +2890,7 @@ const Prescription = ({ patientId, onClose }) => {
         <div className="pres-card followup-card">
           <div className="pres-card-header">
             <div className="card-title-group">
-              <span className="card-icon">📅</span>
+              <span className="card-icon"><FaCalendarCheck /></span>
               <h3>Next Follow-Up Date</h3>
             </div>
           </div>
@@ -2849,7 +2926,7 @@ const Prescription = ({ patientId, onClose }) => {
             </span>
           ) : (
             <span className="footer-status-indicator clean">
-              ✓ All changes saved
+              <FaCheck style={{ marginRight: "4px", fontSize: "0.85rem" }} /> All changes saved
             </span>
           )}
         </div>

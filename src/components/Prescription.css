@@ -24,56 +24,86 @@
   --accent: #2f78c8;
 }
 
-.main {
-  background: var(--bg);
-  min-height: 100vh;
-  padding: 0;
-  width: 100%;
-  font-family: "Inter", sans-serif;
-  color: #334155;
+
+
+/* ==================== MODAL OVERLAY & CONTAINER ==================== */
+.prescription-modal-overlay,
+.ReactModalPortal .ReactModal__Overlay:has(.prescription-modal-container),
+.ReactModalPortal .ReactModal__Overlay:has(.content-box),
+.ReactModalPortal .ReactModal__Overlay {
+  background-color: rgba(15, 23, 42, 0.75) !important;
+  backdrop-filter: blur(8px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 9999 !important;
+  padding: 16px !important;
+  position: fixed !important;
+  inset: 0 !important;
 }
 
-.step-slide {
-  position: relative;
-  /* height: fit-content; */
-  /* background: #e6eef8; */
-  border-radius: 2px;
-  margin: 1rem 0 2rem 0;
+.ReactModalPortal {
+  position: relative !important;
+  z-index: 9999 !important;
 }
-.container {
-  max-width: 90%;
-  margin: 0 auto;
-  background: var(--card);
-  border-radius: 0.75rem;
-  box-shadow: 0 10px 30px rgba(14, 35, 58, 0.08);
-  padding: 2rem;
-  padding-bottom: 6.25rem; /* leave space for fixed footer */
-  border: 1px solid rgba(15, 23, 42, 0.04);
+
+.prescription-modal-container,
+.ReactModalPortal .ReactModal__Content:has(.content-box),
+.ReactModalPortal .prescription-modal-container {
+  position: relative !important;
+  inset: unset !important;
+  top: unset !important;
+  left: unset !important;
+  right: unset !important;
+  bottom: unset !important;
+  width: 95vw !important;
+  max-width: 1360px !important;
+  height: 94vh !important;
+  max-height: 94vh !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  border: 1px solid var(--pres-border) !important;
+  border-radius: 16px !important;
+  background: var(--pres-bg) !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4) !important;
+  outline: none !important;
 }
 
 /* Modal Content Box Wrapper */
 .content-box {
   padding: 0 !important;
+  margin: 0 !important;
   background: var(--pres-bg);
-  min-height: 100%;
+  height: 100%;
+  max-height: 100%;
+  width: 100%;
   position: relative;
   font-family: inherit;
   color: var(--pres-text-primary);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* ==================== MODAL HEADER ==================== */
 .pres-modal-header {
   background: #ffffff;
   border-bottom: 1px solid var(--pres-border);
-  padding: 16px 24px;
+  padding: 14px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
+  position: relative;
   top: 0;
-  z-index: 50;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  flex-shrink: 0;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
@@ -274,24 +304,47 @@
 
 /* ==================== MAIN FORM CONTAINER ==================== */
 .pres-form-body {
-  padding: 20px 24px 100px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 1200px;
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 20px 24px 30px 24px;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  max-width: 1240px;
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Custom sleek scrollbar for form body */
+.pres-form-body::-webkit-scrollbar {
+  width: 7px;
+}
+.pres-form-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.pres-form-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.pres-form-body::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* Base Card Style */
 .pres-card {
+  flex-shrink: 0 !important;
+  width: 100% !important;
   background: #ffffff;
   border-radius: 12px;
   border: 1px solid var(--pres-border);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-  overflow: hidden;
+  overflow: visible;
   transition: box-shadow 0.2s ease;
+  box-sizing: border-box;
 }
 
 .pres-card:hover {
@@ -323,8 +376,77 @@
 }
 
 .card-icon {
-  font-size: 1.15rem;
-  line-height: 1;
+  font-size: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: var(--pres-primary);
+  flex-shrink: 0;
+}
+
+.obgyn-card .card-icon {
+  color: #db2777;
+  background: #fdf2f8;
+}
+
+.vitals-card .card-icon {
+  color: #0284c7;
+  background: #f0f9ff;
+}
+
+.complaints-card .card-icon {
+  color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.history-card .card-icon {
+  color: #d97706;
+  background: #fffbeb;
+}
+
+.exam-card .card-icon {
+  color: #059669;
+  background: #ecfdf5;
+}
+
+.reports-card .card-icon {
+  color: #4f46e5;
+  background: #eef2ff;
+}
+
+.diagnosis-card .card-icon {
+  color: #4f46e5;
+  background: #eef2ff;
+}
+
+.medicines-card .card-icon {
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.tests-card .card-icon {
+  color: #0d9488;
+  background: #f0fdfa;
+}
+
+.advice-card .card-icon {
+  color: #ca8a04;
+  background: #fefce8;
+}
+
+.followup-card .card-icon {
+  color: #6366f1;
+  background: #eef2ff;
+}
+
+.report-tab-icon {
+  margin-right: 6px;
+  font-size: 1rem;
+  vertical-align: middle;
 }
 
 .pres-card-header h3 {
@@ -892,21 +1014,23 @@
   background: #dbeafe;
 }
 
-/* ==================== ELEVATED STICKY ACTION FOOTER ==================== */
+/* ==================== ELEVATED ACTION FOOTER ==================== */
 .pres-modal-footer {
-  position: fixed;
+  position: relative;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(8px);
+  background: #ffffff;
   border-top: 1px solid var(--pres-border);
   padding: 12px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 60;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.04);
+  z-index: 30;
+  flex-shrink: 0;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .footer-left {

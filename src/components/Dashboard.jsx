@@ -1238,7 +1238,13 @@ const Dashboard = () => {
             onRequestClose={closePrescriptionModal}
             contentLabel="Prescription Modal"
             ariaHideApp={false}
-            style={{ content: { margin: "auto" } }}
+            className="prescription-modal-container"
+            overlayClassName="prescription-modal-overlay"
+            style={{
+              overlay: {
+                zIndex: 9999,
+              },
+            }}
           >
             <Prescription
               patientId={selectedPatientId}

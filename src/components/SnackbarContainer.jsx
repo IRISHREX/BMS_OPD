@@ -65,8 +65,8 @@ const SnackbarContainer = () => {
                 </span>
                 <span className="snackbar-message">{snackbar.message}</span>
                 <div className="snackbar-confirmation-buttons">
-                  <button onClick={snackbar.onConfirm}>Yes</button>
-                  <button onClick={snackbar.onCancel}>No</button>
+                  <button className="btn-confirm-yes" onClick={snackbar.onConfirm}>Yes, Discard</button>
+                  <button className="btn-confirm-no" onClick={snackbar.onCancel}>Cancel</button>
                 </div>
               </div>
             </div>

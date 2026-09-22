@@ -71,7 +71,7 @@ const ForgottenPassword = () => {
     <>
       <section className="container form-component">
         <img
-          src="/logo.svg"
+          src="/logo-old.png"
           alt="logo"
           className="logo"
           style={{
