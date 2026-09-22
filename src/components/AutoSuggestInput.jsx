@@ -19,9 +19,15 @@ export default function AutoSuggestInput({ value, onChange, suggestions = [], pl
   const labelOf = (item) => {
     if (item == null) return '';
     if (typeof item === 'string') return item;
-    // Prefer `label` (may contain name + composition) so client-side
-    // filtering matches composition tokens too.
-    return item.label || item.name || item.value || String(item);
+    const tokens = [item.name, item.label, item.composition, item.advice].filter(Boolean);
+    return tokens.length > 0 ? tokens.join(' ') : item.value || String(item);
+  };
+
+  const valueOf = (item) => {
+    if (item == null) return '';
+    if (typeof item === 'string') return item;
+    if (item.advice) return item.advice;
+    return item.name || item.label || item.value || String(item);
   };
 
   useEffect(() => {
@@ -53,17 +59,17 @@ export default function AutoSuggestInput({ value, onChange, suggestions = [], pl
   }
 
   function selectSuggestion(item) {
-    const label = labelOf(item);
+    const val = valueOf(item);
     if (single) {
-      onChange({ target: { value: label } });
-      if (onSelect) onSelect(item, label);
+      onChange({ target: { value: val } });
+      if (onSelect) onSelect(item, val);
       setShow(false);
       setHighlight(0);
       return;
     }
     // Replace last token with selected suggestion, add comma
     let parts = value.split(',');
-    parts[parts.length - 1] = label;
+    parts[parts.length - 1] = val;
     let newVal = parts.map(p => p.trim()).filter(Boolean).join(', ');
     if (!newVal.endsWith(',')) newVal += ', ';
     onChange({ target: { value: newVal } });

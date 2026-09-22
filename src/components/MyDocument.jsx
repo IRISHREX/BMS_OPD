@@ -71,6 +71,12 @@ const IconCalendar = () => (
   </Svg>
 );
 
+const IconCheck = () => (
+  <Svg width={7} height={7} viewBox="0 0 24 24">
+    <Path fill="#0a4a75" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+  </Svg>
+);
+
 const formatDate = (date) =>
   date ? new Date(date).toLocaleDateString("en-GB") : ""; // dd/mm/yyyy
 
@@ -430,10 +436,13 @@ const styles = StyleSheet.create({
     minWidth: "15mm"
   },
   ortho_checkbox: {
-    width: "2.5mm",
-    height: "2.5mm",
+    width: "3mm",
+    height: "3mm",
     border: "1 solid #0a4a75",
     marginRight: "1mm",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: "0.5mm"
   },
   ortho_check_item: {
@@ -484,6 +493,18 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
   const isDynamicJson = templateIdentifier === "dynamic-json";
 
   const isTwoColumn = isTemplate1 || isTemplate2;
+
+  // Resolve appointment type flags for checkbox indicators
+  const rawApptType = (
+    p_data.appointmentType ||
+    p_data.type ||
+    report?.appointmentType ||
+    "OPD"
+  ).toString().trim().toLowerCase();
+
+  const isFollowUp = rawApptType.includes("follow");
+  const isEmergency = rawApptType === "emergency";
+  const isOpd = !isFollowUp && !isEmergency; // Defaults to OPD
 
   const headerHeight = Number(activeTemplate?.headerHeight) || 50;
   const footerHeight = Number(activeTemplate?.footerHeight) || 15;
@@ -755,7 +776,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                 <View style={styles.ortho_content}>
                   <View style={styles.ortho_field_row}>
                     <Text style={styles.ortho_label}>Name:</Text>
-                    <Text style={styles.ortho_value}>{p_data.name}</Text>
+                    <Text style={styles.ortho_value}>{p_data.name || `${p_data.firstName || ''} ${p_data.lastName || ''}`.trim()}</Text>
                   </View>
                   <View style={styles.ortho_field_row}>
                     <Text style={styles.ortho_label}>Age / Sex:</Text>
@@ -771,7 +792,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   </View>
                   <View style={styles.ortho_field_row}>
                     <Text style={styles.ortho_label}>Address:</Text>
-                    <Text style={styles.ortho_value}></Text>
+                    <Text style={styles.ortho_value}>{p_data.address || report?.address || ""}</Text>
                   </View>
                 </View>
               </View>
@@ -790,9 +811,18 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                       <Text style={styles.ortho_value}></Text>
                     </View>
                     <View style={[styles.ortho_field_row, { marginTop: "2mm", justifyContent: "space-between" }]}>
-                      <View style={{ flexDirection: "row", alignItems: "center" }}><View style={styles.ortho_checkbox} /><Text>OPD</Text></View>
-                      <View style={{ flexDirection: "row", alignItems: "center" }}><View style={styles.ortho_checkbox} /><Text>Follow-up</Text></View>
-                      <View style={{ flexDirection: "row", alignItems: "center" }}><View style={styles.ortho_checkbox} /><Text>Emergency</Text></View>
+                      <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <View style={styles.ortho_checkbox}>{isOpd && <IconCheck />}</View>
+                        <Text>OPD</Text>
+                      </View>
+                      <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <View style={styles.ortho_checkbox}>{isFollowUp && <IconCheck />}</View>
+                        <Text>Follow-up</Text>
+                      </View>
+                      <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <View style={styles.ortho_checkbox}>{isEmergency && <IconCheck />}</View>
+                        <Text>Emergency</Text>
+                      </View>
                     </View>
                   </View>
                 </View>
@@ -935,7 +965,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   <Text style={[styles.cell_dose, styles.cell_border_light]}>{med.dose ? `${med.dose} ${med.route || ""}` : med.route || ""}</Text>
                   <Text style={[styles.cell_freq, styles.cell_border_light]}>{med.frequency || ""}</Text>
                   <Text style={[styles.cell_dur, styles.cell_border_light]}>{med.duration || ""}</Text>
-                  <Text style={[styles.cell_dur, { flex: 1 }]}>{med.instruction || ""}</Text>
+                  <Text style={[styles.cell_dur, { flex: 1 }]}>{med.instruction || med.instructions || med.notes || ""}</Text>
                 </View>
               ))}
               {Array.from({ length: Math.max(0, 6 - medList.length) }).map((_, index) => (
@@ -1028,7 +1058,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
             <View style={[styles.upper_box, { padding: "2mm" }]}>
               <View style={styles.upper_left}>
                 <View style={styles.personal_details}>
-                  <Text style={styles.heading}>{p_data.name},</Text>
+                  <Text style={styles.heading}>{p_data.name || `${p_data.firstName || ''} ${p_data.lastName || ''}`.trim()},</Text>
                   <Text>{p_data.gender},</Text>
                   <Text>
                     {p_data.dob
@@ -1038,6 +1068,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                         : ""}
                   </Text>
                   {p_data.phone && <Text>, +91{p_data.phone}</Text>}
+                  {(p_data.address || report?.address) && <Text>, {p_data.address || report?.address}</Text>}
                 </View>
                 <View style={styles.heading_values}>
                   <Text style={styles.heading}>ID:</Text>
@@ -1117,7 +1148,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
               <View style={styles.upper_box}>
                 <View style={styles.upper_left}>
                   <View style={styles.personal_details}>
-                    <Text style={styles.heading}>{p_data.name},</Text>
+                    <Text style={styles.heading}>{p_data.name || `${p_data.firstName || ''} ${p_data.lastName || ''}`.trim()},</Text>
                     <Text>{p_data.gender},</Text>
                     <Text>
                       {p_data.dob
@@ -1127,6 +1158,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                           : ""}
                     </Text>
                     {p_data.phone && <Text>,+91{p_data.phone}</Text>}
+                    {(p_data.address || report?.address) && <Text>, {p_data.address || report?.address}</Text>}
                   </View>
                   <View style={styles.heading_values}>
                     <Text style={styles.heading}>ID:</Text>

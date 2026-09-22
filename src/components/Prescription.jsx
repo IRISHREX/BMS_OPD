@@ -50,6 +50,7 @@ const Prescription = ({ patientId, onClose }) => {
   const [name, setName] = useState("");
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("");
+  const [appointmentType, setAppointmentType] = useState("OPD");
   const [bookedBy, setBookedBy] = useState("");
   const rDiagnosis = useSelector((state) => state.diagnosis.value);
   const dispatch = useDispatch();
@@ -392,10 +393,11 @@ const Prescription = ({ patientId, onClose }) => {
         const appointments = data.appointments || [];
         if (!appointments.length) return setLoading(false);
         appointments.sort(
-          (a, b) => new Date(b.appointment_date) - new Date(a.appointment_date)
+          (a, b) => new Date(b.updatedAt || b.createdAt || b.appointment_date) - new Date(a.updatedAt || a.createdAt || a.appointment_date)
         );
         const latest = appointments[0];
         setAppointmentId(latest._id);
+        setAppointmentType(latest.appointmentType || latest.type || "OPD");
         setNic(latest.nic || "");
         setName(latest.name || "");
         setGender(latest.gender || "");
@@ -1195,6 +1197,7 @@ const Prescription = ({ patientId, onClose }) => {
       }
       await api.put(`/api/v1/appointment/patient/update/${patientId}`, {
         followup_date: followUp, // Moved to root level as per schema
+        appointmentType: appointmentType || "OPD",
         result: [
           {
             initialComplain: rDiagnosis,
@@ -1218,7 +1221,11 @@ const Prescription = ({ patientId, onClose }) => {
             LCB,
             MOD,
             diagnosys,
-            medicineAdvice: selectedMedicines,
+            medicineAdvice: selectedMedicines.map((m) => ({
+              ...m,
+              instruction: m.notes || m.instruction || m.instructions || "",
+              notes: m.notes || m.instruction || m.instructions || "",
+            })),
             advice: adviceToSave, // Contains selected tests
           },
         ],
@@ -2876,10 +2883,6 @@ const Prescription = ({ patientId, onClose }) => {
             <AutoSuggestInput
               value={additionalAdvice}
               onChange={(e) => setAdditionalAdvice(e.target.value)}
-              onSelect={(item, label) => {
-                const text = item && typeof item === "object" ? item.advice : label;
-                setAdditionalAdvice((prev) => (prev ? prev + "\n" + text : text));
-              }}
               suggestions={adviceSuggestions}
               placeholder="Search or enter care guidelines, dietary restrictions, precautions..."
             />

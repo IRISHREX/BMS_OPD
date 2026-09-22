@@ -23,29 +23,63 @@ function* fetchPreviewSaga(action) {
       }
     }
 
-    const { data: ad } = yield call(api.get, `/api/v1/appointment/patient/${patientId}`);
-    const appts = ad.appointments || [];
+    let appts = [];
+    try {
+      const { data: ad } = yield call(api.get, `/api/v1/appointment/patient/${patientId}`);
+      appts = ad.appointments || [];
+    } catch (e) {
+      try {
+        const { data: appointmentData } = yield call(api.get, `/api/v1/appointment/getall`);
+        const allAppointments = appointmentData.appointments || [];
+        const found = allAppointments.find(
+          (apt) => String(apt._id) === String(patientId) || String(apt.patientId) === String(patientId)
+        );
+        if (found) {
+          appts = [found];
+        }
+      } catch (err) {
+        appts = [];
+      }
+    }
+
     let patient = null;
     let doctor = null;
-  // fetched appointments (if any)
+
     if (appts.length > 0) {
-      appts.sort((a, b) => new Date(b.appointment_date) - new Date(a.appointment_date));
-      const latest = appts[0];
+      let targetAppt = appts.find(
+        (apt) =>
+          String(apt._id) === String(patientId) ||
+          String(apt.appointmentId) === String(patientId) ||
+          (appointmentId && String(apt._id) === String(appointmentId))
+      );
+
+      if (!targetAppt) {
+        appts.sort(
+          (a, b) =>
+            new Date(b.updatedAt || b.createdAt || b.appointment_date) -
+            new Date(a.updatedAt || a.createdAt || a.appointment_date)
+        );
+        targetAppt = appts[0];
+      }
+
+      const latest = targetAppt;
       patient = {
         _id: latest.patientId || patientId,
         firstName: latest.firstName || latest.patientName || '',
         lastName: latest.lastName || '',
-        name: latest?.name,
+        name: latest?.name || `${latest.firstName || ''} ${latest.lastName || ''}`.trim(),
         nic: latest.nic || latest.NIC || '',
         email: latest.email || '',
         phone: latest.phone || latest.contact || '',
         dob: latest.dob || latest.DOB || null,
+        age: latest.age || null,
         gender: latest.gender || '',
         updatedAt: latest.updatedAt || latest.appointment_date,
         weight: latest.result && latest.result[0] && latest.result[0].diagnosys ? latest.result[0].diagnosys.Weight : latest.weight,
         report: latest.result || [],
         appointmentId: latest._id,
         appointment_date: latest.appointment_date,
+        appointmentType: latest.appointmentType || latest.type || 'OPD',
         examinedBy: latest.examinedBy || latest.doctorName || '',
         reportdate: latest.reportdate || '',
         address: latest.address || '',
@@ -82,12 +116,14 @@ function* fetchPreviewSaga(action) {
             email: u.email || '',
             phone: u.phone || u.contact || '',
             dob: u.dob || null,
+            age: u.age || null,
             gender: u.gender || '',
             updatedAt: u.updatedAt || null,
             weight: u.weight || null,
             report: u.report || [],
             appointmentId: '',
             appointment_date: '',
+            appointmentType: u.appointmentType || 'OPD',
             examinedBy: '',
             reportdate: '',
             address: u.address || '',

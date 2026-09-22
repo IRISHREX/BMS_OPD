@@ -96,6 +96,8 @@ const SAMPLE_PATIENT = {
   dob: "1994-05-15",
   age: 30,
   phone: "9876543210",
+  address: "123 Park Street, Kolkata",
+  appointmentType: "OPD",
   appointmentId: "APP-2026-042",
 };
 
