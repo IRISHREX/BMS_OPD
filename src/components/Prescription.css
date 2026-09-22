@@ -629,6 +629,30 @@
   margin-bottom: 6px;
 }
 
+/* ==================== AVAILABLE TEST REPORTS ==================== */
+.available-reports-card {
+  border-left: 4px solid #8b5cf6;
+}
+
+.available-reports-card .pres-textarea {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.88rem;
+  color: #1e293b;
+  width: 100%;
+  resize: vertical;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.available-reports-card .pres-textarea:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
 /* ==================== PROVISIONAL DIAGNOSIS ==================== */
 .diagnosis-card {
   border-left: 4px solid #f59e0b;

@@ -118,6 +118,8 @@ const SAMPLE_REPORT = {
       c4: "McMurray test positive",
     },
   },
+  pathologyReport: "CBC: Hb 13.2 g/dL, ESR 18 mm/hr, CRP Normal",
+  radiologyReport: "X-Ray Both Knees AP: Mild medial joint space narrowing right knee",
   initialComplain: "Right Knee Medial Meniscus Strain / Early Osteoarthritis",
   diagnosys: {
     BP: "120/80",

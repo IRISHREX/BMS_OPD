@@ -36,16 +36,23 @@ export default function useMedicineSuggestions(opts = {}) {
 
   const lists = useMemo(() => {
     const doses = new Set();
-    const frequencies = new Set();
+    const frequencies = new Set([
+      "Morning", "Morning-Night", "Morning-Noon-Night", "Night", "Once a day", "Twice a day", "Thrice a day"
+    ]);
     const routes = new Set();
     const durations = new Set();
     const types = new Set();
+    const notes = new Set([
+      "Eat before having lunch", "After meals", "Before meals", "Empty stomach", "With warm water"
+    ]);
+    
     medicines.forEach(m => {
       if (m.dose) doses.add(String(m.dose));
       if (m.frequency) frequencies.add(String(m.frequency));
       if (m.route) routes.add(String(m.route));
       if (m.duration) durations.add(String(m.duration));
       if (m.type) types.add(String(m.type));
+      if (m.notes) notes.add(String(m.notes));
     });
     return {
       doses: Array.from(doses).filter(Boolean).slice(0, 60),
@@ -53,6 +60,7 @@ export default function useMedicineSuggestions(opts = {}) {
       routes: Array.from(routes).filter(Boolean).slice(0, 60),
       durations: Array.from(durations).filter(Boolean).slice(0, 60),
       types: Array.from(types).filter(Boolean).slice(0, 60),
+      notes: Array.from(notes).filter(Boolean).slice(0, 60),
     };
   }, [medicines]);
 

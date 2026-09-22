@@ -35,6 +35,8 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
   const [docAvatarPreview, setDocAvatarPreview] = useState("");
   const [signImage, setSignImage] = useState("");
   const [signImagePreview, setSignImagePreview] = useState("");
+  const [stampImage, setStampImage] = useState("");
+  const [stampImagePreview, setStampImagePreview] = useState("");
   const [headerImage, setHeaderImage] = useState("");
   const [headerImagePreview, setHeaderImagePreview] = useState("");
   const [age, setAge] = useState("");
@@ -65,6 +67,7 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
       setQualifications(initialData.qualifications || "");
       setDocAvatarPreview(resolveImageUrl(initialData.docAvatar));
       setSignImagePreview(resolveImageUrl(initialData.signImage));
+      setStampImagePreview(resolveImageUrl(initialData.stampImage));
       setHeaderImagePreview(resolveImageUrl(initialData.headerImage));
       const ageFromDob = initialData.dob ? dobToAgeYears(initialData.dob) : "";
       setAge(ageFromDob);
@@ -105,6 +108,16 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
     reader.onload = () => {
       setSignImagePreview(reader.result);
       setSignImage(file);
+    };
+  };
+
+  const handleStampImage = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      setStampImagePreview(reader.result);
+      setStampImage(file);
     };
   };
 
@@ -155,6 +168,7 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
     if (qualifications) formData.append("qualifications", qualifications);
     if (docAvatar) formData.append("docAvatar", docAvatar);
     if (signImage) formData.append("signImage", signImage);
+    if (stampImage) formData.append("stampImage", stampImage);
     if (headerImage) formData.append("headerImage", headerImage);
 
     if (isEditing) {
@@ -184,6 +198,8 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
       setDocAvatarPreview("");
       setSignImage("");
       setSignImagePreview("");
+      setStampImage("");
+      setStampImagePreview("");
       setHeaderImage("");
       setHeaderImagePreview("");
       dispatch(resetDoctorCreate());
@@ -233,6 +249,19 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
                 <img
                   src={signImagePreview}
                   alt="Sign Preview"
+                  style={{ width: 120, marginTop: 6 }}
+                />
+              )}
+            </div>
+            <div style={{ marginTop: 8 }}>
+              <label style={{ display: "block", marginBottom: 6 }}>
+                Stamp Image (optional)
+              </label>
+              <input type="file" onChange={handleStampImage} accept="image/*" />
+              {stampImagePreview && (
+                <img
+                  src={stampImagePreview}
+                  alt="Stamp Preview"
                   style={{ width: 120, marginTop: 6 }}
                 />
               )}

@@ -2,6 +2,7 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Svg, Path } from '@react-pdf/renderer';
 import { dobToAge } from "../utils/ageUtils";
 import DynamicTemplate from "./DynamicTemplate";
+import api from "../utils/api";
 
 // Crisp Vector Icons for Orthopedic Template headers (safe for all PDF engines)
 const IconUser = () => (
@@ -79,6 +80,18 @@ const cleanTrailingComma = (val) => {
   if (typeof val === "object") return JSON.stringify(val);
   const trimmed = String(val).trim();
   return trimmed.endsWith(",") ? trimmed.slice(0, -1) : trimmed;
+};
+
+// Helper to construct full image URLs
+const getFullImageUrl = (imagePath) => {
+  if (!imagePath) return null;
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://") || imagePath.startsWith("data:")) {
+    return imagePath;
+  }
+  const base = api.defaults.baseURL || "";
+  const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
+  const cleanPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
+  return `${cleanBase}${cleanPath}`;
 };
 
 // Common Styles
@@ -519,6 +532,35 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
   const femaleStr = femaleParts.join(" ");
   const othersText = [femaleStr, report?.diagnosys?.Others].filter(Boolean).join(" | ");
 
+  const renderDoctorCredentials = (align = "center") => {
+    const isRight = align === "flex-end" || align === "right";
+    return (
+      <View style={{ alignItems: isRight ? "flex-end" : "center", display: "flex", flexDirection: "column" }}>
+        {(dr_data?.signImage || dr_data?.stampImage) ? (
+          <View style={{ flexDirection: "row", gap: "3mm", marginBottom: "1.5mm", justifyContent: isRight ? "flex-end" : "center", alignItems: "center" }}>
+            {dr_data?.signImage && (
+              <Image src={getFullImageUrl(dr_data.signImage)} style={{ height: "16mm", maxHeight: "16mm", objectFit: "contain" }} />
+            )}
+            {dr_data?.stampImage && (
+              <Image src={getFullImageUrl(dr_data.stampImage)} style={{ height: "16mm", maxHeight: "16mm", objectFit: "contain" }} />
+            )}
+          </View>
+        ) : null}
+        <Text style={styles.doctor_sign}>{doctorFullName}</Text>
+        {dr_data?.qualifications && (
+          <Text style={{ fontSize: "8pt", color: "#333", marginTop: "1mm", textAlign: isRight ? "right" : "center" }}>
+            {dr_data.qualifications}
+          </Text>
+        )}
+        {dr_data?.doctorDepartment && (
+          <Text style={{ fontSize: "7pt", color: "#666", marginTop: "0.5mm", textAlign: isRight ? "right" : "center" }}>
+            {dr_data.doctorDepartment}
+          </Text>
+        )}
+      </View>
+    );
+  };
+
   // Render Sidebar / Margin Component (Vitals, Investigations, Provisional Diagnosis)
   const renderMarginContent = (isRightSide) => (
     <View style={[
@@ -547,6 +589,25 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
         </View>
       )}
 
+      {/* AVAILABLE TEST REPORTS */}
+      {(report?.pathologyReport || report?.radiologyReport || report?.availableReports?.pathology || report?.availableReports?.radiology) && (
+        <View style={styles.sidebar_section}>
+          <Text style={styles.sidebar_title}>AVAILABLE TEST REPORTS</Text>
+          {(report?.pathologyReport || report?.availableReports?.pathology) && (
+            <Text style={styles.sidebar_item}>
+              <Text style={{ fontFamily: "Helvetica-Bold" }}>Pathology: </Text>
+              {cleanTrailingComma(report?.pathologyReport || report?.availableReports?.pathology)}
+            </Text>
+          )}
+          {(report?.radiologyReport || report?.availableReports?.radiology) && (
+            <Text style={styles.sidebar_item}>
+              <Text style={{ fontFamily: "Helvetica-Bold" }}>Radiology: </Text>
+              {cleanTrailingComma(report?.radiologyReport || report?.availableReports?.radiology)}
+            </Text>
+          )}
+        </View>
+      )}
+
       {/* PROVISIONAL DIAGNOSIS */}
       {showDiagnosis && (
         <View style={styles.sidebar_section}>
@@ -562,7 +623,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
       {/* If Template 1 (Right-side margin), Dr Signature sits at bottom of this margin column */}
       {isRightSide && (
         <View style={{ marginTop: "auto", textAlign: "right", paddingRight: "2mm", paddingBottom: "2mm" }}>
-          <Text style={styles.doctor_sign}>{doctorFullName}</Text>
+          {renderDoctorCredentials()}
         </View>
       )}
     </View>
@@ -645,7 +706,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
             )}
           </View>
           <View style={{ textAlign: "right", paddingRight: "2mm" }}>
-            <Text style={styles.doctor_sign}>{doctorFullName}</Text>
+            {renderDoctorCredentials()}
           </View>
         </View>
       )}
@@ -827,6 +888,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   <Text>Laboratory Findings (if available)</Text>
                 </View>
                 <View style={[styles.ortho_content, { minHeight: "22mm" }]}>
+                  <Text>{cleanTrailingComma(report?.pathologyReport || report?.pathologicalReport || report?.availableReports?.pathology)}</Text>
                 </View>
               </View>
               <View style={[styles.ortho_panel, { flex: 1 }]}>
@@ -835,6 +897,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   <Text>Radiological Findings (if available)</Text>
                 </View>
                 <View style={[styles.ortho_content, { minHeight: "22mm" }]}>
+                  <Text>{cleanTrailingComma(report?.radiologyReport || report?.radiologicalReport || report?.availableReports?.radiology)}</Text>
                 </View>
               </View>
             </View>
@@ -937,9 +1000,9 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                 </View>
               </View>
 
-              {/* Doctor Signature (outside of all panels) */}
-              <View style={{ width: "45%", alignItems: "flex-end", justifyContent: "flex-end", paddingRight: "6mm", paddingBottom: "2mm" }}>
-                <Text style={styles.doctor_sign}>{doctorFullName}</Text>
+              {/* Doctor Signature, Stamp & Details (outside of all panels) */}
+              <View style={{ width: "48%", alignItems: "flex-end", justifyContent: "flex-end", paddingRight: "4mm", paddingBottom: "2mm" }}>
+                {renderDoctorCredentials("flex-end")}
               </View>
             </View>
 
@@ -1186,6 +1249,18 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   </View>
                 )}
 
+                {(report?.pathologyReport || report?.radiologyReport || report?.availableReports?.pathology || report?.availableReports?.radiology) && (
+                  <View style={[styles.heading_values, { marginBottom: "2mm", flexWrap: "wrap" }]}>
+                    <Text style={styles.heading}>Available Reports:</Text>
+                    {[
+                      (report?.pathologyReport || report?.availableReports?.pathology) && `Pathology: ${cleanTrailingComma(report?.pathologyReport || report?.availableReports?.pathology)}`,
+                      (report?.radiologyReport || report?.availableReports?.radiology) && `Radiology: ${cleanTrailingComma(report?.radiologyReport || report?.availableReports?.radiology)}`,
+                    ].filter(Boolean).map((text, i, arr) => (
+                      <Text key={i}>{text}{i < arr.length - 1 ? " | " : ""}</Text>
+                    ))}
+                  </View>
+                )}
+
                 <View style={styles.heading_values}>
                   <Text style={styles.heading}>
                     {report?.diagnosys_heading ? report.diagnosys_heading : "Provisional Diagnosis"}:
@@ -1238,7 +1313,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                 )}
               </View>
               <View style={styles.seal_right}>
-                <Text style={styles.heading}>{doctorFullName}</Text>
+                {renderDoctorCredentials()}
               </View>
             </View>
           </>

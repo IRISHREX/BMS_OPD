@@ -55,10 +55,15 @@ function* fetchPreviewSaga(action) {
       };
       if (latest.doctorId) {
         try {
-          const { data: dd } = yield call(api.get, `/api/v1/user/doctor/${latest.doctorId}`);
+          const docId = typeof latest.doctorId === 'object' ? (latest.doctorId._id || latest.doctorId.id) : latest.doctorId;
+          const { data: dd } = yield call(api.get, `/api/v1/user/doctor/${docId}`);
           if (dd && dd.doctor) doctor = dd.doctor;
         } catch (e) {
-          doctor = null;
+          if (typeof latest.doctorId === 'object') {
+            doctor = latest.doctorId;
+          } else {
+            doctor = null;
+          }
         }
       }
     }

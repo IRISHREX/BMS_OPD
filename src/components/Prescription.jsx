@@ -54,6 +54,7 @@ const Prescription = ({ patientId, onClose }) => {
   const [toggleOpen, setToggleOpen] = useState({
     medicalHistory: false,
     clinicalFindings: false,
+    availableReports: true,
   });
   const [obgynOpen, setObgynOpen] = useState(true);
 
@@ -163,6 +164,8 @@ const Prescription = ({ patientId, onClose }) => {
       selected: false,
     },
   ]);
+  const [pathologyReport, setPathologyReport] = useState("");
+  const [radiologyReport, setRadiologyReport] = useState("");
   const [medicationAdvice, setMedicationAdvice] = useState("");
   const [dietAdvice, setDietAdvice] = useState("");
   const [additionalAdvice, setAdditionalAdvice] = useState("");
@@ -296,6 +299,18 @@ const Prescription = ({ patientId, onClose }) => {
           // setInitialComplain(r.initialComplain || "");
           dispatch(change(r.initialComplain || ""));
           setMedicalHistory(r.medicalHistory || "");
+          setPathologyReport(
+            r.pathologyReport ||
+            r.pathologicalReport ||
+            r.availableReports?.pathology ||
+            ""
+          );
+          setRadiologyReport(
+            r.radiologyReport ||
+            r.radiologicalReport ||
+            r.availableReports?.radiology ||
+            ""
+          );
           setClinical_findings(
             r.clinical_findings || {
               patientCondition: {
@@ -423,6 +438,16 @@ const Prescription = ({ patientId, onClose }) => {
               others: "",
             },
             diagnosys_heading: r.diagnosys_heading || "Provisional Diagnosis",
+            pathologyReport:
+              r.pathologyReport ||
+              r.pathologicalReport ||
+              r.availableReports?.pathology ||
+              "",
+            radiologyReport:
+              r.radiologyReport ||
+              r.radiologicalReport ||
+              r.availableReports?.radiology ||
+              "",
             femaleTests: {
               Gravida: r.femaleTests?.Gravida || r.gravida || "",
               Parity: r.femaleTests?.Parity || "",
@@ -469,6 +494,8 @@ const Prescription = ({ patientId, onClose }) => {
         // initialComplain: initialComplain || "",
         initialComplain: rDiagnosis || "",
         medicalHistory: medicalHistory || "",
+        pathologyReport: pathologyReport || "",
+        radiologyReport: radiologyReport || "",
         clinical_findings: clinical_findings || {
           patientCondition: {
             c1: "",
@@ -532,6 +559,8 @@ const Prescription = ({ patientId, onClose }) => {
     POG,
     LCB,
     MOD,
+    pathologyReport,
+    radiologyReport,
     originalPayload,
   ]);
 
@@ -1065,6 +1094,8 @@ const Prescription = ({ patientId, onClose }) => {
         (rDiagnosis && rDiagnosis.trim()) ||
         (Array.isArray(selectedMedicines) && selectedMedicines.length > 0) ||
         Object.keys(adviceToSave).length > 0 ||
+        (pathologyReport && pathologyReport.trim()) ||
+        (radiologyReport && radiologyReport.trim()) ||
         diagnosysHasContent;
       if (!hasContent) {
         snackbar.error(
@@ -1080,6 +1111,12 @@ const Prescription = ({ patientId, onClose }) => {
             medicalHistory,
             clinical_findings,
             diagnosys_heading,
+            pathologyReport,
+            radiologyReport,
+            availableReports: {
+              pathology: pathologyReport,
+              radiology: radiologyReport,
+            },
             additionalAdvice,
             followUp,
             presentingComplaints: complaints,
@@ -1116,6 +1153,8 @@ const Prescription = ({ patientId, onClose }) => {
         // initialComplain: initialComplain || "",
         initialComplain: rDiagnosis || "",
         medicalHistory: medicalHistory || "",
+        pathologyReport: pathologyReport || "",
+        radiologyReport: radiologyReport || "",
         clinical_findings: clinical_findings || {
           patientCondition: {
             c1: "",
@@ -2083,7 +2122,66 @@ const Prescription = ({ patientId, onClose }) => {
           )}
         </div>
 
-        {/* 6. Provisional Diagnosis Card */}
+        {/* 6. Available Test Reports Card (Before Diagnosis) */}
+        <div className="pres-card available-reports-card">
+          <div
+            className="pres-card-header clickable"
+            onClick={() =>
+              setToggleOpen({
+                ...toggleOpen,
+                availableReports: !toggleOpen.availableReports,
+              })
+            }
+          >
+            <div className="card-title-group">
+              <span className="card-icon">📋</span>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 600 }}>
+                  Available Test Reports
+                </h3>
+                <span style={{ fontSize: "0.78rem", color: "#64748b", fontWeight: 400 }}>
+                  Enter pathological and radiological reports brought by the patient
+                </span>
+              </div>
+            </div>
+            <span className="collapse-toggle-icon">
+              {toggleOpen.availableReports ? <FaChevronUp /> : <FaChevronDown />}
+            </span>
+          </div>
+
+          {toggleOpen.availableReports && (
+            <div className="pres-card-body">
+              <div className="form-grid-2">
+                <div className="pres-form-group">
+                  <label style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, fontSize: "0.85rem", color: "#334155", marginBottom: "6px" }}>
+                    🧪 Pathological Test Report
+                  </label>
+                  <textarea
+                    rows={3}
+                    className="pres-textarea"
+                    placeholder="Enter available pathological / laboratory test reports (e.g. CBC: Hb 11.2, Platelets 2.5L, TLC 7800; LFT / KFT: Normal)..."
+                    value={pathologyReport}
+                    onChange={(e) => setPathologyReport(e.target.value)}
+                  />
+                </div>
+                <div className="pres-form-group">
+                  <label style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, fontSize: "0.85rem", color: "#334155", marginBottom: "6px" }}>
+                    🩻 Radiological Test Report
+                  </label>
+                  <textarea
+                    rows={3}
+                    className="pres-textarea"
+                    placeholder="Enter available radiological test reports (e.g. Chest X-Ray: Clear lung fields; USG Abdomen: Mild Fatty Liver)..."
+                    value={radiologyReport}
+                    onChange={(e) => setRadiologyReport(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 7. Provisional Diagnosis Card */}
         <div className="pres-card diagnosis-card">
           <div className="pres-card-header">
             <div className="card-title-group">
