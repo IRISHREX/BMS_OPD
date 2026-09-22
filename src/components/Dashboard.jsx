@@ -922,6 +922,7 @@ const Dashboard = () => {
                       <RiExpandVerticalLine />
                     </button>
                   </th>
+                  <th style={{ width: "110px", textAlign: "center" }}>Type</th>
                   {/* <th>Created By</th> */}
                   {isExpanded && <th style={{ textAlign: "center" }}>Phone</th>}
                   {isExpanded && <th style={{ textAlign: "center" }}>Gender</th>}
@@ -962,6 +963,13 @@ const Dashboard = () => {
                           `${appointment.firstName} ${appointment.lastName}`}
                       </td>
                       <td style={{ textAlign: "center" }}>{appointment.appointment_date.substring(0, 10)}</td>
+                      <td style={{ textAlign: "center" }}>
+                        <span className={`appt-type-badge ${
+                          (appointment.appointmentType || "OPD").toLowerCase().replace(/[^a-z0-9]/g, "-")
+                        }`}>
+                          {appointment.appointmentType || "OPD"}
+                        </span>
+                      </td>
                       {/* <td>{appointment?.booked_by || "You"}</td> */}
                       {isExpanded && (
                         <td style={{ textAlign: "center" }}>{appointment.phone || appointment.mobile}</td>
