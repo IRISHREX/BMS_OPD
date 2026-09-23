@@ -50,7 +50,69 @@ const Preview = () => {
   };
 
   const headerImageUrl = getFullImageUrl(doctor?.headerImage, "/Header.jpeg");
-  const footerImageUrl = getFullImageUrl(doctor?.signImage, "/Footer.png");
+  const pageFooterImageUrl = getFullImageUrl(doctor?.footerImage, "/Footer.png");
+  const doctorSignUrl = doctor?.signImage ? getFullImageUrl(doctor.signImage, null) : null;
+  const doctorStampUrl = doctor?.stampImage ? getFullImageUrl(doctor.stampImage, null) : null;
+
+  const [resolvedHeader, setResolvedHeader] = useState(null);
+  const [resolvedFooter, setResolvedFooter] = useState(null);
+  const [resolvedSign, setResolvedSign] = useState(null);
+  const [resolvedStamp, setResolvedStamp] = useState(null);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // Convert any image format (including non-standard JPEGs) to clean standard PNG data URI via Canvas
+    const convertToPngDataUri = (url) => {
+      if (!url) return Promise.resolve(null);
+      if (url.startsWith("data:image/png")) return Promise.resolve(url);
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth || img.width || 800;
+            canvas.height = img.naturalHeight || img.height || 200;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            const pngDataUri = canvas.toDataURL("image/png");
+            resolve(pngDataUri);
+          } catch (err) {
+            console.warn("Canvas conversion failed, falling back to url:", err);
+            resolve(url);
+          }
+        };
+        img.onerror = () => {
+          resolve(url);
+        };
+        img.src = url;
+      });
+    };
+
+    const loadAllImages = async () => {
+      const [hUri, fUri, sUri, stUri] = await Promise.all([
+        convertToPngDataUri(headerImageUrl),
+        convertToPngDataUri(pageFooterImageUrl),
+        convertToPngDataUri(doctorSignUrl),
+        convertToPngDataUri(doctorStampUrl),
+      ]);
+
+      if (isMounted) {
+        setResolvedHeader(hUri || headerImageUrl);
+        setResolvedFooter(fUri || pageFooterImageUrl);
+        setResolvedSign(sUri || null);
+        setResolvedStamp(stUri || null);
+        setImagesLoaded(true);
+      }
+    };
+
+    loadAllImages();
+    return () => {
+      isMounted = false;
+    };
+  }, [doctor?.headerImage, doctor?.signImage, doctor?.stampImage, doctor?._id, headerImageUrl, pageFooterImageUrl, doctorSignUrl, doctorStampUrl]);
 
   // Role check
   const canEdit = isAuthenticated && ["Admin", "Doctor"].includes(admin?.role);
@@ -246,10 +308,25 @@ const Preview = () => {
           </select>
         </div>
       </div>
-      {report ? (
-        <PDFViewer width="100%" height="600px">
-          <MyDocument header={headerImageUrl} footer={footerImageUrl} p_data={patient} dr_data={doctor} report={report} activeTemplate={activeTemplate} />
+      {report && imagesLoaded ? (
+        <PDFViewer
+          key={`${patientId}-${doctor?._id || 'none'}-${resolvedHeader ? 'hdr' : 'nohdr'}-${selectedTemplateId}`}
+          width="100%"
+          height="600px"
+        >
+          <MyDocument
+            header={resolvedHeader || headerImageUrl}
+            footer={resolvedFooter || pageFooterImageUrl}
+            p_data={patient}
+            dr_data={doctor ? { ...doctor, headerImage: resolvedHeader, signImage: resolvedSign, stampImage: resolvedStamp } : doctor}
+            report={report}
+            activeTemplate={activeTemplate}
+          />
         </PDFViewer>
+      ) : report ? (
+        <div className="prescription" style={{ minHeight: "400px", display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <span className="loader" style={{ height: "3rem" }}></span>
+        </div>
       ) : (
         <div className="prescription">
           <p>No report available</p>

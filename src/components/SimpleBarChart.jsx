@@ -27,16 +27,16 @@ const SimpleBarChart = ({ data }) => {
   const maxDue = Math.max(...data.map(d => Number(d.due || d.totalDue || 0)));
   const maxVal = Math.max(maxRevenue, maxDue, 100);
 
-  const chartHeight = 200;
-  const paddingLeft = 60;
-  const paddingRight = 30;
-  const paddingTop = 40;
-  const paddingBottom = 45;
+  const chartHeight = 150;
+  const paddingLeft = 48;
+  const paddingRight = 20;
+  const paddingTop = 28;
+  const paddingBottom = 42;
   const availableHeight = chartHeight - paddingTop - paddingBottom;
 
-  const barWidth = Math.min(34, Math.max(16, Math.floor(400 / (data.length * 2 + 1))));
-  const groupMargin = Math.min(28, Math.max(12, Math.floor(200 / (data.length + 1))));
-  const chartWidth = Math.max(250, data.length * (barWidth * 2 + groupMargin) + paddingLeft + paddingRight);
+  const barWidth = Math.min(24, Math.max(12, Math.floor(260 / (data.length * 2 + 1))));
+  const groupMargin = Math.min(22, Math.max(8, Math.floor(140 / (data.length + 1))));
+  const chartWidth = Math.max(340, data.length * (barWidth * 2 + groupMargin) + paddingLeft + paddingRight);
 
   // Y-axis grid ticks (0, 50%, 100%)
   const yTicks = [
@@ -149,7 +149,7 @@ const SimpleBarChart = ({ data }) => {
                       value={revenue}
                       prefix="₹"
                       x={x1 + barWidth / 2}
-                      y={revY - 5}
+                      y={revY - 6}
                       textAnchor="middle"
                       fill="#10b981"
                       fontSize="10px"
@@ -174,7 +174,7 @@ const SimpleBarChart = ({ data }) => {
                       value={due}
                       prefix="₹"
                       x={x2 + barWidth / 2}
-                      y={dueY - 5}
+                      y={dueY - 6}
                       textAnchor="middle"
                       fill="#ef4444"
                       fontSize="10px"
@@ -185,18 +185,18 @@ const SimpleBarChart = ({ data }) => {
                   {/* X Axis Period Label */}
                   <text
                     x={x1 + barWidth / 2}
-                    y={chartHeight - paddingBottom + 18}
+                    y={chartHeight - paddingBottom + 12}
                     textAnchor="end"
                     className={`bar-period-label ${isHovered ? 'active' : ''}`}
                     fontSize="10px"
-                    transform={`rotate(-45 ${x1 + barWidth / 2} ${chartHeight - paddingBottom + 18})`}
+                    transform={`rotate(-45 ${x1 + barWidth / 2} ${chartHeight - paddingBottom + 12})`}
                   >
                     {d.period && d.period.length === 10 ? d.period.substring(5) : d.period}
                   </text>
 
                   {/* Hover tooltip */}
                   {isHovered && (
-                    <g transform={`translate(${x1 + barWidth - 60}, ${Math.min(revY, dueY) - 55})`}>
+                    <g transform={`translate(${x1 + barWidth - 60}, ${Math.max(4, Math.min(revY, dueY) - 48)})`}>
                       <rect
                         width="120"
                         height="44"

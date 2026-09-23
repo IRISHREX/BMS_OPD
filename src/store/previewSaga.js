@@ -93,11 +93,38 @@ function* fetchPreviewSaga(action) {
           const { data: dd } = yield call(api.get, `/api/v1/user/doctor/${docId}`);
           if (dd && dd.doctor) doctor = dd.doctor;
         } catch (e) {
-          if (typeof latest.doctorId === 'object') {
+          if (typeof latest.doctorId === 'object' && latest.doctorId._id) {
             doctor = latest.doctorId;
-          } else {
-            doctor = null;
           }
+        }
+      }
+
+      // Fallback: If doctor is still not found, try matching by name or department from all doctors
+      if (!doctor && (latest.doctor || latest.examinedBy || latest.department)) {
+        try {
+          const { data: dList } = yield call(api.get, `/api/v1/user/doctors`);
+          const allDocs = dList.doctors || [];
+          const docFirstName = (latest.doctor?.firstName || '').toLowerCase().trim();
+          const docLastName = (latest.doctor?.lastName || '').toLowerCase().trim();
+          const examined = (latest.examinedBy || '').toLowerCase().trim();
+
+          const foundDoc = allDocs.find(d => {
+            const f = (d.firstName || '').toLowerCase().trim();
+            const l = (d.lastName || '').toLowerCase().trim();
+            const full = `${f} ${l}`.trim();
+            if (docFirstName && docLastName && f === docFirstName && l === docLastName) return true;
+            if (docFirstName && f === docFirstName) return true;
+            if (examined && (examined.includes(f) || full.includes(examined))) return true;
+            return false;
+          }) || (latest.department ? allDocs.find(d => (d.doctorDepartment || '').toLowerCase() === latest.department.toLowerCase()) : null);
+
+          if (foundDoc) {
+            const { data: dd } = yield call(api.get, `/api/v1/user/doctor/${foundDoc._id}`);
+            if (dd && dd.doctor) doctor = dd.doctor;
+            else doctor = foundDoc;
+          }
+        } catch (err) {
+          // ignore fallback error
         }
       }
     }

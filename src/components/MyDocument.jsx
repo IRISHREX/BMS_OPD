@@ -112,22 +112,24 @@ const styles = StyleSheet.create({
   header_section: {
     margin: "0mm",
     padding: 0,
-    maxHeight: "50mm",
+    maxHeight: "38mm",
     width: "210mm",
   },
   header_image: {
     width: "100%",
+    maxHeight: "38mm",
   },
   footer_section: {
     margin: "0mm",
     padding: "0mm",
-    maxHeight: "15mm",
+    maxHeight: "14mm",
     width: "210mm",
     position: "absolute",
     bottom: "0mm",
   },
   footer_image: {
     width: "100%",
+    maxHeight: "14mm",
   },
 
   // --- Default Layout styles (original) ---
@@ -366,22 +368,13 @@ const styles = StyleSheet.create({
     padding: "1mm",
     borderTop: "1 solid #ccc",
   },
-  bottom_label: {
-    position: "absolute",
-    bottom: "1mm",
-    width: "210mm",
-    textAlign: "center",
-    fontSize: "7pt",
-    color: "#666",
-  },
 
   // --- Template 3: Exact Replica Ortho Styles ---
   ortho_frame: {
-    marginHorizontal: "5mm",
-    marginTop: "2mm",
-    marginBottom: "2mm",
-    width: "200mm",
-    height: "235mm",
+    marginHorizontal: "4mm",
+    marginTop: "1mm",
+    marginBottom: "1mm",
+    width: "202mm",
     display: "flex",
     flexDirection: "column",
     backgroundColor: "#fff",
@@ -506,8 +499,8 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
   const isEmergency = rawApptType === "emergency";
   const isOpd = !isFollowUp && !isEmergency; // Defaults to OPD
 
-  const headerHeight = Number(activeTemplate?.headerHeight) || 50;
-  const footerHeight = Number(activeTemplate?.footerHeight) || 15;
+  const headerHeight = Number(activeTemplate?.headerHeight) || 38;
+  const footerHeight = Number(activeTemplate?.footerHeight) || 14;
   const doctorFullName = dr_data ? `Dr. ${dr_data.firstName || ""} ${dr_data.lastName || ""}`.trim() : "";
   const primaryColor = activeTemplate?.layoutConfig?.primaryColor || "#000";
 
@@ -526,8 +519,12 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
   // Calculate dynamic frame dimensions to guarantee strictly 1-page PDF
   const availableHeight = 297 - headerHeight - footerHeight - topMargin - bottomMargin - 6;
   const frameHeight = Math.max(160, Math.min(235, availableHeight));
-  const frameWidth = Math.max(150, 190 - leftMargin - rightMargin);
-  const marginLeft = Math.max(2, 10 + leftMargin);
+  const frameWidth = isTemplate3
+    ? Math.max(150, 202 - leftMargin - rightMargin)
+    : Math.max(150, 190 - leftMargin - rightMargin);
+  const marginLeft = isTemplate3
+    ? Math.max(1, 4 + leftMargin)
+    : Math.max(2, 10 + leftMargin);
   const marginTop = Math.max(1, 2 + topMargin);
   const marginBottom = Math.max(2, 16 + bottomMargin);
 
@@ -555,15 +552,24 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
 
   const renderDoctorCredentials = (align = "center") => {
     const isRight = align === "flex-end" || align === "right";
+    const hasSign = Boolean(dr_data?.signImage);
+    const hasStamp = Boolean(dr_data?.stampImage);
+
     return (
       <View style={{ alignItems: isRight ? "flex-end" : "center", display: "flex", flexDirection: "column" }}>
-        {(dr_data?.signImage || dr_data?.stampImage) ? (
-          <View style={{ flexDirection: "row", gap: "3mm", marginBottom: "1.5mm", justifyContent: isRight ? "flex-end" : "center", alignItems: "center" }}>
-            {dr_data?.signImage && (
-              <Image src={getFullImageUrl(dr_data.signImage)} style={{ height: "16mm", maxHeight: "16mm", objectFit: "contain" }} />
+        {(hasSign || hasStamp) ? (
+          <View style={{ flexDirection: "row", gap: "2mm", marginBottom: "1mm", justifyContent: isRight ? "flex-end" : "center", alignItems: "center" }}>
+            {hasSign && (
+              <Image
+                src={dr_data.signImage.startsWith("data:") ? dr_data.signImage : getFullImageUrl(dr_data.signImage)}
+                style={{ height: "14mm", maxHeight: "14mm", objectFit: "contain" }}
+              />
             )}
-            {dr_data?.stampImage && (
-              <Image src={getFullImageUrl(dr_data.stampImage)} style={{ height: "16mm", maxHeight: "16mm", objectFit: "contain" }} />
+            {hasStamp && (
+              <Image
+                src={dr_data.stampImage.startsWith("data:") ? dr_data.stampImage : getFullImageUrl(dr_data.stampImage)}
+                style={{ height: "20mm", maxHeight: "20mm", objectFit: "contain" }}
+              />
             )}
           </View>
         ) : null}
@@ -739,7 +745,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={[styles.header_section, { maxHeight: `${headerHeight}mm` }]} fixed>
-          <Image style={styles.header_image} src={header || "/G.Jakaria_Header.jpeg"} />
+          <Image style={styles.header_image} src={header || "/Header.jpeg"} />
         </View>
 
         {isDynamicJson ? (
@@ -757,7 +763,8 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
             {
               border: showBorder ? "1 solid #c0d1e5" : "none",
               width: `${frameWidth}mm`,
-              height: `${frameHeight}mm`,
+              height: "238mm",
+              justifyContent: "space-between",
               marginLeft: `${marginLeft}mm`,
               marginRight: `${marginLeft}mm`,
               marginTop: `${marginTop}mm`,
@@ -886,7 +893,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   <IconClipboard />
                   <Text>Chief Complaints (max 2-3)</Text>
                 </View>
-                <View style={[styles.ortho_content, { minHeight: "15mm" }]}>
+                <View style={[styles.ortho_content, { minHeight: "12mm" }]}>
                   <Text>{cleanTrailingComma(report?.presentingComplaints)}</Text>
                 </View>
               </View>
@@ -895,7 +902,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   <IconHistory />
                   <Text>Medical History</Text>
                 </View>
-                <View style={[styles.ortho_content, { minHeight: "15mm" }]}>
+                <View style={[styles.ortho_content, { minHeight: "12mm" }]}>
                   <Text>{cleanTrailingComma(report?.medicalHistory)}</Text>
                 </View>
               </View>
@@ -908,7 +915,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   <IconStethoscope />
                   <Text>On Examination</Text>
                 </View>
-                <View style={[styles.ortho_content, { minHeight: "22mm" }]}>
+                <View style={[styles.ortho_content, { minHeight: "16mm" }]}>
                   <Text>{getClinicalText(report?.clinical_findings)}</Text>
                 </View>
               </View>
@@ -917,7 +924,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   <IconLab />
                   <Text>Laboratory Findings (if available)</Text>
                 </View>
-                <View style={[styles.ortho_content, { minHeight: "22mm" }]}>
+                <View style={[styles.ortho_content, { minHeight: "16mm" }]}>
                   <Text>{cleanTrailingComma(report?.pathologyReport || report?.pathologicalReport || report?.availableReports?.pathology)}</Text>
                 </View>
               </View>
@@ -926,7 +933,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   <IconRadiology />
                   <Text>Radiological Findings (if available)</Text>
                 </View>
-                <View style={[styles.ortho_content, { minHeight: "22mm" }]}>
+                <View style={[styles.ortho_content, { minHeight: "16mm" }]}>
                   <Text>{cleanTrailingComma(report?.radiologyReport || report?.radiologicalReport || report?.availableReports?.radiology)}</Text>
                 </View>
               </View>
@@ -938,13 +945,13 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                 <IconTarget />
                 <Text>Provisional / Working Diagnosis</Text>
               </View>
-              <View style={[styles.ortho_content, { minHeight: "10mm" }]}>
+              <View style={[styles.ortho_content, { minHeight: "9mm" }]}>
                 <Text>{cleanTrailingComma(report?.initialComplain)}</Text>
               </View>
             </View>
 
             {/* ROW 5 (Rx) */}
-            <View style={[styles.ortho_panel, { flex: 1, marginBottom: "1.5mm" }]}>
+            <View style={[styles.ortho_panel, { minHeight: "52mm", flex: 1, marginBottom: "1.5mm" }]}>
               <View style={[styles.ortho_header, { backgroundColor: "#e2ffe2", color: "#166534", justifyContent: "center" }]}>
                 <Text>Rx MEDICATIONS</Text>
               </View>
@@ -957,7 +964,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                 <Text style={[styles.cell_dur, styles.cell_border]}>Duration</Text>
                 <Text style={[styles.cell_dur, { flex: 1 }]}>Instructions</Text>
               </View>
-              {medList.slice(0, 6).map((med, index) => (
+              {medList.slice(0, 8).map((med, index) => (
                 <View key={index} style={styles.table_row}>
                   <Text style={[styles.cell_sn, styles.cell_border_light]}>{index + 1}</Text>
                   <Text style={[styles.cell_med, styles.cell_border_light]}>{med.name || ""}</Text>
@@ -968,7 +975,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   <Text style={[styles.cell_dur, { flex: 1 }]}>{med.instruction || med.instructions || med.notes || ""}</Text>
                 </View>
               ))}
-              {Array.from({ length: Math.max(0, 6 - medList.length) }).map((_, index) => (
+              {Array.from({ length: Math.max(0, 8 - medList.length) }).map((_, index) => (
                 <View key={`empty-${index}`} style={styles.table_row_empty}>
                   <Text style={[styles.cell_sn, styles.cell_border_light]}> </Text>
                   <Text style={[styles.cell_med, styles.cell_border_light]}> </Text>
@@ -988,7 +995,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   <IconSearch />
                   <Text>Further Investigations Required</Text>
                 </View>
-                <View style={[styles.ortho_content, { minHeight: "18mm" }]}>
+                <View style={[styles.ortho_content, { minHeight: "14mm" }]}>
                   {report?.advice?.testAdvice?.length > 0 ? (
                     report.advice.testAdvice.map((t, idx) => (
                       <Text key={idx} style={{ fontSize: "7.5pt", color: "#333", marginBottom: "1mm" }}>- {t.testName}</Text>
@@ -1001,7 +1008,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   <IconAdvice />
                   <Text>Advice</Text>
                 </View>
-                <View style={[styles.ortho_content, { minHeight: "18mm" }]}>
+                <View style={[styles.ortho_content, { minHeight: "14mm" }]}>
                   <Text>{report?.additionalAdvice}</Text>
                 </View>
               </View>
@@ -1355,17 +1362,6 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
         <View style={[styles.footer_section, { maxHeight: `${footerHeight}mm` }]} fixed>
           <Image style={styles.footer_image} src={footer || "/G.Jakaria_footer1.png"} />
         </View>
-
-        {/* Template label at bottom if Template 1, 2, or 3 */}
-        {isTemplate1 && (
-          <Text style={styles.bottom_label}>Template 1: Right-side margin layout</Text>
-        )}
-        {isTemplate2 && (
-          <Text style={styles.bottom_label}>Template 2: Left-side margin layout</Text>
-        )}
-        {isTemplate3 && (
-          <Text style={styles.bottom_label}>Template 3: Orthopedic Layout</Text>
-        )}
       </Page>
     </Document>
   );

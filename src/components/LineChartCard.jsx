@@ -22,13 +22,13 @@ const LineChartCard = ({ data, title }) => {
     );
   }
 
-  const chartHeight = 180;
-  const paddingLeft = 55;
-  const paddingRight = 35;
-  const paddingTop = 35;
-  const paddingBottom = 40;
+  const chartHeight = 150;
+  const paddingLeft = 45;
+  const paddingRight = 25;
+  const paddingTop = 28;
+  const paddingBottom = 42;
   const availableHeight = chartHeight - paddingTop - paddingBottom;
-  const chartWidth = Math.max(250, data.length * 50);
+  const chartWidth = Math.max(280, data.length * 50);
 
   const maxVal = Math.max(...data.map(d => Number(d.value) || 0), 100);
   const pointGap = data.length > 1 ? (chartWidth - paddingLeft - paddingRight) / (data.length - 1) : 0;
@@ -44,14 +44,14 @@ const LineChartCard = ({ data, title }) => {
 
   return (
     <div className="chart-card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
-        <h3>{title}</h3>
-        <span style={{ fontSize: '11px', color: '#6b7280' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+        <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 700, color: '#1f2937' }}>{title}</h3>
+        <span style={{ fontSize: '11px', color: '#475569', fontWeight: '600', backgroundColor: '#f1f5f9', padding: '2px 8px', borderRadius: '4px' }}>
           Total: <CountUp end={data.reduce((s, it) => s + (Number(it.value) || 0), 0)} separator="," prefix="₹" duration={2} />
         </span>
       </div>
       <div className="line-chart-container" style={{ overflowX: 'auto' }}>
-        <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} width="100%" height={chartHeight} style={{ minWidth: `${chartWidth}px` }}>
+        <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} width="100%" height={chartHeight} style={{ minWidth: `${chartWidth}px`, maxHeight: `${chartHeight}px`, display: 'block' }}>
           <defs>
             <linearGradient id="lineAreaGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
@@ -115,12 +115,12 @@ const LineChartCard = ({ data, title }) => {
                 {/* X axis period label */}
                 <text
                   x={pt.x}
-                  y={chartHeight - paddingBottom + 20}
+                  y={chartHeight - paddingBottom + 12}
                   textAnchor="end"
                   className="axis-label"
                   fill="#6b7280"
                   fontSize="10px"
-                  transform={`rotate(-45 ${pt.x} ${chartHeight - paddingBottom + 20})`}
+                  transform={`rotate(-45 ${pt.x} ${chartHeight - paddingBottom + 12})`}
                 >
                   {pt.name && pt.name.length === 10 ? pt.name.substring(5) : pt.name}
                 </text>

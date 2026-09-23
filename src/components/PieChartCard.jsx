@@ -56,38 +56,38 @@ const PieChartCard = ({ data, title }) => {
 
   return (
     <div className="chart-card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
-        <h3>{title}</h3>
-        <span style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+        <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 700, color: '#1f2937' }}>{title}</h3>
+        <span style={{ fontSize: '11px', color: '#475569', fontWeight: '600', backgroundColor: '#f1f5f9', padding: '2px 8px', borderRadius: '4px' }}>
           Total: <CountUp end={total} separator="," prefix="₹" duration={2} />
         </span>
       </div>
       <div className="pie-chart-container">
-        <svg viewBox="0 0 100 100" width="160" height="160">
+        <svg viewBox="0 0 100 100" width="115" height="115" style={{ flexShrink: 0 }}>
           {total > 0 ? (
             slices
           ) : (
             <circle cx="50" cy="50" r="40" fill="#e5e7eb" />
           )}
         </svg>
-        <div className="legend" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div className="legend" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
           {data.map((item, index) => {
             const val = Number(item.value) || 0;
             const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
             return (
-              <div key={item.name} className="legend-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div key={item.name} className="legend-item" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <div
                   className="color-box"
                   style={{
                     backgroundColor: COLORS[index % COLORS.length],
-                    width: '12px',
-                    height: '12px',
-                    borderRadius: '3px',
+                    width: '10px',
+                    height: '10px',
+                    borderRadius: '2px',
                     flexShrink: 0
                   }}
                 ></div>
-                <div style={{ fontSize: '12px', lineHeight: 1.2 }}>
-                  <strong>{item.name}:</strong> <CountUp end={val} separator="," prefix="₹" duration={2} /> <span style={{ color: '#6b7280', fontSize: '11px' }}>({pct}%)</span>
+                <div style={{ fontSize: '11px', lineHeight: 1.2 }}>
+                  <strong>{item.name}:</strong> <CountUp end={val} separator="," prefix="₹" duration={2} /> <span style={{ color: '#6b7280', fontSize: '10px' }}>({pct}%)</span>
                 </div>
               </div>
             );
