@@ -1237,7 +1237,17 @@ const Appointment = () => {
                       <FaHeartPulse className="section-icon pulse-color" />
                       <span>Patient Vitals & Triage</span>
                     </div>
-                    <span className="section-optional-badge">Optional</span>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      <button
+                        type="button"
+                        style={{ padding: "4px 8px", fontSize: "12px", background: "#e0e7ff", color: "#4f46e5", border: "none", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
+                        onClick={() => setDiagnosys(d => ({ ...d, BP: "120/80", PR: "75", SPO2: "98", Temp: "98.6" }))}
+                        title="Auto-populate normal vitals"
+                      >
+                        <FaNotesMedical /> Quick Fill Normal
+                      </button>
+                      <span className="section-optional-badge">Optional</span>
+                    </div>
                   </div>
 
                   <div className="vitals-modern-grid">

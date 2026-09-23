@@ -602,21 +602,7 @@ const Dashboard = () => {
   ]);
 
   const prescibeFilterChange = (event) => {
-    // const { name, value } = event.target;
-    // setFilterPrescibed((prev) => ({ ...prev, [name]: value }));
-    setFilterPrescibed(event.target.value);
-    // if (filterPrescibed === "Prescribed") {
-    //   if (appointment.status == "Completed") {
-    //     // return "Prescribed";
-    //     return console.log("data prescribed");
-    //   }
-    // } else if (filterPrescibed === "Unprescribed") {
-    //   // return "Unprescribed";
-    //   return console.log("data not prescribed");
-    // } else if (filterPrescibed === "All") {
-    //   // return "All";
-    //   return console.log("All");
-    // }
+    setfilterPrescibed(event.target.value);
   };
 
   if (!isAuthenticated) {
