@@ -22,13 +22,13 @@ const LineChartCard = ({ data, title }) => {
     );
   }
 
-  const chartHeight = 180;
+  const chartHeight = 190;
   const paddingLeft = 55;
   const paddingRight = 35;
-  const paddingTop = 35;
-  const paddingBottom = 40;
+  const paddingTop = 32;
+  const paddingBottom = 38;
   const availableHeight = chartHeight - paddingTop - paddingBottom;
-  const chartWidth = Math.max(250, data.length * 50);
+  const chartWidth = Math.max(380, data.length * 55);
 
   const maxVal = Math.max(...data.map(d => Number(d.value) || 0), 100);
   const pointGap = data.length > 1 ? (chartWidth - paddingLeft - paddingRight) / (data.length - 1) : 0;

@@ -51,12 +51,15 @@ const InvoiceViewer = ({ invoiceId, isOpen, onClose }) => {
         {invoice ? (
           <div>
             <div style={{ marginBottom: 8 }}>
-              <b>Patient:</b> {invoice.patient ? `${invoice.patient.firstName || ''} ${invoice.patient.lastName || ''}` : '-'}
+              <b>Patient:</b> {invoice.patient ? `${invoice.patient.firstName || invoice.patient.name || ''} ${invoice.patient.lastName || ''}`.trim() : (invoice.appointment?.name || 'Patient')}
               <div style={{ color: '#666', fontSize: 14 }}>
-                {invoice.patient?.age ? `Age: ${invoice.patient.age}` : ''}
-                {invoice.patient?.gender ? `, Gender: ${invoice.patient.gender}` : ''}
-                {invoice.patient?.phone ? `, Phone: ${invoice.patient.phone}` : ''}
+                {invoice.patient?.age ? `Age: ${invoice.patient.age}` : (invoice.appointment?.age ? `Age: ${invoice.appointment.age}` : '')}
+                {invoice.patient?.gender ? `, Gender: ${invoice.patient.gender}` : (invoice.appointment?.gender ? `, Gender: ${invoice.appointment.gender}` : '')}
+                {invoice.patient?.phone ? `, Phone: ${invoice.patient.phone}` : (invoice.appointment?.phone ? `, Phone: ${invoice.appointment.phone}` : '')}
               </div>
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <b>Doctor:</b> {invoice.doctor ? `Dr. ${invoice.doctor.firstName || invoice.doctor.name || ''} ${invoice.doctor.lastName || ''}`.trim() : (invoice.appointment?.doctor?.firstName ? `Dr. ${invoice.appointment.doctor.firstName} ${invoice.appointment.doctor.lastName || ''}`.trim() : '-')}
             </div>
             <div style={{ marginBottom: 8 }}><b>Date:</b> {invoice.issuedAt ? new Date(invoice.issuedAt).toLocaleDateString() : (invoice.date ? new Date(invoice.date).toLocaleDateString() : '-')}</div>
             <div style={{ marginBottom: 8 }}><b>Status:</b> <span className={invoice.status === 'Paid' ? 'badge-status badge-paid' : invoice.status === 'Partial' ? 'badge-status badge-partial' : invoice.status === 'Cancelled' ? 'badge-status badge-cancelled' : 'badge-status badge-unpaid'}>{invoice.status || '-'}</span></div>

@@ -41,12 +41,12 @@ import { change } from "../store/diagnosisSlice";
 import { changeSdisease } from "../store/diseaseSlice";
 
 // Clean, single-component Prescription (5-step slider)
-const Prescription = ({ patientId, onClose }) => {
+const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) => {
   const snackbar = useSnackbar();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
-  const [appointmentId, setAppointmentId] = useState("");
+  const [appointmentId, setAppointmentId] = useState(propAppointmentId || "");
   const [nic, setNic] = useState("");
   const [name, setName] = useState("");
   const [gender, setGender] = useState("");
@@ -393,10 +393,17 @@ const Prescription = ({ patientId, onClose }) => {
         );
         const appointments = data.appointments || [];
         if (!appointments.length) return setLoading(false);
-        appointments.sort(
-          (a, b) => new Date(b.updatedAt || b.createdAt || b.appointment_date) - new Date(a.updatedAt || a.createdAt || a.appointment_date)
-        );
-        const latest = appointments[0];
+        let selectedAppt = null;
+        if (propAppointmentId) {
+          selectedAppt = appointments.find((a) => String(a._id) === String(propAppointmentId));
+        }
+        if (!selectedAppt) {
+          appointments.sort(
+            (a, b) => new Date(b.updatedAt || b.createdAt || b.appointment_date) - new Date(a.updatedAt || a.createdAt || a.appointment_date)
+          );
+          selectedAppt = appointments[0];
+        }
+        const latest = selectedAppt;
         setAppointmentId(latest._id);
         setAppointmentType(latest.appointmentType || latest.type || "OPD");
         setNic(latest.nic || "");

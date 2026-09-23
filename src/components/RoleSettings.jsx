@@ -25,6 +25,13 @@ import "./RoleSettings.css";
 
 const ROLE_OPTIONS = ["Admin", "Doctor", "Compounder", "Patient"];
 
+const resolveAvatarUrl = (img) => {
+  if (!img) return null;
+  if (img.startsWith("http://") || img.startsWith("https://") || img.startsWith("data:")) return img;
+  const base = api.defaults.baseURL || (typeof window !== "undefined" ? window.location.origin : "");
+  return `${base.replace(/\/+$/, "")}/${img.replace(/^\/+/, "")}`;
+};
+
 // Change Password Modal
 const ChangePasswordModal = ({ isOpen, userId, userName, onClose, onSuccess }) => {
   const snackbar = useSnackbar();
@@ -138,7 +145,7 @@ const UserDetailsModal = ({
   if (!user) return null;
 
   const initials = `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase() || "U";
-  const avatarUrl = user.docAvatar ? `http://localhost:5000${user.docAvatar}` : null;
+  const avatarUrl = resolveAvatarUrl(user.docAvatar);
   const roleClass = (user.role || "").toLowerCase();
 
   return (
@@ -842,9 +849,7 @@ const RoleSettings = () => {
                   currentPageData.map((u) => {
                     const isSelected = selectedIds.has(u._id);
                     const initials = `${u.firstName?.[0] || ""}${u.lastName?.[0] || ""}`.toUpperCase() || "U";
-                    const avatarUrl = u.docAvatar
-                      ? `http://localhost:5000${u.docAvatar}`
-                      : null;
+                    const avatarUrl = resolveAvatarUrl(u.docAvatar);
                     const roleClass = (u.role || "").toLowerCase();
 
                     return (

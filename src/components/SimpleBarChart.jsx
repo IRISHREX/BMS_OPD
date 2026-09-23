@@ -27,16 +27,16 @@ const SimpleBarChart = ({ data }) => {
   const maxDue = Math.max(...data.map(d => Number(d.due || d.totalDue || 0)));
   const maxVal = Math.max(maxRevenue, maxDue, 100);
 
-  const chartHeight = 200;
-  const paddingLeft = 60;
-  const paddingRight = 30;
-  const paddingTop = 40;
-  const paddingBottom = 45;
+  const chartHeight = 220;
+  const paddingLeft = 65;
+  const paddingRight = 35;
+  const paddingTop = 48;
+  const paddingBottom = 48;
   const availableHeight = chartHeight - paddingTop - paddingBottom;
 
-  const barWidth = Math.min(34, Math.max(16, Math.floor(400 / (data.length * 2 + 1))));
-  const groupMargin = Math.min(28, Math.max(12, Math.floor(200 / (data.length + 1))));
-  const chartWidth = Math.max(250, data.length * (barWidth * 2 + groupMargin) + paddingLeft + paddingRight);
+  const barWidth = Math.min(32, Math.max(16, Math.floor(500 / (data.length * 2 + 1))));
+  const groupMargin = Math.min(32, Math.max(14, Math.floor(300 / (data.length + 1))));
+  const chartWidth = Math.max(600, data.length * (barWidth * 2 + groupMargin) + paddingLeft + paddingRight + 20);
 
   // Y-axis grid ticks (0, 50%, 100%)
   const yTicks = [

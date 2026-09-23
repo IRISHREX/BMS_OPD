@@ -1,32 +1,56 @@
 .chart-card {
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-  margin-bottom: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  padding: 1.15rem 1.25rem;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
   background-image: 
-    linear-gradient(to right, rgba(9, 109, 217, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(9, 109, 217, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(9, 109, 217, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(9, 109, 217, 0.03) 1px, transparent 1px);
   background-size: 15px 15px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.chart-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .chart-card h3 {
-  margin-top: 0;
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.chart-card .no-data {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.9rem;
 }
 
 .pie-chart-container {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
+  gap: 1rem;
+  flex: 1;
+  padding: 0.5rem 0;
 }
 
 .line-chart-container {
   width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
 }
 
 .axis-label {
   font-size: 0.75rem;
-  fill: #777;
+  fill: #64748b;
 }
