@@ -61,8 +61,42 @@ function* fetchPreviewSaga(action) {
         );
         targetAppt = appts[0];
       }
-
+      
       const latest = targetAppt;
+      let prescriptionReport = latest.result || [];
+      let presList = [];
+      try {
+        const { data: presRes } = yield call(api.get, `/api/v1/prescription/patient/${patientId}`);
+        presList = presRes?.prescriptions || [];
+        if (presList.length > 0) {
+           const lp = presList[0];
+           prescriptionReport = [{
+             initialComplain: typeof lp.provisionalDiagnosis === 'object' ? (lp.provisionalDiagnosis?.value || '') : (lp.provisionalDiagnosis || ''),
+             medicalHistory: lp.medicalHistory || '',
+             clinical_findings: lp.clinicalFindings || {},
+             diagnosys: lp.vitals || lp.diagnosys || {},
+             diagnosys_heading: lp.diagnosys_heading || 'Provisional Diagnosis',
+             medicineAdvice: lp.medicines || lp.medicineAdvice || [],
+             advice: lp.advice || {},
+             additionalAdvice: lp.additionalAdvice || '',
+             followUp: lp.followUp || '',
+             presentingComplaints: lp.presentingComplaints || '',
+             pathologyReport: lp.pathologyReport || '',
+             radiologyReport: lp.radiologyReport || '',
+             femaleTests: lp.femaleTests,
+             Gravida: lp.femaleTests?.Gravida || lp.gravida || '',
+             Parity: lp.femaleTests?.Parity || lp.parity || '',
+             LMP: lp.femaleTests?.LMP || lp.LMP || '',
+             EDD: lp.femaleTests?.EDD || lp.EDD || '',
+             POG: lp.femaleTests?.POG || lp.POG || '',
+             LCB: lp.femaleTests?.LCB || lp.LCB || '',
+             MOD: lp.femaleTests?.MOD || lp.MOD || '',
+           }];
+        }
+      } catch (e) {
+        console.warn("Failed to fetch prescription", e);
+      }
+
       patient = {
         _id: latest.patientId || patientId,
         firstName: latest.firstName || latest.patientName || '',
@@ -75,8 +109,8 @@ function* fetchPreviewSaga(action) {
         age: latest.age || null,
         gender: latest.gender || '',
         updatedAt: latest.updatedAt || latest.appointment_date,
-        weight: latest.result && latest.result[0] && latest.result[0].diagnosys ? latest.result[0].diagnosys.Weight : latest.weight,
-        report: latest.result || [],
+        weight: prescriptionReport[0] && prescriptionReport[0].diagnosys ? prescriptionReport[0].diagnosys.Weight : latest.weight,
+        report: prescriptionReport,
         appointmentId: latest._id,
         appointment_date: latest.appointment_date,
         appointmentType: latest.appointmentType || latest.type || 'OPD',
@@ -87,11 +121,15 @@ function* fetchPreviewSaga(action) {
         price: latest.price || 0,
         paymentStatus: latest.paymentStatus || '',
       };
-      if (latest.doctorId) {
+
+      const docRef = latest.doctorId || (presList[0] && presList[0].doctorId);
+      if (docRef) {
         try {
-          const docId = typeof latest.doctorId === 'object' ? (latest.doctorId._id || latest.doctorId.id) : latest.doctorId;
-          const { data: dd } = yield call(api.get, `/api/v1/user/doctor/${docId}`);
-          if (dd && dd.doctor) doctor = dd.doctor;
+          const docId = typeof docRef === 'object' ? (docRef._id || docRef.id) : docRef;
+          if (docId) {
+            const { data: dd } = yield call(api.get, `/api/v1/user/doctor/${docId}`);
+            if (dd && dd.doctor) doctor = dd.doctor;
+          }
         } catch (e) {
           if (typeof latest.doctorId === 'object' && latest.doctorId._id) {
             doctor = latest.doctorId;

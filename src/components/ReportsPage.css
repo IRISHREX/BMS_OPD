@@ -205,12 +205,21 @@
   font-weight: 700;
 }
 
-/* Charts */
+/* Charts - Harmonious 2-tier layout */
 .charts-container {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 1rem;
-  margin: 1rem 0px;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 1.25rem;
+  margin: 1.25rem 0px;
+}
+
+.charts-container > .simple-bar-card {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.charts-container > .chart-card:not(.simple-bar-card) {
+  min-height: 270px;
 }
 
 /* View Switcher Segmented Control */
@@ -505,7 +514,7 @@ tbody tr:hover {
 /* Responsive Media Queries */
 @media (max-width: 900px) {
   .charts-container {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
   .reports-page .reports-cards {
     grid-template-columns: repeat(2, 1fr);

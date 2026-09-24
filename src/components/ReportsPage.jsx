@@ -5,7 +5,7 @@ import api from "../utils/api";
 import "./ReportsPage.css";
 import ReportRow from "./ReportRow";
 import "./InvoiceEditor.css";
-import { FaEye, FaSearch, FaTimes } from "react-icons/fa";
+import { FaEye, FaSearch, FaTimes, FaFileMedical } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
 import SimpleBarChart from "./SimpleBarChart";
@@ -876,6 +876,22 @@ const ReportsPage = () => {
                       </td>
                       <td>
                         <div className="reports-actions-cell">
+                          {/* Download Prescription PDF button */}
+                          <button
+                            ref={setupClickSound}
+                            className="reports-btn-action view"
+                            title="Download Prescription PDF"
+                            onClick={() => {
+                              const pid = r.patientId?._id || r.patientId || r.appointmentId?.patientId?._id || r.appointmentId?.patientId;
+                              const apptId = r.appointmentId?._id || r.appointmentId || "";
+                              if (pid) {
+                                window.open(`/preview/${pid}?appointmentId=${apptId}`, '_blank');
+                              }
+                            }}
+                            style={{ background: "var(--accent, #1a9e9b)", color: "#fff", border: "none" }}
+                          >
+                            <FaFileMedical />
+                          </button>
                           {/* Download Invoice button */}
                           <button
                             ref={setupClickSound}

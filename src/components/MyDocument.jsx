@@ -82,8 +82,11 @@ const formatDate = (date) =>
 
 const cleanTrailingComma = (val) => {
   if (!val) return "";
-  if (Array.isArray(val)) return val.join(", ");
-  if (typeof val === "object") return JSON.stringify(val);
+  if (Array.isArray(val)) return val.filter(Boolean).join(", ");
+  if (typeof val === "object") {
+    if (val.value !== undefined) return cleanTrailingComma(val.value);
+    return JSON.stringify(val);
+  }
   const trimmed = String(val).trim();
   return trimmed.endsWith(",") ? trimmed.slice(0, -1) : trimmed;
 };
@@ -791,7 +794,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   </View>
                   <View style={styles.ortho_field_row}>
                     <Text style={styles.ortho_label}>UHID / Reg. No.:</Text>
-                    <Text style={styles.ortho_value}>{p_data.appointmentId || p_data.nic || p_data._id}</Text>
+                    <Text style={styles.ortho_value}>{p_data.nic || (p_data._id ? String(p_data._id).slice(-6).toUpperCase() : '')}</Text>
                   </View>
                   <View style={styles.ortho_field_row}>
                     <Text style={styles.ortho_label}>Contact No.:</Text>
@@ -1169,7 +1172,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   </View>
                   <View style={styles.heading_values}>
                     <Text style={styles.heading}>ID:</Text>
-                    <Text>{p_data.appointmentId || p_data.nic || p_data._id}</Text>
+                    <Text>{p_data.nic || (p_data._id ? String(p_data._id).slice(-6).toUpperCase() : '')}</Text>
                   </View>
                 </View>
                 <View style={styles.upper_right}>

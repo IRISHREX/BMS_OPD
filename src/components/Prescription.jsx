@@ -32,6 +32,7 @@ import {
   FaCalendarCheck,
   FaPersonPregnant,
   FaCheck,
+  FaNotesMedical,
 } from "react-icons/fa6";
 import { BsPrinter, BsTrash } from "react-icons/bs";
 import { TbLoader3, TbRefresh } from "react-icons/tb";
@@ -40,12 +41,12 @@ import { change } from "../store/diagnosisSlice";
 import { changeSdisease } from "../store/diseaseSlice";
 
 // Clean, single-component Prescription (5-step slider)
-const Prescription = ({ patientId, onClose }) => {
+const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) => {
   const snackbar = useSnackbar();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
-  const [appointmentId, setAppointmentId] = useState("");
+  const [appointmentId, setAppointmentId] = useState(propAppointmentId || "");
   const [nic, setNic] = useState("");
   const [name, setName] = useState("");
   const [gender, setGender] = useState("");
@@ -392,10 +393,17 @@ const Prescription = ({ patientId, onClose }) => {
         );
         const appointments = data.appointments || [];
         if (!appointments.length) return setLoading(false);
-        appointments.sort(
-          (a, b) => new Date(b.updatedAt || b.createdAt || b.appointment_date) - new Date(a.updatedAt || a.createdAt || a.appointment_date)
-        );
-        const latest = appointments[0];
+        let selectedAppt = null;
+        if (propAppointmentId) {
+          selectedAppt = appointments.find((a) => String(a._id) === String(propAppointmentId));
+        }
+        if (!selectedAppt) {
+          appointments.sort(
+            (a, b) => new Date(b.updatedAt || b.createdAt || b.appointment_date) - new Date(a.updatedAt || a.createdAt || a.appointment_date)
+          );
+          selectedAppt = appointments[0];
+        }
+        const latest = selectedAppt;
         setAppointmentId(latest._id);
         setAppointmentType(latest.appointmentType || latest.type || "OPD");
         setNic(latest.nic || "");
@@ -403,12 +411,35 @@ const Prescription = ({ patientId, onClose }) => {
         setGender(latest.gender || "");
         setAge(latest.age || "");
         setBookedBy(latest.bookedBy || "");
-        setComplaints(latest.result[0]?.presentingComplaints || "");
-        setDoctorId(latest.doctorId || "");
-        if (latest.result && latest.result.length) {
-          const r = latest.result[0];
-          // setInitialComplain(r.initialComplain || "");
-          dispatch(change(r.initialComplain || ""));
+        const docIdVal = latest.doctorId?._id || (typeof latest.doctorId === "string" ? latest.doctorId : "");
+        setDoctorId(docIdVal);
+
+        // Now try to fetch the latest prescription
+        let r = null;
+        try {
+          const presRes = await api.get(`/api/v1/prescription/patient/${patientId}`);
+          const presList = presRes.data.prescriptions || [];
+          if (presList.length > 0) {
+            r = presList[0];
+            if (!docIdVal && r.doctorId) {
+              setDoctorId(r.doctorId?._id || (typeof r.doctorId === "string" ? r.doctorId : ""));
+            }
+          }
+        } catch (err) {
+          console.log("Failed to fetch prescription", err);
+        }
+
+        // Fallback to appointment result if no prescription found
+        if (!r && latest.result && latest.result.length) {
+          r = latest.result[0];
+        }
+
+        if (r) {
+          setComplaints(r.presentingComplaints || "");
+          const diagVal = typeof r.provisionalDiagnosis === "object"
+            ? (r.provisionalDiagnosis?.value || "")
+            : (r.provisionalDiagnosis || r.initialComplain || "");
+          dispatch(change(diagVal));
           setMedicalHistory(r.medicalHistory || "");
           setPathologyReport(
             r.pathologyReport ||
@@ -422,29 +453,33 @@ const Prescription = ({ patientId, onClose }) => {
             r.availableReports?.radiology ||
             ""
           );
-          setClinical_findings(
-            r.clinical_findings || {
-              patientCondition: {
-                c1: "",
-                c2: "",
-                c3: "",
-                c4: "",
-              },
-              polar: "",
-              icterus: "",
-              edema: "",
-              cyanosis: "",
-              clubbing: "",
-              lymph_nodes: "",
-              chest: "",
-              cvs: "",
-              per_abdomen: {
-                pt: "",
-                pv: "",
-              },
-              others: "",
-            }
-          );
+          const cf = (typeof r.clinical_findings === 'object' && r.clinical_findings !== null)
+            ? r.clinical_findings
+            : (typeof r.clinicalFindings === 'object' && r.clinicalFindings !== null)
+            ? r.clinicalFindings
+            : null;
+
+          setClinical_findings({
+            patientCondition: {
+              c1: cf?.patientCondition?.c1 || "",
+              c2: cf?.patientCondition?.c2 || "",
+              c3: cf?.patientCondition?.c3 || "",
+              c4: cf?.patientCondition?.c4 || "",
+            },
+            polar: cf?.polar || "",
+            icterus: cf?.icterus || "",
+            edema: cf?.edema || "",
+            cyanosis: cf?.cyanosis || "",
+            clubbing: cf?.clubbing || "",
+            lymph_nodes: cf?.lymph_nodes || "",
+            chest: cf?.chest || "",
+            cvs: cf?.cvs || "",
+            per_abdomen: {
+              pt: cf?.per_abdomen?.pt || "",
+              pv: cf?.per_abdomen?.pv || "",
+            },
+            others: cf?.others || (typeof r.clinicalFindings === 'string' ? r.clinicalFindings : ""),
+          });
           setDiagnosys_heading(r.diagnosys_heading || "Provisional Diagnosis");
           if (r.femaleTests) {
             setGravida(r.femaleTests.Gravida || "");
@@ -477,24 +512,29 @@ const Prescription = ({ patientId, onClose }) => {
           }
           setAdditionalAdvice(r.additionalAdvice || "");
           setFollowUp(r.followUp);
-          setDiagnosys(
-            r.diagnosys || {
-              BP: "",
-              PR: "",
-              SPO2: "",
-              Temp: "",
-              Height: "",
-              Weight: "",
-              BMI: "",
-              Others: "",
-            }
-          );
+          const vitalsObj = r.vitals || r.diagnosys || {};
+          setDiagnosys({
+            BP: vitalsObj.BP || "",
+            PR: vitalsObj.PR || "",
+            SPO2: vitalsObj.SPO2 || "",
+            Temp: vitalsObj.Temp || "",
+            Height: vitalsObj.Height || "",
+            Weight: vitalsObj.Weight || "",
+            BMI: vitalsObj.BMI || "",
+            Others: vitalsObj.Others || "",
+          });
+          const rawMeds = Array.isArray(r.medicineAdvice)
+            ? r.medicineAdvice
+            : r.medicineAdvice
+            ? [r.medicineAdvice]
+            : Array.isArray(r.medicines)
+            ? r.medicines
+            : [];
           setMedicineAdvice(
-            Array.isArray(r.medicineAdvice)
-              ? r.medicineAdvice
-              : r.medicineAdvice
-              ? [r.medicineAdvice]
-              : []
+            rawMeds.map((m) => ({
+              ...m,
+              selected: m.selected !== undefined ? m.selected : true,
+            }))
           );
 
           // load structured advice if present (backwards compatible with string)
@@ -533,19 +573,22 @@ const Prescription = ({ patientId, onClose }) => {
             initTests = adv.testAdvice;
           }
 
-          const rawDiag = r.diagnosys || {
-            BP: "",
-            PR: "",
-            SPO2: "",
-            Temp: "",
-            Height: "",
-            Weight: "",
-            BMI: "",
-            Others: "",
+          const vitalsSnap = r.vitals || r.diagnosys || {};
+          const rawDiag = {
+            BP: vitalsSnap.BP || "",
+            PR: vitalsSnap.PR || "",
+            SPO2: vitalsSnap.SPO2 || "",
+            Temp: vitalsSnap.Temp || "",
+            Height: vitalsSnap.Height || "",
+            Weight: vitalsSnap.Weight || "",
+            BMI: vitalsSnap.BMI || "",
+            Others: vitalsSnap.Others || "",
           };
 
           const initSnap = buildNormalizedSnapshot({
-            rDiagnosis: r.initialComplain || "",
+            rDiagnosis: typeof r.provisionalDiagnosis === "object"
+              ? (r.provisionalDiagnosis?.value || "")
+              : (r.provisionalDiagnosis || r.initialComplain || ""),
             complaints: r.presentingComplaints || "",
             medicalHistory: r.medicalHistory || "",
             pathologyReport:
@@ -1195,52 +1238,49 @@ const Prescription = ({ patientId, onClose }) => {
         );
         return;
       }
-      await api.put(`/api/v1/appointment/patient/update/${patientId}`, {
-        followup_date: followUp, // Moved to root level as per schema
-        appointmentType: appointmentType || "OPD",
-        result: [
-          {
-            initialComplain: rDiagnosis,
-            medicalHistory,
-            clinical_findings,
-            diagnosys_heading,
-            pathologyReport,
-            radiologyReport,
-            availableReports: {
-              pathology: pathologyReport,
-              radiology: radiologyReport,
-            },
-            additionalAdvice,
-            followUp,
-            presentingComplaints: complaints,
-            Gravida: gravida,
-            Parity: `${parity.Pa}+${parity.Pb}`,
-            LMP,
-            EDD,
-            POG,
-            LCB,
-            MOD,
-            diagnosys,
-            medicineAdvice: selectedMedicines.map((m) => ({
-              ...m,
-              instruction: m.notes || m.instruction || m.instructions || "",
-              notes: m.notes || m.instruction || m.instructions || "",
-            })),
-            advice: adviceToSave, // Contains selected tests
-          },
-        ],
-        status: "Completed",
+      await api.post(`/api/v1/prescription/save`, {
+        patientId,
         doctorId: doctorId || undefined,
+        appointmentId,
+        medicalHistory,
+        clinicalFindings: clinical_findings,
+        provisionalDiagnosis: rDiagnosis,
+        diagnosys_heading,
+        presentingComplaints: complaints,
+        pathologyReport,
+        radiologyReport,
+        femaleTests: {
+          Gravida: gravida,
+          Parity: `${parity.Pa || ""}+${parity.Pb || ""}`,
+          LMP,
+          EDD,
+          POG,
+          LCB,
+          MOD,
+        },
+        vitals: diagnosys,
+        medicines: selectedMedicines.map((m) => ({
+          ...m,
+          instruction: m.notes || m.instruction || m.instructions || "",
+          notes: m.notes || m.instruction || m.instructions || "",
+        })),
+        advice: adviceToSave,
+        additionalAdvice,
+        followUp,
       });
       if (doctorContact) {
-        const previewUrl = `https://novel.mkinfotrack.com/preview/${patientId}`;
-        await api.post(`/api/v1/message/send`, {
-          firstName: "System",
-          lastName: "Notification",
-          email: doctorContact.includes("@") ? doctorContact : "",
-          phone: doctorContact.includes("@") ? "01234567891" : doctorContact,
-          message: `Prescription completed for patient NIC: ${nic} -\nDownload link: ${previewUrl}`,
-        });
+        try {
+          const previewUrl = `https://novel.mkinfotrack.com/preview/${patientId}`;
+          await api.post(`/api/v1/message/send`, {
+            firstName: "System",
+            lastName: "Notification",
+            email: doctorContact.includes("@") ? doctorContact : "",
+            phone: doctorContact.includes("@") ? "01234567891" : doctorContact,
+            message: `Prescription completed for patient NIC: ${nic} -\nDownload link: ${previewUrl}`,
+          });
+        } catch (msgErr) {
+          console.warn("Failed to send doctor notification message", msgErr);
+        }
       }
       playSaveSound();
       snackbar.success("Prescription saved");
@@ -1553,6 +1593,14 @@ const Prescription = ({ patientId, onClose }) => {
               <span className="card-icon"><FaHeartPulse /></span>
               <h3>Patient Vitals & Biometrics</h3>
             </div>
+            <button
+              type="button"
+              style={{ padding: "4px 8px", fontSize: "12px", background: "#e0e7ff", color: "#4f46e5", border: "none", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
+              onClick={() => setDiagnosys(d => ({ ...d, BP: "120/80", PR: "75", SPO2: "98", Temp: "98.6" }))}
+              title="Auto-populate normal vitals"
+            >
+              <FaNotesMedical /> Quick Fill Normal
+            </button>
           </div>
           <div className="pres-card-body">
             <div className="vitals-grid">
@@ -2882,7 +2930,15 @@ const Prescription = ({ patientId, onClose }) => {
           <div className="pres-card-body">
             <AutoSuggestInput
               value={additionalAdvice}
-              onChange={(e) => setAdditionalAdvice(e.target.value)}
+              onChange={(e) => {
+                const words = e.target.value.trim().split(/\s+/);
+                if (words.length > 100 && words[0] !== "") {
+                  setAdditionalAdvice(words.slice(0, 100).join(" "));
+                  if (snackbar && snackbar.error) snackbar.error("Advice is limited to 100 words.");
+                } else {
+                  setAdditionalAdvice(e.target.value);
+                }
+              }}
               suggestions={adviceSuggestions}
               placeholder="Search or enter care guidelines, dietary restrictions, precautions..."
             />

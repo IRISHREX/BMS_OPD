@@ -83,6 +83,7 @@ const Dashboard = () => {
   const [prescriptionModalOpen, setPrescriptionModalOpen] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [selectedPatientData, setSelectedPatientData] = useState(null);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [activeInvoice, setActiveInvoice] = useState(null);
   const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
@@ -447,11 +448,13 @@ const Dashboard = () => {
     }
   };
 
-  const handlePrescriptionClick = async (patientId) => {
-    setSelectedPatientId(patientId);
+  const handlePrescriptionClick = async (patientId, appointmentId = null) => {
+    const rawPid = patientId?._id || patientId;
+    setSelectedPatientId(rawPid);
+    setSelectedAppointmentId(appointmentId);
     // Fetch patient data
     try {
-      const { data } = await api.get(`/api/v1/user/patient/${patientId}`);
+      const { data } = await api.get(`/api/v1/user/patient/${rawPid}`);
       setSelectedPatientData(data.patient);
       setPrescriptionModalOpen(true);
     } catch (error) {
@@ -464,6 +467,8 @@ const Dashboard = () => {
     setPrescriptionModalOpen(false);
     setSelectedPatientId(null);
     setSelectedPatientData(null);
+    setSelectedAppointmentId(null);
+    fetchAppointments();
   };
 
   const handleRescheduleClick = (appointment) => {
@@ -602,21 +607,7 @@ const Dashboard = () => {
   ]);
 
   const prescibeFilterChange = (event) => {
-    // const { name, value } = event.target;
-    // setFilterPrescibed((prev) => ({ ...prev, [name]: value }));
-    setFilterPrescibed(event.target.value);
-    // if (filterPrescibed === "Prescribed") {
-    //   if (appointment.status == "Completed") {
-    //     // return "Prescribed";
-    //     return console.log("data prescribed");
-    //   }
-    // } else if (filterPrescibed === "Unprescribed") {
-    //   // return "Unprescribed";
-    //   return console.log("data not prescribed");
-    // } else if (filterPrescibed === "All") {
-    //   // return "All";
-    //   return console.log("All");
-    // }
+    setfilterPrescibed(event.target.value);
   };
 
   if (!isAuthenticated) {
@@ -1115,7 +1106,10 @@ const Dashboard = () => {
                           <button
                             className="btn btn-primary prescribe-btn"
                             onClick={() =>
-                              handlePrescriptionClick(appointment.patientId)
+                              handlePrescriptionClick(
+                                appointment.patientId?._id || appointment.patientId,
+                                appointment._id
+                              )
                             }
                           >
                             Prescription
@@ -1257,6 +1251,7 @@ const Dashboard = () => {
             <Prescription
               patientId={selectedPatientId}
               patientData={selectedPatientData}
+              appointmentId={selectedAppointmentId}
               onClose={closePrescriptionModal}
             />
           </Modal>

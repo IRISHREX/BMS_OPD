@@ -14,10 +14,13 @@ const UserCard = ({
   allowAdminActions = true,
 }) => {
   const setupClickSound = useClickSound();
-  // Use the image URL directly from the database (or fallback to default)
-  const avatarUrl = user.docAvatar
-    ? `http://localhost:5000${user.docAvatar}`
-    : "./doc1.jpg";
+  const resolveAvatarUrl = (img) => {
+    if (!img) return "./doc1.jpg";
+    if (img.startsWith("http://") || img.startsWith("https://") || img.startsWith("data:")) return img;
+    const base = import.meta.env.VITE_API_URL || (typeof window !== "undefined" ? window.location.origin : "");
+    return `${base.replace(/\/+$/, "")}/${img.replace(/^\/+/, "")}`;
+  };
+  const avatarUrl = resolveAvatarUrl(user.docAvatar);
 
   return (
     <div

@@ -126,6 +126,28 @@ const InvoiceSettings = () => {
     fetchInvoices({ page: 1 });
   };
 
+  const handleResetFilters = () => {
+    setQuery("");
+    setFilters({
+      patient: "",
+      doctor: "",
+      appointment: "",
+      status: "",
+      start: "",
+      end: "",
+    });
+    setPage(1);
+    fetchInvoices({
+      page: 1,
+      q: "",
+      patient: "",
+      doctor: "",
+      status: "",
+      start: "",
+      end: "",
+    });
+  };
+
   const handleOpenCreateInvoice = () => {
     setEditing(null);
     setForm({
@@ -217,8 +239,9 @@ const InvoiceSettings = () => {
       items,
       tax: inv.tax || 0,
       discount: inv.discount || 0,
-      dueDate: inv.dueDate || "",
+      dueDate: inv.dueDate ? String(inv.dueDate).slice(0, 10) : "",
       status: inv.status || "Unpaid",
+      notes: inv.notes || "",
     });
     setInvoiceModalOpen(true);
   };
@@ -374,10 +397,53 @@ const InvoiceSettings = () => {
             ))}
           </select>
         </div>
+        <div className="filter-box">
+          <select
+            value={filters.status}
+            onChange={(e) =>
+              setFilters((f) => ({ ...f, status: e.target.value }))
+            }
+          >
+            <option value="">All Statuses</option>
+            <option value="Unpaid">Unpaid</option>
+            <option value="Paid">Paid</option>
+            <option value="Partial">Partial</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
         <div className="filter-group">
-          <button className="btn-cls" onClick={handleSearch}>
-            {/* Search */}
-            <IoSearch/>
+          <label>From</label>
+          <input
+            type="date"
+            className="invoice-input"
+            value={filters.start}
+            onChange={(e) =>
+              setFilters((f) => ({ ...f, start: e.target.value }))
+            }
+          />
+        </div>
+        <div className="filter-group">
+          <label>To</label>
+          <input
+            type="date"
+            className="invoice-input"
+            value={filters.end}
+            onChange={(e) =>
+              setFilters((f) => ({ ...f, end: e.target.value }))
+            }
+          />
+        </div>
+        <div className="filter-group" style={{ display: 'flex', gap: '6px' }}>
+          <button className="btn-cls" onClick={handleSearch} title="Search">
+            <IoSearch />
+          </button>
+          <button
+            className="btn-cls secondary"
+            onClick={handleResetFilters}
+            title="Reset filters"
+            style={{ padding: '6px 12px', fontSize: '0.85rem' }}
+          >
+            Reset
           </button>
         </div>
       </div>
@@ -464,6 +530,39 @@ const InvoiceSettings = () => {
           })
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {total > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', padding: '0.5rem 0' }}>
+          <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+            Page {page} of {Math.max(1, Math.ceil(total / limit))} ({total} total records)
+          </span>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              className="btn btn-secondary btn-small"
+              disabled={page <= 1 || loading}
+              onClick={() => {
+                const nextP = Math.max(1, page - 1);
+                setPage(nextP);
+                fetchInvoices({ page: nextP });
+              }}
+            >
+              Previous
+            </button>
+            <button
+              className="btn btn-secondary btn-small"
+              disabled={page * limit >= total || loading}
+              onClick={() => {
+                const nextP = page + 1;
+                setPage(nextP);
+                fetchInvoices({ page: nextP });
+              }}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       {invoiceModalOpen && (
         <div

@@ -97,7 +97,7 @@ const AdvancedSettings = () => {
                 )}
               </div>
               <p>
-                Connected to: <code style={{ fontSize: "0.8rem", color: "#0284c7" }}>https://bms-opd-be.onrender.com</code>
+                Connected to: <code style={{ fontSize: "0.8rem", color: "#0284c7" }}>{api.defaults.baseURL || "https://bms-opd-be.onrender.com"}</code>
               </p>
             </div>
           </div>
