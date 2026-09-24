@@ -3,6 +3,7 @@ import api from '../utils/api';
 import './Settings.css';
 import Modal from 'react-modal';
 import { useSnackbar } from '../context/SnackbarContext';
+import { formatAppointmentId, formatPatientId } from '../utils/idUtils';
 
 const InvoiceViewer = ({ invoiceId, isOpen, onClose }) => {
   const snackbar = useSnackbar();
@@ -52,10 +53,10 @@ const InvoiceViewer = ({ invoiceId, isOpen, onClose }) => {
           <div>
             <div style={{ marginBottom: 8 }}>
               <b>Patient:</b> {invoice.patient ? `${invoice.patient.firstName || invoice.patient.name || ''} ${invoice.patient.lastName || ''}`.trim() : (invoice.appointment?.name || 'Patient')}
-              <div style={{ color: '#666', fontSize: 14 }}>
-                {invoice.patient?.age ? `Age: ${invoice.patient.age}` : (invoice.appointment?.age ? `Age: ${invoice.appointment.age}` : '')}
-                {invoice.patient?.gender ? `, Gender: ${invoice.patient.gender}` : (invoice.appointment?.gender ? `, Gender: ${invoice.appointment.gender}` : '')}
-                {invoice.patient?.phone ? `, Phone: ${invoice.patient.phone}` : (invoice.appointment?.phone ? `, Phone: ${invoice.appointment.phone}` : '')}
+              <div style={{ color: '#666', fontSize: 14, marginTop: 2 }}>
+                {invoice.patient?.nic ? `Reg. No: ${invoice.patient.nic}` : (invoice.patient?._id ? `Reg. No: ${formatPatientId(invoice.patient)}` : '')}
+                {invoice.appointment && ` • Appt: ${formatAppointmentId(invoice.appointment)}`}
+                {invoice.patient?.phone ? ` • Phone: ${invoice.patient.phone}` : (invoice.appointment?.phone ? ` • Phone: ${invoice.appointment.phone}` : '')}
               </div>
             </div>
             <div style={{ marginBottom: 8 }}>

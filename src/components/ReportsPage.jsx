@@ -17,8 +17,10 @@ import Toolbar from "./Toolbar";
 import { useSnackbar } from "../context/SnackbarContext";
 import { BsDownload, BsFileExcel, BsHeartPulse, BsReceiptCutoff, BsBarChartFill, BsCashCoin, BsCardChecklist } from "react-icons/bs";
 import { IoRefresh } from "react-icons/io5";
+import { LuFilterX } from "react-icons/lu";
 import useClickSound from "../hooks/useClickSound";
 import { playSettledSound } from "../utils/soundUtils";
+import { formatAppointmentId, formatPatientId } from "../utils/idUtils";
 
 const fmt = (n) => {
   const v = Number(n) || 0;
@@ -463,19 +465,6 @@ const ReportsPage = () => {
     }
   };
 
-  const onSearchKey = (e) => {
-    if (e.key === "Enter") {
-      setReportPage(1);
-      fetchSummary({ q: searchTerm, page: 1 });
-    }
-  };
-
-  const handleClearSearch = () => {
-    setSearchTerm("");
-    setReportPage(1);
-    fetchSummary({ q: "", page: 1 });
-  };
-
   const downloadCSV = () => {
     if (usePersisted) {
       const rows = [
@@ -566,6 +555,51 @@ const ReportsPage = () => {
     return groups;
   }, [groups, paymentTypeFilter]);
 
+  const handleSearch = () => {
+    setReportPage(1);
+    fetchSummary({ q: searchTerm, page: 1 });
+  };
+
+  const onSearchKey = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setReportPage(1);
+    sessionStorage.removeItem("reports_searchTerm");
+    fetchSummary({ q: "", page: 1 });
+  };
+
+  const handleClearAllFilters = () => {
+    setStart("");
+    setEnd("");
+    const defaultDoc = dashboardUser?.role === "Doctor" ? dashboardUser._id : "";
+    setDoctorId(defaultDoc);
+    setSearchTerm("");
+    setGroupBy("day");
+    setPaymentTypeFilter("all");
+    setPersistedSubTab("all");
+    setReportPage(1);
+    sessionStorage.removeItem("reports_start");
+    sessionStorage.removeItem("reports_end");
+    sessionStorage.removeItem("reports_doctorId");
+    sessionStorage.removeItem("reports_searchTerm");
+    sessionStorage.removeItem("reports_groupBy");
+    sessionStorage.removeItem("reports_persistedSubTab");
+    fetchSummary({
+      start: "",
+      end: "",
+      doctorId: defaultDoc,
+      q: "",
+      page: 1,
+      groupBy: "day",
+    });
+    snackbar.info("Filters reset successfully");
+  };
+
   return (
     <section className="reports-page page">
       <Toolbar>
@@ -651,6 +685,15 @@ const ReportsPage = () => {
               </div>
 
               <div className="reports-actions">
+                <button
+                  ref={setupClickSound}
+                  className="reports-clear-filter-btn"
+                  onClick={handleClearAllFilters}
+                  title="Clear all filters & reset"
+                >
+                  <LuFilterX style={{ fontSize: "0.95rem", color: "#ef4444" }} />
+                  <span>Clear Filters</span>
+                </button>
                 <button
                   ref={setupClickSound}
                   className="reports-action-btn"

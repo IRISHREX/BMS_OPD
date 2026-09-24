@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Svg, Path } from '@react-pdf/renderer';
 import { dobToAge } from "../utils/ageUtils";
+import { formatAppointmentId } from "../utils/idUtils";
 import DynamicTemplate from "./DynamicTemplate";
 import api from "../utils/api";
 
@@ -537,6 +538,15 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
   const isEmergency = rawApptType === "emergency";
   const isOpd = !isFollowUp && !isEmergency; // Defaults to OPD
 
+  const appointmentIdValue = formatAppointmentId(
+    p_data.appointmentId ||
+    report?.appointmentId?._id ||
+    report?.appointmentId ||
+    p_data.appointment?._id ||
+    p_data.appointment ||
+    p_data._id
+  );
+
   const headerHeight = Number(activeTemplate?.headerHeight) || 38;
   const footerHeight = Number(activeTemplate?.footerHeight) || 14;
   const doctorFullName = dr_data ? `Dr. ${dr_data.firstName || ""} ${dr_data.lastName || ""}`.trim() : "";
@@ -828,8 +838,8 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                     <Text style={styles.ortho_value}>{p_data.dob ? dobToAge(p_data.dob) : p_data.age ? `${p_data.age} yrs` : ""} / {p_data.gender}</Text>
                   </View>
                   <View style={styles.ortho_field_row}>
-                    <Text style={styles.ortho_label}>UHID / Reg. No.:</Text>
-                    <Text style={styles.ortho_value}>{p_data.nic || (p_data._id ? String(p_data._id).slice(-6).toUpperCase() : '')}</Text>
+                    <Text style={styles.ortho_label}>Reg. No:</Text>
+                    <Text style={styles.ortho_value}>{appointmentIdValue}</Text>
                   </View>
                   <View style={styles.ortho_field_row}>
                     <Text style={styles.ortho_label}>Contact No.:</Text>
@@ -1116,8 +1126,8 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                   {(p_data.address || report?.address) && <Text>, {p_data.address || report?.address}</Text>}
                 </View>
                 <View style={styles.heading_values}>
-                  <Text style={styles.heading}>ID:</Text>
-                  <Text>{p_data.appointmentId || p_data.nic || p_data._id}</Text>
+                  <Text style={styles.heading}>Reg. No:</Text>
+                  <Text>{appointmentIdValue}</Text>
                 </View>
               </View>
               <View style={styles.upper_right}>
@@ -1206,8 +1216,8 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                     {(p_data.address || report?.address) && <Text>, {p_data.address || report?.address}</Text>}
                   </View>
                   <View style={styles.heading_values}>
-                    <Text style={styles.heading}>ID:</Text>
-                    <Text>{p_data.nic || (p_data._id ? String(p_data._id).slice(-6).toUpperCase() : '')}</Text>
+                    <Text style={styles.heading}>Reg. No:</Text>
+                    <Text>{appointmentIdValue}</Text>
                   </View>
                 </View>
                 <View style={styles.upper_right}>

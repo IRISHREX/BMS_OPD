@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "../context/SnackbarContext";
 import { playSaveSound } from "../utils/soundUtils";
 import "./Prescription.css";
+import { formatAppointmentId, formatPatientId } from "../utils/idUtils";
 import { addMedicineRequest } from "../store/medicineSlice";
 import {
   IoIosClose,
@@ -1456,8 +1457,13 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
                 {gender || "Patient"} • {age ? `${age} yrs` : "N/A"}
               </span>
               <span className="patient-meta-chip">
-                ID: #{nic || (patientId ? patientId.slice(-6).toUpperCase() : "OPD")}
+                Reg. No: {nic || formatPatientId(patientId)}
               </span>
+              {appointmentId && (
+                <span className="patient-meta-chip">
+                  Appt: {formatAppointmentId(appointmentId)}
+                </span>
+              )}
               <span className="patient-meta-chip">
                 Date: {todayStr}
               </span>

@@ -211,18 +211,44 @@ const Dashboard = () => {
         if (!isVisible(a)) return;
         const d = new Date(a.appointment_date);
         const ymd = d.toLocaleDateString("en-CA");
-        const price = Number(a.price || a.feesAmount || a.amount || 0) || 0;
         const isPaid = String(a.paymentStatus || "").toLowerCase() === "paid";
         const isRefund = String(a.paymentStatus || "").toLowerCase() === "refund";
 
+        let apptPaid = 0;
+        let apptDue = 0;
+        if (Array.isArray(a.invoices) && a.invoices.length > 0) {
+          a.invoices.forEach((inv) => {
+            if (inv && typeof inv === "object") {
+              const invPaid = (inv.payments || []).reduce(
+                (sum, p) => sum + (Number(p.amount) || 0),
+                0,
+              );
+              const invTotal = Number(inv.total || inv.subtotal || 0);
+              apptPaid += invPaid;
+              apptDue += Math.max(0, invTotal - invPaid);
+            }
+          });
+        } else {
+          const price = Number(a.price || a.feesAmount || a.amount || 0) || 0;
+          if (isPaid) apptPaid += price;
+          else if (!isRefund) apptDue += price;
+        }
+
+        const patientKey = a.patientId
+          ? (typeof a.patientId === "object"
+              ? String(a.patientId._id || a.patientId.id)
+              : String(a.patientId))
+          : (a.phone
+              ? `phone:${String(a.phone).trim()}`
+              : (a.name
+                  ? `name:${String(a.name).trim().toLowerCase()}`
+                  : String(a._id)));
+
         if (ymd === todayYmd) {
           apptsTodayCount++;
-          if (a.patientId) patientsToday.add(String(a.patientId));
-          if (isPaid) {
-            paidToday += price;
-          } else if (!isRefund) {
-            dueToday += price;
-          }
+          if (patientKey) patientsToday.add(patientKey);
+          paidToday += apptPaid;
+          dueToday += apptDue;
           if (a.status === "Pending" || a.status === "Accepted") {
             pendingActionCount++;
           }
@@ -230,28 +256,35 @@ const Dashboard = () => {
 
         if (d >= monthStart && d <= monthEnd) {
           apptsMonthCount++;
-          if (a.patientId) patientsMonth.add(String(a.patientId));
-          if (isPaid) {
-            paidMonth += price;
-          } else if (!isRefund) {
-            dueMonth += price;
-          }
+          if (patientKey) patientsMonth.add(patientKey);
+          paidMonth += apptPaid;
+          dueMonth += apptDue;
         }
       } catch (e) { }
     });
 
+    const todayPeriod = `${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const todayGroup = (dashboardGroups || []).find(
+      (g) => g.period === todayPeriod || (g.period && g.period.endsWith(todayPeriod))
+    );
+
+    const finalPaidToday = todayGroup !== undefined ? Number(todayGroup.revenue || 0) : paidToday;
+    const finalDueToday = todayGroup !== undefined ? Number(todayGroup.due || 0) : dueToday;
+    const finalPaidMonth = dashboardTotals?.paid !== undefined && dashboardTotals.paid > 0 ? Number(dashboardTotals.paid) : paidMonth;
+    const finalTotalDue = dashboardTotals?.due !== undefined ? Number(dashboardTotals.due) : dueMonth;
+
     return {
       patientsViewedToday: patientsToday.size,
       apptsTodayCount,
-      paidToday,
-      dueToday,
+      paidToday: finalPaidToday,
+      dueToday: finalDueToday,
       patientsThisMonth: patientsMonth.size,
       apptsMonthCount,
-      paidThisMonth: paidMonth,
-      dueThisMonth: dueMonth,
+      paidThisMonth: finalPaidMonth,
+      dueThisMonth: finalTotalDue,
       pendingActionCount,
     };
-  }, [appointments, admin]);
+  }, [appointments, admin, dashboardGroups, dashboardTotals]);
 
   const handleUpdatePaymentStatus = async (appointmentId, paymentStatus) => {
     try {

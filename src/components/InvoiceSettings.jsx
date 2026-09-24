@@ -16,6 +16,11 @@ import "./Settings.css";
 import { MdOutlineEdit } from "react-icons/md";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { IoSearch, IoClose } from "react-icons/io5";
+import {
+  formatAppointmentId,
+  formatPatientId,
+  formatPatientDisplayName,
+} from "../utils/idUtils";
 
 
 const InvoiceSettings = () => {
@@ -169,9 +174,12 @@ const InvoiceSettings = () => {
     try {
       const payload = {
         ...form,
+        patient: form.patientRawId || form.patient,
         tax: Number(form.tax || 0),
         discount: Number(form.discount || 0),
       };
+      delete payload.patientRawId;
+      delete payload.patientRegNo;
       const computedSubtotal = (payload.items || []).reduce(
         (s, it) =>
           s +
@@ -231,9 +239,17 @@ const InvoiceSettings = () => {
       ),
       _id: it._id || String(Math.random()).slice(2),
     }));
+    
+    // Resolve patient display (Name / NIC)
+    const patientName = inv.patient?.name || (inv.patient?.firstName ? `${inv.patient.firstName} ${inv.patient.lastName || ""}`.trim() : "");
+    const patientNic = inv.patient?.nic || "";
+    const patientDisplayVal = patientName || patientNic || (inv.patient?._id ? formatPatientId(inv.patient) : (inv.patient || ""));
+
     setForm({
       invoiceNumber: inv.invoiceNumber || "",
-      patient: inv.patient?._id || inv.patient || "",
+      patient: patientDisplayVal,
+      patientRawId: inv.patient?._id || (typeof inv.patient === 'string' ? inv.patient : ""),
+      patientRegNo: patientNic || formatPatientId(inv.patient),
       appointment: inv.appointment?._id || inv.appointment || "",
       doctor: inv.doctor?._id || inv.doctor || "",
       items,
@@ -470,10 +486,15 @@ const InvoiceSettings = () => {
                     </span>
                   </div>
                   <div className="invoice-info">
-                    Patient: {inv.patient?._id || inv.patient}
+                    Patient: {formatPatientDisplayName(inv.patient)}
                   </div>
+                  {inv.appointment && (
+                    <div className="invoice-info" style={{ fontSize: "0.8rem", color: "#64748b" }}>
+                      Appt: {formatAppointmentId(inv.appointment)}
+                    </div>
+                  )}
                   <div className="invoice-info">
-                    Amount: {inv.total} • Paid: {paid} • Due: {due}
+                    Amount: ₹{inv.total} • Paid: ₹{paid} • Due: ₹{due}
                   </div>
                 </div>
                 <div
@@ -600,6 +621,11 @@ const InvoiceSettings = () => {
                       value={form.patient}
                       onChange={(e) => setForm({ ...form, patient: e.target.value })}
                     />
+                    {form.patientRegNo && form.patientRegNo !== "-" && (
+                      <div className="sub-label" style={{ marginTop: "3px", fontSize: "0.78rem", color: "#64748b" }}>
+                        Reg. No: <strong>{form.patientRegNo}</strong>
+                      </div>
+                    )}
                   </div>
 
                   <div className="invoice-field-group">
@@ -664,7 +690,9 @@ const InvoiceSettings = () => {
                       style={{ height: "60px", minHeight: "50px" }}
                     />
                     {form.appointment && (
-                      <div className="sub-label">Linked Appointment: {form.appointment}</div>
+                      <div className="sub-label">
+                        Linked Appointment: <strong>{formatAppointmentId(form.appointment)}</strong>
+                      </div>
                     )}
                   </div>
                 </div>
