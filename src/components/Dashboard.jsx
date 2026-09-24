@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import InvoiceViewer from "./InvoiceViewer";
 import Reports from "./Reports";
 import { Context } from "../main";
@@ -7,7 +7,7 @@ import api, { rescheduleAppointment } from "../utils/api";
 import { useSnackbar } from "../context/SnackbarContext";
 import { GoCheckCircleFill } from "react-icons/go";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { FaUserMd, FaUsers } from "react-icons/fa";
+import { FaUserMd, FaUsers, FaWallet } from "react-icons/fa";
 import Prescription from "./Prescription";
 import Modal from "react-modal";
 import { FaTrash } from "react-icons/fa";
@@ -98,27 +98,28 @@ const Dashboard = () => {
   const [dashboardTotals, setDashboardTotals] = useState({ paid: 0, due: 0 });
   const [dashboardGroups, setDashboardGroups] = useState([]);
 
-  useEffect(() => {
-    const fetchDashboardCharts = async () => {
-      try {
-        const { data } = await api.get('/api/v1/invoice/stats?group=day');
-        const groups = Array.isArray(data.groups) ? data.groups : [];
-        setDashboardTotals({
-          paid: Number(data.totalEarning || 0),
-          due: Number(data.totalDue || 0)
-        });
-        setDashboardGroups(groups.map(g => ({
-          period: g.period,
-          revenue: g.totalEarning,
-          due: g.totalDue,
-          count: g.count
-        })));
-      } catch (e) {
-        console.error("Failed to load dashboard chart data");
-      }
-    };
-    fetchDashboardCharts();
+  const fetchDashboardCharts = useCallback(async () => {
+    try {
+      const { data } = await api.get('/api/v1/invoice/stats?group=day');
+      const groups = Array.isArray(data.groups) ? data.groups : [];
+      setDashboardTotals({
+        paid: Number(data.totalEarning || 0),
+        due: Number(data.totalDue || 0)
+      });
+      setDashboardGroups(groups.map(g => ({
+        period: g.period,
+        revenue: g.totalEarning,
+        due: g.totalDue,
+        count: g.count
+      })));
+    } catch (e) {
+      console.error("Failed to load dashboard chart data");
+    }
   }, []);
+
+  useEffect(() => {
+    fetchDashboardCharts();
+  }, [fetchDashboardCharts]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -133,21 +134,27 @@ const Dashboard = () => {
   const { isAuthenticated, admin } = useContext(Context);
   const snackbar = useSnackbar();
 
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const { data } = await api.get(`/api/v1/appointment/getall`);
-        setAppointments(data.appointments);
-      } catch (error) {
-        setAppointments([]);
-      }
-    };
-    fetchAppointments();
+  // Component-level fetchAppointments so it can be called from anywhere (e.g. closePrescriptionModal)
+  const fetchAppointments = useCallback(async () => {
+    try {
+      const { data } = await api.get(`/api/v1/appointment/getall`);
+      setAppointments(data.appointments);
+    } catch (error) {
+      setAppointments([]);
+    }
+  }, []);
 
-    const onUpdated = () => fetchAppointments();
+  useEffect(() => {
+    fetchAppointments();
+    fetchDashboardCharts();
+
+    const onUpdated = () => {
+      fetchAppointments();
+      fetchDashboardCharts();
+    };
     window.addEventListener("appointments:updated", onUpdated);
     return () => window.removeEventListener("appointments:updated", onUpdated);
-  }, [location.pathname]);
+  }, [location.pathname, fetchAppointments, fetchDashboardCharts]);
 
   // Role-limited metrics
   const metrics = React.useMemo(() => {
@@ -190,9 +197,14 @@ const Dashboard = () => {
     };
 
     let patientsToday = new Set();
+    let apptsTodayCount = 0;
     let paidToday = 0;
+    let dueToday = 0;
     let patientsMonth = new Set();
+    let apptsMonthCount = 0;
     let paidMonth = 0;
+    let dueMonth = 0;
+    let pendingActionCount = 0;
 
     (appointments || []).forEach((a) => {
       try {
@@ -200,25 +212,44 @@ const Dashboard = () => {
         const d = new Date(a.appointment_date);
         const ymd = d.toLocaleDateString("en-CA");
         const price = Number(a.price || a.feesAmount || a.amount || 0) || 0;
-        const paid = String(a.paymentStatus || "").toLowerCase() === "paid";
+        const isPaid = String(a.paymentStatus || "").toLowerCase() === "paid";
+        const isRefund = String(a.paymentStatus || "").toLowerCase() === "refund";
 
         if (ymd === todayYmd) {
+          apptsTodayCount++;
           if (a.patientId) patientsToday.add(String(a.patientId));
-          if (paid) paidToday += price;
+          if (isPaid) {
+            paidToday += price;
+          } else if (!isRefund) {
+            dueToday += price;
+          }
+          if (a.status === "Pending" || a.status === "Accepted") {
+            pendingActionCount++;
+          }
         }
 
         if (d >= monthStart && d <= monthEnd) {
+          apptsMonthCount++;
           if (a.patientId) patientsMonth.add(String(a.patientId));
-          if (paid) paidMonth += price;
+          if (isPaid) {
+            paidMonth += price;
+          } else if (!isRefund) {
+            dueMonth += price;
+          }
         }
       } catch (e) { }
     });
 
     return {
       patientsViewedToday: patientsToday.size,
+      apptsTodayCount,
       paidToday,
+      dueToday,
       patientsThisMonth: patientsMonth.size,
+      apptsMonthCount,
       paidThisMonth: paidMonth,
+      dueThisMonth: dueMonth,
+      pendingActionCount,
     };
   }, [appointments, admin]);
 
@@ -637,47 +668,75 @@ const Dashboard = () => {
         </div>
         {/* Role-based quick metrics */}
         <div className="dashboard-metrics-container">
-          <div className="dashboard-metric-card blue hover-glow">
-            <div className="dashboard-metric-icon">
-              <FaUserMd size={28} color="#00d2ff" />
+          {/* Card 1: Patients Today */}
+          <div className="dashboard-metric-card metric-cyan hover-glow">
+            <div className="metric-card-top">
+              <div className="metric-icon-box cyan">
+                <FaUserMd size={20} />
+              </div>
+              <span className="metric-badge cyan">Today</span>
             </div>
-            <div className="dashboard-metric-content">
-              <div className="dashboard-metric-header">
-                <p className="dashboard-metric-title">Patients Viewed Today</p>
-                <div className="dashboard-metric-value blue">
-                  {metrics.patientsViewedToday}
-                </div>
-              </div>
-              <div className="dashboard-metric-footer">
-                <span className="dashboard-metric-footer-label">
-                  Paid today
-                </span>
-                <strong className="dashboard-metric-footer-amount">
-                  ₹{fmt(metrics.paidToday)}
-                </strong>
-              </div>
+            <div className="metric-card-body">
+              <div className="metric-main-value">{metrics.patientsViewedToday}</div>
+              <p className="metric-main-title">Patients Today</p>
+            </div>
+            <div className="metric-card-footer">
+              <span className="metric-footer-label">Paid: ₹{fmt(metrics.paidToday)}</span>
+              <span className="metric-footer-sub">Due: ₹{fmt(metrics.dueToday)}</span>
             </div>
           </div>
 
-          <div className="dashboard-metric-card red hover-glow">
-            <div className="dashboard-metric-icon">
-              <FaUsers size={28} color="#8a2be2" />
+          {/* Card 2: Patients This Month */}
+          <div className="dashboard-metric-card metric-purple hover-glow">
+            <div className="metric-card-top">
+              <div className="metric-icon-box purple">
+                <FaUsers size={20} />
+              </div>
+              <span className="metric-badge purple">This Month</span>
             </div>
-            <div className="dashboard-metric-content">
-              <div className="dashboard-metric-header">
-                <p className="dashboard-metric-title">Patients This Month</p>
-                <div className="dashboard-metric-value red">
-                  {metrics.patientsThisMonth}
-                </div>
+            <div className="metric-card-body">
+              <div className="metric-main-value">{metrics.patientsThisMonth}</div>
+              <p className="metric-main-title">Patients This Month</p>
+            </div>
+            <div className="metric-card-footer">
+              <span className="metric-footer-label">Total Visits</span>
+              <span className="metric-footer-sub">{metrics.apptsMonthCount} Appts</span>
+            </div>
+          </div>
+
+          {/* Card 3: Today's Revenue */}
+          <div className="dashboard-metric-card metric-emerald hover-glow">
+            <div className="metric-card-top">
+              <div className="metric-icon-box emerald">
+                <FaWallet size={20} />
               </div>
-              <div className="dashboard-metric-footer">
-                <span className="dashboard-metric-footer-label">
-                  Paid this month
-                </span>
-                <strong className="dashboard-metric-footer-amount">
-                  ₹{fmt(metrics.paidThisMonth)}
-                </strong>
+              <span className="metric-badge emerald">Collections</span>
+            </div>
+            <div className="metric-card-body">
+              <div className="metric-main-value">₹{fmt(metrics.paidToday)}</div>
+              <p className="metric-main-title">Today's Revenue</p>
+            </div>
+            <div className="metric-card-footer">
+              <span className="metric-footer-label">Month Total</span>
+              <span className="metric-footer-sub">₹{fmt(dashboardTotals.paid || metrics.paidThisMonth)}</span>
+            </div>
+          </div>
+
+          {/* Card 4: Action / Pending Queue */}
+          <div className="dashboard-metric-card metric-amber hover-glow">
+            <div className="metric-card-top">
+              <div className="metric-icon-box amber">
+                <MdSchedule size={20} />
               </div>
+              <span className="metric-badge amber">Attention</span>
+            </div>
+            <div className="metric-card-body">
+              <div className="metric-main-value">{metrics.pendingActionCount}</div>
+              <p className="metric-main-title">Pending Queue</p>
+            </div>
+            <div className="metric-card-footer">
+              <span className="metric-footer-label">Total Due</span>
+              <span className="metric-footer-sub">₹{fmt(dashboardTotals.due !== undefined ? dashboardTotals.due : metrics.dueToday)}</span>
             </div>
           </div>
         </div>

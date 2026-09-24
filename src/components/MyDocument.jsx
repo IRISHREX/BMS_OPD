@@ -311,6 +311,41 @@ const styles = StyleSheet.create({
     paddingLeft: "1mm",
     paddingVertical: "1mm",
   },
+  ortho_cell_sn: {
+    width: "5%",
+    textAlign: "center",
+    paddingVertical: "1mm",
+  },
+  ortho_cell_med: {
+    width: "22%",
+    paddingLeft: "1mm",
+    paddingVertical: "1mm",
+  },
+  ortho_cell_type: {
+    width: "10%",
+    paddingLeft: "1mm",
+    paddingVertical: "1mm",
+  },
+  ortho_cell_dose: {
+    width: "13%",
+    paddingLeft: "1mm",
+    paddingVertical: "1mm",
+  },
+  ortho_cell_freq: {
+    width: "18%",
+    paddingLeft: "1mm",
+    paddingVertical: "1mm",
+  },
+  ortho_cell_dur: {
+    width: "11%",
+    paddingLeft: "1mm",
+    paddingVertical: "1mm",
+  },
+  ortho_cell_inst: {
+    width: "21%",
+    paddingLeft: "1mm",
+    paddingVertical: "1mm",
+  },
   cell_border: {
     borderRight: "1 solid #999",
   },
@@ -959,34 +994,34 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
                 <Text>Rx MEDICATIONS</Text>
               </View>
               <View style={[styles.table_header, { backgroundColor: "#f9f9f9", borderTop: "none" }]}>
-                <Text style={[styles.cell_sn, styles.cell_border]}>Sl.</Text>
-                <Text style={[styles.cell_med, styles.cell_border]}>Medicine</Text>
-                <Text style={[styles.cell_type, styles.cell_border]}>Strength</Text>
-                <Text style={[styles.cell_dose, styles.cell_border]}>Dose & Route</Text>
-                <Text style={[styles.cell_freq, styles.cell_border]}>Frequency</Text>
-                <Text style={[styles.cell_dur, styles.cell_border]}>Duration</Text>
-                <Text style={[styles.cell_dur, { flex: 1 }]}>Instructions</Text>
+                <Text style={[styles.ortho_cell_sn, styles.cell_border]}>Sl.</Text>
+                <Text style={[styles.ortho_cell_med, styles.cell_border]}>Medicine</Text>
+                <Text style={[styles.ortho_cell_type, styles.cell_border]}>Type</Text>
+                <Text style={[styles.ortho_cell_dose, styles.cell_border]}>Dose & Route</Text>
+                <Text style={[styles.ortho_cell_freq, styles.cell_border]}>Frequency</Text>
+                <Text style={[styles.ortho_cell_dur, styles.cell_border]}>Duration</Text>
+                <Text style={styles.ortho_cell_inst}>Instructions</Text>
               </View>
               {medList.slice(0, 8).map((med, index) => (
                 <View key={index} style={styles.table_row}>
-                  <Text style={[styles.cell_sn, styles.cell_border_light]}>{index + 1}</Text>
-                  <Text style={[styles.cell_med, styles.cell_border_light]}>{med.name || ""}</Text>
-                  <Text style={[styles.cell_type, styles.cell_border_light]}>{med.type || ""}</Text>
-                  <Text style={[styles.cell_dose, styles.cell_border_light]}>{med.dose ? `${med.dose} ${med.route || ""}` : med.route || ""}</Text>
-                  <Text style={[styles.cell_freq, styles.cell_border_light]}>{med.frequency || ""}</Text>
-                  <Text style={[styles.cell_dur, styles.cell_border_light]}>{med.duration || ""}</Text>
-                  <Text style={[styles.cell_dur, { flex: 1 }]}>{med.instruction || med.instructions || med.notes || ""}</Text>
+                  <Text style={[styles.ortho_cell_sn, styles.cell_border_light]}>{index + 1}</Text>
+                  <Text style={[styles.ortho_cell_med, styles.cell_border_light]}>{med.name || ""}</Text>
+                  <Text style={[styles.ortho_cell_type, styles.cell_border_light]}>{med.type || ""}</Text>
+                  <Text style={[styles.ortho_cell_dose, styles.cell_border_light]}>{med.dose ? `${med.dose} ${med.route || ""}` : med.route || ""}</Text>
+                  <Text style={[styles.ortho_cell_freq, styles.cell_border_light]}>{med.frequency || ""}</Text>
+                  <Text style={[styles.ortho_cell_dur, styles.cell_border_light]}>{med.duration || ""}</Text>
+                  <Text style={styles.ortho_cell_inst}>{med.instruction || med.instructions || med.notes || ""}</Text>
                 </View>
               ))}
               {Array.from({ length: Math.max(0, 8 - medList.length) }).map((_, index) => (
                 <View key={`empty-${index}`} style={styles.table_row_empty}>
-                  <Text style={[styles.cell_sn, styles.cell_border_light]}> </Text>
-                  <Text style={[styles.cell_med, styles.cell_border_light]}> </Text>
-                  <Text style={[styles.cell_type, styles.cell_border_light]}> </Text>
-                  <Text style={[styles.cell_dose, styles.cell_border_light]}> </Text>
-                  <Text style={[styles.cell_freq, styles.cell_border_light]}> </Text>
-                  <Text style={[styles.cell_dur, styles.cell_border_light]}> </Text>
-                  <Text style={[styles.cell_dur, { flex: 1 }]}> </Text>
+                  <Text style={[styles.ortho_cell_sn, styles.cell_border_light]}> </Text>
+                  <Text style={[styles.ortho_cell_med, styles.cell_border_light]}> </Text>
+                  <Text style={[styles.ortho_cell_type, styles.cell_border_light]}> </Text>
+                  <Text style={[styles.ortho_cell_dose, styles.cell_border_light]}> </Text>
+                  <Text style={[styles.ortho_cell_freq, styles.cell_border_light]}> </Text>
+                  <Text style={[styles.ortho_cell_dur, styles.cell_border_light]}> </Text>
+                  <Text style={styles.ortho_cell_inst}> </Text>
                 </View>
               ))}
             </View>

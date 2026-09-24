@@ -47,12 +47,19 @@ export const SnackbarProvider = ({ children }) => {
         message,
         type: 'confirmation',
         onConfirm: () => {
-          onConfirm();
+          // Dismiss the popup FIRST so it always closes even if onConfirm throws
           removeSnackbar(id);
+          try {
+            onConfirm();
+          } catch (err) {
+            console.error('[Snackbar] onConfirm callback threw:', err);
+          }
         },
         onCancel: () => {
-          if (onCancel) onCancel();
           removeSnackbar(id);
+          if (onCancel) {
+            try { onCancel(); } catch (err) { console.error('[Snackbar] onCancel callback threw:', err); }
+          }
         },
       };
       setSnackbars(prev => [...prev, newSnackbar]);

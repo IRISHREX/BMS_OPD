@@ -222,62 +222,62 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
     const parityStr = (pa || pb) ? `${pa}+${pb}` : "";
 
     const medAdviceList = (stateObj.medicineAdvice || []).map((m) => ({
-      name: (m.name || m.label || "").trim(),
-      type: (m.type || "").trim(),
-      dose: (m.dose || "").trim(),
-      frequency: (m.frequency || "").trim(),
-      route: (m.route || "mouth").trim(),
-      duration: (m.duration || "").trim(),
-      notes: (m.notes || "").trim(),
-      selected: Boolean(m.selected),
+      name: (m.name || m.label || "").toString().trim(),
+      type: (m.type || "").toString().trim(),
+      dose: (m.dose || "").toString().trim(),
+      frequency: (m.frequency || "").toString().trim(),
+      route: (m.route || "mouth").toString().trim(),
+      duration: (m.duration || "").toString().trim(),
+      notes: (m.notes || "").toString().trim(),
+      selected: m.selected !== undefined ? Boolean(m.selected) : true,
     }));
 
     const testAdvList = (stateObj.testAdviceRows || [])
-      .filter((r) => (r.testName || "").trim() !== "")
+      .filter((r) => (r.testName || "").toString().trim() !== "")
       .map((r) => ({
-        testName: (r.testName || "").trim(),
-        testType: (r.testType || "").trim(),
-        precautions: (r.precautions || "").trim(),
-        testDate: (r.testDate || "").trim(),
+        testName: (r.testName || "").toString().trim(),
+        testType: (r.testType || "").toString().trim(),
+        precautions: (r.precautions || "").toString().trim(),
+        testDate: (r.testDate || "").toString().trim(),
         selected: Boolean(r.selected),
       }));
 
     return JSON.stringify({
-      initialComplain: (stateObj.rDiagnosis || "").trim(),
-      presentingComplaints: (stateObj.complaints || "").trim(),
-      medicalHistory: (stateObj.medicalHistory || "").trim(),
-      pathologyReport: (stateObj.pathologyReport || "").trim(),
-      radiologyReport: (stateObj.radiologyReport || "").trim(),
+      initialComplain: (stateObj.rDiagnosis || "").toString().trim(),
+      presentingComplaints: (stateObj.complaints || "").toString().trim(),
+      medicalHistory: (stateObj.medicalHistory || "").toString().trim(),
+      pathologyReport: (stateObj.pathologyReport || "").toString().trim(),
+      radiologyReport: (stateObj.radiologyReport || "").toString().trim(),
       clinical_findings: {
         patientCondition: {
-          c1: (stateObj.clinical_findings?.patientCondition?.c1 || "").trim(),
-          c2: (stateObj.clinical_findings?.patientCondition?.c2 || "").trim(),
-          c3: (stateObj.clinical_findings?.patientCondition?.c3 || "").trim(),
-          c4: (stateObj.clinical_findings?.patientCondition?.c4 || "").trim(),
+          c1: (stateObj.clinical_findings?.patientCondition?.c1 || "").toString().trim(),
+          c2: (stateObj.clinical_findings?.patientCondition?.c2 || "").toString().trim(),
+          c3: (stateObj.clinical_findings?.patientCondition?.c3 || "").toString().trim(),
+          c4: (stateObj.clinical_findings?.patientCondition?.c4 || "").toString().trim(),
         },
-        polar: (stateObj.clinical_findings?.polar || "").trim(),
-        icterus: (stateObj.clinical_findings?.icterus || "").trim(),
-        edema: (stateObj.clinical_findings?.edema || "").trim(),
-        cyanosis: (stateObj.clinical_findings?.cyanosis || "").trim(),
-        clubbing: (stateObj.clinical_findings?.clubbing || "").trim(),
-        lymph_nodes: (stateObj.clinical_findings?.lymph_nodes || "").trim(),
-        chest: (stateObj.clinical_findings?.chest || "").trim(),
-        cvs: (stateObj.clinical_findings?.cvs || "").trim(),
+        polar: (stateObj.clinical_findings?.polar || "").toString().trim(),
+        icterus: (stateObj.clinical_findings?.icterus || "").toString().trim(),
+        edema: (stateObj.clinical_findings?.edema || "").toString().trim(),
+        cyanosis: (stateObj.clinical_findings?.cyanosis || "").toString().trim(),
+        clubbing: (stateObj.clinical_findings?.clubbing || "").toString().trim(),
+        lymph_nodes: (stateObj.clinical_findings?.lymph_nodes || "").toString().trim(),
+        chest: (stateObj.clinical_findings?.chest || "").toString().trim(),
+        cvs: (stateObj.clinical_findings?.cvs || "").toString().trim(),
         per_abdomen: {
-          pt: (stateObj.clinical_findings?.per_abdomen?.pt || "").trim(),
-          pv: (stateObj.clinical_findings?.per_abdomen?.pv || "").trim(),
+          pt: (stateObj.clinical_findings?.per_abdomen?.pt || "").toString().trim(),
+          pv: (stateObj.clinical_findings?.per_abdomen?.pv || "").toString().trim(),
         },
-        others: (stateObj.clinical_findings?.others || "").trim(),
+        others: (stateObj.clinical_findings?.others || "").toString().trim(),
       },
-      diagnosys_heading: stateObj.diagnosys_heading || "Provisional Diagnosis",
+      diagnosys_heading: (stateObj.diagnosys_heading || "Provisional Diagnosis").toString().trim(),
       femaleTests: {
         Gravida: (stateObj.gravida || "").toString().trim(),
         Parity: parityStr,
-        LMP: (stateObj.LMP || "").trim(),
-        EDD: (stateObj.EDD || "").trim(),
-        POG: (stateObj.POG || "").trim(),
-        LCB: (stateObj.LCB || "").trim(),
-        MOD: (stateObj.MOD || "").trim(),
+        LMP: (stateObj.LMP || "").toString().trim(),
+        EDD: (stateObj.EDD || "").toString().trim(),
+        POG: (stateObj.POG || "").toString().trim(),
+        LCB: (stateObj.LCB || "").toString().trim(),
+        MOD: (stateObj.MOD || "").toString().trim(),
       },
       diagnosys: {
         BP: (diag.BP || "").toString().trim(),
@@ -287,14 +287,14 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
         Height: h,
         Weight: w,
         BMI: computedBmi,
-        Others: (diag.Others || "").trim(),
+        Others: (diag.Others || "").toString().trim(),
       },
-      additionalAdvice: (stateObj.additionalAdvice || "").trim(),
-      followUp: (stateObj.followUp || "").trim(),
+      additionalAdvice: (stateObj.additionalAdvice || "").toString().trim(),
+      followUp: (stateObj.followUp || "").toString().trim(),
       medicineAdvice: medAdviceList,
       testAdvice: testAdvList,
-      medicationAdvice: (stateObj.medicationAdvice || "").trim(),
-      dietAdvice: (stateObj.dietAdvice || "").trim(),
+      medicationAdvice: (stateObj.medicationAdvice || "").toString().trim(),
+      dietAdvice: (stateObj.dietAdvice || "").toString().trim(),
     });
   };
 
@@ -384,7 +384,6 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
   const steps = ["Complain & Medicines", "Medical History"];
   const rootRef = React.useRef(null);
   const keysPressed = React.useRef(new Set());
-
   useEffect(() => {
     const fetchLatestAppointment = async () => {
       try {
@@ -434,32 +433,73 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
           r = latest.result[0];
         }
 
+        let diagVal = "";
+        let nextComplaints = "";
+        let nextMedicalHistory = "";
+        let nextPathologyReport = "";
+        let nextRadiologyReport = "";
+        let nextClinicalFindings = {
+          patientCondition: { c1: "", c2: "", c3: "", c4: "" },
+          polar: "",
+          icterus: "",
+          edema: "",
+          cyanosis: "",
+          clubbing: "",
+          lymph_nodes: "",
+          chest: "",
+          cvs: "",
+          per_abdomen: { pt: "", pv: "" },
+          others: "",
+        };
+        let nextDiagnosysHeading = "Provisional Diagnosis";
+        let nextGravida = "";
+        let nextParity = { Pa: "", Pb: "" };
+        let nextLMP = "";
+        let nextEDD = "";
+        let nextPOG = "";
+        let nextLCB = "";
+        let nextMOD = "";
+        let nextDiagnosys = {
+          BP: "",
+          PR: "",
+          SPO2: "",
+          Temp: "",
+          Height: "",
+          Weight: "",
+          BMI: "",
+          Others: "",
+        };
+        let nextMedicineAdvice = [];
+        let nextTestAdviceRows = [];
+        let nextMedicationAdvice = "";
+        let nextDietAdvice = "";
+        let nextAdditionalAdvice = "";
+        let nextFollowUp = "";
+        let nextSelectedTestTypes = [];
+
         if (r) {
-          setComplaints(r.presentingComplaints || "");
-          const diagVal = typeof r.provisionalDiagnosis === "object"
+          nextComplaints = r.presentingComplaints || "";
+          diagVal = typeof r.provisionalDiagnosis === "object"
             ? (r.provisionalDiagnosis?.value || "")
             : (r.provisionalDiagnosis || r.initialComplain || "");
-          dispatch(change(diagVal));
-          setMedicalHistory(r.medicalHistory || "");
-          setPathologyReport(
+          nextMedicalHistory = r.medicalHistory || "";
+          nextPathologyReport =
             r.pathologyReport ||
             r.pathologicalReport ||
             r.availableReports?.pathology ||
-            ""
-          );
-          setRadiologyReport(
+            "";
+          nextRadiologyReport =
             r.radiologyReport ||
             r.radiologicalReport ||
             r.availableReports?.radiology ||
-            ""
-          );
+            "";
           const cf = (typeof r.clinical_findings === 'object' && r.clinical_findings !== null)
             ? r.clinical_findings
             : (typeof r.clinicalFindings === 'object' && r.clinicalFindings !== null)
             ? r.clinicalFindings
             : null;
 
-          setClinical_findings({
+          nextClinicalFindings = {
             patientCondition: {
               c1: cf?.patientCondition?.c1 || "",
               c2: cf?.patientCondition?.c2 || "",
@@ -479,41 +519,61 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
               pv: cf?.per_abdomen?.pv || "",
             },
             others: cf?.others || (typeof r.clinicalFindings === 'string' ? r.clinicalFindings : ""),
-          });
-          setDiagnosys_heading(r.diagnosys_heading || "Provisional Diagnosis");
+          };
+          nextDiagnosysHeading = r.diagnosys_heading || "Provisional Diagnosis";
           if (r.femaleTests) {
-            setGravida(r.femaleTests.Gravida || "");
+            nextGravida = r.femaleTests.Gravida || "";
             if (r.femaleTests.Parity && r.femaleTests.Parity.includes("+")) {
               const [Pa, Pb] = r.femaleTests.Parity.split("+");
-              setParity({ Pa, Pb });
+              nextParity = { Pa: Pa || "", Pb: Pb || "" };
             } else {
-              setParity({ Pa: r.femaleTests.Parity || "", Pb: "" });
+              nextParity = { Pa: r.femaleTests.Parity || "", Pb: "" };
             }
-            setLMP(r.femaleTests.LMP || "");
-            setEDD(r.femaleTests.EDD || "");
-            setPOG(r.femaleTests.POG || "");
-            setLCB(r.femaleTests.LCB || "");
-            setMOD(r.femaleTests.MOD || "");
+            nextLMP = r.femaleTests.LMP || "";
+            nextEDD = r.femaleTests.EDD || "";
+            nextPOG = r.femaleTests.POG || "";
+            nextLCB = r.femaleTests.LCB || "";
+            nextMOD = r.femaleTests.MOD || "";
           } else {
-            // For backwards compatibility with old data structure
-            setGravida(r.Gravida || "");
-            // setParity({Pa: r.Parity || "", Pb: ""});
+            nextGravida = r.Gravida || "";
             if (r.Parity && r.Parity.includes("+")) {
               const [Pa, Pb] = r.Parity.split("+");
-              setParity({ Pa, Pb });
+              nextParity = { Pa: Pa || "", Pb: Pb || "" };
             } else {
-              setParity({ Pa: r.Parity || "", Pb: "" });
+              nextParity = { Pa: r.Parity || "", Pb: "" };
             }
-            setLMP(r.LMP || "");
-            setEDD(r.EDD || "");
-            setPOG(r.POG || "");
-            setLCB(r.LCB || "");
-            setMOD(r.MOD || "");
+            nextLMP = r.LMP || "";
+            nextEDD = r.EDD || "";
+            nextPOG = r.POG || "";
+            nextLCB = r.LCB || "";
+            nextMOD = r.MOD || "";
           }
-          setAdditionalAdvice(r.additionalAdvice || "");
-          setFollowUp(r.followUp);
+
+          if (nextLMP) {
+            try {
+              const lmpDate = new Date(nextLMP);
+              if (!isNaN(lmpDate.getTime())) {
+                const eddDate = new Date(lmpDate);
+                eddDate.setMonth(eddDate.getMonth() + 9);
+                eddDate.setDate(eddDate.getDate() + 7);
+                nextEDD = eddDate.toISOString().slice(0, 10);
+
+                const today = new Date();
+                const msPerDay = 1000 * 60 * 60 * 24;
+                const daysDifference = Math.floor((today - lmpDate) / msPerDay);
+                const weeks = Math.floor(daysDifference / 7);
+                const days = daysDifference % 7;
+                nextPOG = `${weeks} weeks, ${days} days`;
+              }
+            } catch (e) {
+              // ignore
+            }
+          }
+
+          nextAdditionalAdvice = r.additionalAdvice || "";
+          nextFollowUp = r.followUp || "";
           const vitalsObj = r.vitals || r.diagnosys || {};
-          setDiagnosys({
+          nextDiagnosys = {
             BP: vitalsObj.BP || "",
             PR: vitalsObj.PR || "",
             SPO2: vitalsObj.SPO2 || "",
@@ -522,7 +582,7 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
             Weight: vitalsObj.Weight || "",
             BMI: vitalsObj.BMI || "",
             Others: vitalsObj.Others || "",
-          });
+          };
           const rawMeds = Array.isArray(r.medicineAdvice)
             ? r.medicineAdvice
             : r.medicineAdvice
@@ -530,103 +590,84 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
             : Array.isArray(r.medicines)
             ? r.medicines
             : [];
-          setMedicineAdvice(
-            rawMeds.map((m) => ({
-              ...m,
-              selected: m.selected !== undefined ? m.selected : true,
-            }))
-          );
+          nextMedicineAdvice = rawMeds.map((m) => ({
+            ...m,
+            selected: m.selected !== undefined ? m.selected : true,
+          }));
 
-          // load structured advice if present (backwards compatible with string)
           const adv = r.advice;
           if (!adv) {
             // nothing
           } else if (typeof adv === "string") {
-            // legacy: treat as medication advice text
-            setMedicationAdvice(adv);
-            setSelectedTestTypes(["Medication"]);
+            nextMedicationAdvice = adv;
+            nextSelectedTestTypes = ["Medication"];
           } else if (typeof adv === "object") {
-            if (Array.isArray(adv.testAdvice))
-              setTestAdviceRows(adv.testAdvice);
-            if (adv.medication) setMedicationAdvice(adv.medication);
-            if (adv.diet) setDietAdvice(adv.diet);
+            if (Array.isArray(adv.testAdvice)) {
+              nextTestAdviceRows = adv.testAdvice;
+            }
+            if (adv.medication) nextMedicationAdvice = adv.medication;
+            if (adv.diet) nextDietAdvice = adv.diet;
             const sel = [];
             if (adv.testAdvice && adv.testAdvice.length)
               sel.push("Test Advice");
             if (adv.medication) sel.push("Medication");
             if (adv.diet) sel.push("Diet");
-            setSelectedTestTypes(sel);
+            nextSelectedTestTypes = sel;
           }
-          let pPa = "";
-          let pPb = "";
-          const pStr = r.femaleTests?.Parity || r.Parity || "";
-          if (pStr && pStr.includes("+")) {
-            const parts = pStr.split("+");
-            pPa = parts[0] || "";
-            pPb = parts[1] || "";
-          } else if (pStr) {
-            pPa = pStr;
-          }
-
-          let initTests = [];
-          if (typeof adv === "object" && adv && Array.isArray(adv.testAdvice)) {
-            initTests = adv.testAdvice;
-          }
-
-          const vitalsSnap = r.vitals || r.diagnosys || {};
-          const rawDiag = {
-            BP: vitalsSnap.BP || "",
-            PR: vitalsSnap.PR || "",
-            SPO2: vitalsSnap.SPO2 || "",
-            Temp: vitalsSnap.Temp || "",
-            Height: vitalsSnap.Height || "",
-            Weight: vitalsSnap.Weight || "",
-            BMI: vitalsSnap.BMI || "",
-            Others: vitalsSnap.Others || "",
-          };
-
-          const initSnap = buildNormalizedSnapshot({
-            rDiagnosis: typeof r.provisionalDiagnosis === "object"
-              ? (r.provisionalDiagnosis?.value || "")
-              : (r.provisionalDiagnosis || r.initialComplain || ""),
-            complaints: r.presentingComplaints || "",
-            medicalHistory: r.medicalHistory || "",
-            pathologyReport:
-              r.pathologyReport ||
-              r.pathologicalReport ||
-              r.availableReports?.pathology ||
-              "",
-            radiologyReport:
-              r.radiologyReport ||
-              r.radiologicalReport ||
-              r.availableReports?.radiology ||
-              "",
-            clinical_findings: r.clinical_findings || {},
-            diagnosys_heading: r.diagnosys_heading || "Provisional Diagnosis",
-            gravida: r.femaleTests?.Gravida || r.Gravida || "",
-            parity: { Pa: pPa, Pb: pPb },
-            LMP: r.femaleTests?.LMP || r.LMP || "",
-            EDD: r.femaleTests?.EDD || r.EDD || "",
-            POG: r.femaleTests?.POG || r.POG || "",
-            LCB: r.femaleTests?.LCB || r.LCB || "",
-            MOD: r.femaleTests?.MOD || r.MOD || "",
-            diagnosys: rawDiag,
-            additionalAdvice: r.additionalAdvice || "",
-            followUp: r.followUp || "",
-            medicineAdvice: Array.isArray(r.medicineAdvice)
-              ? r.medicineAdvice
-              : r.medicineAdvice
-              ? [r.medicineAdvice]
-              : [],
-            testAdviceRows: initTests,
-            medicationAdvice:
-              typeof adv === "string" ? adv : adv?.medication || "",
-            dietAdvice: adv?.diet || "",
-          });
-
-          setOriginalPayload(initSnap);
-          setIsDirty(false);
         }
+
+        // Apply all state setters
+        dispatch(change(diagVal));
+        setComplaints(nextComplaints);
+        setMedicalHistory(nextMedicalHistory);
+        setPathologyReport(nextPathologyReport);
+        setRadiologyReport(nextRadiologyReport);
+        setClinical_findings(nextClinicalFindings);
+        setDiagnosys_heading(nextDiagnosysHeading);
+        setGravida(nextGravida);
+        setParity(nextParity);
+        setLMP(nextLMP);
+        setEDD(nextEDD);
+        setPOG(nextPOG);
+        setLCB(nextLCB);
+        setMOD(nextMOD);
+        setAdditionalAdvice(nextAdditionalAdvice);
+        setFollowUp(nextFollowUp);
+        setDiagnosys(nextDiagnosys);
+        setMedicineAdvice(nextMedicineAdvice);
+        if (nextTestAdviceRows.length > 0) {
+          setTestAdviceRows(nextTestAdviceRows);
+        }
+        setMedicationAdvice(nextMedicationAdvice);
+        setDietAdvice(nextDietAdvice);
+        setSelectedTestTypes(nextSelectedTestTypes);
+
+        const initSnap = buildNormalizedSnapshot({
+          rDiagnosis: diagVal,
+          complaints: nextComplaints,
+          medicalHistory: nextMedicalHistory,
+          pathologyReport: nextPathologyReport,
+          radiologyReport: nextRadiologyReport,
+          clinical_findings: nextClinicalFindings,
+          diagnosys_heading: nextDiagnosysHeading,
+          gravida: nextGravida,
+          parity: nextParity,
+          LMP: nextLMP,
+          EDD: nextEDD,
+          POG: nextPOG,
+          LCB: nextLCB,
+          MOD: nextMOD,
+          diagnosys: nextDiagnosys,
+          additionalAdvice: nextAdditionalAdvice,
+          followUp: nextFollowUp,
+          medicineAdvice: nextMedicineAdvice,
+          testAdviceRows: nextTestAdviceRows,
+          medicationAdvice: nextMedicationAdvice,
+          dietAdvice: nextDietAdvice,
+        });
+
+        setOriginalPayload(initSnap);
+        setIsDirty(false);
       } catch (e) {
         // ignore
       } finally {

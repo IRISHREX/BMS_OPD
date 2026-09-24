@@ -36,7 +36,7 @@ const SimpleBarChart = ({ data }) => {
 
   const barWidth = Math.min(24, Math.max(12, Math.floor(260 / (data.length * 2 + 1))));
   const groupMargin = Math.min(22, Math.max(8, Math.floor(140 / (data.length + 1))));
-  const chartWidth = Math.max(340, data.length * (barWidth * 2 + groupMargin) + paddingLeft + paddingRight);
+  const chartWidth = Math.max(260, data.length * (barWidth * 2 + groupMargin) + paddingLeft + paddingRight);
 
   // Y-axis grid ticks (0, 50%, 100%)
   const yTicks = [

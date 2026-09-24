@@ -28,7 +28,7 @@ const LineChartCard = ({ data, title }) => {
   const paddingTop = 28;
   const paddingBottom = 42;
   const availableHeight = chartHeight - paddingTop - paddingBottom;
-  const chartWidth = Math.max(280, data.length * 50);
+  const chartWidth = Math.max(250, data.length * 50);
 
   const maxVal = Math.max(...data.map(d => Number(d.value) || 0), 100);
   const pointGap = data.length > 1 ? (chartWidth - paddingLeft - paddingRight) / (data.length - 1) : 0;

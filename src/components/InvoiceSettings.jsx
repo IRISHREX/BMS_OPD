@@ -3,6 +3,8 @@ import {
   FaEdit,
   FaPlus,
   FaTrash,
+  FaCheck,
+  FaFileInvoiceDollar,
 } from "react-icons/fa";
 import api from "../utils/api";
 import {
@@ -12,9 +14,8 @@ import {
 } from "../utils/soundUtils";
 import "./Settings.css";
 import { MdOutlineEdit } from "react-icons/md";
-
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { IoSearch } from "react-icons/io5";
+import { IoSearch, IoClose } from "react-icons/io5";
 
 
 const InvoiceSettings = () => {
@@ -47,7 +48,6 @@ const InvoiceSettings = () => {
   const [editing, setEditing] = useState(null);
   const [doctors, setDoctors] = useState([]);
   const [dashboardUser, setDashboardUser] = useState(null);
-  const [itemsModalOpen, setItemsModalOpen] = useState(false);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
 
   const fetchInvoices = async (opts = {}) => {
@@ -318,29 +318,6 @@ const InvoiceSettings = () => {
     }
   };
 
-  const modalOverlayStyle = {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: "rgba(0,0,0,0.5)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 1000,
-  };
-
-  const modalStyle = {
-    background: "#fff",
-    padding: 16,
-    borderRadius: 8,
-    width: "90%",
-    maxWidth: 900,
-    maxHeight: "90vh",
-    overflowY: "auto",
-  };
-
   return (
     <section className="page">
       <div className="medicine-page-header">
@@ -566,271 +543,294 @@ const InvoiceSettings = () => {
 
       {invoiceModalOpen && (
         <div
-          style={modalOverlayStyle}
+          className="invoice-modal-overlay"
           onClick={() => setInvoiceModalOpen(false)}
         >
-          <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-            <h3>{editing ? "Edit Invoice" : "Create Invoice"}</h3>
-            <div style={{ display: "grid" }}>
-              <input
-                className="invoice-input"
-                placeholder="Invoice Number"
-                value={form.invoiceNumber}
-                onChange={(e) =>
-                  setForm({ ...form, invoiceNumber: e.target.value })
-                }
-              />
-              <input
-                className="invoice-input"
-                placeholder="Patient ID"
-                value={form.patient}
-                onChange={(e) => setForm({ ...form, patient: e.target.value })}
-              />
-              <input
-                className="invoice-input"
-                placeholder="Appointment ID (optional)"
-                value={form.appointment}
-                onChange={(e) =>
-                  setForm({ ...form, appointment: e.target.value })
-                }
-              />
-              <input
-                className="invoice-input"
-                placeholder="Doctor ID (optional)"
-                value={form.doctor}
-                onChange={(e) => setForm({ ...form, doctor: e.target.value })}
-              />
-              <div className="invoice-form-card">
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 8,
-                  }}
-                >
-                  <div style={{ fontWeight: 600 }}>Items</div>
-                  <div
-                    style={{ display: "flex", gap: 8, alignItems: "center" }}
-                  >
-                    <button
-                      onClick={() => setItemsModalOpen(true)}
-                      className="btn btn-ghost btn-small"
-                    >
-                      Open Items
-                    </button>
+          <div className="invoice-modal-container" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="invoice-modal-header">
+              <div className="invoice-modal-title-group">
+                <div className="invoice-modal-icon-badge">
+                  <FaFileInvoiceDollar />
+                </div>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <h3 className="invoice-modal-title">{editing ? "Edit Invoice" : "Create Invoice"}</h3>
+                    {form.invoiceNumber && (
+                      <span className="invoice-modal-chip">{form.invoiceNumber}</span>
+                    )}
+                    <span className={statusBadgeClass(form.status)}>
+                      {form.status || "Unpaid"}
+                    </span>
                   </div>
                 </div>
-                <div style={{ marginBottom: 8, color: "#666" }}>
-                  {(form.items || []).length} item(s) • Click "Open Items" to
-                  edit details
-                </div>
               </div>
-              <input
-                className="invoice-input"
-                placeholder="Notes (optional)"
-                value={form.notes}
-                onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              />
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "150px 100px 100px",
-                  gap: 8,
-                  width: "100%",
-                }}
+              <button
+                className="invoice-modal-close-btn"
+                onClick={() => setInvoiceModalOpen(false)}
+                title="Close"
               >
-                <input
-                  className="invoice-input"
-                  placeholder="Due Date"
-                  type="date"
-                  value={form.dueDate}
-                  onChange={(e) =>
-                    setForm({ ...form, dueDate: e.target.value })
-                  }
-                />
-                <input
-                  className="invoice-input"
-                  placeholder="Tax"
-                  value={form.tax}
-                  onChange={(e) =>
-                    setForm({ ...form, tax: Number(e.target.value) })
-                  }
-                />
-                <input
-                  className="invoice-input"
-                  placeholder="Discount"
-                  value={form.discount}
-                  onChange={(e) =>
-                    setForm({ ...form, discount: Number(e.target.value) })
-                  }
-                />
-              </div>
-              <label style={{ marginTop: 6 }}>
-                Status:
-                <select
-                  value={form.status}
-                  onChange={(e) => setForm({ ...form, status: e.target.value })}
-                >
-                  <option value="Unpaid">Unpaid</option>
-                  <option value="Partial">Partial</option>
-                  <option value="Paid">Paid</option>
-                  <option value="Cancelled">Cancelled</option>
-                </select>
-              </label>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginTop: 8,
-                }}
-              >
-                <div className="invoice-summary">
-                  <div>
-                    Subtotal: <strong>{computedSubtotal.toFixed(2)}</strong>
-                  </div>
-                  <div className="muted">
-                    Tax: <strong>{Number(form.tax || 0).toFixed(2)}</strong> •
-                    Discount:{" "}
-                    <strong>{Number(form.discount || 0).toFixed(2)}</strong>
-                  </div>
-                  <div style={{ marginTop: 6, fontSize: 16 }}>
-                    Total: <strong>{computedTotal.toFixed(2)}</strong>
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button
-                    className="btn btn-primary"
-                    onClick={handleCreateOrUpdate}
-                  >
-                    {editing ? "Update" : "Create"}
-                  </button>
-                  <button
-                    className="btn btn-ghost"
-                    onClick={() => setInvoiceModalOpen(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {itemsModalOpen && (
-        <div style={modalOverlayStyle} onClick={() => setItemsModalOpen(false)}>
-          <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 12,
-              }}
-            >
-              <h3 style={{ margin: 0 }}>Invoice Items</h3>
-              <div>
-                <button
-                  className="btn btn-ghost"
-                  onClick={() => setItemsModalOpen(false)}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-            <div style={{ marginBottom: 12 }}>
-              <button className="btn btn-primary btn-small" onClick={addItem}>
-                + Add Item
+                <IoClose />
               </button>
             </div>
-            <table
-              className="invoice-items-table"
-              style={{ width: "100%", marginBottom: 8 }}
-            >
-              <thead>
-                <tr
-                  style={{
-                    textAlign: "left",
-                    borderBottom: "1px solid #f0f0f0",
-                  }}
-                >
-                  <th style={{ padding: "1rem" }}>Description</th>
-                  <th style={{ padding: "1rem", width: 80 }}>Qty</th>
-                  <th style={{ padding: "1rem", width: 120 }}>Unit Price</th>
-                  <th style={{ padding: "1rem", width: 120 }}>Total</th>
-                  <th style={{ padding: "1rem", width: 60 }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {(form.items || []).length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      style={{ padding: 8, textAlign: "center", color: "#666" }}
-                    >
-                      No items added
-                    </td>
-                  </tr>
-                )}
-                {(form.items || []).map((it, idx) => (
-                  <tr key={it._id || idx}>
-                    <td style={{ padding: 6 }}>
+
+            {/* Body: 2-Column Responsive Layout */}
+            <div className="invoice-modal-2col-body">
+              {/* LEFT COLUMN: Metadata & Notes */}
+              <div className="invoice-modal-left-col">
+                <div className="invoice-section-title">Billing & Patient Info</div>
+                <div className="invoice-form-compact-grid">
+                  <div className="invoice-field-group">
+                    <label>Invoice Number</label>
+                    <input
+                      className="invoice-input"
+                      placeholder="e.g. INV-20260924-001"
+                      value={form.invoiceNumber}
+                      onChange={(e) =>
+                        setForm({ ...form, invoiceNumber: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div className="invoice-field-group">
+                    <label>Patient ID / Name</label>
+                    <input
+                      className="invoice-input"
+                      placeholder="Enter Patient ID or Name"
+                      value={form.patient}
+                      onChange={(e) => setForm({ ...form, patient: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="invoice-field-group">
+                    <label>Attending Doctor</label>
+                    {doctors.length > 0 ? (
+                      <select
+                        className="invoice-select"
+                        value={form.doctor}
+                        onChange={(e) => setForm({ ...form, doctor: e.target.value })}
+                      >
+                        <option value="">-- Select Doctor --</option>
+                        {doctors.map((d) => (
+                          <option key={d._id} value={d._id}>
+                            {d.firstName} {d.lastName}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
                       <input
                         className="invoice-input"
-                        value={it.description}
-                        onChange={(e) =>
-                          updateItem(idx, "description", e.target.value)
-                        }
+                        placeholder="Doctor ID"
+                        value={form.doctor}
+                        onChange={(e) => setForm({ ...form, doctor: e.target.value })}
                       />
-                    </td>
-                    <td style={{ padding: 6 }}>
+                    )}
+                  </div>
+
+                  <div className="invoice-grid-2col">
+                    <div className="invoice-field-group">
+                      <label>Due Date</label>
                       <input
-                        className="invoice-input small-number"
-                        type="number"
-                        min={0}
-                        value={it.quantity}
+                        className="invoice-input"
+                        type="date"
+                        value={form.dueDate}
                         onChange={(e) =>
-                          updateItem(idx, "quantity", e.target.value)
+                          setForm({ ...form, dueDate: e.target.value })
                         }
                       />
-                    </td>
-                    <td style={{ padding: 6 }}>
-                      <input
-                        className="invoice-input small-number"
-                        type="number"
-                        min={0}
-                        value={it.unitPrice}
-                        onChange={(e) =>
-                          updateItem(idx, "unitPrice", e.target.value)
-                        }
-                      />
-                    </td>
-                    <td style={{ padding: 6, textAlign: "right" }}>
-                      {(Number(it.total) || 0).toFixed(2)}
-                    </td>
-                    <td style={{ padding: 6 }}>
-                      <button
-                        className="btn btn-danger btn-small"
-                        onClick={() => removeItem(idx)}
+                    </div>
+                    <div className="invoice-field-group">
+                      <label>Payment Status</label>
+                      <select
+                        className="invoice-select"
+                        value={form.status}
+                        onChange={(e) => setForm({ ...form, status: e.target.value })}
                       >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div
-              style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}
-            >
-              <button
-                className="btn btn-ghost"
-                onClick={() => setItemsModalOpen(false)}
-              >
-                Done
-              </button>
+                        <option value="Unpaid">Unpaid</option>
+                        <option value="Partial">Partial</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Cancelled">Cancelled</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="invoice-field-group">
+                    <label>Notes & Instructions (Optional)</label>
+                    <textarea
+                      className="invoice-notes-textarea"
+                      placeholder="Payment remarks, terms, or patient notes..."
+                      value={form.notes}
+                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                      style={{ height: "60px", minHeight: "50px" }}
+                    />
+                    {form.appointment && (
+                      <div className="sub-label">Linked Appointment: {form.appointment}</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN: Line Items & Financial Summary */}
+              <div className="invoice-modal-right-col">
+                {/* Line Items Card */}
+                <div className="invoice-items-card">
+                  <div className="invoice-items-header">
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span className="invoice-section-title" style={{ margin: 0 }}>Line Items</span>
+                      <span className="invoice-items-count-badge">
+                        {(form.items || []).length} item{(form.items || []).length === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className="invoice-add-item-btn"
+                      onClick={addItem}
+                    >
+                      <FaPlus style={{ fontSize: "0.72rem" }} /> Add Line Item
+                    </button>
+                  </div>
+
+                  <div className="invoice-items-table-wrapper">
+                    <table className="invoice-items-table">
+                      <thead>
+                        <tr>
+                          <th>Description / Service</th>
+                          <th style={{ width: "65px", textAlign: "center" }}>Qty</th>
+                          <th style={{ width: "95px", textAlign: "right" }}>Unit Price</th>
+                          <th style={{ width: "95px", textAlign: "right" }}>Total</th>
+                          <th style={{ width: "36px", textAlign: "center" }}></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(form.items || []).length === 0 ? (
+                          <tr>
+                            <td colSpan={5} style={{ textAlign: "center", padding: "1.2rem", color: "#64748b", fontSize: "0.82rem" }}>
+                              No line items. Click <strong>"+ Add Line Item"</strong> above.
+                            </td>
+                          </tr>
+                        ) : (
+                          (form.items || []).map((it, idx) => (
+                            <tr key={it._id || idx}>
+                              <td>
+                                <input
+                                  className="invoice-item-input"
+                                  placeholder="Service / Item name..."
+                                  value={it.description}
+                                  onChange={(e) =>
+                                    updateItem(idx, "description", e.target.value)
+                                  }
+                                />
+                              </td>
+                              <td>
+                                <input
+                                  className="invoice-item-input"
+                                  style={{ textAlign: "center" }}
+                                  type="number"
+                                  min={0}
+                                  value={it.quantity}
+                                  onChange={(e) =>
+                                    updateItem(idx, "quantity", e.target.value)
+                                  }
+                                />
+                              </td>
+                              <td>
+                                <input
+                                  className="invoice-item-input"
+                                  style={{ textAlign: "right" }}
+                                  type="number"
+                                  min={0}
+                                  step="any"
+                                  value={it.unitPrice}
+                                  onChange={(e) =>
+                                    updateItem(idx, "unitPrice", e.target.value)
+                                  }
+                                />
+                              </td>
+                              <td style={{ textAlign: "right", fontWeight: 600, color: "#1e293b", fontSize: "0.85rem" }}>
+                                ₹{(Number(it.total) || 0).toFixed(2)}
+                              </td>
+                              <td style={{ textAlign: "center" }}>
+                                <button
+                                  type="button"
+                                  className="invoice-item-del-btn"
+                                  title="Delete Item"
+                                  onClick={() => removeItem(idx)}
+                                >
+                                  <RiDeleteBin6Line />
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Financial Summary Breakdown */}
+                <div className="invoice-summary-card">
+                  <div className="invoice-summary-row">
+                    <span>Subtotal:</span>
+                    <strong>₹ {computedSubtotal.toFixed(2)}</strong>
+                  </div>
+                  <div className="invoice-summary-row">
+                    <span>Tax (₹):</span>
+                    <input
+                      type="number"
+                      min={0}
+                      step="any"
+                      className="invoice-item-input"
+                      style={{ width: "85px", height: "28px", textAlign: "right" }}
+                      value={form.tax}
+                      onChange={(e) =>
+                        setForm({ ...form, tax: Number(e.target.value) })
+                      }
+                    />
+                  </div>
+                  <div className="invoice-summary-row">
+                    <span>Discount (₹):</span>
+                    <input
+                      type="number"
+                      min={0}
+                      step="any"
+                      className="invoice-item-input"
+                      style={{ width: "85px", height: "28px", textAlign: "right" }}
+                      value={form.discount}
+                      onChange={(e) =>
+                        setForm({ ...form, discount: Number(e.target.value) })
+                      }
+                    />
+                  </div>
+                  <div className="invoice-summary-row total">
+                    <span>Total Amount:</span>
+                    <span style={{ color: "#4f46e5" }}>₹ {computedTotal.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="invoice-modal-footer">
+              <span className="invoice-footer-hint">
+                All amounts are auto-calculated dynamically
+              </span>
+              <div className="invoice-footer-actions">
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => setInvoiceModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleCreateOrUpdate}
+                >
+                  <FaCheck style={{ marginRight: "6px" }} />
+                  {editing ? "Update Invoice" : "Create Invoice"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
