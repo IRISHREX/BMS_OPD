@@ -39,6 +39,8 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
   const [stampImagePreview, setStampImagePreview] = useState("");
   const [headerImage, setHeaderImage] = useState("");
   const [headerImagePreview, setHeaderImagePreview] = useState("");
+  const [footerImage, setFooterImage] = useState("");
+  const [footerImagePreview, setFooterImagePreview] = useState("");
   const [age, setAge] = useState("");
 
   const resolveImageUrl = (img) => {
@@ -69,6 +71,7 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
       setSignImagePreview(resolveImageUrl(initialData.signImage));
       setStampImagePreview(resolveImageUrl(initialData.stampImage));
       setHeaderImagePreview(resolveImageUrl(initialData.headerImage));
+      setFooterImagePreview(resolveImageUrl(initialData.footerImage));
       const ageFromDob = initialData.dob ? dobToAgeYears(initialData.dob) : "";
       setAge(ageFromDob);
     }
@@ -131,6 +134,16 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
     };
   };
 
+  const handleFooterImage = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      setFooterImagePreview(reader.result);
+      setFooterImage(file);
+    };
+  };
+
   const handleAddNewDoctor = async (e) => {
     e.preventDefault();
 
@@ -170,6 +183,7 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
     if (signImage) formData.append("signImage", signImage);
     if (stampImage) formData.append("stampImage", stampImage);
     if (headerImage) formData.append("headerImage", headerImage);
+    if (footerImage) formData.append("footerImage", footerImage);
 
     if (isEditing) {
       // Pass FormData directly to saga (bypasses Redux serialization check)
@@ -202,6 +216,8 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
       setStampImagePreview("");
       setHeaderImage("");
       setHeaderImagePreview("");
+      setFooterImage("");
+      setFooterImagePreview("");
       dispatch(resetDoctorCreate());
       setIsAuthenticated(true);
       navigateTo("/");
@@ -242,7 +258,7 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
             </div>
             <div style={{ marginTop: 8 }}>
               <label style={{ display: "block", marginBottom: 6 }}>
-                Footer Image (optional)
+                Signature Image (optional)
               </label>
               <input type="file" onChange={handleSignImage} accept="image/*" />
               {signImagePreview && (
@@ -279,6 +295,23 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
                 <img
                   src={headerImagePreview}
                   alt="Header Preview"
+                  style={{ width: 180, marginTop: 6 }}
+                />
+              )}
+            </div>
+            <div style={{ marginTop: 8 }}>
+              <label style={{ display: "block", marginBottom: 6 }}>
+                Footer Image (optional)
+              </label>
+              <input
+                type="file"
+                onChange={handleFooterImage}
+                accept="image/*"
+              />
+              {footerImagePreview && (
+                <img
+                  src={footerImagePreview}
+                  alt="Footer Preview"
                   style={{ width: 180, marginTop: 6 }}
                 />
               )}

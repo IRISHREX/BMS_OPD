@@ -1408,7 +1408,7 @@ const MyDocument = ({ header, footer, p_data = {}, dr_data = {}, report = {}, ac
 
         {/* Footer */}
         <View style={[styles.footer_section, { maxHeight: `${footerHeight}mm` }]} fixed>
-          <Image style={styles.footer_image} src={footer || "/G.Jakaria_footer1.png"} />
+          <Image style={[styles.footer_image, { maxHeight: `${footerHeight}mm` }]} src={footer || "/Footer.png"} />
         </View>
       </Page>
     </Document>

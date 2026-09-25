@@ -12,7 +12,7 @@ import api from "../utils/api";
 import { BsDownload } from "react-icons/bs";
 import MyDocument from "./MyDocument";
 import ReactDOM from 'react-dom';
-import { PDFViewer } from '@react-pdf/renderer';
+import { PDFViewer, pdf } from '@react-pdf/renderer';
 
 // Helper: format date
 const formatDate = (date) =>
@@ -34,6 +34,8 @@ const Preview = () => {
   const [editMode, setEditMode] = useState(false);
   const [printWithHeader, setPrintWithHeader] = useState(true);
   const [printWithFooter, setPrintWithFooter] = useState(true);
+  const [savingPdf, setSavingPdf] = useState(false);
+  const [pdfSaveMsg, setPdfSaveMsg] = useState("");
   const { isAuthenticated, admin } = useContext(Context);
   const navigate = useNavigate();
 
@@ -112,7 +114,7 @@ const Preview = () => {
     return () => {
       isMounted = false;
     };
-  }, [doctor?.headerImage, doctor?.signImage, doctor?.stampImage, doctor?._id, headerImageUrl, pageFooterImageUrl, doctorSignUrl, doctorStampUrl]);
+  }, [doctor?.headerImage, doctor?.signImage, doctor?.stampImage, doctor?.footerImage, doctor?._id, headerImageUrl, pageFooterImageUrl, doctorSignUrl, doctorStampUrl]);
 
   // Role check
   const canEdit = isAuthenticated && ["Admin", "Doctor"].includes(admin?.role);
@@ -280,14 +282,59 @@ const Preview = () => {
     report?.followUp ||
     "";
 
+  // --- Save prescription PDF to S3 ---
+  const handleSavePdf = async () => {
+    const prescriptionId = patient?.prescriptionId;
+    if (!prescriptionId) {
+      alert("No prescription record found for this patient. Please save the prescription first.");
+      return;
+    }
+    if (!report) {
+      alert("No prescription data to save.");
+      return;
+    }
+    setSavingPdf(true);
+    setPdfSaveMsg("");
+    try {
+      // Dynamically import pdf() to avoid circular dep issues
+      const { pdf: makePdf } = await import('@react-pdf/renderer');
+      const blob = await makePdf(
+        <MyDocument
+          header={resolvedHeader || headerImageUrl}
+          footer={resolvedFooter || pageFooterImageUrl}
+          p_data={patient}
+          dr_data={doctor ? { ...doctor, headerImage: resolvedHeader, signImage: resolvedSign, stampImage: resolvedStamp } : doctor}
+          report={report}
+          activeTemplate={activeTemplate}
+        />
+      ).toBlob();
+      const arrayBuffer = await blob.arrayBuffer();
+      const pdfBuffer = new Uint8Array(arrayBuffer);
+
+      await api.post(
+        `/api/v1/prescription/pdf/${prescriptionId}`,
+        pdfBuffer,
+        { headers: { "Content-Type": "application/pdf" } }
+      );
+      setPdfSaveMsg("✓ Prescription PDF saved!");
+      setTimeout(() => setPdfSaveMsg(""), 4000);
+    } catch (err) {
+      const msg = err?.response?.data?.message || err.message || "Save failed";
+      setPdfSaveMsg("✗ " + msg);
+      setTimeout(() => setPdfSaveMsg(""), 6000);
+    } finally {
+      setSavingPdf(false);
+    }
+  };
+
   // --- UI ---
   return (
     <section className="page modern-preview">
-      <div className="back-btn-box" style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="back-btn-box" style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
         <button className="back-btn add-btn" onClick={() => navigate("/")}>
           ← Go Back
         </button>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
           <label style={{ fontWeight: "bold", fontSize: "14px", color: "#333" }}>Prescription Template:</label>
           <select
             className="form-control"
@@ -306,6 +353,34 @@ const Preview = () => {
               <option key={t._id} value={t._id}>{t.name}</option>
             ))}
           </select>
+          {/* Save PDF to S3 */}
+          <button
+            onClick={handleSavePdf}
+            disabled={savingPdf || !patient?.prescriptionId}
+            title={patient?.prescriptionId ? "Save prescription as PDF to disk" : "No prescription saved yet"}
+            style={{
+              padding: "7px 14px",
+              borderRadius: "7px",
+              border: "none",
+              background: savingPdf ? "#6b7280" : "linear-gradient(135deg,#10b981,#059669)",
+              color: "#fff",
+              fontWeight: "700",
+              fontSize: "13px",
+              cursor: savingPdf || !patient?.prescriptionId ? "not-allowed" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              opacity: !patient?.prescriptionId ? 0.55 : 1,
+              transition: "opacity 0.2s",
+            }}
+          >
+            {savingPdf ? "Saving…" : "💾 Save PDF"}
+          </button>
+          {pdfSaveMsg && (
+            <span style={{ fontSize: "13px", fontWeight: "600", color: pdfSaveMsg.startsWith("✓") ? "#10b981" : "#ef4444" }}>
+              {pdfSaveMsg}
+            </span>
+          )}
         </div>
       </div>
       {report && imagesLoaded ? (

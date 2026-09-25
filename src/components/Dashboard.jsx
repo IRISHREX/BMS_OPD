@@ -12,6 +12,7 @@ import Prescription from "./Prescription";
 import Modal from "react-modal";
 import { FaTrash } from "react-icons/fa";
 import RequirePermission from "./RequirePermission";
+import DownloadPrescriptionModal from "./DownloadPrescriptionModal";
 import {
   MdOutlineContentPasteSearch,
   MdOutlineDelete,
@@ -19,6 +20,7 @@ import {
 } from "react-icons/md";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
+import { FaFilePdf } from "react-icons/fa6";
 import { IoReceipt } from "react-icons/io5";
 import RescheduleModal from "./RescheduleModal";
 import DashboardSlotChecker from "./DashboardSlotChecker";
@@ -82,6 +84,7 @@ const Dashboard = () => {
   // Modal and prescription state
   const [prescriptionModalOpen, setPrescriptionModalOpen] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
+  const [downloadPrescriptionPatient, setDownloadPrescriptionPatient] = useState(null); // { patientId, name }
   const [selectedPatientData, setSelectedPatientData] = useState(null);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
@@ -1240,6 +1243,27 @@ const Dashboard = () => {
                           >
                             <FaEye title="View prescription" />
                           </button>
+                          {/* Download saved prescription PDFs */}
+                          <button
+                            ref={setupClickSound}
+                            className="icon-btn"
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#e74c4c",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              const pid = appointment.patientId?._id || appointment.patientId;
+                              const pname = appointment.firstName
+                                ? `${appointment.firstName} ${appointment.lastName || ""}`.trim()
+                                : "Patient";
+                              setDownloadPrescriptionPatient({ patientId: pid, name: pname });
+                            }}
+                            title="Download saved prescription PDFs"
+                          >
+                            <FaFilePdf />
+                          </button>
                           <button
                             ref={setupClickSound}
                             className="icon-btn"
@@ -1364,6 +1388,15 @@ const Dashboard = () => {
             isOpen={slotCheckerOpen}
             onClose={() => setSlotCheckerOpen(false)}
           />
+
+          {/* Download Prescription PDFs Modal */}
+          {downloadPrescriptionPatient && (
+            <DownloadPrescriptionModal
+              patientId={downloadPrescriptionPatient.patientId}
+              patientName={downloadPrescriptionPatient.name}
+              onClose={() => setDownloadPrescriptionPatient(null)}
+            />
+          )}
         </div>
       </section>
     </>

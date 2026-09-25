@@ -21,6 +21,8 @@ import { LuFilterX } from "react-icons/lu";
 import useClickSound from "../hooks/useClickSound";
 import { playSettledSound } from "../utils/soundUtils";
 import { formatAppointmentId, formatPatientId } from "../utils/idUtils";
+import DownloadPrescriptionModal from "./DownloadPrescriptionModal";
+import { FaFilePdf } from "react-icons/fa6";
 
 const fmt = (n) => {
   const v = Number(n) || 0;
@@ -43,6 +45,7 @@ const ReportsPage = () => {
 
   const [totals, setTotals] = useState({ paid: 0, totalDue: 0, invoiced: 0 });
   const [groups, setGroups] = useState([]);
+  const [downloadPrescriptionPatient, setDownloadPrescriptionPatient] = useState(null); // { patientId, name }
   
   // Default to Persisted View as main view
   const [usePersisted, setUsePersisted] = useState(() => {
@@ -601,6 +604,7 @@ const ReportsPage = () => {
   };
 
   return (
+    <>
     <section className="reports-page page">
       <Toolbar>
         <div className="reports-top-bar">
@@ -918,22 +922,22 @@ const ReportsPage = () => {
                         <span className="reports-amount-val">₹{fmt(r.amount)}</span>
                       </td>
                       <td>
-                        <div className="reports-actions-cell">
-                          {/* Download Prescription PDF button */}
+                         <div className="reports-actions-cell">
+                          {/* Download saved Prescription PDFs */}
                           <button
                             ref={setupClickSound}
                             className="reports-btn-action view"
-                            title="Download Prescription PDF"
+                            title="Download Saved Prescription PDFs"
                             onClick={() => {
                               const pid = r.patientId?._id || r.patientId || r.appointmentId?.patientId?._id || r.appointmentId?.patientId;
-                              const apptId = r.appointmentId?._id || r.appointmentId || "";
-                              if (pid) {
-                                window.open(`/preview/${pid}?appointmentId=${apptId}`, '_blank');
-                              }
+                              const pname = r.patientId?.firstName
+                                ? `${r.patientId.firstName} ${r.patientId.lastName || ""}`.trim()
+                                : (r.appointmentId?.name || "Patient");
+                              if (pid) setDownloadPrescriptionPatient({ patientId: pid, name: pname });
                             }}
-                            style={{ background: "var(--accent, #1a9e9b)", color: "#fff", border: "none" }}
+                            style={{ background: "#e74c4c", color: "#fff", border: "none" }}
                           >
-                            <FaFileMedical />
+                            <FaFilePdf />
                           </button>
                           {/* Download Invoice button */}
                           <button
@@ -1246,6 +1250,16 @@ const ReportsPage = () => {
         </div>
       )}
     </section>
+
+      {/* Download Prescription PDFs Modal */}
+      {downloadPrescriptionPatient && (
+        <DownloadPrescriptionModal
+          patientId={downloadPrescriptionPatient.patientId}
+          patientName={downloadPrescriptionPatient.name}
+          onClose={() => setDownloadPrescriptionPatient(null)}
+        />
+      )}
+    </>
   );
 };
 

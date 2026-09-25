@@ -8,6 +8,7 @@ const MessageList = ({
   onUpdateStatus,
   onDelete,
   onReply,
+  onDownloadPrescription,
 }) => {
   // Debug: log incoming messages prop to help trace UI rendering issues
   try {
@@ -26,6 +27,7 @@ const MessageList = ({
           onUpdateStatus={onUpdateStatus}
           onDelete={onDelete}
           onReply={onReply}
+          onDownloadPrescription={onDownloadPrescription}
         />
       ))}
     </div>

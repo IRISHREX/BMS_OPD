@@ -111,6 +111,7 @@ function* fetchPreviewSaga(action) {
         updatedAt: latest.updatedAt || latest.appointment_date,
         weight: prescriptionReport[0] && prescriptionReport[0].diagnosys ? prescriptionReport[0].diagnosys.Weight : latest.weight,
         report: prescriptionReport,
+        prescriptionId: presList[0]?._id || null,
         appointmentId: latest._id,
         appointment_date: latest.appointment_date,
         appointmentType: latest.appointmentType || latest.type || 'OPD',

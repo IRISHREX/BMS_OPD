@@ -7,6 +7,7 @@ import {
   MdReply,
 } from 'react-icons/md';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FaFilePdf } from 'react-icons/fa6';
 import useClickSound from '../hooks/useClickSound';
 
 const MessageCard = ({
@@ -16,6 +17,7 @@ const MessageCard = ({
   onUpdateStatus,
   onDelete,
   onReply,
+  onDownloadPrescription,
 }) => {
   const [replyText, setReplyText] = useState('');
   const [showReply, setShowReply] = useState(false);
@@ -169,6 +171,17 @@ const MessageCard = ({
         >
           <MdReply size="1.2rem" />
         </button>
+        {onDownloadPrescription && (
+          <button
+            ref={setupClickSound}
+            onClick={() => onDownloadPrescription(message)}
+            className="btn-icon icon-btn"
+            title="Download Saved Prescription PDFs"
+            style={{ color: '#e74c4c' }}
+          >
+            <FaFilePdf size="1.2rem" />
+          </button>
+        )}
       </div>
     </div>
   );

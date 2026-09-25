@@ -24,6 +24,7 @@ import ComposeModal from "./ComposeModal";
 import { HEIGHT_MAX } from "../utils/constants";
 import { FiEdit } from "react-icons/fi";
 import useClickSound from "../hooks/useClickSound";
+import DownloadPrescriptionModal from "./DownloadPrescriptionModal";
 
 const useDebounce = (value, delay) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -78,6 +79,7 @@ const Messages = () => {
   const [selected, setSelected] = useState([]);
   const [allDoctors, setAllDoctors] = useState([]);
   const [showComposeModal, setShowComposeModal] = useState(false);
+  const [downloadPrescriptionPatient, setDownloadPrescriptionPatient] = useState(null);
 
   const debouncedQ = useDebounce(filters.q, 500);
   const debouncedEmail = useDebounce(filters.email, 500);
@@ -219,6 +221,31 @@ const Messages = () => {
     return <Navigate to={"/login"} />;
   }
 
+  // Handle download prescription from message
+  const handleDownloadPrescription = async (message) => {
+    // Try to look up patient by phone number
+    const phone = String(message.phone || "").replace(/\D/g, "");
+    const name = `${message.firstName || ""} ${message.lastName || ""}`.trim() || "Patient";
+    if (!phone) {
+      snackbar.error("No phone number found in this message to look up patient.");
+      return;
+    }
+    try {
+      const { data } = await api.get(`/api/v1/user/patients?search=${phone}`);
+      const patients = data.patients || data.users || [];
+      const found = patients.find(
+        (p) => String(p.phone || "").replace(/\D/g, "").endsWith(phone.slice(-10))
+      );
+      if (found) {
+        setDownloadPrescriptionPatient({ patientId: found._id, name });
+      } else {
+        snackbar.error("Could not find a registered patient matching this message's phone number.");
+      }
+    } catch (err) {
+      snackbar.error("Failed to look up patient: " + (err?.response?.data?.message || err.message));
+    }
+  };
+
   // Build doctor list according to the logged-in dashboard user's role
   const filteredDoctors = (() => {
     if (!user) return [];
@@ -235,6 +262,7 @@ const Messages = () => {
   })();
 
   return (
+    <>
     <section className="messages-container page">
       <div className="messages-body">
         <div className="messages-header">
@@ -293,13 +321,14 @@ const Messages = () => {
           </div>
         ) : messages.length > 0 ? (
           <>
-            <MessageList
+          <MessageList
               messages={messages}
               selected={selected}
               onToggleSelect={toggleSelect}
               onUpdateStatus={updateMessageStatus}
               onDelete={deleteMessages}
               onReply={handleReply}
+              onDownloadPrescription={handleDownloadPrescription}
             />
             <Pagination
               currentPage={filters.page}
@@ -314,7 +343,17 @@ const Messages = () => {
           </div>
         )}
       </div>
-    </section>
+  </section>
+
+      {/* Download Prescription PDFs Modal */}
+      {downloadPrescriptionPatient && (
+        <DownloadPrescriptionModal
+          patientId={downloadPrescriptionPatient.patientId}
+          patientName={downloadPrescriptionPatient.name}
+          onClose={() => setDownloadPrescriptionPatient(null)}
+        />
+      )}
+    </>
   );
 };
 
