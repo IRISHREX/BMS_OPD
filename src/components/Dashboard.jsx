@@ -1254,11 +1254,11 @@ const Dashboard = () => {
                               cursor: "pointer",
                             }}
                             onClick={() => {
-                              const pid = appointment.patientId?._id || appointment.patientId;
-                              const pname = appointment.firstName
+                              const pid = appointment.patientId?._id || appointment.patientId || appointment._id;
+                              const pname = appointment.name || (appointment.firstName
                                 ? `${appointment.firstName} ${appointment.lastName || ""}`.trim()
-                                : "Patient";
-                              setDownloadPrescriptionPatient({ patientId: pid, name: pname });
+                                : "Patient");
+                              setDownloadPrescriptionPatient({ patientId: pid, name: pname, appointment });
                             }}
                             title="Download saved prescription PDFs"
                           >
@@ -1394,6 +1394,7 @@ const Dashboard = () => {
             <DownloadPrescriptionModal
               patientId={downloadPrescriptionPatient.patientId}
               patientName={downloadPrescriptionPatient.name}
+              appointmentData={downloadPrescriptionPatient.appointment}
               onClose={() => setDownloadPrescriptionPatient(null)}
             />
           )}

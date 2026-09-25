@@ -337,9 +337,8 @@ const ReportsPage = () => {
   };
 
   const generateClientReceiptHtml = async (entry) => {
-    const patName = entry.patientId && (entry.patientId.firstName || entry.patientId.name)
-      ? `${entry.patientId.firstName || entry.patientId.name} ${entry.patientId.lastName || ""}`.trim()
-      : (entry.appointmentId?.name || "Patient");
+    const patName = entry.appointmentId?.name 
+      || (entry.patientId && (entry.patientId.firstName || entry.patientId.name) ? `${entry.patientId.firstName || entry.patientId.name} ${entry.patientId.lastName || ""}`.trim() : "Patient");
     const docName = entry.doctorId && (entry.doctorId.firstName || entry.doctorId.name)
       ? `Dr. ${entry.doctorId.firstName || entry.doctorId.name} ${entry.doctorId.lastName || ""}`.trim()
       : (entry.appointmentId?.doctor?.firstName ? `Dr. ${entry.appointmentId.doctor.firstName} ${entry.appointmentId.doctor.lastName || ""}`.trim() : "Attending Doctor");
@@ -442,11 +441,11 @@ const ReportsPage = () => {
         ],
       ];
       reportEntries.forEach((r) => {
-        const patId = r.patientId?.nic || (r.patientId?._id ? `P-${String(r.patientId._id).slice(-5).toUpperCase()}` : (r.appointmentId?.nic || "-"));
+        const patId = r.appointmentId?.nic || r.patientId?.nic || (r.patientId?._id ? `P-${String(r.patientId._id).slice(-5).toUpperCase()}` : "-");
         const apptId = r.appointmentId?._id ? `APT-${String(r.appointmentId._id).slice(-6).toUpperCase()}` : (r.appointmentId || "-");
-        const patName = r.patientId && (r.patientId.firstName || r.patientId.name)
-          ? `${r.patientId.firstName || r.patientId.name} ${r.patientId.lastName || ""}`.trim()
-          : (r.appointmentId?.name || "N/A");
+        const patName = r.appointmentId?.name 
+          || (r.patientId && (r.patientId.firstName || r.patientId.name) ? `${r.patientId.firstName || r.patientId.name} ${r.patientId.lastName || ""}`.trim() : "")
+          || "N/A";
         const dateStr = r.appointmentDate ? String(r.appointmentDate).slice(0, 10) : "";
         const docName = r.doctorId && (r.doctorId.firstName || r.doctorId.name)
           ? `Dr. ${r.doctorId.firstName || r.doctorId.name} ${r.doctorId.lastName || ""}`.trim()
@@ -838,14 +837,14 @@ const ReportsPage = () => {
               </thead>
               <tbody>
                 {(reportEntries || []).map((r) => {
-                  const patId = r.patientId?.nic || (r.patientId?._id ? `P-${String(r.patientId._id).slice(-5).toUpperCase()}` : (r.appointmentId?.nic || "-"));
+                  const patId = r.appointmentId?.nic || r.patientId?.nic || (r.patientId?._id ? `P-${String(r.patientId._id).slice(-5).toUpperCase()}` : (r.appointmentId?._id ? `P-${String(r.appointmentId._id).slice(-5).toUpperCase()}` : "-"));
                   const apptDisplayId = r.appointmentId?._id 
                     ? `APT-${String(r.appointmentId._id).slice(-6).toUpperCase()}` 
                     : (r.appointmentId ? `APT-${String(r.appointmentId).slice(-6).toUpperCase()}` : "-");
                   
-                  const patName = r.patientId && (r.patientId.firstName || r.patientId.name)
-                    ? `${r.patientId.firstName || r.patientId.name} ${r.patientId.lastName || ""}`.trim()
-                    : (r.appointmentId?.name || r.patientId || "N/A");
+                  const patName = r.appointmentId?.name 
+                    || (r.patientId && (r.patientId.firstName || r.patientId.name) ? `${r.patientId.firstName || r.patientId.name} ${r.patientId.lastName || ""}`.trim() : "")
+                    || (typeof r.patientId === 'string' ? r.patientId : "N/A");
 
                   const docName = r.doctorId && (r.doctorId.firstName || r.doctorId.name)
                     ? `Dr. ${r.doctorId.firstName || r.doctorId.name} ${r.doctorId.lastName || ""}`.trim()
@@ -887,11 +886,11 @@ const ReportsPage = () => {
                             className="reports-btn-action view"
                             title="Download Saved Prescription PDFs"
                             onClick={() => {
-                              const pid = r.patientId?._id || r.patientId || r.appointmentId?.patientId?._id || r.appointmentId?.patientId;
-                              const pname = r.patientId?.firstName
-                                ? `${r.patientId.firstName} ${r.patientId.lastName || ""}`.trim()
-                                : (r.appointmentId?.name || "Patient");
-                              if (pid) setDownloadPrescriptionPatient({ patientId: pid, name: pname });
+                              const pid = r.patientId?._id || r.patientId || r.appointmentId?._id || r.appointmentId || r._id;
+                              const pname = (r.appointmentId && typeof r.appointmentId === 'object' ? r.appointmentId.name : null) ||
+                                (r.patientId && typeof r.patientId === 'object' ? (r.patientId.name || `${r.patientId.firstName || ''} ${r.patientId.lastName || ''}`.trim()) : null) ||
+                                r.name || "Patient";
+                              if (pid) setDownloadPrescriptionPatient({ patientId: pid, name: pname, appointment: r.appointmentId || r });
                             }}
                             style={{ background: "#e74c4c", color: "#fff", border: "none" }}
                           >
@@ -1214,6 +1213,7 @@ const ReportsPage = () => {
         <DownloadPrescriptionModal
           patientId={downloadPrescriptionPatient.patientId}
           patientName={downloadPrescriptionPatient.name}
+          appointmentData={downloadPrescriptionPatient.appointment}
           onClose={() => setDownloadPrescriptionPatient(null)}
         />
       )}

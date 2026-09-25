@@ -91,6 +91,7 @@ function* fetchPreviewSaga(action) {
              POG: lp.femaleTests?.POG || lp.POG || '',
              LCB: lp.femaleTests?.LCB || lp.LCB || '',
              MOD: lp.femaleTests?.MOD || lp.MOD || '',
+             address: lp.address || latest.address || '',
            }];
         }
       } catch (e) {
@@ -101,7 +102,7 @@ function* fetchPreviewSaga(action) {
         _id: latest.patientId || patientId,
         firstName: latest.firstName || latest.patientName || '',
         lastName: latest.lastName || '',
-        name: latest?.name || `${latest.firstName || ''} ${latest.lastName || ''}`.trim(),
+        name: latest?.name || latest?.patientName || `${latest.firstName || ''} ${latest.lastName || ''}`.trim() || 'Patient',
         nic: latest.nic || latest.NIC || '',
         email: latest.email || '',
         phone: latest.phone || latest.contact || '',

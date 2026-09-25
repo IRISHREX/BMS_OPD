@@ -80,6 +80,7 @@ export const resolveFullImageUrl = (imagePath, fallback = null) => {
  */
 export const generateFullReceiptHtml = async ({
   receiptNo = "REC-001",
+  serialNo = null,
   patientName = "Patient",
   doctorName = "Doctor",
   department = "General",
@@ -95,6 +96,7 @@ export const generateFullReceiptHtml = async ({
   const effectivePlatformFee = platformFee != null ? Number(platformFee) : (Number(settings.platformFee) || 0);
   const effectiveDocFee = Number(docFee) || 0;
   const grandTotal = totalAmount != null ? Number(totalAmount) : (effectiveDocFee + effectivePlatformFee);
+  const paddedSerial = serialNo != null ? String(serialNo).padStart(2, '0') : (receiptNo.match(/-\d+$/) ? receiptNo.match(/\d+$/)[0].slice(-2) : '01');
 
   const qrDataUrl = await generateLocationQrDataUrl(settings.googleLocationUrl);
   const headerUrl = resolveFullImageUrl(settings.defaultHeaderImage, "/Header.jpeg");
@@ -319,9 +321,18 @@ export const generateFullReceiptHtml = async ({
           ${settings.address ? `<div class="address-text">${settings.address}</div>` : ''}
         </div>
 
-        <div class="receipt-sub-bar">
-          <span class="receipt-no">Receipt #: ${receiptNo}</span>
-          <span class="badge ${paymentStatus === "Paid" ? "" : "badge-unpaid"}">${paymentStatus}</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="background: #2563eb; color: #ffffff; border-radius: 8px; padding: 4px 12px; font-size: 22px; font-weight: 900; letter-spacing: 0.5px;">#${paddedSerial}</div>
+            <div>
+              <div style="font-size: 11px; font-weight: 800; color: #1e40af; text-transform: uppercase; letter-spacing: 0.8px;">Daily Token / Serial No</div>
+              <div style="font-size: 12px; color: #3b82f6; font-weight: 600;">${doctorName || "Doctor"} • ${dateTime.split(",")[0] || ""}</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 13px; font-weight: 800; color: #0f172a;">${receiptNo}</div>
+            <span class="badge ${paymentStatus === "Paid" ? "" : "badge-unpaid"}" style="margin-top: 3px;">${paymentStatus}</span>
+          </div>
         </div>
 
         <div class="details-grid">

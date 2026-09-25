@@ -1309,6 +1309,10 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
         advice: adviceToSave,
         additionalAdvice,
         followUp,
+        prescriptionTemplate:
+          localStorage.getItem("defaultPrescriptionTemplate") ||
+          admin?.prescriptionTemplate ||
+          "Template 3: Orthopedic Layout",
       });
       if (doctorContact) {
         try {

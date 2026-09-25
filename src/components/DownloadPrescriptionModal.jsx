@@ -9,7 +9,7 @@ import "./DownloadPrescriptionModal.css";
  * Fetches saved prescription data records (up to 3) for the patient.
  * On clicking a date, dynamically generates and downloads the PDF on the fly.
  */
-const DownloadPrescriptionModal = ({ patientId, patientName = "Patient", onClose }) => {
+const DownloadPrescriptionModal = ({ patientId, patientName = "Patient", appointmentData = null, onClose }) => {
   const [prescriptions, setPrescriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [generatingId, setGeneratingId] = useState(null);
@@ -87,18 +87,168 @@ const DownloadPrescriptionModal = ({ patientId, patientName = "Patient", onClose
         convertToPngDataUri(stmpUrl),
       ]);
 
-      const report = {
-        ...pres,
-        initialComplain: typeof pres.provisionalDiagnosis === "object" ? pres.provisionalDiagnosis?.value : pres.provisionalDiagnosis,
-        medicineAdvice: pres.medicines || [],
-        clinical_findings: pres.clinicalFindings || {},
-        diagnosys: pres.vitals || {},
-        additionalAdvice: pres.additionalAdvice || "",
-        followUp: pres.followUp || "",
-        advice: pres.advice || {},
+      // 1. Resolve Templates & Set Default Template
+      const BUILT_IN_TEMPLATES = [
+        { _id: "template1", name: "Template 1: Right-side margin layout", layoutType: "Template 1: Right-side margin layout" },
+        { _id: "template2", name: "Template 2: Left-side margin layout", layoutType: "Template 2: Left-side margin layout" },
+        { _id: "template3", name: "Template 3: Orthopedic Layout", layoutType: "Template 3: Orthopedic Layout" },
+        { _id: "default", name: "Default Layout (Single Column)", layoutType: "default" },
+      ];
+
+      let dbTemplates = [];
+      try {
+        const doctorParam = doc._id ? `?doctorId=${doc._id}` : "";
+        const { data: tmplData } = await api.get(`/api/v1/template/my-templates${doctorParam}`);
+        if (tmplData?.templates?.length > 0) {
+          dbTemplates = tmplData.templates;
+        }
+      } catch (tmplErr) {
+        console.warn("Could not load templates:", tmplErr);
+      }
+
+      const allTemplates = [
+        ...dbTemplates,
+        ...BUILT_IN_TEMPLATES.filter((b) => !dbTemplates.some((t) => t.name === b.name || t._id === b._id)),
+      ];
+
+      const findMatchingTemplate = (target, list) => {
+        if (!target) return null;
+        const cleanTarget = String(target).toLowerCase().trim();
+        return list.find((t) => {
+          const id = String(t._id || t.id || "").toLowerCase();
+          const name = String(t.name || "").toLowerCase();
+          const layout = String(t.layoutType || "").toLowerCase();
+          return (
+            id === cleanTarget ||
+            name === cleanTarget ||
+            layout === cleanTarget ||
+            (cleanTarget.includes("template 3") && (id.includes("template3") || name.includes("template 3") || layout.includes("template 3"))) ||
+            (cleanTarget.includes("orthopedic") && (name.includes("orthopedic") || layout.includes("orthopedic") || id.includes("template3"))) ||
+            (cleanTarget.includes("template 2") && (id.includes("template2") || name.includes("template 2") || layout.includes("template 2"))) ||
+            (cleanTarget.includes("template 1") && (id.includes("template1") || name.includes("template 1") || layout.includes("template 1"))) ||
+            (cleanTarget === "default" && (id === "default" || name.includes("single column") || layout === "default"))
+          );
+        });
       };
 
-      const pat = pres.patientId || { name: patientName, _id: patientId };
+      // Determine default set template target
+      const docPref = pres.prescriptionTemplate || doc.prescriptionTemplate;
+      const localPref = localStorage.getItem("defaultPrescriptionTemplate") || localStorage.getItem("defaultPrescriptionTemplateId");
+      const defaultDbTmpl = dbTemplates.find((t) => t.isDefault);
+
+      let targetTemplate = null;
+      if (docPref && docPref !== "default") {
+        targetTemplate = findMatchingTemplate(docPref, allTemplates);
+      }
+      if (!targetTemplate && localPref) {
+        targetTemplate = findMatchingTemplate(localPref, allTemplates);
+      }
+      if (!targetTemplate && defaultDbTmpl) {
+        targetTemplate = defaultDbTmpl;
+      }
+      if (!targetTemplate) {
+        targetTemplate = allTemplates[0] || BUILT_IN_TEMPLATES[0];
+      }
+
+      // 2. Full Clinical Details & Patient Resolution
+      const appt = (pres.appointmentId && typeof pres.appointmentId === "object") ? pres.appointmentId : (appointmentData || {});
+      const user = (pres.patientId && typeof pres.patientId === "object") ? pres.patientId : {};
+
+      // Name resolution: check appointment name first (contains actual full name), then user name/firstName, then patientName prop
+      let resolvedName = appt.name || user.name || (user.firstName ? `${user.firstName} ${user.lastName || ""}`.trim() : "");
+      if (!resolvedName || resolvedName.toLowerCase() === "patient") {
+        if (patientName && patientName.toLowerCase() !== "patient") {
+          resolvedName = patientName;
+        } else if (appointmentData?.name) {
+          resolvedName = appointmentData.name;
+        } else if (appt.name) {
+          resolvedName = appt.name;
+        }
+      }
+      if (!resolvedName) resolvedName = "Patient";
+
+      const resolvedAddress = appt.address || appointmentData?.address || user.address || pres.address || "";
+      const resolvedPhone = appt.phone || appointmentData?.phone || user.phone || pres.phone || "N/A";
+      const resolvedAge = appt.age || appointmentData?.age || user.age || pres.age || "";
+      const resolvedGender = appt.gender || appointmentData?.gender || user.gender || pres.gender || "Male";
+      const resolvedNic = appt.nic || appointmentData?.nic || user.nic || pres.nic || "";
+      const resolvedAppointmentId = appt._id || appointmentData?._id || pres.appointmentId?._id || pres.appointmentId;
+
+      const report = {
+        ...pres,
+        initialComplain: typeof pres.provisionalDiagnosis === "object" ? pres.provisionalDiagnosis?.value : (pres.provisionalDiagnosis || pres.initialComplain || ""),
+        presentingComplaints: pres.presentingComplaints || "",
+        medicalHistory: pres.medicalHistory || "",
+        clinical_findings: pres.clinicalFindings || pres.clinical_findings || {},
+        clinicalFindings: pres.clinicalFindings || pres.clinical_findings || {},
+        diagnosys_heading: pres.diagnosys_heading || "Provisional Diagnosis",
+        provisionalDiagnosis: typeof pres.provisionalDiagnosis === "object" ? pres.provisionalDiagnosis?.value : (pres.provisionalDiagnosis || ""),
+        pathologyReport: pres.pathologyReport || "",
+        radiologyReport: pres.radiologyReport || "",
+        femaleTests: pres.femaleTests || {},
+        Gravida: pres.femaleTests?.Gravida || pres.Gravida || "",
+        Parity: pres.femaleTests?.Parity || pres.Parity || "",
+        LMP: pres.femaleTests?.LMP || pres.LMP || "",
+        EDD: pres.femaleTests?.EDD || pres.EDD || "",
+        POG: pres.femaleTests?.POG || pres.POG || "",
+        LCB: pres.femaleTests?.LCB || pres.LCB || "",
+        MOD: pres.femaleTests?.MOD || pres.MOD || "",
+        diagnosys: pres.vitals || pres.diagnosys || {},
+        vitals: pres.vitals || pres.diagnosys || {},
+        medicineAdvice: (pres.medicines || pres.medicineAdvice || []).map((m) => ({
+          name: m.name || "",
+          type: m.type || "Tab",
+          dose: m.dose || "",
+          frequency: m.frequency || "",
+          route: m.route || "Oral",
+          duration: m.duration || "",
+          instruction: m.instruction || m.instructions || m.notes || "",
+          notes: m.notes || m.instruction || m.instructions || "",
+        })),
+        advice: pres.advice || {
+          testAdvice: pres.advice?.testAdvice || [],
+          medication: pres.advice?.medication || "",
+          diet: pres.advice?.diet || "",
+        },
+        additionalAdvice: pres.additionalAdvice || "",
+        followUp: pres.followUp || "",
+        address: resolvedAddress,
+        appointmentId: resolvedAppointmentId,
+      };
+
+      const pat = {
+        ...user,
+        ...appt,
+        _id: user._id || appt._id || patientId,
+        name: resolvedName,
+        firstName: user.firstName || resolvedName.split(" ")[0] || "",
+        lastName: user.lastName || resolvedName.split(" ").slice(1).join(" ") || "",
+        age: resolvedAge,
+        gender: resolvedGender,
+        phone: resolvedPhone,
+        address: resolvedAddress,
+        nic: resolvedNic,
+        dob: user.dob || appt.dob,
+        appointmentId: resolvedAppointmentId,
+        appointmentType: appt.appointmentType || appointmentData?.appointmentType || "OPD",
+        type: appt.appointmentType || appointmentData?.appointmentType || "OPD",
+      };
+
+      const dr_data = {
+        ...doc,
+        name: doc.name || (doc.firstName ? `Dr. ${doc.firstName} ${doc.lastName || ""}`.trim() : "Doctor"),
+        firstName: doc.firstName || "",
+        lastName: doc.lastName || "",
+        doctorDepartment: doc.doctorDepartment || doc.department || "General Medicine",
+        qualifications: doc.qualifications || "MBBS",
+        phone: doc.phone || "",
+        email: doc.email || "",
+        headerImage: hUri || hdrUrl,
+        footerImage: fUri || ftrUrl,
+        signImage: sUri || null,
+        stampImage: stUri || null,
+        prescriptionTemplate: targetTemplate?.name || targetTemplate?.layoutType || doc.prescriptionTemplate,
+      };
 
       const { pdf: makePdf } = await import("@react-pdf/renderer");
       const MyDoc = (await import("./MyDocument")).default;
@@ -108,9 +258,9 @@ const DownloadPrescriptionModal = ({ patientId, patientName = "Patient", onClose
           header={hUri || hdrUrl}
           footer={fUri || ftrUrl}
           p_data={pat}
-          dr_data={{ ...doc, headerImage: hUri || hdrUrl, signImage: sUri || null, stampImage: stUri || null }}
+          dr_data={dr_data}
           report={report}
-          activeTemplate={doc.prescriptionTemplate || "Template 3: Orthopedic Layout"}
+          activeTemplate={targetTemplate}
         />
       ).toBlob();
 
