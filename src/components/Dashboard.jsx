@@ -300,6 +300,8 @@ const Dashboard = () => {
         body.status = "Canceled";
       } else if (paymentStatus === "Paid" && currentStatus === "Pending") {
         body.status = "Accepted";
+      } else if (currentStatus === "Completed") {
+        body.status = "Completed";
       }
 
       const { data } = await api.put(
@@ -1076,7 +1078,7 @@ const Dashboard = () => {
                             const isPaid = currentPayment === "Paid";
                             const isPendingPayment = currentPayment === "Pending";
 
-                            const isPaymentDisabled = isRefunded || isCanceled || isCompleted;
+                            const isPaymentDisabled = isRefunded || isCanceled || (isCompleted && !isPendingPayment);
 
                             return (
                               <select
