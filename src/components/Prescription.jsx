@@ -379,7 +379,6 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
     );
   };
   const [doctorId, setDoctorId] = useState("");
-  const [doctorContact, setDoctorContact] = useState("");
   const [doctorsList, setDoctorsList] = useState([]);
 
   const steps = ["Complain & Medicines", "Medical History"];
@@ -754,16 +753,6 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
     };
     fetchDoctors();
   }, []);
-
-  useEffect(() => {
-    if (!doctorId) return;
-    (async () => {
-      try {
-        const { data } = await api.get(`/api/v1/user/doctor/${doctorId}`);
-        setDoctorContact(data.doctor?.email || data.doctor?.phone || "");
-      } catch (e) {}
-    })();
-  }, [doctorId]);
 
   // keyboard navigation handlers (supports Enter combos and Ctrl/Cmd equivalents)
   useEffect(() => {
@@ -1242,6 +1231,7 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
   };
 
   async function handleSave(printAfter = false) {
+    let prescriptionSaved = false;
     try {
       if (!appointmentId)
         return alert("No appointment found to attach the prescription to.");
@@ -1280,7 +1270,7 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
         );
         return;
       }
-      await api.post(`/api/v1/prescription/save`, {
+      const { data: saveResult } = await api.post(`/api/v1/prescription/save`, {
         patientId,
         doctorId: doctorId || undefined,
         appointmentId,
@@ -1314,15 +1304,25 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
           admin?.prescriptionTemplate ||
           "Template 3: Orthopedic Layout",
       });
-      if (doctorContact) {
+
+      prescriptionSaved = true;
+
+      // The save endpoint can resolve a doctor even when the form did not load one.
+      // Use that resolved doctor as the recipient so the notification appears in their inbox.
+      const notificationRecipient =
+        saveResult?.prescription?.doctorId?._id ||
+        saveResult?.prescription?.doctorId ||
+        doctorId;
+      if (notificationRecipient) {
         try {
-          const previewUrl = `https://novel.mkinfotrack.com/preview/${patientId}`;
+          const previewUrl = `${window.location.origin}/preview/${patientId}`;
           await api.post(`/api/v1/message/send`, {
             firstName: "System",
             lastName: "Notification",
-            email: doctorContact.includes("@") ? doctorContact : "",
-            phone: doctorContact.includes("@") ? "01234567891" : doctorContact,
-            message: `Prescription completed for patient NIC: ${nic} -\nDownload link: ${previewUrl}`,
+            email: "notifications@biomechasoft.in",
+            phone: "0000000000",
+            recipient: notificationRecipient,
+            message: `Prescription completed for ${name || `patient NIC: ${nic}`}.\nDownload link: ${previewUrl}`,
           });
         } catch (msgErr) {
           console.warn("Failed to send doctor notification message", msgErr);
@@ -1363,7 +1363,16 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
         if (onClose) onClose();
       }
     } catch (e) {
-      snackbar.error("Failed to save prescription or notify doctor.");
+      console.error("Failed to save prescription", e);
+      if (prescriptionSaved) {
+        snackbar.warning(
+          "Prescription was saved, but the screen could not finish updating. Please refresh."
+        );
+      } else {
+        snackbar.error(
+          e?.response?.data?.message || "Failed to save prescription. Please try again."
+        );
+      }
     }
   }
 
