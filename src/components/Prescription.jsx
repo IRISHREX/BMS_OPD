@@ -55,6 +55,7 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
   const [appointmentType, setAppointmentType] = useState("OPD");
   const [bookedBy, setBookedBy] = useState("");
   const rDiagnosis = useSelector((state) => state.diagnosis.value);
+  const admin = useSelector((state) => state.auth?.admin);
   const dispatch = useDispatch();
   const symptomSuggestions = useSymptomSuggestions();
   const medSuggestions = useMedicineSuggestions();
