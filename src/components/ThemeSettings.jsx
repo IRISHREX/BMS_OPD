@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setTheme, setCustomTheme } from '../store/themeSlice';
 import { playSaveSound, playLoadSound, playLoadSound2, playDeleteSound } from '../utils/soundUtils';
 import HeaderFooterCreator from './HeaderFooterCreator';
-import { IoColorPaletteOutline, IoVolumeHighOutline, IoDocumentTextOutline, IoVolumeMute, IoVolumeHigh, IoPlay } from "react-icons/io5";
+import OrganizationSettings from './OrganizationSettings';
+import { IoColorPaletteOutline, IoVolumeHighOutline, IoDocumentTextOutline, IoBusinessOutline, IoVolumeMute, IoVolumeHigh, IoPlay } from "react-icons/io5";
 import "./Settings.css";
 import "./GeneralSettings.css";
 
@@ -20,7 +21,7 @@ const GeneralSettings = () => {
   const dispatch = useDispatch();
   const selected = useSelector(state => state.theme.theme);
   const custom = useSelector(state => state.theme.custom);
-  const [activeSection, setActiveSection] = useState('themes');
+  const [activeSection, setActiveSection] = useState('organization');
   
   // Sound settings state
   const [volume, setVolume] = useState(() => {
@@ -98,6 +99,12 @@ const GeneralSettings = () => {
         {/* Navigation Bar */}
         <div className="general-settings-nav-bar">
           <button
+            className={`general-nav-item ${activeSection === 'organization' ? 'active' : ''}`}
+            onClick={() => setActiveSection('organization')}
+          >
+            <IoBusinessOutline style={{ marginRight: 6, verticalAlign: "middle" }} /> Organization & Branding
+          </button>
+          <button
             className={`general-nav-item ${activeSection === 'themes' ? 'active' : ''}`}
             onClick={() => setActiveSection('themes')}
           >
@@ -113,9 +120,14 @@ const GeneralSettings = () => {
             className={`general-nav-item ${activeSection === 'header-footer' ? 'active' : ''}`}
             onClick={() => setActiveSection('header-footer')}
           >
-            <IoDocumentTextOutline style={{ marginRight: 6, verticalAlign: "middle" }} /> Header & Footer
+            <IoDocumentTextOutline style={{ marginRight: 6, verticalAlign: "middle" }} /> Header & Footer Designer
           </button>
         </div>
+
+        {/* Organization Profile & Branding */}
+        {activeSection === 'organization' && (
+          <OrganizationSettings />
+        )}
 
         {/* Themes Section */}
         {activeSection === 'themes' && (

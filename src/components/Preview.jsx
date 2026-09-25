@@ -38,6 +38,13 @@ const Preview = () => {
   const [pdfSaveMsg, setPdfSaveMsg] = useState("");
   const { isAuthenticated, admin } = useContext(Context);
   const navigate = useNavigate();
+  const [generalSettings, setGeneralSettings] = useState(null);
+
+  useEffect(() => {
+    import("../utils/generalSettingsUtil").then(({ getGeneralSettings }) => {
+      getGeneralSettings().then((s) => setGeneralSettings(s));
+    });
+  }, []);
 
   // Helper to construct full image URLs
   const getFullImageUrl = (imagePath, fallback) => {
@@ -51,8 +58,11 @@ const Preview = () => {
     return `${cleanBase}${cleanPath}`;
   };
 
-  const headerImageUrl = getFullImageUrl(doctor?.headerImage, "/Header.jpeg");
-  const pageFooterImageUrl = getFullImageUrl(doctor?.footerImage, "/Footer.png");
+  const defaultHdr = generalSettings?.defaultHeaderImage || "/Header.jpeg";
+  const defaultFtr = generalSettings?.defaultFooterImage || "/Footer.png";
+
+  const headerImageUrl = getFullImageUrl(doctor?.headerImage, defaultHdr);
+  const pageFooterImageUrl = getFullImageUrl(doctor?.footerImage, defaultFtr);
   const doctorSignUrl = doctor?.signImage ? getFullImageUrl(doctor.signImage, null) : null;
   const doctorStampUrl = doctor?.stampImage ? getFullImageUrl(doctor.stampImage, null) : null;
 
@@ -282,21 +292,15 @@ const Preview = () => {
     report?.followUp ||
     "";
 
-  // --- Save prescription PDF to S3 ---
-  const handleSavePdf = async () => {
-    const prescriptionId = patient?.prescriptionId;
-    if (!prescriptionId) {
-      alert("No prescription record found for this patient. Please save the prescription first.");
-      return;
-    }
+  // --- Download prescription PDF on demand ---
+  const handleDownloadPdf = async () => {
     if (!report) {
-      alert("No prescription data to save.");
+      alert("No prescription data to download.");
       return;
     }
     setSavingPdf(true);
     setPdfSaveMsg("");
     try {
-      // Dynamically import pdf() to avoid circular dep issues
       const { pdf: makePdf } = await import('@react-pdf/renderer');
       const blob = await makePdf(
         <MyDocument
@@ -308,18 +312,19 @@ const Preview = () => {
           activeTemplate={activeTemplate}
         />
       ).toBlob();
-      const arrayBuffer = await blob.arrayBuffer();
-      const pdfBuffer = new Uint8Array(arrayBuffer);
-
-      await api.post(
-        `/api/v1/prescription/pdf/${prescriptionId}`,
-        pdfBuffer,
-        { headers: { "Content-Type": "application/pdf" } }
-      );
-      setPdfSaveMsg("✓ Prescription PDF saved!");
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const patientName = patient?.name || `${patient?.firstName || ''} ${patient?.lastName || ''}`.trim() || "Patient";
+      a.download = `Prescription_${patientName.replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setPdfSaveMsg("✓ PDF downloaded!");
       setTimeout(() => setPdfSaveMsg(""), 4000);
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message || "Save failed";
+      const msg = err?.message || "Download failed";
       setPdfSaveMsg("✗ " + msg);
       setTimeout(() => setPdfSaveMsg(""), 6000);
     } finally {
@@ -353,11 +358,11 @@ const Preview = () => {
               <option key={t._id} value={t._id}>{t.name}</option>
             ))}
           </select>
-          {/* Save PDF to S3 */}
+          {/* Download PDF directly */}
           <button
-            onClick={handleSavePdf}
-            disabled={savingPdf || !patient?.prescriptionId}
-            title={patient?.prescriptionId ? "Save prescription as PDF to disk" : "No prescription saved yet"}
+            onClick={handleDownloadPdf}
+            disabled={savingPdf}
+            title="Download prescription PDF"
             style={{
               padding: "7px 14px",
               borderRadius: "7px",
@@ -366,15 +371,14 @@ const Preview = () => {
               color: "#fff",
               fontWeight: "700",
               fontSize: "13px",
-              cursor: savingPdf || !patient?.prescriptionId ? "not-allowed" : "pointer",
+              cursor: savingPdf ? "not-allowed" : "pointer",
               display: "flex",
               alignItems: "center",
               gap: "6px",
-              opacity: !patient?.prescriptionId ? 0.55 : 1,
               transition: "opacity 0.2s",
             }}
           >
-            {savingPdf ? "Saving…" : "💾 Save PDF"}
+            {savingPdf ? "Generating…" : "⬇ Download PDF"}
           </button>
           {pdfSaveMsg && (
             <span style={{ fontSize: "13px", fontWeight: "600", color: pdfSaveMsg.startsWith("✓") ? "#10b981" : "#ef4444" }}>

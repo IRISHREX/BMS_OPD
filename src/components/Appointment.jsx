@@ -11,6 +11,7 @@ import {
   ageToDob,
 } from "../utils/ageUtils";
 import { useSnackbar } from "../context/SnackbarContext";
+import { generateFullReceiptHtml } from "../utils/generalSettingsUtil";
 import "./Appointment.css";
 import { useNavigate } from "react-router-dom";
 import {
@@ -389,7 +390,7 @@ const Appointment = () => {
     setStep(2);
   };
 
-  const printAppointmentReceipt = ({
+  const printAppointmentReceipt = async ({
     name,
     phone,
     doctorFirstName,
@@ -422,109 +423,19 @@ const Appointment = () => {
         ? `${dashboardUser.firstName || ""} ${dashboardUser.lastName || ""}`.trim()
         : (dashboardUser?.name || "Admin");
 
-      const html = `<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Receipt ${rNo}</title>
-    <style>
-      body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 25px; color: #2d3748; max-width: 650px; margin: 0 auto; line-height: 1.5; background: #fff; }
-      .receipt-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: #ffffff; }
-      .header { text-align: center; border-bottom: 2px solid #edf2f7; padding-bottom: 16px; margin-bottom: 20px; }
-      .header h1 { margin: 0; color: #1a202c; font-size: 22px; font-weight: 700; }
-      .header p { margin: 4px 0 0; color: #718096; font-size: 14px; }
-      .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; font-size: 14px; }
-      .detail-item strong { color: #4a5568; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
-      .detail-item span { color: #1a202c; }
-      .table-section { margin-bottom: 20px; }
-      .table-section h3 { margin: 0 0 10px 0; color: #1a202c; font-size: 16px; font-weight: 700; }
-      table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-      th { background: #f7fafc; padding: 10px; text-align: left; border-bottom: 2px solid #edf2f7; color: #4a5568; font-weight: 600; }
-      td { padding: 10px; border-bottom: 1px solid #edf2f7; }
-      .totals { text-align: right; margin-top: 16px; font-size: 14px; }
-      .totals .grand-total { font-size: 18px; font-weight: bold; color: #2b6cb0; margin-top: 8px; }
-      .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; background: #e6fffa; color: #234e52; }
-      .badge-unpaid { background: #fef3c7; color: #92400e; }
-      .footer-print-info { margin-top: 24px; padding-top: 12px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #718096; text-align: right; }
-    </style>
-  </head>
-  <body>
-    <div class="receipt-card">
-      <div class="header">
-        <h1>Medical Appointment Receipt</h1>
-        <p>Receipt #: ${rNo}</p>
-      </div>
-      <div class="details-grid">
-        <div class="detail-item">
-          <strong>Patient Name</strong>
-          <span>${name || "-"}</span>
-        </div>
-        <div class="detail-item">
-          <strong>Doctor Name</strong>
-          <span>Dr. ${doctorFirstName || ""} ${doctorLastName || ""}</span>
-        </div>
-        <div class="detail-item">
-          <strong>Department</strong>
-          <span>${department || "-"}</span>
-        </div>
-        <div class="detail-item">
-          <strong>Date & Time</strong>
-          <span>${dateTimeFormatted}</span>
-        </div>
-        <div class="detail-item">
-          <strong>Phone / Contact</strong>
-          <span>${phone || "N/A"}</span>
-        </div>
-        <div class="detail-item">
-          <strong>Payment Status</strong>
-          <span class="badge ${paymentStatus === "Paid" ? "" : "badge-unpaid"}">${paymentStatus === "Paid" ? "Paid" : "Unpaid"}</span>
-        </div>
-      </div>
-
-      <div class="table-section">
-        <h3>Fee Details</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th style="text-align:center">Qty</th>
-              <th style="text-align:right">Price</th>
-              <th style="text-align:right">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Consultation Fee</td>
-              <td style="text-align:center">1</td>
-              <td style="text-align:right">₹${docFee}</td>
-              <td style="text-align:right">₹${docFee}</td>
-            </tr>
-            <tr>
-              <td>Platform Fee</td>
-              <td style="text-align:center">1</td>
-              <td style="text-align:right">₹${apptFee}</td>
-              <td style="text-align:right">₹${apptFee}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="totals">
-        <div class="grand-total">Total Payable: ₹${totalAmount}</div>
-      </div>
-
-      <div class="footer-print-info">
-        Printed By: <strong>${printedByName}</strong> (${dateTimeFormatted})
-      </div>
-    </div>
-    <script>
-      window.onload = function() {
-        window.print();
-      };
-    </script>
-  </body>
-</html>`;
+      const html = await generateFullReceiptHtml({
+        receiptNo: rNo,
+        patientName: name,
+        doctorName: `Dr. ${doctorFirstName || ""} ${doctorLastName || ""}`.trim(),
+        department,
+        dateTime: dateTimeFormatted,
+        phone,
+        paymentStatus,
+        docFee,
+        platformFee: apptFee,
+        totalAmount,
+        printedByName,
+      });
 
       const printFrame = document.createElement("iframe");
       printFrame.style.position = "fixed";

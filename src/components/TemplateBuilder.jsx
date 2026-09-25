@@ -149,7 +149,7 @@ const SAMPLE_REPORT = {
 };
 
 const TemplateBuilder = () => {
-  const { admin } = useContext(Context);
+  const { admin, setAdmin } = useContext(Context);
   const navigate = useNavigate();
   const snackbar = useSnackbar();
 
@@ -213,8 +213,8 @@ const TemplateBuilder = () => {
       localStorage.setItem("defaultPrescriptionTemplateId", tmpl.id);
       localStorage.setItem("defaultPrescriptionLayoutType", tmpl.layoutType);
 
-      if (admin) {
-        admin.prescriptionTemplate = tmpl.name;
+      if (setAdmin) {
+        setAdmin((prev) => ({ ...prev, prescriptionTemplate: tmpl.name }));
       }
 
       // 1. Explicitly save to Database for this Doctor / Admin (and sync across hospital if Admin)

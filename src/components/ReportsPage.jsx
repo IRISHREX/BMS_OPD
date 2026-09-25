@@ -23,6 +23,7 @@ import { playSettledSound } from "../utils/soundUtils";
 import { formatAppointmentId, formatPatientId } from "../utils/idUtils";
 import DownloadPrescriptionModal from "./DownloadPrescriptionModal";
 import { FaFilePdf } from "react-icons/fa6";
+import { generateFullReceiptHtml } from "../utils/generalSettingsUtil";
 
 const fmt = (n) => {
   const v = Number(n) || 0;
@@ -335,7 +336,7 @@ const ReportsPage = () => {
     }
   };
 
-  const generateClientReceiptHtml = (entry) => {
+  const generateClientReceiptHtml = async (entry) => {
     const patName = entry.patientId && (entry.patientId.firstName || entry.patientId.name)
       ? `${entry.patientId.firstName || entry.patientId.name} ${entry.patientId.lastName || ""}`.trim()
       : (entry.appointmentId?.name || "Patient");
@@ -348,64 +349,21 @@ const ReportsPage = () => {
     const dateStr = entry.appointmentDate ? new Date(entry.appointmentDate).toLocaleString() : new Date().toLocaleString();
     const phone = entry.patientId?.phone || entry.appointmentId?.phone || 'N/A';
     const status = entry.status || 'Paid';
-    const amount = Number(entry.amount || entry.paid || 0).toFixed(2);
+    const amount = Number(entry.amount || entry.paid || 0);
 
-    return `<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Receipt ${apptDisplayId}</title>
-  <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 25px; color: #2d3748; max-width: 650px; margin: 0 auto; line-height: 1.5; background: #fff; }
-    .receipt-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: #ffffff; }
-    .header { text-align: center; border-bottom: 2px solid #edf2f7; padding-bottom: 16px; margin-bottom: 20px; }
-    .header h1 { margin: 0; color: #1a202c; font-size: 22px; font-weight: 700; }
-    .header p { margin: 4px 0 0; color: #718096; font-size: 14px; }
-    .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; font-size: 14px; }
-    .detail-item strong { color: #4a5568; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
-    .detail-item span { color: #1a202c; }
-    .table-section { margin-bottom: 20px; }
-    .table-section h3 { margin: 0 0 10px 0; color: #1a202c; font-size: 16px; font-weight: 700; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-    th { background: #f7fafc; padding: 10px; text-align: left; border-bottom: 2px solid #edf2f7; color: #4a5568; font-weight: 600; }
-    td { padding: 10px; border-bottom: 1px solid #edf2f7; }
-    .totals { text-align: right; margin-top: 16px; font-size: 14px; }
-    .totals .grand-total { font-size: 18px; font-weight: bold; color: #2b6cb0; margin-top: 8px; }
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; background: #e6fffa; color: #234e52; }
-    .footer-print-info { margin-top: 24px; padding-top: 12px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #718096; text-align: right; }
-  </style>
-</head>
-<body>
-  <div class="receipt-card">
-    <div class="header">
-      <h1>Medical Appointment Receipt</h1>
-      <p>Receipt Reference: ${apptDisplayId}</p>
-    </div>
-    <div class="details-grid">
-      <div class="detail-item"><strong>Patient Name</strong><span>${patName}</span></div>
-      <div class="detail-item"><strong>Doctor Name</strong><span>${docName}</span></div>
-      <div class="detail-item"><strong>Date & Time</strong><span>${dateStr}</span></div>
-      <div class="detail-item"><strong>Phone / Contact</strong><span>${phone}</span></div>
-      <div class="detail-item"><strong>Payment Status</strong><span class="badge">${status}</span></div>
-    </div>
-    <div class="table-section">
-      <h3>Fee Details</h3>
-      <table>
-        <thead>
-          <tr><th>Description</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Total</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Consultation / Medical Service</td><td style="text-align:center">1</td><td style="text-align:right">₹${amount}</td><td style="text-align:right">₹${amount}</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="totals">
-      <div class="grand-total">Total: ₹${amount}</div>
-    </div>
-    <div class="footer-print-info">Generated on ${new Date().toLocaleString()} • BMS-OPD System</div>
-  </div>
-</body>
-</html>`;
+    return await generateFullReceiptHtml({
+      receiptNo: apptDisplayId,
+      patientName: patName,
+      doctorName: docName,
+      department: entry.appointmentId?.department || "General",
+      dateTime: dateStr,
+      phone,
+      paymentStatus: status,
+      docFee: amount,
+      platformFee: 0,
+      totalAmount: amount,
+      printedByName: "Admin",
+    });
   };
 
   // Download Invoice / Receipt for an appointment or invoice
@@ -439,7 +397,7 @@ const ReportsPage = () => {
 
     // Client-side fallback guarantees download
     try {
-      const html = generateClientReceiptHtml(entry);
+      const html = await generateClientReceiptHtml(entry);
       const blob = new Blob([html], { type: "text/html" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
