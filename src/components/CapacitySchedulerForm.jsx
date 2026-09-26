@@ -1,10 +1,22 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useSnackbar } from "../context/SnackbarContext";
 import api from "../utils/api";
 import { Context } from "../main";
 import "./CapacitySchedulerForm.css";
-import { FaCalendarAlt, FaEllipsisV, FaInfoCircle, FaSave, FaUserFriends, FaRegFileAlt, FaCheck, FaTachometerAlt } from "react-icons/fa";
-import { FiPlus } from "react-icons/fi";
+import {
+  FaCalendarAlt,
+  FaInfoCircle,
+  FaSave,
+  FaUserFriends,
+  FaRegFileAlt,
+  FaCheck,
+  FaTachometerAlt,
+  FaPlus,
+  FaClock,
+  FaEdit,
+  FaTrashAlt,
+} from "react-icons/fa";
+import useClickSound from "../hooks/useClickSound";
 
 const CapacitySchedulerForm = ({
   doctorId,
@@ -12,20 +24,17 @@ const CapacitySchedulerForm = ({
 }) => {
   const snackbar = useSnackbar();
   const { admin } = useContext(Context);
+  const setupClickSound = useClickSound();
   const [capacities, setCapacities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
-  
+
   // Form State
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [capacity, setCapacity] = useState("20");
   const [notes, setNotes] = useState("");
   const [isWorkingDay, setIsWorkingDay] = useState(true);
-
-  // Dropdown state
-  const [activeDropdown, setActiveDropdown] = useState(null);
-  const dropdownRef = useRef(null);
 
   const effectiveDoctorId =
     allowAdminSelfManagement && admin?.role === "Admin" && admin?._id
@@ -36,15 +45,6 @@ const CapacitySchedulerForm = ({
     if (effectiveDoctorId) {
       fetchCapacities();
     }
-    
-    // Click outside to close dropdown
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setActiveDropdown(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [effectiveDoctorId]);
 
   const fetchCapacities = async () => {
@@ -97,7 +97,6 @@ const CapacitySchedulerForm = ({
 
     setFormLoading(true);
     try {
-      // If end date is provided and different from start date, use bulk
       if (endDate && endDate !== startDate) {
         const response = await api.post(`/api/v1/capacity-scheduler/set-bulk`, {
           doctorId: effectiveDoctorId,
@@ -111,7 +110,6 @@ const CapacitySchedulerForm = ({
           snackbar.success(response.data.message || "Capacity schedule updated successfully!");
         }
       } else {
-        // Single date
         const response = await api.post(`/api/v1/capacity-scheduler/set`, {
           doctorId: effectiveDoctorId,
           serviceDate: startDate,
@@ -151,7 +149,6 @@ const CapacitySchedulerForm = ({
         snackbar.error("Failed to delete capacity");
       }
     }
-    setActiveDropdown(null);
   };
 
   const handleEditCapacity = (cap) => {
@@ -161,9 +158,7 @@ const CapacitySchedulerForm = ({
     setCapacity(cap.capacity.toString());
     setNotes(cap.notes || "");
     setIsWorkingDay(cap.isWorkingDay);
-    setActiveDropdown(null);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    snackbar.info("Edit mode active. Save changes above.");
+    snackbar.info("Edit mode active. Update capacity details in the form above.");
   };
 
   const getCapacityPercentage = (booked, max) => {
@@ -172,14 +167,8 @@ const CapacitySchedulerForm = ({
 
   const getCapacityStatus = (percentage) => {
     if (percentage < 50) return { status: "green", label: "Available" };
-    if (percentage < 75) return { status: "yellow", label: "Almost Full" };
+    if (percentage < 75) return { status: "yellow", label: "Filling Up" };
     return { status: "red", label: "Full" };
-  };
-
-  const getCapacityColor = (percentage) => {
-    if (percentage < 50) return "#10b981"; // Emerald
-    if (percentage < 75) return "#f59e0b"; // Amber
-    return "#ef4444"; // Red
   };
 
   const getMinDate = () => {
@@ -195,52 +184,33 @@ const CapacitySchedulerForm = ({
     return { dayName, monthDay, year };
   };
 
-  const filledSummary = () => {
+  const summary = (() => {
     if (capacities.length === 0) return { days: 0, avg: 0 };
     let totalPerc = 0;
-    capacities.forEach(c => {
-       totalPerc += getCapacityPercentage(c.bookedCount, c.capacity);
+    capacities.forEach((c) => {
+      totalPerc += getCapacityPercentage(c.bookedCount, c.capacity);
     });
     return {
-       days: capacities.length,
-       avg: Math.round(totalPerc / capacities.length)
+      days: capacities.length,
+      avg: Math.round(totalPerc / capacities.length),
     };
-  };
-
-  const summary = filledSummary();
+  })();
 
   return (
     <div className="capacity-scheduler-form">
-      {/* Header */}
-      <div className="cs-header">
-        <div className="cs-header-left">
-          <div className="cs-icon-box">
-            <FaCalendarAlt />
-          </div>
-          <div>
-            <h2>Capacity Schedule Manager</h2>
-            <p>Set your daily patient capacity and working days</p>
-          </div>
+      {/* Set Capacity Form Card */}
+      <div className="cs-modern-form-box">
+        <div className="cs-form-box-heading">
+          <FaPlus className="cs-heading-icon" />
+          <span>{startDate && endDate ? "Edit Capacity Schedule" : "Set New Capacity"}</span>
         </div>
-        <div className="cs-header-right">
-           <div className="cs-date-range-badge">
-             <FaCalendarAlt />
-             <span>{summary.days > 0 ? "Upcoming Schedule" : "No Schedule"}</span>
-           </div>
-        </div>
-      </div>
 
-      {/* Set Capacity Form Box */}
-      <div className="cs-form-box">
-        <div className="cs-form-title">
-          <FiPlus /> Set New Capacity
-        </div>
-        <form onSubmit={handleSetCapacity} className="cs-form">
-          <div className="cs-form-row">
-            
-            <div className="cs-form-group cs-date-group">
+        <form onSubmit={handleSetCapacity} className="cs-modern-form">
+          {/* Row 1: Date Range, Capacity, Toggle */}
+          <div className="cs-form-row top-row">
+            <div className="cs-form-field date-field">
               <label>Date Range (or Single Day)</label>
-              <div className="cs-date-inputs">
+              <div className="cs-date-row">
                 <input
                   type="date"
                   value={startDate}
@@ -248,7 +218,7 @@ const CapacitySchedulerForm = ({
                   min={getMinDate()}
                   required
                 />
-                <span className="cs-to">to</span>
+                <span className="cs-date-separator">to</span>
                 <input
                   type="date"
                   value={endDate}
@@ -259,9 +229,9 @@ const CapacitySchedulerForm = ({
               </div>
             </div>
 
-            <div className="cs-form-group">
+            <div className="cs-form-field capacity-field">
               <label>Max Patients</label>
-              <div className="cs-capacity-input">
+              <div className="cs-capacity-row">
                 <input
                   type="number"
                   min="1"
@@ -270,146 +240,189 @@ const CapacitySchedulerForm = ({
                   onChange={(e) => setCapacity(e.target.value)}
                   required
                 />
-                <span className="cs-range-hint">(1 - 100)</span>
+                <span className="cs-unit-hint">patients/day</span>
               </div>
             </div>
 
-            <div className="cs-form-group cs-notes-group">
-              <label>Notes (Optional)</label>
+            <div className="cs-form-field toggle-field">
+              <label>Working Day</label>
+              <div className="cs-switch-wrap">
+                <label className="cs-switch">
+                  <input
+                    type="checkbox"
+                    checked={isWorkingDay}
+                    onChange={(e) => setIsWorkingDay(e.target.checked)}
+                  />
+                  <span className="cs-slider round"></span>
+                </label>
+                <span className={`cs-toggle-status ${isWorkingDay ? "working" : "off"}`}>
+                  {isWorkingDay ? "Working" : "Off Day"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Row 2: Notes & Submit Button */}
+          <div className="cs-form-row bottom-row">
+            <div className="cs-form-field notes-field">
+              <label>Notes / Remarks (Optional)</label>
               <input
                 type="text"
-                placeholder="e.g. Walk-ins after 2 PM..."
+                placeholder="e.g. Morning OPD only, Walk-ins after 2 PM..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 maxLength="200"
               />
             </div>
 
-            <div className="cs-form-group cs-toggle-group">
-              <label>Working Day</label>
-              <label className="cs-switch">
-                <input
-                  type="checkbox"
-                  checked={isWorkingDay}
-                  onChange={(e) => setIsWorkingDay(e.target.checked)}
-                />
-                <span className="cs-slider round"></span>
-              </label>
-            </div>
-
-            <div className="cs-form-group cs-submit-group">
-              <button
-                type="submit"
-                disabled={formLoading}
-                className="cs-btn-submit"
-              >
-                <FaSave /> {formLoading ? "Saving..." : "Set Capacity"}
-              </button>
-            </div>
-
+            <button
+              ref={setupClickSound}
+              type="submit"
+              disabled={formLoading}
+              className="cs-modern-submit-btn"
+            >
+              <FaSave />
+              <span>{formLoading ? "Saving..." : "Save Schedule"}</span>
+            </button>
           </div>
         </form>
       </div>
 
-      {/* Schedule List */}
-      <div className="cs-list-box">
-        <div className="cs-list-header">
-          <div className="cs-list-title">
-            <FaCalendarAlt /> Your Schedule
+      {/* Schedule List Section */}
+      <div className="cs-schedule-list-section">
+        <div className="cs-list-section-header">
+          <div className="cs-list-section-title">
+            <FaCalendarAlt style={{ color: "var(--accent, #1a9e9b)" }} />
+            <span>Configured Schedule</span>
           </div>
-          <div className="cs-list-summary">
-            {summary.days} days • {summary.avg}% filled
+
+          <div className="cs-list-summary-badges">
+            <span className="cs-badge-pill">
+              <FaClock style={{ marginRight: 4 }} />
+              {summary.days} {summary.days === 1 ? "Day" : "Days"} Scheduled
+            </span>
+            {summary.days > 0 && (
+              <span className="cs-badge-pill accent-pill">
+                Avg {summary.avg}% Filled
+              </span>
+            )}
           </div>
         </div>
 
         {loading ? (
-          <p className="cs-empty">Loading schedule...</p>
+          <div className="cs-loading-box">
+            <span className="loader" />
+            <p style={{ marginTop: 12, fontSize: "0.85rem" }}>Loading schedule records...</p>
+          </div>
         ) : capacities.length > 0 ? (
-          <div className="cs-cards-container">
+          <div className="cs-cards-list">
             {capacities.map((cap) => {
               const percentage = getCapacityPercentage(cap.bookedCount, cap.capacity);
               const { status, label } = getCapacityStatus(percentage);
               const { dayName, monthDay, year } = formatDateBox(cap.serviceDate);
 
               return (
-                <div key={cap._id} className={`cs-card ${!cap.isWorkingDay ? 'cs-off-day' : ''}`}>
-                  
-                  {/* Left: Date Box */}
-                  <div className="cs-card-date">
-                    <span className="cs-day-name">{dayName}</span>
-                    <span className="cs-month-day">{monthDay}</span>
-                    <span className="cs-year">{year}</span>
+                <div
+                  key={cap._id}
+                  className={`cs-modern-card ${!cap.isWorkingDay ? "off-day-card" : ""}`}
+                >
+                  {/* Date Badge */}
+                  <div className="cs-modern-date-badge">
+                    <span className="cs-date-day">{dayName}</span>
+                    <span className="cs-date-num">{monthDay}</span>
+                    <span className="cs-date-year">{year}</span>
                   </div>
 
-                  {/* Middle: Details */}
-                  <div className="cs-card-details">
-                    <div className="cs-stats-row">
-                      <div className="cs-stat-box">
-                        <div className="cs-stat-title"><FaUserFriends /> SLOTS</div>
-                        <div className="cs-stat-val">{cap.bookedCount} / {cap.capacity}</div>
+                  {/* Card Content */}
+                  <div className="cs-modern-card-content">
+                    <div className="cs-card-metrics-row">
+                      <div className="cs-metric-chip">
+                        <FaUserFriends className="cs-metric-icon" />
+                        <span className="cs-metric-text">
+                          <strong>{cap.bookedCount}</strong> / {cap.capacity} Booked
+                        </span>
                       </div>
-                      <div className="cs-stat-box">
-                        <div className="cs-stat-title"><FaTachometerAlt /> FILLED</div>
-                        <div className="cs-stat-val">{percentage}%</div>
+
+                      <div className="cs-metric-chip">
+                        <FaTachometerAlt className="cs-metric-icon" />
+                        <span className="cs-metric-text">
+                          <strong>{percentage}%</strong> Filled
+                        </span>
                       </div>
-                      <div className="cs-stat-box cs-notes-box">
-                        <div className="cs-stat-title"><FaRegFileAlt /> Notes</div>
-                        <div className="cs-stat-val cs-note-text">{cap.notes || "—"}</div>
-                      </div>
+
+                      {cap.isWorkingDay ? (
+                        <span className="cs-status-tag working-tag">
+                          <FaCheck style={{ fontSize: "0.7rem", marginRight: 4 }} /> Working
+                        </span>
+                      ) : (
+                        <span className="cs-status-tag off-tag">Off Day</span>
+                      )}
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="cs-progress-container">
-                      <div className="cs-progress-bg">
+                    <div className="cs-progress-row">
+                      <div className="cs-progress-track">
                         <div
-                          className="cs-progress-fill"
+                          className={`cs-progress-fill ${status}`}
                           style={{
                             width: `${Math.min(percentage, 100)}%`,
-                            backgroundColor: getCapacityColor(percentage),
                           }}
-                        ></div>
+                        />
                       </div>
-                      <span className={`cs-status-pill ${status}`}>
-                        <span className="cs-dot"></span> {label}
+                      <span className={`cs-capacity-status-pill ${status}`}>
+                        {label}
                       </span>
                     </div>
-                  </div>
 
-                  {/* Right: Actions */}
-                  <div className="cs-card-actions" ref={activeDropdown === cap._id ? dropdownRef : null}>
-                    {cap.isWorkingDay ? (
-                      <span className="cs-badge-working"><FaCheck /> Working</span>
-                    ) : (
-                      <span className="cs-badge-off">Off Day</span>
-                    )}
-                    
-                    <button 
-                      className="cs-menu-btn"
-                      onClick={() => setActiveDropdown(activeDropdown === cap._id ? null : cap._id)}
-                    >
-                      <FaEllipsisV />
-                    </button>
-                    
-                    {activeDropdown === cap._id && (
-                      <div className="cs-dropdown-menu">
-                        <button onClick={() => handleEditCapacity(cap)}>Edit</button>
-                        <button className="cs-danger" onClick={() => handleDeleteCapacity(cap._id)}>Delete</button>
+                    {cap.notes && (
+                      <div className="cs-card-notes-line">
+                        <FaRegFileAlt style={{ flexShrink: 0 }} />
+                        <span>{cap.notes}</span>
                       </div>
                     )}
                   </div>
 
+                  {/* Inline Action Buttons (No dropdown clipping) */}
+                  <div className="cs-card-inline-actions">
+                    <button
+                      ref={setupClickSound}
+                      type="button"
+                      className="cs-inline-action-btn edit"
+                      onClick={() => handleEditCapacity(cap)}
+                      title="Edit Schedule"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      ref={setupClickSound}
+                      type="button"
+                      className="cs-inline-action-btn delete"
+                      onClick={() => handleDeleteCapacity(cap._id)}
+                      title="Delete Schedule"
+                    >
+                      <FaTrashAlt />
+                    </button>
+                  </div>
                 </div>
               );
             })}
           </div>
         ) : (
-          <p className="cs-empty">No schedule found. Add new capacity to get started.</p>
+          <div className="cs-empty-notice">
+            <FaCalendarAlt style={{ fontSize: "2rem", opacity: 0.5, marginBottom: 8 }} />
+            <p>No capacity records scheduled yet.</p>
+            <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+              Use the form above to configure working days and daily patient quotas.
+            </span>
+          </div>
         )}
       </div>
 
-      <div className="cs-info-tip">
+      <div className="cs-modern-info-tip">
         <FaInfoCircle />
-        <span><strong>Tip:</strong> Set your capacity in advance to help patients see your availability. Your schedule will update automatically as appointments are booked.</span>
+        <span>
+          <strong>Tip:</strong> Daily capacity limits prevent OPD overcrowding. Real-time patient counts update automatically as appointments are booked.
+        </span>
       </div>
     </div>
   );

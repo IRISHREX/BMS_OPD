@@ -27,9 +27,11 @@ const ROLE_OPTIONS = ["Admin", "Doctor", "Compounder", "Patient"];
 
 const resolveAvatarUrl = (img) => {
   if (!img) return null;
-  if (img.startsWith("http://") || img.startsWith("https://") || img.startsWith("data:")) return img;
+  const url = typeof img === "string" ? img : img?.url || "";
+  if (!url) return null;
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) return url;
   const base = api.defaults.baseURL || (typeof window !== "undefined" ? window.location.origin : "");
-  return `${base.replace(/\/+$/, "")}/${img.replace(/^\/+/, "")}`;
+  return `${base.replace(/\/+$/, "")}/${url.replace(/^\/+/, "")}`;
 };
 
 // Change Password Modal

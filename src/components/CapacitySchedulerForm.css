@@ -1,177 +1,134 @@
+/* ==========================================================================
+   CAPACITY SCHEDULER FORM - CLINICAL THEME DESIGN SYSTEM
+   Supports: theme-teal, theme-light, theme-dark, theme-custom
+   ========================================================================== */
+
 .capacity-scheduler-form {
   background: transparent;
   width: 100%;
-  max-width: 1200px;
   margin: 0 auto;
-  font-family: 'Inter', sans-serif;
+  font-family: inherit;
+  color: var(--text-main, #1e293b);
 }
 
-/* Header */
-.cs-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 1.5rem 2rem;
-  border-radius: 12px 12px 0 0;
-  border-bottom: 1px solid #f1f5f9;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+/* --------------------------------------------------------------------------
+   Modern Form Box (Set Schedule)
+   -------------------------------------------------------------------------- */
+.cs-modern-form-box {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
-.cs-header-left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.cs-icon-box {
-  background: #eef2ff;
-  color: #4f46e5;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-}
-
-.cs-header h2 {
-  margin: 0 0 4px 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.cs-header p {
-  margin: 0;
-  color: #64748b;
-  font-size: 0.9rem;
-}
-
-.cs-date-range-badge {
+.cs-form-box-heading {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  padding: 8px 16px;
-  border-radius: 20px;
-  color: #475569;
-  font-weight: 600;
   font-size: 0.9rem;
-}
-
-/* Set Capacity Form Box */
-.cs-form-box {
-  background: white;
-  padding: 2rem;
-  margin: 1.5rem 0;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.cs-form-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   font-weight: 700;
-  color: #1e293b;
-  font-size: 1.1rem;
-  margin-bottom: 1.5rem;
+  color: var(--text-main, #0f172a);
+  margin-bottom: 12px;
 }
 
-.cs-form-title svg {
-  color: #3b82f6;
-  background: #eff6ff;
-  border-radius: 50%;
-  padding: 2px;
+.cs-heading-icon {
+  font-size: 0.85rem;
+  color: var(--accent, #1a9e9b);
 }
 
-.cs-form-row {
+.cs-modern-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Row 1: Top Row */
+.cs-form-row.top-row {
   display: flex;
   align-items: flex-end;
-  gap: 1.5rem;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
-.cs-form-group {
+.cs-form-field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
 }
 
-.cs-form-group label {
-  font-size: 0.85rem;
+.cs-form-field label {
+  font-size: 0.76rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--text-muted, #475569);
+  white-space: nowrap;
 }
 
-.cs-form-group input[type="date"],
-.cs-form-group input[type="number"],
-.cs-form-group input[type="text"] {
-  padding: 10px 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  color: #1e293b;
-  outline: none;
-  transition: all 0.2s;
-  background: #f8fafc;
+.cs-form-field.date-field {
+  flex: 1.2;
+  min-width: 240px;
 }
 
-.cs-form-group input:focus {
-  border-color: #3b82f6;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+.cs-date-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
 }
 
-/* Date Range Inputs */
-.cs-date-inputs {
+.cs-date-row input[type="date"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.cs-date-separator {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted, #94a3b8);
+  flex-shrink: 0;
+}
+
+.cs-form-field.capacity-field {
+  width: 130px;
+  flex-shrink: 0;
+}
+
+.cs-capacity-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cs-capacity-row input {
+  width: 60px !important;
+  text-align: center;
+}
+
+.cs-unit-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted, #64748b);
+  white-space: nowrap;
+}
+
+.cs-form-field.toggle-field {
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.cs-switch-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.cs-to {
-  color: #94a3b8;
-  font-weight: 500;
-  font-size: 0.9rem;
-}
-
-/* Capacity Input */
-.cs-capacity-input {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.cs-capacity-input input {
-  width: 80px;
-}
-
-.cs-range-hint {
-  color: #94a3b8;
-  font-size: 0.85rem;
-}
-
-.cs-notes-group {
-  flex: 1;
-  min-width: 250px;
-}
-
-/* Toggle Switch */
-.cs-toggle-group {
-  align-items: center;
-  padding-bottom: 4px;
+  height: 36px;
 }
 
 .cs-switch {
   position: relative;
   display: inline-block;
-  width: 44px;
-  height: 24px;
+  width: 38px;
+  height: 20px;
 }
 
 .cs-switch input {
@@ -188,424 +145,470 @@
   right: 0;
   bottom: 0;
   background-color: #cbd5e1;
-  transition: .4s;
+  transition: 0.3s;
 }
 
 .cs-slider:before {
   position: absolute;
   content: "";
-  height: 18px;
-  width: 18px;
+  height: 14px;
+  width: 14px;
   left: 3px;
   bottom: 3px;
   background-color: white;
-  transition: .4s;
+  transition: 0.3s;
 }
 
 input:checked + .cs-slider {
-  background-color: #3b82f6;
-}
-
-input:focus + .cs-slider {
-  box-shadow: 0 0 1px #3b82f6;
+  background-color: var(--accent, #1a9e9b);
 }
 
 input:checked + .cs-slider:before {
-  transform: translateX(20px);
+  transform: translateX(18px);
 }
 
 .cs-slider.round {
-  border-radius: 24px;
+  border-radius: 20px;
 }
 
 .cs-slider.round:before {
   border-radius: 50%;
 }
 
-/* Submit Button */
-.cs-submit-group {
-  padding-bottom: 2px;
-}
-
-.cs-btn-submit {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
+.cs-toggle-status {
+  font-size: 0.76rem;
   font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  height: 42px;
+  white-space: nowrap;
 }
 
-.cs-btn-submit:hover:not(:disabled) {
-  background: #2563eb;
+.cs-toggle-status.working {
+  color: #10b981;
+}
+
+.cs-toggle-status.off {
+  color: #ef4444;
+}
+
+/* Row 2: Bottom Row */
+.cs-form-row.bottom-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  width: 100%;
+}
+
+.cs-form-field.notes-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.cs-form-field input[type="date"],
+.cs-form-field input[type="number"],
+.cs-form-field input[type="text"] {
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: var(--bg-subtle, #f8fafc);
+  color: var(--text-main, #1e293b);
+  font-size: 0.82rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+}
+
+.cs-form-field input:focus {
+  border-color: var(--accent, #1a9e9b);
+  box-shadow: 0 0 0 2px rgba(26, 158, 155, 0.15);
+  background: var(--bg-card, #ffffff);
+}
+
+.cs-modern-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 18px;
+  border-radius: 8px;
+  border: none;
+  background: var(--btn-gradient, linear-gradient(135deg, #1a9e9b, #2f78c8));
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cs-modern-submit-btn:hover:not(:disabled) {
+  opacity: 0.95;
   transform: translateY(-1px);
 }
 
-.cs-btn-submit:disabled {
+.cs-modern-submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* Schedule List Box */
-.cs-list-box {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.cs-list-header {
+/* --------------------------------------------------------------------------
+   Schedule List Section
+   -------------------------------------------------------------------------- */
+.cs-schedule-list-section {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.cs-list-title {
+.cs-list-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cs-list-section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+}
+
+.cs-list-summary-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cs-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--bg-subtle, #f1f5f9);
+  border: 1px solid var(--border-color, #cbd5e1);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-main, #334155);
+}
+
+.cs-badge-pill.accent-pill {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: #059669;
+}
+
+.cs-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.cs-modern-card {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 10px;
+  padding: 10px 12px;
+  gap: 12px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.cs-modern-card:hover {
+  border-color: var(--accent, #1a9e9b);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.cs-modern-card.off-day-card {
+  opacity: 0.75;
+  background: var(--bg-subtle, #f8fafc);
+}
+
+/* Date Badge */
+.cs-modern-date-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  padding: 6px 8px;
+  background: var(--bg-subtle, #f1f5f9);
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.cs-date-day {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent, #1a9e9b);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.cs-date-num {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.cs-date-year {
+  font-size: 0.65rem;
+  color: var(--text-muted, #64748b);
+  line-height: 1;
+  margin-top: 2px;
+}
+
+/* Card Content & Metrics */
+.cs-modern-card-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cs-card-metrics-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1e293b;
+  flex-wrap: wrap;
 }
 
-.cs-list-title svg {
-  color: #3b82f6;
-  background: #eff6ff;
-  padding: 4px;
-  border-radius: 6px;
+.cs-metric-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--text-main, #334155);
 }
 
-.cs-list-summary {
-  background: #f1f5f9;
-  color: #334155;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
+.cs-metric-icon {
+  font-size: 0.75rem;
+  color: var(--accent, #1a9e9b);
+}
+
+.cs-status-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
   font-weight: 600;
 }
 
-.cs-empty {
-  text-align: center;
-  padding: 3rem;
-  color: #64748b;
-  font-size: 1rem;
+.cs-status-tag.working-tag {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
 }
 
-.cs-cards-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+.cs-status-tag.off-tag {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
 }
 
-/* Card Styling */
-.cs-card {
-  display: flex;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  overflow: hidden;
-  transition: all 0.2s ease;
-}
-
-.cs-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.cs-card.cs-off-day {
-  background: #f8fafc;
-}
-
-/* Left Date Box */
-.cs-card-date {
-  background: #f8fafc;
-  border-right: 1px solid #e2e8f0;
-  width: 120px;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-left: 4px solid #3b82f6;
-}
-
-.cs-off-day .cs-card-date {
-  border-left-color: #94a3b8;
-  background: #f1f5f9;
-}
-
-.cs-day-name {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #64748b;
-  letter-spacing: 1px;
-}
-
-.cs-month-day {
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: #1e293b;
-  margin: 4px 0;
-}
-
-.cs-year {
-  font-size: 0.85rem;
-  color: #94a3b8;
-  font-weight: 500;
-}
-
-/* Middle Details */
-.cs-card-details {
-  flex: 1;
-  padding: 1.5rem 2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 1.5rem;
-}
-
-.cs-stats-row {
-  display: flex;
-  gap: 2rem;
-}
-
-.cs-stat-box {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 100px;
-}
-
-.cs-notes-box {
-  flex: 1;
-  border-left: 1px solid #e2e8f0;
-  padding-left: 2rem;
-}
-
-.cs-stat-title {
+/* Progress Track */
+.cs-progress-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  gap: 8px;
 }
 
-.cs-stat-val {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.cs-note-text {
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #475569;
-}
-
-/* Progress Bar */
-.cs-progress-container {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.cs-progress-bg {
+.cs-progress-track {
   flex: 1;
-  height: 8px;
-  background: #e2e8f0;
-  border-radius: 4px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bg-subtle, #e2e8f0);
   overflow: hidden;
 }
 
 .cs-progress-fill {
   height: 100%;
-  border-radius: 4px;
-  transition: width 0.5s ease;
+  border-radius: 999px;
+  transition: width 0.3s ease;
 }
 
-.cs-status-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  background: #f1f5f9;
+.cs-progress-fill.green {
+  background: #10b981;
 }
 
-.cs-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+.cs-progress-fill.yellow {
+  background: #f59e0b;
 }
 
-.cs-status-pill.green .cs-dot { background: #10b981; }
-.cs-status-pill.yellow .cs-dot { background: #f59e0b; }
-.cs-status-pill.red .cs-dot { background: #ef4444; }
-
-.cs-status-pill.green { color: #047857; background: #d1fae5; }
-.cs-status-pill.yellow { color: #b45309; background: #fef3c7; }
-.cs-status-pill.red { color: #b91c1c; background: #fee2e2; }
-
-/* Right Actions */
-.cs-card-actions {
-  padding: 1.5rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  position: relative;
+.cs-progress-fill.red {
+  background: #ef4444;
 }
 
-.cs-badge-working {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: #dcfce7;
-  color: #166534;
-  padding: 6px 12px;
-  border-radius: 6px;
+.cs-capacity-status-pill {
+  font-size: 0.68rem;
   font-weight: 600;
-  font-size: 0.85rem;
 }
 
-.cs-badge-off {
-  background: #f1f5f9;
-  color: #64748b;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.85rem;
+.cs-capacity-status-pill.green {
+  color: #10b981;
 }
 
-.cs-menu-btn {
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.cs-capacity-status-pill.yellow {
+  color: #f59e0b;
 }
 
-.cs-menu-btn:hover {
-  background: #f1f5f9;
-  color: #1e293b;
-}
-
-.cs-dropdown-menu {
-  position: absolute;
-  top: 3.5rem;
-  right: 1.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  min-width: 120px;
-  z-index: 10;
-  overflow: hidden;
-}
-
-.cs-dropdown-menu button {
-  background: none;
-  border: none;
-  padding: 10px 16px;
-  text-align: left;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #334155;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.cs-dropdown-menu button:hover {
-  background: #f8fafc;
-}
-
-.cs-dropdown-menu button.cs-danger {
+.cs-capacity-status-pill.red {
   color: #ef4444;
 }
 
-.cs-dropdown-menu button.cs-danger:hover {
-  background: #fef2f2;
+.cs-card-notes-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  color: var(--text-muted, #64748b);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* Info Tip */
-.cs-info-tip {
-  margin-top: 1.5rem;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
+/* Inline Action Buttons */
+.cs-card-inline-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.cs-inline-action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: var(--bg-subtle, #f8fafc);
+  color: var(--text-muted, #64748b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.15s ease;
+}
+
+.cs-inline-action-btn.edit:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+  border-color: #93c5fd;
+}
+
+.cs-inline-action-btn.delete:hover {
+  background: #fee2e2;
+  color: #ef4444;
+  border-color: #fca5a5;
+}
+
+/* Info Tip & Empty State */
+.cs-modern-info-tip {
+  margin-top: 12px;
+  background: rgba(26, 158, 155, 0.06);
+  border: 1px solid rgba(26, 158, 155, 0.18);
+  border-radius: 10px;
+  padding: 8px 12px;
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  color: #1e3a8a;
-  font-size: 0.9rem;
+  gap: 8px;
+  color: var(--text-main, #0f172a);
+  font-size: 0.76rem;
+  line-height: 1.4;
 }
 
-.cs-info-tip svg {
-  font-size: 1.25rem;
+.cs-modern-info-tip svg {
+  font-size: 0.95rem;
   flex-shrink: 0;
-  color: #3b82f6;
+  color: var(--accent, #1a9e9b);
+  margin-top: 1px;
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-  .cs-card {
-    flex-direction: column;
-  }
-  
-  .cs-card-date {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid #e2e8f0;
-    flex-direction: row;
-    gap: 1rem;
-    padding: 1rem;
-  }
+.cs-empty-notice {
+  text-align: center;
+  padding: 20px 12px;
+  background: var(--bg-subtle, #f8fafc);
+  border: 1px dashed var(--border-color, #cbd5e1);
+  border-radius: 10px;
+  color: var(--text-muted, #64748b);
+  font-size: 0.82rem;
+}
 
-  .cs-month-day {
-    margin: 0;
-  }
+.cs-loading-box {
+  text-align: center;
+  padding: 20px;
+}
 
-  .cs-stats-row {
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  
-  .cs-notes-box {
-    border-left: none;
-    padding-left: 0;
-    min-width: 100%;
-  }
+/* --------------------------------------------------------------------------
+   Dark Mode Support
+   -------------------------------------------------------------------------- */
+.theme-dark .cs-modern-form-box,
+.theme-dark .cs-modern-card {
+  background: #151d2c !important;
+  border-color: #243044 !important;
+  color: #f8fafc !important;
+}
 
-  .cs-card-actions {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    padding: 0;
-  }
+.theme-dark .cs-form-box-heading,
+.theme-dark .cs-date-num,
+.theme-dark .cs-metric-chip {
+  color: #f8fafc !important;
+}
 
-  .cs-badge-working, .cs-badge-off {
-    display: none;
-  }
+.theme-dark .cs-date-year,
+.theme-dark .cs-unit-hint,
+.theme-dark .cs-card-notes-line,
+.theme-dark .cs-form-field label {
+  color: #94a3b8 !important;
+}
+
+.theme-dark .cs-form-field input[type="date"],
+.theme-dark .cs-form-field input[type="number"],
+.theme-dark .cs-form-field input[type="text"] {
+  background: #111827 !important;
+  border-color: #243044 !important;
+  color: #f8fafc !important;
+}
+
+.theme-dark .cs-form-field input:focus {
+  border-color: #00d2ff !important;
+  box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.2) !important;
+}
+
+.theme-dark .cs-badge-pill,
+.theme-dark .cs-modern-date-badge {
+  background: #1e293b !important;
+  border-color: #243044 !important;
+  color: #cbd5e1 !important;
+}
+
+.theme-dark .cs-inline-action-btn {
+  background: #1e293b !important;
+  border-color: #243044 !important;
+  color: #94a3b8 !important;
+}
+
+.theme-dark .cs-progress-track {
+  background: #1e293b !important;
+}
+
+.theme-dark .cs-modern-info-tip {
+  background: rgba(0, 210, 255, 0.08) !important;
+  border-color: rgba(0, 210, 255, 0.2) !important;
+  color: #7dd3fc !important;
 }

@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import React, { useContext, useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "../context/SnackbarContext";
 import { Context } from "../main";
 import { dobToAgeYears, ageToDob } from "../utils/ageUtils";
@@ -9,17 +9,32 @@ import {
   createDoctorRequest,
   resetDoctorCreate,
 } from "../store/doctorCreateSlice";
-import { updateDoctorRequest } from "../store/doctorUpdateSlice";
+import {
+  updateDoctorRequest,
+  resetDoctorUpdate,
+} from "../store/doctorUpdateSlice";
+import { fetchDoctorsRequest } from "../store/doctorsSlice";
 import useClickSound from "../hooks/useClickSound";
-import { FaUserEdit } from "react-icons/fa";
+import {
+  FaUserMd,
+  FaCamera,
+  FaFileSignature,
+  FaStamp,
+  FaHeading,
+  FaTimes,
+  FaSave,
+  FaStethoscope,
+} from "react-icons/fa";
 import { BsArrowLeft } from "react-icons/bs";
+import { MdOutlineCloudUpload } from "react-icons/md";
 import api from "../utils/api";
 import "./AddNewDoctor.css";
 
-const AddNewDoctor = ({ initialData, isEditing }) => {
+const AddNewDoctor = ({ initialData, isEditing, onClose }) => {
   const snackbar = useSnackbar();
-  const { isAuthenticated, setIsAuthenticated } = useContext(Context);
+  const { isAuthenticated } = useContext(Context);
   const setupClickSound = useClickSound();
+  const avatarInputRef = useRef(null);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -31,6 +46,7 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
   const [password, setPassword] = useState("");
   const [doctorDepartment, setDoctorDepartment] = useState("");
   const [qualifications, setQualifications] = useState("");
+  const [consultationFee, setConsultationFee] = useState("");
   const [docAvatar, setDocAvatar] = useState("");
   const [docAvatarPreview, setDocAvatarPreview] = useState("");
   const [signImage, setSignImage] = useState("");
@@ -47,7 +63,11 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
     if (!img) return "";
     const url = typeof img === "string" ? img : img.url || "";
     if (!url) return "";
-    if (url.startsWith("data:") || url.startsWith("http://") || url.startsWith("https://")) {
+    if (
+      url.startsWith("data:") ||
+      url.startsWith("http://") ||
+      url.startsWith("https://")
+    ) {
       return url;
     }
     const base = api.defaults.baseURL || "";
@@ -67,6 +87,7 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
       setGender(initialData.gender || "");
       setDoctorDepartment(initialData.doctorDepartment || "");
       setQualifications(initialData.qualifications || "");
+      setConsultationFee(initialData.consultationFee || "");
       setDocAvatarPreview(resolveImageUrl(initialData.docAvatar));
       setSignImagePreview(resolveImageUrl(initialData.signImage));
       setStampImagePreview(resolveImageUrl(initialData.stampImage));
@@ -77,12 +98,16 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
     }
   }, [isEditing, initialData]);
 
-  const navigateTo = useNavigate();
   const dispatch = useDispatch();
   const doctorCreate = useSelector((s) => s.doctorCreate);
+  const doctorUpdate = useSelector((s) => s.doctorUpdate);
   const navigate = useNavigate();
 
+  const isSubmitting = isEditing ? doctorUpdate?.updating : doctorCreate?.creating;
+
   const departmentsArray = [
+    "General Medicine",
+    "Pathology & Diagnostics",
     "Pediatrics",
     "Orthopedics",
     "Cardiology",
@@ -96,89 +121,74 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
 
   const handleAvatar = (e) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      setDocAvatarPreview(reader.result);
+    if (file) {
       setDocAvatar(file);
-    };
+      const reader = new FileReader();
+      reader.onload = () => setDocAvatarPreview(reader.result);
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSignImage = (e) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      setSignImagePreview(reader.result);
+    if (file) {
       setSignImage(file);
-    };
+      const reader = new FileReader();
+      reader.onload = () => setSignImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleStampImage = (e) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      setStampImagePreview(reader.result);
+    if (file) {
       setStampImage(file);
-    };
+      const reader = new FileReader();
+      reader.onload = () => setStampImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleHeaderImage = (e) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      setHeaderImagePreview(reader.result);
+    if (file) {
       setHeaderImage(file);
-    };
+      const reader = new FileReader();
+      reader.onload = () => setHeaderImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleFooterImage = (e) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      setFooterImagePreview(reader.result);
+    if (file) {
       setFooterImage(file);
-    };
+      const reader = new FileReader();
+      reader.onload = () => setFooterImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    }
   };
 
-  const handleAddNewDoctor = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validate required fields
-    if (
-      !firstName ||
-      !lastName ||
-      !email ||
-      !phone ||
-      !gender ||
-      !doctorDepartment
-    ) {
-      snackbar.error("Please fill all required fields!");
+    if (!firstName || !lastName || !email || !phone || !gender || !doctorDepartment) {
+      snackbar.error("Please fill in all required fields!");
       return;
     }
 
-    // Always recalculate NIC from phone and age
-    const calculatedNic = makeNIC(phone, age);
-    setNic(calculatedNic);
-    // Always recalculate DOB from age
-    const calculatedDob = ageToDob(age);
-    setDob(calculatedDob);
-
-    // Build FormData with files (FormData is non-serializable, so handle outside Redux)
     const formData = new FormData();
     formData.append("firstName", firstName);
     formData.append("lastName", lastName);
     formData.append("email", email);
     formData.append("phone", phone);
-    if (password) formData.append("password", password);
-    formData.append("nic", calculatedNic);
-    formData.append("dob", calculatedDob);
+    formData.append("nic", nic);
+    formData.append("dob", dob);
     formData.append("gender", gender);
     formData.append("doctorDepartment", doctorDepartment);
-    if (qualifications) formData.append("qualifications", qualifications);
+    formData.append("qualifications", qualifications);
+    if (consultationFee) formData.append("consultationFee", consultationFee);
+
     if (docAvatar) formData.append("docAvatar", docAvatar);
     if (signImage) formData.append("signImage", signImage);
     if (stampImage) formData.append("stampImage", stampImage);
@@ -186,191 +196,181 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
     if (footerImage) formData.append("footerImage", footerImage);
 
     if (isEditing) {
-      // Pass FormData directly to saga (bypasses Redux serialization check)
       dispatch(updateDoctorRequest({ id: initialData._id, formData }));
     } else {
-      // Pass FormData directly to saga (bypasses Redux serialization check)
-      dispatch(createDoctorRequest({ formData }));
+      if (!password) {
+        snackbar.error("Password is required for registration!");
+        return;
+      }
+      formData.append("password", password);
+      dispatch(createDoctorRequest(formData));
     }
   };
 
-  // Reset form and redirect on success
   useEffect(() => {
-    if (doctorCreate.success) {
-      setFirstName("");
-      setLastName("");
-      setEmail("");
-      setPhone("");
-      setNic("");
-      setDob("");
-      setAge("");
-      setGender("");
-      setPassword("");
-      setDoctorDepartment("");
-      setQualifications("");
-      setDocAvatar("");
-      setDocAvatarPreview("");
-      setSignImage("");
-      setSignImagePreview("");
-      setStampImage("");
-      setStampImagePreview("");
-      setHeaderImage("");
-      setHeaderImagePreview("");
-      setFooterImage("");
-      setFooterImagePreview("");
+    if (!isEditing && doctorCreate?.success) {
+      snackbar.success("Doctor registered successfully!");
       dispatch(resetDoctorCreate());
-      setIsAuthenticated(true);
-      navigateTo("/");
+      navigate("/doctors");
     }
-  }, [doctorCreate.success]);
+  }, [doctorCreate?.success, isEditing, dispatch, navigate, snackbar]);
 
-  if (!isAuthenticated && !isEditing) {
-    return <Navigate to={"/login"} />;
-  }
+  useEffect(() => {
+    if (isEditing && doctorUpdate?.success) {
+      dispatch(resetDoctorUpdate());
+      dispatch(fetchDoctorsRequest({}));
+      if (onClose) onClose();
+    }
+  }, [doctorUpdate?.success, isEditing, dispatch, onClose]);
 
   const formContent = (
-    <div className="add-doctor-form">
-      {/* <div className="doctpr-form-header">
-        <FaUserEdit />
-        <p>{isEditing ? "Edit Doctor" : null}</p>
-      </div> */}
-      {isEditing ? (
-        <div className="edit-modal-header">
-          <FaUserEdit />
-          <h2>Edit Doctor</h2>
+    <div className={`modern-doctor-form-wrapper ${isEditing ? "modal-mode" : "page-mode"}`}>
+      {/* Modal Top Header Bar */}
+      <div className="doc-edit-modal-top-bar">
+        <div className="doc-edit-modal-title">
+          <FaUserMd style={{ color: "var(--accent, #1a9e9b)", fontSize: "1.2rem" }} />
+          <span>{isEditing ? "Edit Doctor Profile" : "Register A New Doctor"}</span>
         </div>
-      ) : null}
-      {/*  */}
 
-      {isEditing ? null : <h1 className="form-title">Register A New Doctor</h1>}
+        {isEditing && onClose && (
+          <button
+            type="button"
+            className="doc-edit-modal-close-btn"
+            onClick={onClose}
+            title="Close modal"
+          >
+            <FaTimes />
+          </button>
+        )}
+      </div>
 
-      <form onSubmit={handleAddNewDoctor} className="assitant-add-form">
-        <div className="first-wrapper">
-          <div className="form-field-wrap left">
-            <div className="upload-doctor-avatar">
-              <div className="doctor-avatar-imgbox">
+      <form onSubmit={handleSubmit} className="modern-doctor-edit-form">
+        <div className="doc-edit-body-layout">
+          {/* Left Column: Avatar & Quick Profile Box */}
+          <div className="doc-edit-avatar-section">
+            <div className="doc-avatar-uploader-card">
+              <div
+                className="doc-avatar-preview-box"
+                onClick={() => avatarInputRef.current?.click()}
+                title="Click to upload/change photo"
+              >
                 <img
-                  src={docAvatarPreview ? `${docAvatarPreview}` : "/doc1.jpg"}
+                  src={docAvatarPreview || "/doc1.jpg"}
                   alt="Doctor Avatar"
+                  onError={(e) => {
+                    e.target.src = "/doc1.jpg";
+                  }}
                 />
+                <div className="doc-avatar-overlay">
+                  <FaCamera />
+                  <span>Change Photo</span>
+                </div>
               </div>
-              <input type="file" onChange={handleAvatar} accept="image/*" />
-            </div>
-            <div style={{ marginTop: 8 }}>
-              <label style={{ display: "block", marginBottom: 6 }}>
-                Signature Image (optional)
-              </label>
-              <input type="file" onChange={handleSignImage} accept="image/*" />
-              {signImagePreview && (
-                <img
-                  src={signImagePreview}
-                  alt="Sign Preview"
-                  style={{ width: 120, marginTop: 6 }}
-                />
-              )}
-            </div>
-            <div style={{ marginTop: 8 }}>
-              <label style={{ display: "block", marginBottom: 6 }}>
-                Stamp Image (optional)
-              </label>
-              <input type="file" onChange={handleStampImage} accept="image/*" />
-              {stampImagePreview && (
-                <img
-                  src={stampImagePreview}
-                  alt="Stamp Preview"
-                  style={{ width: 120, marginTop: 6 }}
-                />
-              )}
-            </div>
-            <div style={{ marginTop: 8 }}>
-              <label style={{ display: "block", marginBottom: 6 }}>
-                Header Image (optional)
-              </label>
+
               <input
+                ref={avatarInputRef}
                 type="file"
-                onChange={handleHeaderImage}
+                onChange={handleAvatar}
                 accept="image/*"
+                style={{ display: "none" }}
               />
-              {headerImagePreview && (
-                <img
-                  src={headerImagePreview}
-                  alt="Header Preview"
-                  style={{ width: 180, marginTop: 6 }}
-                />
-              )}
-            </div>
-            <div style={{ marginTop: 8 }}>
-              <label style={{ display: "block", marginBottom: 6 }}>
-                Footer Image (optional)
-              </label>
-              <input
-                type="file"
-                onChange={handleFooterImage}
-                accept="image/*"
-              />
-              {footerImagePreview && (
-                <img
-                  src={footerImagePreview}
-                  alt="Footer Preview"
-                  style={{ width: 180, marginTop: 6 }}
-                />
-              )}
+
+              <button
+                type="button"
+                className="doc-avatar-upload-trigger-btn"
+                onClick={() => avatarInputRef.current?.click()}
+              >
+                <MdOutlineCloudUpload style={{ fontSize: "1.1rem" }} />
+                <span>Upload Avatar</span>
+              </button>
+
+              <div className="doc-avatar-hint">
+                Recommended: JPG/PNG, Square 400x400px
+              </div>
             </div>
           </div>
-          <div className="form-field-wrap right">
-            <div className="form-cols-wrap">
-              <div className="form-group">
+
+          {/* Right Column: Form Fields Grid */}
+          <div className="doc-edit-fields-section">
+            {/* Personal Info Row */}
+            <div className="doc-fields-row">
+              <div className="doc-field-group">
+                <label>First Name *</label>
                 <input
                   type="text"
-                  placeholder="First Name"
+                  placeholder="e.g. John"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  disabled={doctorCreate.creating}
+                  disabled={isSubmitting}
+                  required
                 />
               </div>
-              <div className="form-group">
+
+              <div className="doc-field-group">
+                <label>Last Name *</label>
                 <input
                   type="text"
-                  placeholder="Last Name"
+                  placeholder="e.g. Doe"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  disabled={doctorCreate.creating}
+                  disabled={isSubmitting}
+                  required
                 />
               </div>
             </div>
 
-            <div className="form-cols-wrap">
-              <div className="form-group">
+            {/* Contact Info Row */}
+            <div className="doc-fields-row">
+              <div className="doc-field-group">
+                <label>Email Address *</label>
                 <input
-                  type="text"
-                  placeholder="Email"
+                  type="email"
+                  placeholder="doctor@hospital.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={doctorCreate.creating}
+                  disabled={isSubmitting}
+                  required
                 />
               </div>
 
-              {/* Age and DOB fields, sync both ways. NIC is always readonly and auto-populated. */}
-              <div className="form-group">
+              <div className="doc-field-group">
+                <label>Mobile Number *</label>
                 <input
-                  type="number"
-                  placeholder="Mobile Number"
+                  type="text"
+                  placeholder="e.g. 9876543210"
                   value={phone}
                   onChange={(e) => {
                     setPhone(e.target.value);
-                    if (e.target.value && age)
-                      setNic(makeNIC(e.target.value, age));
+                    if (e.target.value && age) setNic(makeNIC(e.target.value, age));
                   }}
-                  disabled={doctorCreate.creating}
+                  disabled={isSubmitting}
+                  required
                 />
               </div>
             </div>
 
-            <div className="form-cols-wrap">
-              <div className="form-group">
+            {/* DOB, Age, Gender Row */}
+            <div className="doc-fields-row three-cols">
+              <div className="doc-field-group">
+                <label>Date of Birth</label>
+                <input
+                  type="date"
+                  value={dob}
+                  onChange={(e) => {
+                    setDob(e.target.value);
+                    const newAgeYears = dobToAgeYears(e.target.value);
+                    setAge(newAgeYears);
+                    if (phone && newAgeYears) setNic(makeNIC(phone, newAgeYears));
+                  }}
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div className="doc-field-group">
+                <label>Age (Years)</label>
                 <input
                   type="number"
-                  placeholder="Age (years)"
+                  placeholder="e.g. 42"
                   value={age}
                   min={0}
                   max={120}
@@ -380,112 +380,216 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
                     setDob(ageToDob(val));
                     if (phone && val) setNic(makeNIC(phone, val));
                   }}
-                  disabled={doctorCreate.creating}
+                  disabled={isSubmitting}
                 />
               </div>
-              <div className="form-group">
+
+              <div className="doc-field-group">
+                <label>Gender *</label>
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  disabled={isSubmitting}
+                  required
+                >
+                  <option value="">Select</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Department, NIC, Fee Row */}
+            <div className="doc-fields-row three-cols">
+              <div className="doc-field-group">
+                <label>Department *</label>
+                <select
+                  value={doctorDepartment}
+                  onChange={(e) => setDoctorDepartment(e.target.value)}
+                  disabled={isSubmitting}
+                  required
+                >
+                  <option value="">Select Department</option>
+                  {departmentsArray.map((dept, idx) => (
+                    <option value={dept} key={idx}>
+                      {dept}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="doc-field-group">
+                <label>National ID / NIC</label>
                 <input
-                  type="date"
-                  placeholder="Date of Birth"
-                  value={dob}
-                  onChange={(e) => {
-                    setDob(e.target.value);
-                    const newAgeYears = dobToAgeYears(e.target.value);
-                    setAge(newAgeYears);
-                    if (phone && newAgeYears)
-                      setNic(makeNIC(phone, newAgeYears));
-                  }}
-                  readOnly
-                  style={{ background: "#f4f4f4", color: "#888" }}
-                  disabled={doctorCreate.creating}
+                  type="text"
+                  placeholder="Auto-generated / ID"
+                  value={nic}
+                  onChange={(e) => setNic(e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div className="doc-field-group">
+                <label>Consultation Fee (₹)</label>
+                <input
+                  type="number"
+                  placeholder="e.g. 500"
+                  value={consultationFee}
+                  onChange={(e) => setConsultationFee(e.target.value)}
+                  disabled={isSubmitting}
                 />
               </div>
             </div>
 
-            <div className="form-cols-wrap">
-              <div className="form-group">
-                <select
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  disabled={doctorCreate.creating}
-                >
-                  <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <select
-                  value={doctorDepartment}
-                  onChange={(e) => {
-                    setDoctorDepartment(e.target.value);
-                  }}
-                  disabled={doctorCreate.creating}
-                >
-                  <option value="">Select Department</option>
-                  {departmentsArray.map((depart, index) => {
-                    return (
-                      <option value={depart} key={index}>
-                        {depart}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-            </div>
-            <div className="form-cols-wrap">
-              <div className="form-group">
+            {/* Qualifications & Password */}
+            <div className="doc-fields-row">
+              <div className="doc-field-group" style={{ flex: 2 }}>
+                <label>Qualifications & Degrees</label>
                 <input
                   type="text"
-                  placeholder="NIC (auto)"
-                  value={nic}
-                  readOnly
-                  style={{ background: "#f4f4f4", color: "#888" }}
-                  disabled={doctorCreate.creating}
+                  placeholder="e.g. MBBS, MD (General Medicine), DNB"
+                  value={qualifications}
+                  onChange={(e) => setQualifications(e.target.value)}
+                  disabled={isSubmitting}
                 />
               </div>
-              {isEditing ? null : (
-                <div className="form-group">
+
+              {!isEditing && (
+                <div className="doc-field-group" style={{ flex: 1 }}>
+                  <label>Password *</label>
                   <input
                     type="password"
-                    placeholder="Password"
+                    placeholder="Enter password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    disabled={doctorCreate.creating}
+                    disabled={isSubmitting}
+                    required
                   />
                 </div>
               )}
             </div>
-
-            <div className="form-group">
-              <input
-                type="text"
-                placeholder="Qualifications (e.g., MBBS, MD)"
-                value={qualifications}
-                onChange={(e) => setQualifications(e.target.value)}
-                disabled={doctorCreate.creating}
-              />
-            </div>
-            <button
-              type="submit"
-              className="btn-cls"
-              disabled={doctorCreate.creating}
-            >
-              {isEditing
-                ? "Update Doctor"
-                : doctorCreate.creating
-                  ? "Registering..."
-                  : "Register New Doctor"}
-            </button>
-            {doctorCreate.error && (
-              <div
-                className="error-message"
-                style={{ color: "red", marginTop: 8 }}
-              >
-                {doctorCreate.error}
-              </div>
-            )}
           </div>
+        </div>
+
+        {/* Prescription Branding Assets Section */}
+        <div className="doc-prescription-assets-card">
+          <div className="doc-assets-header">
+            <FaFileSignature className="doc-assets-icon" />
+            <div>
+              <h4 className="doc-assets-title">Prescription Branding Assets (Optional)</h4>
+              <p className="doc-assets-sub">Upload doctor signature, stamp, and letterhead headers</p>
+            </div>
+          </div>
+
+          <div className="doc-assets-grid">
+            {/* Signature Upload Tile */}
+            <div className="doc-asset-tile">
+              <div className="doc-asset-meta">
+                <FaFileSignature />
+                <span>Doctor Signature</span>
+              </div>
+              <div className="doc-asset-preview-row">
+                {signImagePreview ? (
+                  <img src={signImagePreview} alt="Sign Preview" className="doc-asset-thumb" />
+                ) : (
+                  <div className="doc-asset-thumb-placeholder">No Sign</div>
+                )}
+                <label className="doc-asset-upload-btn">
+                  <span>{signImagePreview ? "Replace" : "Upload"}</span>
+                  <input type="file" onChange={handleSignImage} accept="image/*" />
+                </label>
+              </div>
+            </div>
+
+            {/* Stamp Upload Tile */}
+            <div className="doc-asset-tile">
+              <div className="doc-asset-meta">
+                <FaStamp />
+                <span>Medical Stamp</span>
+              </div>
+              <div className="doc-asset-preview-row">
+                {stampImagePreview ? (
+                  <img src={stampImagePreview} alt="Stamp Preview" className="doc-asset-thumb" />
+                ) : (
+                  <div className="doc-asset-thumb-placeholder">No Stamp</div>
+                )}
+                <label className="doc-asset-upload-btn">
+                  <span>{stampImagePreview ? "Replace" : "Upload"}</span>
+                  <input type="file" onChange={handleStampImage} accept="image/*" />
+                </label>
+              </div>
+            </div>
+
+            {/* Header Letterhead Tile */}
+            <div className="doc-asset-tile">
+              <div className="doc-asset-meta">
+                <FaHeading />
+                <span>Header Letterhead</span>
+              </div>
+              <div className="doc-asset-preview-row">
+                {headerImagePreview ? (
+                  <img src={headerImagePreview} alt="Header Preview" className="doc-asset-thumb banner-thumb" />
+                ) : (
+                  <div className="doc-asset-thumb-placeholder banner-thumb">No Header</div>
+                )}
+                <label className="doc-asset-upload-btn">
+                  <span>{headerImagePreview ? "Replace" : "Upload"}</span>
+                  <input type="file" onChange={handleHeaderImage} accept="image/*" />
+                </label>
+              </div>
+            </div>
+
+            {/* Footer Letterhead Tile */}
+            <div className="doc-asset-tile">
+              <div className="doc-asset-meta">
+                <FaHeading />
+                <span>Footer Letterhead</span>
+              </div>
+              <div className="doc-asset-preview-row">
+                {footerImagePreview ? (
+                  <img src={footerImagePreview} alt="Footer Preview" className="doc-asset-thumb banner-thumb" />
+                ) : (
+                  <div className="doc-asset-thumb-placeholder banner-thumb">No Footer</div>
+                )}
+                <label className="doc-asset-upload-btn">
+                  <span>{footerImagePreview ? "Replace" : "Upload"}</span>
+                  <input type="file" onChange={handleFooterImage} accept="image/*" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Form Actions Footer */}
+        <div className="doc-edit-footer-actions">
+          {isEditing && onClose && (
+            <button
+              ref={setupClickSound}
+              type="button"
+              className="doc-edit-cancel-btn"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+          )}
+
+          <button
+            ref={setupClickSound}
+            type="submit"
+            className="doc-edit-submit-btn"
+            disabled={isSubmitting}
+          >
+            <FaSave />
+            <span>
+              {isSubmitting
+                ? "Saving Changes..."
+                : isEditing
+                  ? "Update Doctor"
+                  : "Register New Doctor"}
+            </span>
+          </button>
         </div>
       </form>
     </div>
@@ -496,19 +600,32 @@ const AddNewDoctor = ({ initialData, isEditing }) => {
   }
 
   return (
-    <section className="page bg-light-blue">
-      <div className="dashboard-title-block add-form">
-        <button
-          ref={setupClickSound}
-          className="arrow-btn icon-btn"
-          onClick={() => navigate("/doctors")}
-          // style={{ marginLeft: 8 }}
-        >
-          <BsArrowLeft />
-        </button>
-        <p>{isEditing ? "Edit Doctor" : "Register New Doctor"}</p>
+    <section className="page doctor-register-page">
+      <div className="doc-register-page-container">
+        {/* Modern Themed Top Nav Bar */}
+        <div className="doc-page-top-bar">
+          <div className="doc-page-top-bar-left">
+            <button
+              ref={setupClickSound}
+              type="button"
+              className="doc-page-back-btn"
+              onClick={() => navigate("/doctors")}
+              title="Back to Doctors Directory"
+            >
+              <BsArrowLeft />
+            </button>
+            <div className="doc-page-title-group">
+              <h1 className="doc-page-main-heading">
+                <FaUserMd className="doc-page-heading-icon" />
+                <span>Register New Doctor</span>
+              </h1>
+              <span className="doc-page-breadcrumb">Doctors Directory &rsaquo; Register New Doctor</span>
+            </div>
+          </div>
+        </div>
+
+        {formContent}
       </div>
-      <div className="container">{formContent}</div>
     </section>
   );
 };

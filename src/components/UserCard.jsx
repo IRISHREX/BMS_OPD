@@ -4,6 +4,7 @@ import { MdEmail } from "react-icons/md";
 import { PiPhone } from "react-icons/pi";
 import { FaCalendarXmark } from "react-icons/fa6";
 import useClickSound from "../hooks/useClickSound";
+import api from "../utils/api";
 
 const UserCard = ({
   user,
@@ -16,9 +17,11 @@ const UserCard = ({
   const setupClickSound = useClickSound();
   const resolveAvatarUrl = (img) => {
     if (!img) return "./doc1.jpg";
-    if (img.startsWith("http://") || img.startsWith("https://") || img.startsWith("data:")) return img;
-    const base = import.meta.env.VITE_API_URL || (typeof window !== "undefined" ? window.location.origin : "");
-    return `${base.replace(/\/+$/, "")}/${img.replace(/^\/+/, "")}`;
+    const url = typeof img === "string" ? img : img?.url || "";
+    if (!url) return "./doc1.jpg";
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) return url;
+    const base = api.defaults.baseURL || import.meta.env.VITE_BASE_URL || (typeof window !== "undefined" ? window.location.origin : "");
+    return `${base.replace(/\/+$/, "")}/${url.replace(/^\/+/, "")}`;
   };
   const avatarUrl = resolveAvatarUrl(user.docAvatar);
 
