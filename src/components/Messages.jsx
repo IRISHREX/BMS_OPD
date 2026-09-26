@@ -6,25 +6,33 @@ import React, {
   useCallback,
 } from "react";
 import { useSnackbar } from "../context/SnackbarContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Context } from "../main";
 import api from "../utils/api";
-import { playSaveSound, playLoadSound, playDeleteSound } from "../utils/soundUtils";
+import { playSaveSound, playDeleteSound } from "../utils/soundUtils";
 import { fetchMessagesRequest } from "../store/messagesSlice";
 import "./Messages.css";
+import "./MessageCard.css";
 
-import Toolbar from "./Toolbar";
 import MessageList from "./MessageList";
 import MessageFilter from "./MessageFilter";
 import BulkActions from "./BulkActions";
 import Pagination from "./Pagination";
 import ComposeModal from "./ComposeModal";
-import { HEIGHT_MAX } from "../utils/constants";
-import { FiEdit } from "react-icons/fi";
 import useClickSound from "../hooks/useClickSound";
 import DownloadPrescriptionModal from "./DownloadPrescriptionModal";
+
+import {
+  FaInbox,
+  FaEnvelopeOpenText,
+  FaPenToSquare,
+  FaFilter,
+  FaCheckDouble,
+  FaEnvelope,
+  FaArrowRotateRight,
+} from "react-icons/fa6";
 
 const useDebounce = (value, delay) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -44,11 +52,10 @@ const useDebounce = (value, delay) => {
 
 const Messages = () => {
   const snackbar = useSnackbar();
-  // Context provider uses `admin` as the dashboard user object in main.jsx
-  // Normalize it here as `user` for existing component code.
   const { isAuthenticated, admin: user } = useContext(Context);
   const dispatch = useDispatch();
   const setupClickSound = useClickSound();
+  const navigate = useNavigate();
 
   const {
     messages = [],
@@ -81,12 +88,12 @@ const Messages = () => {
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [downloadPrescriptionPatient, setDownloadPrescriptionPatient] = useState(null);
 
-  const debouncedQ = useDebounce(filters.q, 500);
-  const debouncedEmail = useDebounce(filters.email, 500);
+  const debouncedQ = useDebounce(filters.q, 400);
+  const debouncedEmail = useDebounce(filters.email, 400);
 
   const messageIdsOnPage = useMemo(
     () => messages.map((m) => m._id),
-    [messages],
+    [messages]
   );
 
   useEffect(() => {
@@ -97,7 +104,6 @@ const Messages = () => {
         const doctors = data.doctors || [];
         setAllDoctors(doctors);
 
-        // If logged in user is a Doctor, pre-set doctorId filter to their id
         if (user.role === "Doctor") {
           setFilters((prev) => ({ ...prev, doctorId: user._id }));
         }
@@ -120,7 +126,7 @@ const Messages = () => {
         filterOption,
         customStart,
         customEnd,
-      }),
+      })
     );
   }, [filters, debouncedQ, debouncedEmail, dispatch]);
 
@@ -152,13 +158,13 @@ const Messages = () => {
 
   const toggleSelect = (id) => {
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
   const toggleSelectAll = () => {
     setSelected(
-      selected.length === messageIdsOnPage.length ? [] : messageIdsOnPage,
+      selected.length === messageIdsOnPage.length ? [] : messageIdsOnPage
     );
   };
 
@@ -183,15 +189,15 @@ const Messages = () => {
       return;
     }
 
-    snackbar.confirm(`Delete ${ids.length} message(s)?`, async () => {
+    snackbar.confirm(`Delete ${ids.length} selected message(s)?`, async () => {
       try {
         await api.post(`/api/v1/message/bulk-delete`, { ids });
-        snackbar.success("Delete complete");
+        snackbar.success("Messages deleted successfully");
         playDeleteSound?.();
         setSelected([]);
         fetchMessages();
       } catch (err) {
-        snackbar.error("Delete failed");
+        snackbar.error("Failed to delete messages");
       }
     });
   };
@@ -217,13 +223,7 @@ const Messages = () => {
     }
   };
 
-  if (!isAuthenticated) {
-    return <Navigate to={"/login"} />;
-  }
-
-  // Handle download prescription from message
   const handleDownloadPrescription = async (message) => {
-    // Try to look up patient by phone number
     const phone = String(message.phone || "").replace(/\D/g, "");
     const name = `${message.firstName || ""} ${message.lastName || ""}`.trim() || "Patient";
     if (!phone) {
@@ -246,46 +246,74 @@ const Messages = () => {
     }
   };
 
-  // Build doctor list according to the logged-in dashboard user's role
+  // Build doctor list according to the logged-in user's role
   const filteredDoctors = (() => {
     if (!user) return [];
     if (user.role === "Admin") return allDoctors;
     if (user.role === "Compounder") {
-      // assignedDoctors may contain object ids or populated objects; compare as strings
       const assigned = (user.assignedDoctors || []).map((ad) =>
-        String(ad._id || ad),
+        String(ad._id || ad)
       );
       return allDoctors.filter((doc) => assigned.includes(String(doc._id)));
     }
-    // Doctor (or other single-user roles) should only see themselves
     return allDoctors.filter((doc) => String(doc._id) === String(user._id));
   })();
 
+  if (!isAuthenticated) {
+    return <Navigate to={"/login"} />;
+  }
+
   return (
-    <>
-    <section className="messages-container page">
-      <div className="messages-body">
-        <div className="messages-header">
-          <h1>Messages</h1>
-          <button
-            ref={setupClickSound}
-            onClick={() => setShowComposeModal(true)}
-            className="btn"
-          >
-            <FiEdit title="Compose" />
-            Compose
-          </button>
+    <section className="page messages-page">
+      <div className="msg-page-container">
+        {/* Modern Themed Top Toolbar */}
+        <div className="msg-page-top-bar">
+          <div className="msg-page-top-bar-left">
+            <div className="msg-page-icon-wrapper">
+              <FaInbox />
+            </div>
+            <div className="msg-page-title-group">
+              <div className="msg-page-main-heading-row">
+                <h1 className="msg-page-main-heading">Messages & Notifications</h1>
+                {counts.unread > 0 && (
+                  <span className="msg-unread-pill-tag">
+                    {counts.unread} New
+                  </span>
+                )}
+              </div>
+              <span className="msg-page-breadcrumb">
+                Communications &rsaquo; Inbox & Alerts
+              </span>
+            </div>
+          </div>
+
+          <div className="msg-page-top-bar-right">
+            <button
+              ref={setupClickSound}
+              type="button"
+              className="msg-compose-cta-btn"
+              onClick={() => setShowComposeModal(true)}
+            >
+              <FaPenToSquare />
+              <span>Compose Message</span>
+            </button>
+          </div>
         </div>
 
+        {/* Compose Modal */}
         {showComposeModal && (
           <ComposeModal
-            onClose={() => setShowComposeModal(false)}
+            onClose={() => {
+              setShowComposeModal(false);
+              fetchMessages();
+            }}
             doctors={allDoctors}
             user={user}
           />
         )}
 
-        <Toolbar>
+        {/* Filter Controls & Search Card */}
+        <div className="msg-controls-card">
           <MessageFilter
             filters={filters}
             onFilterChange={handleFilterChange}
@@ -293,14 +321,35 @@ const Messages = () => {
             user={user}
             filteredDoctors={filteredDoctors}
           />
-          <div className="messages-summary">
-            <div className="summary-text">
-              <p> Total: {counts.total}</p> |<p> Read: {counts.read}</p> |
-              <p> Unread: {counts.unread}</p>
-              <span >
-               {selected.length > 0 ? ` | (${selected.length} selected)` : ""}
-              </span>
+
+          {/* Metric Badges & Bulk Action Toolbar Row */}
+          <div className="msg-summary-toolbar-row">
+            {/* Metric Filter Badges */}
+            <div className="msg-stat-badges-group">
+              <div className="msg-stat-badge total">
+                <FaEnvelope className="msg-stat-badge-icon" />
+                <span className="msg-stat-badge-label">Total Messages</span>
+                <span className="msg-stat-badge-value">{counts.total}</span>
+              </div>
+
+              <div
+                className={`msg-stat-badge unread ${
+                  counts.unread > 0 ? "active-unread" : ""
+                }`}
+              >
+                <span className="msg-stat-dot" />
+                <span className="msg-stat-badge-label">Unread</span>
+                <span className="msg-stat-badge-value">{counts.unread}</span>
+              </div>
+
+              <div className="msg-stat-badge read">
+                <FaCheckDouble className="msg-stat-badge-icon" />
+                <span className="msg-stat-badge-label">Read</span>
+                <span className="msg-stat-badge-value">{counts.read}</span>
+              </div>
             </div>
+
+            {/* Bulk Actions */}
             <BulkActions
               selected={selected}
               onSelectAll={toggleSelectAll}
@@ -312,16 +361,17 @@ const Messages = () => {
               }
             />
           </div>
-        </Toolbar>
+        </div>
 
+        {/* Messages Content List */}
         {loading ? (
-          <div className="loading-state centered">
-            <span className="loader" style={{ height: "3rem" }}></span>
-            <p>Loading Messages...</p>
+          <div className="msg-loading-state">
+            <div className="msg-spinner-ring" />
+            <p>Loading messages & notifications...</p>
           </div>
         ) : messages.length > 0 ? (
-          <>
-          <MessageList
+          <div className="msg-list-wrapper">
+            <MessageList
               messages={messages}
               selected={selected}
               onToggleSelect={toggleSelect}
@@ -330,20 +380,38 @@ const Messages = () => {
               onReply={handleReply}
               onDownloadPrescription={handleDownloadPrescription}
             />
+
             <Pagination
               currentPage={filters.page}
               totalPages={totalPages}
               onPageChange={goToPage}
             />
-          </>
+          </div>
         ) : (
-          <div className="empty-state">
-            <h3>No Messages Found!</h3>
-            <p>Try adjusting your filters or clearing the search.</p>
+          <div className="msg-empty-state">
+            <div className="msg-empty-icon-box">
+              <FaEnvelopeOpenText />
+            </div>
+            <h3>No Messages Found</h3>
+            <p>
+              {filters.q || filters.filterOption !== "All" || filters.doctorId
+                ? "No communications match your current filter criteria. Try clearing search filters."
+                : "Your inbox is currently empty. New patient inquiries and prescription notifications will appear here."}
+            </p>
+            {(filters.q || filters.filterOption !== "All" || filters.doctorId) && (
+              <button
+                ref={setupClickSound}
+                type="button"
+                className="msg-empty-reset-btn"
+                onClick={clearSearch}
+              >
+                <FaArrowRotateRight />
+                <span>Reset Filters</span>
+              </button>
+            )}
           </div>
         )}
       </div>
-  </section>
 
       {/* Download Prescription PDFs Modal */}
       {downloadPrescriptionPatient && (
@@ -353,7 +421,7 @@ const Messages = () => {
           onClose={() => setDownloadPrescriptionPatient(null)}
         />
       )}
-    </>
+    </section>
   );
 };
 

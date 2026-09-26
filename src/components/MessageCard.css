@@ -1,16 +1,558 @@
-.message-card .btn-link {
-  background: transparent;
-  border: none;
-  color: #007bff;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
+/* ==========================================================================
+   MODERN MESSAGE CARD - CLINICAL DESIGN SYSTEM
+   Supports: theme-teal, theme-light, theme-dark, theme-custom
+   ========================================================================== */
+
+.modern-msg-card {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 16px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  transition: all 0.25s ease;
+  overflow: hidden;
 }
 
-.message-card .btn-link:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+.modern-msg-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+  border-color: var(--accent, #1a9e9b);
+}
+
+.modern-msg-card.selected {
+  border-color: var(--accent, #1a9e9b);
+  background: rgba(26, 158, 155, 0.03);
+  box-shadow: 0 0 0 1px var(--accent, #1a9e9b);
+}
+
+.modern-msg-card.unread {
+  border-left: 4px solid var(--accent, #1a9e9b);
+}
+
+.modern-msg-card.read {
+  border-left: 4px solid transparent;
+  opacity: 0.95;
+}
+
+/* --------------------------------------------------------------------------
+   Checkbox & Avatar Badges
+   -------------------------------------------------------------------------- */
+.msg-card-checkbox-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 4px;
+  flex-shrink: 0;
+}
+
+.msg-card-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  accent-color: var(--accent, #1a9e9b);
+  cursor: pointer;
+}
+
+.msg-type-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.msg-type-avatar.badge-prescription {
+  background: rgba(26, 158, 155, 0.12);
+  color: var(--accent, #1a9e9b);
+}
+
+.msg-type-avatar.badge-appointment {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+}
+
+.msg-type-avatar.badge-system {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+
+.msg-type-avatar.badge-user {
+  background: rgba(139, 92, 246, 0.12);
+  color: #8b5cf6;
+}
+
+.msg-unread-pulse-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background: #ef4444;
+  border-radius: 50%;
+  border: 2px solid var(--bg-card, #ffffff);
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Card Body & Content
+   -------------------------------------------------------------------------- */
+.msg-card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.msg-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.msg-sender-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.msg-sender-name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+}
+
+.msg-type-tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.msg-type-tag.badge-prescription {
+  background: rgba(26, 158, 155, 0.12);
+  color: var(--accent, #1a9e9b);
+}
+
+.msg-type-tag.badge-appointment {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+}
+
+.msg-type-tag.badge-system {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+}
+
+.msg-type-tag.badge-user {
+  background: rgba(139, 92, 246, 0.12);
+  color: #8b5cf6;
+}
+
+.msg-meta-details {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.msg-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  color: var(--text-muted, #64748b);
+  font-weight: 500;
+}
+
+.msg-meta-icon {
+  font-size: 0.72rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+/* Message Text & Smart Links */
+.msg-text-content {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text-main, #1e293b);
+  word-break: break-word;
+  max-height: 4.8rem;
+  overflow: hidden;
+  position: relative;
+  transition: max-height 0.3s ease;
+}
+
+.msg-text-content.expanded {
+  max-height: none;
+  overflow: visible;
+}
+
+.msg-expand-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--accent, #1a9e9b);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-top: -2px;
+  align-self: flex-start;
+}
+
+.msg-expand-toggle-btn:hover {
+  text-decoration: underline;
+}
+
+.msg-preview-link-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  margin: 6px 0;
+  border-radius: 8px;
+  background: rgba(26, 158, 155, 0.1);
+  color: var(--accent, #1a9e9b);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgba(26, 158, 155, 0.25);
+  transition: all 0.2s ease;
+}
+
+.msg-preview-link-pill:hover {
+  background: var(--accent, #1a9e9b);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(26, 158, 155, 0.25);
+}
+
+.msg-inline-link {
+  color: var(--accent, #1a9e9b);
+  font-weight: 600;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+/* Card Subfooter (Recipient & Timestamp) */
+.msg-card-subfooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-color, #f1f5f9);
+}
+
+.msg-recipient-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-muted, #475569);
+  background: var(--bg-subtle, #f8fafc);
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.msg-chip-icon {
+  color: var(--accent, #1a9e9b);
+}
+
+.msg-timestamp-badge {
+  font-size: 0.72rem;
+  color: var(--text-muted, #94a3b8);
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   Quick Reply Drawer
+   -------------------------------------------------------------------------- */
+.msg-reply-drawer {
+  margin-top: 10px;
+  padding: 12px;
+  background: var(--bg-subtle, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.msg-reply-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: var(--bg-card, #ffffff);
+  color: var(--text-main, #1e293b);
+  font-size: 0.84rem;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.msg-reply-textarea:focus {
+  border-color: var(--accent, #1a9e9b);
+  box-shadow: 0 0 0 2px rgba(26, 158, 155, 0.15);
+}
+
+.msg-reply-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.msg-reply-cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: transparent;
+  color: var(--text-muted, #64748b);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.msg-reply-cancel-btn:hover {
+  background: var(--bg-card, #ffffff);
+  color: var(--text-main, #1e293b);
+}
+
+.msg-reply-send-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  background: var(--btn-gradient, linear-gradient(135deg, #1a9e9b, #2f78c8));
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.msg-reply-send-btn:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.msg-reply-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   Right Action Buttons Bar
+   -------------------------------------------------------------------------- */
+.msg-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+  padding-left: 4px;
+}
+
+.msg-action-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-subtle, #f8fafc);
+  color: var(--text-muted, #64748b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.msg-action-btn:hover {
+  transform: scale(1.08);
+}
+
+.msg-action-btn.read-btn:hover,
+.msg-action-btn.unread-btn:hover {
+  background: rgba(26, 158, 155, 0.12);
+  color: var(--accent, #1a9e9b);
+  border-color: var(--accent, #1a9e9b);
+}
+
+.msg-action-btn.reply-btn:hover,
+.msg-action-btn.reply-btn.active {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.msg-action-btn.pdf-btn {
+  color: #ef4444;
+}
+
+.msg-action-btn.pdf-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: #ef4444;
+}
+
+.msg-action-btn.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+/* --------------------------------------------------------------------------
+   Theme Overrides for Message Card
+   -------------------------------------------------------------------------- */
+.theme-dark .modern-msg-card {
+  background: #151d2c !important;
+  border-color: #243044 !important;
+  color: #f8fafc !important;
+}
+
+.theme-dark .modern-msg-card.selected {
+  background: rgba(0, 210, 255, 0.08) !important;
+  border-color: #00d2ff !important;
+}
+
+.theme-dark .modern-msg-card.unread {
+  border-left-color: #00d2ff !important;
+}
+
+.theme-dark .msg-sender-name,
+.theme-dark .msg-text-content {
+  color: #f8fafc !important;
+}
+
+.theme-dark .msg-meta-item,
+.theme-dark .msg-timestamp-badge {
+  color: #94a3b8 !important;
+}
+
+.theme-dark .msg-action-btn {
+  background: #1e293b !important;
+  border-color: #243044 !important;
+  color: #94a3b8 !important;
+}
+
+.theme-dark .msg-action-btn:hover {
+  color: #00d2ff !important;
+  border-color: #00d2ff !important;
+}
+
+.theme-dark .msg-recipient-chip {
+  background: #1e293b !important;
+  border-color: #243044 !important;
+  color: #cbd5e1 !important;
+}
+
+.theme-dark .msg-card-subfooter {
+  border-top-color: #243044 !important;
+}
+
+.theme-dark .msg-reply-drawer {
+  background: #111827 !important;
+  border-color: #243044 !important;
+}
+
+.theme-dark .msg-reply-textarea {
+  background: #1e293b !important;
+  border-color: #243044 !important;
+  color: #f8fafc !important;
+}
+
+.theme-dark .msg-reply-cancel-btn {
+  background: #1e293b !important;
+  border-color: #243044 !important;
+  color: #cbd5e1 !important;
+}
+
+.theme-dark .msg-preview-link-pill {
+  background: rgba(0, 210, 255, 0.12) !important;
+  border-color: rgba(0, 210, 255, 0.3) !important;
+  color: #00d2ff !important;
+}
+
+.theme-dark .msg-preview-link-pill:hover {
+  background: #00d2ff !important;
+  color: #0b0f17 !important;
+}
+
+/* Light / Medical Blue Theme */
+.theme-light .modern-msg-card:hover {
+  border-color: #2f78c8;
+}
+
+.theme-light .modern-msg-card.selected {
+  border-color: #2f78c8;
+  background: rgba(47, 120, 200, 0.04);
+}
+
+.theme-light .modern-msg-card.unread {
+  border-left-color: #2f78c8;
+}
+
+.theme-light .msg-preview-link-pill {
+  background: rgba(47, 120, 200, 0.1);
+  border-color: rgba(47, 120, 200, 0.25);
+  color: #2f78c8;
+}
+
+.theme-light .msg-preview-link-pill:hover {
+  background: #2f78c8;
+  color: #ffffff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modern-msg-card {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .msg-card-actions {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-end;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color, #e2e8f0);
+  }
 }

@@ -1,7 +1,8 @@
 import React from "react";
-import { MdOutlineContentPasteSearch } from "react-icons/md";
-import { RxReload } from "react-icons/rx";
 import { GoSearch } from "react-icons/go";
+import { RxCross2, RxReload } from "react-icons/rx";
+import { FaUserMd, FaCalendarAlt } from "react-icons/fa";
+import useClickSound from "../hooks/useClickSound";
 
 const MessageFilter = ({
   filters,
@@ -10,69 +11,105 @@ const MessageFilter = ({
   user,
   filteredDoctors,
 }) => {
+  const setupClickSound = useClickSound();
+
   return (
-    <div className="filter-controls">
-      <div className="message-search">
-        {/* <MdOutlineContentPasteSearch size="1.5rem" color="#718096" /> */}
-        <GoSearch />
+    <div className="msg-filter-controls">
+      {/* Search Input with Clear Button */}
+      <div className="msg-search-box">
+        <GoSearch className="msg-search-icon" />
         <input
           type="text"
           name="q"
-          placeholder="Name or phone..."
+          placeholder="Search by sender, phone, content..."
           value={filters.q}
           onChange={onFilterChange}
+          className="msg-search-input"
         />
+        {filters.q && (
+          <button
+            type="button"
+            className="msg-search-clear-btn"
+            onClick={() =>
+              onFilterChange({ target: { name: "q", value: "" } })
+            }
+            title="Clear search"
+          >
+            <RxCross2 />
+          </button>
+        )}
       </div>
-      <select
-        name="filterOption"
-        value={filters.filterOption}
-        onChange={onFilterChange}
-      >
-        <option value="All">Filter by Date</option>
-        <option value="Today">Today</option>
-        <option value="Old">Older</option>
-        <option value="Custom">Custom Range</option>
-      </select>
 
-      {user?.role !== "Doctor" && (
+      {/* Date Filter Dropdown */}
+      <div className="msg-filter-select-wrapper">
+        <FaCalendarAlt className="msg-select-icon" />
         <select
-          name="doctorId"
-          value={filters.doctorId}
+          name="filterOption"
+          value={filters.filterOption}
           onChange={onFilterChange}
+          className="msg-filter-select"
         >
-          <option value="">Filter by Doctor</option>
-          {filteredDoctors.map((doc) => (
-            <option key={doc._id} value={doc._id}>
-              {doc.firstName} {doc.lastName}
-            </option>
-          ))}
+          <option value="All">All Dates</option>
+          <option value="Today">Today's Messages</option>
+          <option value="Old">Older Messages</option>
+          <option value="Custom">Custom Date Range</option>
         </select>
+      </div>
+
+      {/* Doctor Filter Dropdown (if Admin or Multi-Doctor) */}
+      {user?.role !== "Doctor" && (
+        <div className="msg-filter-select-wrapper">
+          <FaUserMd className="msg-select-icon" />
+          <select
+            name="doctorId"
+            value={filters.doctorId}
+            onChange={onFilterChange}
+            className="msg-filter-select"
+          >
+            <option value="">All Doctors</option>
+            {filteredDoctors.map((doc) => (
+              <option key={doc._id} value={doc._id}>
+                Dr. {doc.firstName} {doc.lastName}
+              </option>
+            ))}
+          </select>
+        </div>
       )}
 
+      {/* Custom Date Range Picker */}
       {filters.filterOption === "Custom" && (
-        <div className="custom-date-inputs">
+        <div className="msg-custom-date-range">
           <input
             type="date"
             name="customStart"
             value={filters.customStart}
             onChange={onFilterChange}
+            className="msg-date-input"
+            title="Start Date"
           />
-          <span>-</span>
+          <span className="msg-date-separator">to</span>
           <input
             type="date"
             name="customEnd"
             value={filters.customEnd}
             onChange={onFilterChange}
+            className="msg-date-input"
+            title="End Date"
           />
         </div>
       )}
 
-      <div className="action-buttons">
-        <button onClick={onClearFilters} className="clear-filter">
-          {/* Clear Filters */}
-          <RxReload title="Clear Filters" />
-        </button>
-      </div>
+      {/* Reset / Reload Button */}
+      <button
+        ref={setupClickSound}
+        onClick={onClearFilters}
+        className="msg-reload-btn"
+        title="Reset all filters"
+        type="button"
+      >
+        <RxReload className="msg-reload-icon" />
+        <span className="msg-reload-label">Reset</span>
+      </button>
     </div>
   );
 };

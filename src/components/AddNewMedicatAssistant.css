@@ -1,0 +1,636 @@
+/* ==========================================================================
+   REGISTER NEW ASSISTANT (COMPOUNDER) - CLINICAL DESIGN SYSTEM
+   Supports: theme-teal, theme-light, theme-dark, theme-custom
+   ========================================================================== */
+
+.assistant-register-page {
+  min-height: 100vh;
+  padding: 1rem 1.5rem 3rem !important;
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.ast-register-page-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   Top Navigation Toolbar
+   -------------------------------------------------------------------------- */
+.ast-page-top-bar {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  padding: 14px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+
+.ast-page-top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ast-page-back-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: var(--bg-subtle, #f8fafc);
+  color: var(--accent, #1a9e9b);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.ast-page-back-btn:hover {
+  background: var(--accent, #1a9e9b);
+  color: #ffffff;
+  border-color: var(--accent, #1a9e9b);
+  transform: translateX(-2px);
+  box-shadow: 0 2px 8px rgba(26, 158, 155, 0.25);
+}
+
+.ast-page-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ast-page-main-heading {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.2;
+}
+
+.ast-page-heading-icon {
+  color: var(--accent, #1a9e9b);
+  font-size: 1.25rem;
+}
+
+.ast-page-breadcrumb {
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   Registration Card Form Container
+   -------------------------------------------------------------------------- */
+.ast-register-card {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+.ast-form-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+}
+
+.ast-form-header-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(26, 158, 155, 0.1);
+  color: var(--accent, #1a9e9b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.ast-form-header-title {
+  margin: 0 0 2px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+}
+
+.ast-form-header-subtitle {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted, #64748b);
+}
+
+/* --------------------------------------------------------------------------
+   Form Grid & Field Groups
+   -------------------------------------------------------------------------- */
+.ast-form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ast-fields-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.ast-fields-row.single-col {
+  grid-template-columns: 1fr;
+}
+
+.ast-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ast-field-group label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-muted, #475569);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ast-required-star {
+  color: #ef4444;
+}
+
+.ast-field-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ast-field-input-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.95rem;
+  pointer-events: none;
+}
+
+.ast-field-group input,
+.ast-field-group select {
+  height: 40px;
+  padding: 0 12px;
+  padding-left: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: var(--bg-subtle, #f8fafc);
+  color: var(--text-main, #1e293b);
+  font-size: 0.88rem;
+  outline: none;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ast-field-group input.no-icon,
+.ast-field-group select.no-icon {
+  padding-left: 12px;
+}
+
+.ast-field-group input:focus,
+.ast-field-group select:focus {
+  border-color: var(--accent, #1a9e9b);
+  box-shadow: 0 0 0 3px rgba(26, 158, 155, 0.15);
+  background: var(--bg-card, #ffffff);
+}
+
+.ast-field-group input:disabled,
+.ast-field-group select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   Doctor Assignment Section
+   -------------------------------------------------------------------------- */
+.ast-doctor-assignment-section {
+  background: var(--bg-subtle, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.ast-doc-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ast-doc-section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ast-doc-section-icon {
+  font-size: 1.1rem;
+  color: var(--accent, #1a9e9b);
+}
+
+.ast-doc-section-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+}
+
+.ast-doc-section-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(26, 158, 155, 0.12);
+  color: var(--accent, #1a9e9b);
+}
+
+.ast-doc-section-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ast-doc-action-btn {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--accent, #1a9e9b);
+  background: transparent;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ast-doc-action-btn:hover {
+  background: var(--accent, #1a9e9b);
+  color: #ffffff;
+  border-color: var(--accent, #1a9e9b);
+}
+
+/* Doctor Selection Grid */
+.ast-doctors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 4px 2px;
+}
+
+.ast-doctor-card-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: var(--bg-card, #ffffff);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.ast-doctor-card-toggle:hover {
+  border-color: var(--accent, #1a9e9b);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.ast-doctor-card-toggle.selected {
+  border-color: var(--accent, #1a9e9b);
+  background: rgba(26, 158, 155, 0.06);
+  box-shadow: 0 0 0 1px var(--accent, #1a9e9b);
+}
+
+.ast-doc-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  accent-color: var(--accent, #1a9e9b);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ast-doc-avatar-small {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--border-color, #cbd5e1);
+  flex-shrink: 0;
+}
+
+.ast-doctor-card-toggle.selected .ast-doc-avatar-small {
+  border-color: var(--accent, #1a9e9b);
+}
+
+.ast-doc-info-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.ast-doc-name-text {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main, #1e293b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ast-doc-dept-badge {
+  font-size: 0.68rem;
+  color: var(--text-muted, #64748b);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ast-no-doctors-hint {
+  padding: 16px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-muted, #94a3b8);
+  font-style: italic;
+}
+
+/* Doctor Self-Assignment Info Box */
+.ast-doctor-self-assign-box {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ast-doctor-self-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--accent, #1a9e9b);
+  object-fit: cover;
+}
+
+.ast-doctor-self-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.ast-doctor-self-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted, #64748b);
+}
+
+.ast-doctor-self-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+}
+
+/* --------------------------------------------------------------------------
+   Footer Actions
+   -------------------------------------------------------------------------- */
+.ast-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color, #e2e8f0);
+}
+
+.ast-cancel-btn {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: transparent;
+  color: var(--text-muted, #64748b);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ast-cancel-btn:hover {
+  background: var(--bg-subtle, #f1f5f9);
+  color: var(--text-main, #1e293b);
+}
+
+.ast-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 24px;
+  border-radius: 8px;
+  border: none;
+  background: var(--btn-gradient, linear-gradient(135deg, #1a9e9b, #2f78c8));
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(26, 158, 155, 0.25);
+}
+
+.ast-submit-btn:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26, 158, 155, 0.35);
+}
+
+.ast-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   Theme Overrides (theme-dark, theme-teal, theme-light, theme-custom)
+   -------------------------------------------------------------------------- */
+.theme-dark .ast-page-top-bar,
+.theme-dark .ast-register-card,
+.theme-dark .ast-doctor-card-toggle,
+.theme-dark .ast-doctor-self-assign-box {
+  background: #151d2c !important;
+  border-color: #243044 !important;
+  color: #f8fafc !important;
+}
+
+.theme-dark .ast-page-top-bar {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.theme-dark .ast-page-main-heading,
+.theme-dark .ast-form-header-title,
+.theme-dark .ast-doc-section-title,
+.theme-dark .ast-doc-name-text,
+.theme-dark .ast-doctor-self-name {
+  color: #f8fafc !important;
+}
+
+.theme-dark .ast-page-heading-icon,
+.theme-dark .ast-form-header-icon,
+.theme-dark .ast-doc-section-icon {
+  color: #00d2ff !important;
+}
+
+.theme-dark .ast-form-header-icon {
+  background: rgba(0, 210, 255, 0.12) !important;
+}
+
+.theme-dark .ast-page-breadcrumb,
+.theme-dark .ast-form-header-subtitle,
+.theme-dark .ast-field-group label,
+.theme-dark .ast-doc-dept-badge,
+.theme-dark .ast-doctor-self-label,
+.theme-dark .ast-no-doctors-hint {
+  color: #94a3b8 !important;
+}
+
+.theme-dark .ast-page-back-btn,
+.theme-dark .ast-doc-action-btn,
+.theme-dark .ast-cancel-btn {
+  background: #1e293b !important;
+  border-color: #243044 !important;
+  color: #00d2ff !important;
+}
+
+.theme-dark .ast-page-back-btn:hover,
+.theme-dark .ast-doc-action-btn:hover {
+  background: #00d2ff !important;
+  color: #0b0f17 !important;
+  border-color: #00d2ff !important;
+}
+
+.theme-dark .ast-cancel-btn:hover {
+  background: #243044 !important;
+  color: #f8fafc !important;
+}
+
+.theme-dark .ast-field-group input,
+.theme-dark .ast-field-group select {
+  background: #111827 !important;
+  border-color: #243044 !important;
+  color: #f8fafc !important;
+}
+
+.theme-dark .ast-field-group input:focus,
+.theme-dark .ast-field-group select:focus {
+  border-color: #00d2ff !important;
+  box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.2) !important;
+}
+
+.theme-dark .ast-doctor-assignment-section {
+  background: #111827 !important;
+  border-color: #243044 !important;
+}
+
+.theme-dark .ast-doc-section-count {
+  background: rgba(0, 210, 255, 0.15) !important;
+  color: #00d2ff !important;
+}
+
+.theme-dark .ast-doctor-card-toggle.selected {
+  background: rgba(0, 210, 255, 0.1) !important;
+  border-color: #00d2ff !important;
+  box-shadow: 0 0 0 1px #00d2ff !important;
+}
+
+.theme-dark .ast-form-header,
+.theme-dark .ast-form-footer {
+  border-color: #243044 !important;
+}
+
+/* Light / Medical Blue Theme */
+.theme-light .ast-page-back-btn,
+.theme-light .ast-doc-action-btn {
+  color: #2f78c8;
+}
+
+.theme-light .ast-page-back-btn:hover,
+.theme-light .ast-doc-action-btn:hover {
+  background: #2f78c8;
+  color: #ffffff;
+  border-color: #2f78c8;
+}
+
+.theme-light .ast-page-heading-icon,
+.theme-light .ast-form-header-icon,
+.theme-light .ast-doc-section-icon {
+  color: #2f78c8;
+}
+
+.theme-light .ast-form-header-icon {
+  background: rgba(47, 120, 200, 0.1);
+}
+
+.theme-light .ast-doc-section-count {
+  background: rgba(47, 120, 200, 0.12);
+  color: #2f78c8;
+}
+
+.theme-light .ast-doctor-card-toggle.selected {
+  background: rgba(47, 120, 200, 0.08);
+  border-color: #2f78c8;
+  box-shadow: 0 0 0 1px #2f78c8;
+}
+
+/* Responsive */
+@media (max-width: 680px) {
+  .ast-fields-row {
+    grid-template-columns: 1fr;
+  }
+  .ast-doctors-grid {
+    grid-template-columns: 1fr;
+  }
+  .ast-register-card {
+    padding: 16px;
+  }
+}

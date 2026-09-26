@@ -1,14 +1,87 @@
-import React, { useState } from 'react';
-import './MessageCard.css';
+import React, { useState } from "react";
+import "./MessageCard.css";
 import {
   MdDelete,
   MdMarkEmailRead,
   MdMarkEmailUnread,
   MdReply,
-} from 'react-icons/md';
-import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { FaFilePdf } from 'react-icons/fa6';
-import useClickSound from '../hooks/useClickSound';
+  MdSend,
+  MdClose,
+} from "react-icons/md";
+import {
+  FaBell,
+  FaFilePrescription,
+  FaUser,
+  FaUserDoctor,
+  FaFilePdf,
+  FaCalendarCheck,
+  FaArrowUpRightFromSquare,
+  FaPhone,
+  FaEnvelope,
+} from "react-icons/fa6";
+import useClickSound from "../hooks/useClickSound";
+
+// Helper to determine message type icon & badge
+const getMessageMeta = (message) => {
+  const text = (message.message || "").toLowerCase();
+  const senderName = `${message.firstName || ""} ${message.lastName || ""}`.toLowerCase();
+
+  if (
+    text.includes("prescription completed") ||
+    text.includes("preview/") ||
+    senderName.includes("system")
+  ) {
+    return {
+      type: "system",
+      icon: <FaFilePrescription />,
+      badgeLabel: "Prescription Alert",
+      badgeClass: "badge-prescription",
+    };
+  }
+
+  if (text.includes("appointment")) {
+    return {
+      type: "appointment",
+      icon: <FaCalendarCheck />,
+      badgeLabel: "Appointment Update",
+      badgeClass: "badge-appointment",
+    };
+  }
+
+  if (message.email?.includes("notifications") || senderName.includes("notification")) {
+    return {
+      type: "system",
+      icon: <FaBell />,
+      badgeLabel: "System Notification",
+      badgeClass: "badge-system",
+    };
+  }
+
+  return {
+    type: "user",
+    icon: <FaUser />,
+    badgeLabel: "Direct Message",
+    badgeClass: "badge-user",
+  };
+};
+
+// Helper for formatted date
+const formatTimestamp = (dateStr) => {
+  if (!dateStr) return "";
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  } catch (e) {
+    return dateStr;
+  }
+};
 
 const MessageCard = ({
   message,
@@ -19,173 +92,267 @@ const MessageCard = ({
   onReply,
   onDownloadPrescription,
 }) => {
-  const [replyText, setReplyText] = useState('');
+  const [replyText, setReplyText] = useState("");
   const [showReply, setShowReply] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const setupClickSound = useClickSound();
+
+  const meta = getMessageMeta(message);
 
   const handleReplySubmit = (e) => {
     e.preventDefault();
     if (replyText.trim()) {
       onReply(message, replyText);
-      setReplyText('');
+      setReplyText("");
       setShowReply(false);
     }
   };
 
+  // Parse text for URLs and convert prescription links into formatted pill badges
+  const renderMessageContent = (content) => {
+    if (!content) return "";
+    const elements = [];
+    const regex = /((?:https?:\/\/|www\.)[^\s]+)/gi;
+    let lastIndex = 0;
+    let match;
+
+    const pushText = (s) => {
+      if (!s) return;
+      const parts = s.split("\n");
+      parts.forEach((part, idx) => {
+        elements.push(part);
+        if (idx < parts.length - 1) {
+          elements.push(<br key={`br-${elements.length}`} />);
+        }
+      });
+    };
+
+    while ((match = regex.exec(content)) !== null) {
+      const idx = match.index;
+      if (idx > lastIndex) {
+        pushText(content.substring(lastIndex, idx));
+      }
+      const rawUrl = match[0];
+      const href = /^https?:\/\//i.test(rawUrl) ? rawUrl : `http://${rawUrl}`;
+
+      // If this is a preview URL, make it a nice action pill
+      if (rawUrl.includes("/preview/")) {
+        elements.push(
+          <a
+            key={`link-${elements.length}`}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="msg-preview-link-pill"
+            title="Open Prescription Preview"
+          >
+            <FaArrowUpRightFromSquare style={{ fontSize: "0.75rem" }} />
+            <span>View Prescription Preview</span>
+          </a>
+        );
+      } else {
+        elements.push(
+          <a
+            key={`link-${elements.length}`}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="msg-inline-link"
+          >
+            {rawUrl}
+          </a>
+        );
+      }
+
+      lastIndex = idx + match[0].length;
+    }
+
+    if (lastIndex < content.length) {
+      pushText(content.substring(lastIndex));
+    }
+
+    if (elements.length === 0) return content;
+    return elements.map((el, i) =>
+      typeof el === "string" ? <span key={`t-${i}`}>{el}</span> : el
+    );
+  };
+
+  const isLongMessage = (message.message || "").length > 140;
+
   return (
-    <div className={`message-card ${!message.read ? 'unread' : ''}`}>
-      {/* Debug: inspect message shape when rendering cards */}
-      {typeof window !== 'undefined' && (function(){ try { console.log('[MessageCard] rendering message', { id: message._id, recipient: message.recipient }); } catch(e){} return null })()}
-      <div className="message-selection">
+    <div
+      className={`modern-msg-card ${!message.read ? "unread" : "read"} ${
+        isSelected ? "selected" : ""
+      }`}
+    >
+      {/* Selection Checkbox */}
+      <div className="msg-card-checkbox-wrap">
         <input
           type="checkbox"
           checked={isSelected}
           onChange={() => onToggleSelect(message._id)}
+          className="msg-card-checkbox"
         />
       </div>
-      <div className="message-content">
-        <div className="message-sender">
-          <span>{message.firstName} {message.lastName}</span>
-          <span className="message-contact">{message.email} • {message.phone}</span>
+
+      {/* Type Avatar Badge */}
+      <div className={`msg-type-avatar ${meta.badgeClass}`}>
+        {meta.icon}
+        {!message.read && <span className="msg-unread-pulse-dot" title="Unread Message" />}
+      </div>
+
+      {/* Main Content Area */}
+      <div className="msg-card-body">
+        {/* Header: Sender & Tag */}
+        <div className="msg-card-header">
+          <div className="msg-sender-info">
+            <h3 className="msg-sender-name">
+              {message.firstName} {message.lastName}
+            </h3>
+            <span className={`msg-type-tag ${meta.badgeClass}`}>
+              {meta.badgeLabel}
+            </span>
+          </div>
+
+          <div className="msg-meta-details">
+            {message.email && (
+              <span className="msg-meta-item">
+                <FaEnvelope className="msg-meta-icon" />
+                <span>{message.email}</span>
+              </span>
+            )}
+            {message.phone && (
+              <span className="msg-meta-item">
+                <FaPhone className="msg-meta-icon" />
+                <span>{message.phone}</span>
+              </span>
+            )}
+          </div>
         </div>
-        <p 
-          className={`message-body ${isExpanded ? 'expanded' : ''}`}
-          onClick={() => setIsExpanded(!isExpanded)}
-          style={{ cursor: 'pointer' }}
-          title={isExpanded ? "Click to collapse" : "Click to expand"}
+
+        {/* Message Text Body */}
+        <div
+          className={`msg-text-content ${isExpanded ? "expanded" : ""}`}
+          onClick={() => isLongMessage && setIsExpanded(!isExpanded)}
+          style={{ cursor: isLongMessage ? "pointer" : "default" }}
+          title={isLongMessage ? (isExpanded ? "Click to collapse" : "Click to expand") : ""}
         >
-          {(() => {
-            const text = message.message || '';
-            const isLongMessage = text.length > 100;
+          {renderMessageContent(message.message)}
+        </div>
 
-            const renderContent = (content) => {
-              const elements = [];
-              const regex = /((?:https?:\/\/|www\.)[^\s]+)/gi;
-              let lastIndex = 0;
-              let match;
-
-              const pushText = (s) => {
-                if (!s) return;
-                const parts = s.split('\n');
-                parts.forEach((part, idx) => {
-                  elements.push(part);
-                  if (idx < parts.length - 1) {
-                    elements.push(<br key={`br-${elements.length}`} />);
-                  }
-                });
-              };
-
-              while ((match = regex.exec(content)) !== null) {
-                const idx = match.index;
-                if (idx > lastIndex) {
-                  pushText(content.substring(lastIndex, idx));
-                }
-                let url = match[0];
-                const href = /^https?:\/\//i.test(url) ? url : `http://${url}`;
-                elements.push(
-                  <a key={`link-${elements.length}`} href={href} target="_blank" rel="noopener noreferrer">
-                    {match[0]}
-                  </a>
-                );
-                lastIndex = idx + match[0].length;
-              }
-
-              if (lastIndex < content.length) {
-                pushText(content.substring(lastIndex));
-              }
-
-              // Fallback: if nothing parsed, show the raw text
-              if (elements.length === 0) return content;
-              return elements.map((el, i) => (typeof el === 'string' ? <span key={`t-${i}`}>{el}</span> : el));
-            };
-
-            if (isLongMessage && !isExpanded) {
-              return (
-                <>
-                  {renderContent(text.substring(0, 100))}...
-                </>
-              );
-            }
-
-            return (
-              <>
-                {renderContent(text)}
-              </>
-            );
-          })()}
-        </p>
-        {message.recipient && (
-          <p className="message-recipient">
-            To: {message.recipient.firstName} {message.recipient.lastName}
-          </p>
+        {isLongMessage && (
+          <button
+            type="button"
+            className="msg-expand-toggle-btn"
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            {isExpanded ? "Show Less" : "Read More..."}
+          </button>
         )}
-        <p className="message-timestamp">
-          {new Date(message.createdAt).toLocaleString()}
-        </p>
+
+        {/* Card Sub-Footer: Recipient & Timestamp */}
+        <div className="msg-card-subfooter">
+          {message.recipient && (
+            <div className="msg-recipient-chip">
+              <FaUserDoctor className="msg-chip-icon" />
+              <span>
+                To: Dr. {message.recipient.firstName} {message.recipient.lastName}
+              </span>
+            </div>
+          )}
+
+          <div className="msg-timestamp-badge">
+            <span>{formatTimestamp(message.createdAt)}</span>
+          </div>
+        </div>
+
+        {/* Quick Reply Form Drawer */}
         {showReply && (
-          <form onSubmit={handleReplySubmit} className="reply-form">
-            <textarea
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              placeholder="Type your reply..."
-              rows="3"
-            />
-            <div className="reply-actions">
-              <button type="submit" className="btn btn-primary">
-                Send Reply
-              </button>
+          <form onSubmit={handleReplySubmit} className="msg-reply-drawer">
+            <div className="msg-reply-input-wrap">
+              <textarea
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder="Type your response to this sender..."
+                rows="3"
+                className="msg-reply-textarea"
+                autoFocus
+              />
+            </div>
+            <div className="msg-reply-actions">
               <button
+                ref={setupClickSound}
                 type="button"
                 onClick={() => setShowReply(false)}
-                className="btn btn-secondary"
+                className="msg-reply-cancel-btn"
               >
-                Cancel
+                <MdClose />
+                <span>Cancel</span>
+              </button>
+              <button
+                ref={setupClickSound}
+                type="submit"
+                className="msg-reply-send-btn"
+                disabled={!replyText.trim()}
+              >
+                <MdSend />
+                <span>Send Reply</span>
               </button>
             </div>
           </form>
         )}
       </div>
-      <div className="message-actions">
+
+      {/* Right Actions Bar */}
+      <div className="msg-card-actions">
+        {/* Toggle Read / Unread */}
         <button
           ref={setupClickSound}
+          type="button"
           onClick={() => onUpdateStatus([message._id], !message.read)}
-          className="btn-icon icon-btn"
-          title={message.read ? 'Mark as Unread' : 'Mark as Read'}
+          className={`msg-action-btn ${message.read ? "read-btn" : "unread-btn"}`}
+          title={message.read ? "Mark as Unread" : "Mark as Read"}
         >
-          {message.read ? <MdMarkEmailUnread size="1.2rem" /> : <MdMarkEmailRead size="1.2rem" />}
+          {message.read ? <MdMarkEmailUnread /> : <MdMarkEmailRead />}
         </button>
+
+        {/* Quick Reply */}
         <button
           ref={setupClickSound}
-          onClick={() => onDelete([message._id])}
-          className="btn-icon icon-btn"
-          title="Delete"
-        >
-          <MdDelete size="1.2rem" />
-        </button>
-        <button
-          ref={setupClickSound}
+          type="button"
           onClick={() => setShowReply(!showReply)}
-          className="btn-icon icon-btn"
+          className={`msg-action-btn reply-btn ${showReply ? "active" : ""}`}
           title="Quick Reply"
         >
-          <MdReply size="1.2rem" />
+          <MdReply />
         </button>
+
+        {/* Download PDF Prescription Button */}
         {onDownloadPrescription && (
           <button
             ref={setupClickSound}
+            type="button"
             onClick={() => onDownloadPrescription(message)}
-            className="btn-icon icon-btn"
-            title="Download Saved Prescription PDFs"
-            style={{ color: '#e74c4c' }}
+            className="msg-action-btn pdf-btn"
+            title="Download Prescription PDFs"
           >
-            <FaFilePdf size="1.2rem" />
+            <FaFilePdf />
           </button>
         )}
+
+        {/* Delete Single Message */}
+        <button
+          ref={setupClickSound}
+          type="button"
+          onClick={() => onDelete([message._id])}
+          className="msg-action-btn delete-btn"
+          title="Delete Message"
+        >
+          <MdDelete />
+        </button>
       </div>
     </div>
   );
 };
 
 export default MessageCard;
-
