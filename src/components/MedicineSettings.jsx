@@ -7,19 +7,19 @@ import {
   playLoadSound,
   playDeleteSound,
 } from "../utils/soundUtils";
-import "./Settings.css";
+import "./TreatmentProtocols.css";
 import MedicineCard from "./MedicineCard";
-import MedicineSearch from "./MedicineSearch";
+import MedicineDrawer from "./MedicineDrawer";
+import Pagination from "./Pagination";
 import {
   FaEye,
   FaEdit,
   FaSearch,
   FaPlus,
   FaTimes,
+  FaStethoscope,
 } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa6";
-import MedicineDrawer from "./MedicineDrawer";
-import Toolbar from "./Toolbar";
 import {
   LuFilterX,
   LuPill,
@@ -56,15 +56,12 @@ const STANDARD_MEDICINE_TYPES = [
   "General",
 ];
 
-// MedicineStore moved to its own page at /medicines
-
 const emptyForm = {
   name: "",
   symptoms: "",
   type: "",
   route: "",
   desese_description: "",
-  // nested structured fields
   medicines: [], // { name,type,dose,frequency,route,duration,notes }
   testAdvice: [], // { testName,testType,precautions,testDate }
   medication: "",
@@ -90,11 +87,9 @@ const MedicineSettings = () => {
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
-  // `MedicineStore` is now a separate page at `/medicines`.
   const searchRef = useRef();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [focusedMedicineIndex, setFocusedMedicineIndex] = useState(null);
-  const drawerContentRef = useRef();
   const medicineRowRefs = useRef({});
   const [filterType, setFilterType] = useState("");
   const [filterTag, setFilterTag] = useState("");
@@ -130,14 +125,12 @@ const MedicineSettings = () => {
     if (!drawerOpen) return;
     if (focusedMedicineIndex === null || focusedMedicineIndex === undefined)
       return;
-    // small timeout to wait for drawer mount/render
     setTimeout(() => {
       const el =
         medicineRowRefs.current &&
         medicineRowRefs.current[focusedMedicineIndex];
       if (el && typeof el.scrollIntoView === "function") {
         el.scrollIntoView({ behavior: "smooth", block: "center" });
-        // try focusing first input inside the row
         const input = el.querySelector("input, textarea");
         if (input) input.focus();
       }
@@ -145,7 +138,6 @@ const MedicineSettings = () => {
   }, [drawerOpen, focusedMedicineIndex]);
 
   useEffect(() => {
-    // debounce search
     if (searchRef.current) clearTimeout(searchRef.current);
     searchRef.current = setTimeout(() => {
       if (!search) fetchMedicines();
@@ -183,7 +175,6 @@ const MedicineSettings = () => {
       setPage(data.page || 1);
       setTotalPages(data.totalPages || 1);
     } catch (e) {
-      // if backend returns 404 for no results, clear list
       if (e.response && e.response.status === 404) setMedicines([]);
       else setError("Search failed");
     } finally {
@@ -231,7 +222,6 @@ const MedicineSettings = () => {
         type: form.type,
         route: form.route,
         desese_description: form.desese_description,
-        // nested
         medicines: Array.isArray(form.medicines)
           ? form.medicines.map((m) => ({
               name: m.name || "",
@@ -280,9 +270,9 @@ const MedicineSettings = () => {
       }
       setForm(emptyForm);
       setEditingId(null);
-      // clear focused medicine selection and refs after save
       setFocusedMedicineIndex(null);
       medicineRowRefs.current = {};
+      setDrawerOpen(false);
       await fetchMedicines();
     } catch (err) {
       snackbar.error(
@@ -293,7 +283,6 @@ const MedicineSettings = () => {
     }
   };
 
-  // Nested handlers for medicines
   const addMedicineRow = () =>
     setForm((prev) => ({
       ...prev,
@@ -310,6 +299,7 @@ const MedicineSettings = () => {
         },
       ],
     }));
+
   const updateMedicineRow = (idx, field, value) =>
     setForm((prev) => ({
       ...prev,
@@ -317,13 +307,13 @@ const MedicineSettings = () => {
         i === idx ? { ...m, [field]: value } : m,
       ),
     }));
+
   const removeMedicineRow = (idx) =>
     setForm((prev) => ({
       ...prev,
       medicines: prev.medicines.filter((_, i) => i !== idx),
     }));
 
-  // Nested handlers for testAdvice
   const addTestRow = () =>
     setForm((prev) => ({
       ...prev,
@@ -332,6 +322,7 @@ const MedicineSettings = () => {
         { testName: "", testType: "", precautions: "", testDate: "" },
       ],
     }));
+
   const updateTestRow = (idx, field, value) =>
     setForm((prev) => ({
       ...prev,
@@ -339,6 +330,7 @@ const MedicineSettings = () => {
         i === idx ? { ...t, [field]: value } : t,
       ),
     }));
+
   const removeTestRow = (idx) =>
     setForm((prev) => ({
       ...prev,
@@ -372,17 +364,6 @@ const MedicineSettings = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Open drawer and focus a specific medicine row inside form
-  const handleEditMedicineRow = (medicineOwner, medIndex) => {
-    // medicineOwner is the parent advice object; medIndex is the index inside its medicines array
-    const id =
-      medicineOwner._1 || medicineOwner._id || medicineOwner.id || null;
-    handleEdit(medicineOwner);
-    setFocusedMedicineIndex(medIndex);
-    setDrawerOpen(true);
-    // scroll/focus will be handled after drawer mounts via useEffect
-  };
-
   const handleOpenEditDrawer = (advice) => {
     handleEdit(advice);
     setDrawerOpen(true);
@@ -406,9 +387,8 @@ const MedicineSettings = () => {
     setError("");
   };
 
-  // Helper to get a consistent soft color for a given string (e.g., medicine type)
   const getColorForString = (str) => {
-    if (!str) return "#e2e8f0"; // slate-200 for empty
+    if (!str) return "#e2e8f0";
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -458,371 +438,354 @@ const MedicineSettings = () => {
   };
 
   return (
-    <section className="page medicine-settings-page" style={{ minHeight: "100vh" }}>
-      <>
-        <Toolbar>
-          <div className="protocol-header-box">
-            {/* Top Row: Back + Title + Total Count + Primary CTA */}
-            <div className="protocol-top-row">
-              <div className="protocol-heading-group">
-                <button
-                  onClick={() => navigate(-1)}
-                  className="protocol-back-btn"
-                  title="Back"
-                  aria-label="Back to previous page"
-                >
-                  <BsArrowLeft />
-                </button>
-                <div className="protocol-title-wrap">
-                  <div className="protocol-title-line">
-                    <h2>Treatment Protocols</h2>
-                    <span className="protocol-total-badge">
-                      {medicines.length} {medicines.length === 1 ? "Protocol" : "Protocols"}
-                    </span>
-                  </div>
-                  <span className="protocol-subtitle">
-                    Manage clinical treatment templates, lab test recommendations, and care advice
-                  </span>
-                </div>
+    <div className="protocol-page">
+      <div className="protocol-page-container">
+        {/* Top Bar: Back + Title + Total Count + Primary CTA */}
+        <header className="protocol-top-bar">
+          <div className="protocol-top-bar-left">
+            <button
+              onClick={() => navigate(-1)}
+              className="protocol-back-button"
+              title="Back"
+              aria-label="Back to previous page"
+            >
+              <BsArrowLeft />
+            </button>
+            <div className="protocol-icon-badge">
+              <FaStethoscope />
+            </div>
+            <div className="protocol-title-group">
+              <div className="protocol-title-row">
+                <h1 className="protocol-main-title">Treatment Protocols</h1>
+                <span className="protocol-count-pill">
+                  {medicines.length} {medicines.length === 1 ? "Protocol" : "Protocols"}
+                </span>
               </div>
+              <p className="protocol-subtitle-text">
+                Manage clinical treatment templates, lab test recommendations, and care advice
+              </p>
+            </div>
+          </div>
 
-              <div className="protocol-primary-actions">
+          <div className="protocol-top-bar-right">
+            <button
+              type="button"
+              className="protocol-btn-primary"
+              onClick={() => {
+                setForm(emptyForm);
+                setEditingId(null);
+                setDrawerOpen(true);
+              }}
+            >
+              <FaPlus />
+              <span>Create Protocol</span>
+            </button>
+          </div>
+        </header>
+
+        {/* Control Bar: Sub-Navigation Tabs + Search & Filters */}
+        <div className="protocol-control-card">
+          <nav className="protocol-segmented-tabs" aria-label="Clinical Catalog Sections">
+            <button
+              type="button"
+              className="protocol-tab-pill active"
+              onClick={() => navigate("/settings/medicine")}
+            >
+              <LuLayers className="tab-icon" />
+              <span>Protocols</span>
+            </button>
+            <button
+              type="button"
+              className="protocol-tab-pill"
+              onClick={() => navigate("/medicines")}
+            >
+              <LuPill className="tab-icon" />
+              <span>Medicine Master</span>
+            </button>
+            <button
+              type="button"
+              className="protocol-tab-pill"
+              onClick={() => navigate("/tests")}
+            >
+              <LuFlaskConical className="tab-icon" />
+              <span>Lab Tests</span>
+            </button>
+            <button
+              type="button"
+              className="protocol-tab-pill"
+              onClick={() => navigate("/settings/advice")}
+            >
+              <LuSparkles className="tab-icon" />
+              <span>Care Advice</span>
+            </button>
+          </nav>
+
+          <div className="protocol-filter-controls">
+            {/* Search Box */}
+            <div className="protocol-search-box">
+              <FaSearch className="search-icon" />
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search condition, symptoms, or tags..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              {search && (
                 <button
                   type="button"
-                  className="protocol-create-btn"
+                  className="search-clear-btn"
+                  onClick={() => setSearch("")}
+                  title="Clear search"
+                >
+                  <FaTimes />
+                </button>
+              )}
+            </div>
+
+            {/* Dropdown Filters */}
+            <div className="protocol-select-group">
+              <select
+                className="protocol-select"
+                onChange={(e) => setFilterType(e.target.value)}
+                value={filterType}
+                aria-label="Filter by Protocol Type"
+              >
+                <option value="">All Types</option>
+                {availableTypes.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                className="protocol-select"
+                value={filterHasTest || ""}
+                onChange={(e) => setFilterHasTest(e.target.value)}
+                aria-label="Filter by Lab Tests"
+              >
+                <option value="">All Tests</option>
+                <option value="yes">With Tests</option>
+                <option value="no">No Tests</option>
+              </select>
+
+              <input
+                type="text"
+                className="protocol-tag-input"
+                placeholder="Filter tag..."
+                value={filterTag || ""}
+                onChange={(e) => setFilterTag(e.target.value)}
+              />
+
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  className="protocol-reset-btn"
+                  title="Reset All Filters"
+                  onClick={resetAllFilters}
+                >
+                  <LuFilterX />
+                  <span>Reset</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Results Summary Bar */}
+        <div className="protocol-summary-bar">
+          <span className="protocol-summary-text">
+            Showing <strong>{filteredMedicines.length}</strong>{" "}
+            {filteredMedicines.length === 1 ? "protocol" : "protocols"}
+            {hasActiveFilters && " matching active filters"}
+          </span>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              className="protocol-summary-clear"
+              onClick={resetAllFilters}
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+
+        {/* Protocol List Container */}
+        <main className="protocol-card-list">
+          {loading ? (
+            Array.from({ length: 5 }).map((_, idx) => (
+              <div key={`skeleton-${idx}`} className="protocol-skeleton-card">
+                <div className="protocol-skeleton-bar title"></div>
+                <div className="protocol-skeleton-bar sub"></div>
+              </div>
+            ))
+          ) : filteredMedicines.length === 0 ? (
+            <div className="protocol-empty-state">
+              <div className="protocol-empty-icon-box">
+                <LuListFilter />
+              </div>
+              <h3>No treatment protocols found</h3>
+              <p>
+                {hasActiveFilters
+                  ? "No protocols match your active search or filters. Try adjusting your query or click Reset."
+                  : "No clinical treatment protocols added yet. Start by creating your first standardized protocol template."}
+              </p>
+              {hasActiveFilters ? (
+                <button
+                  type="button"
+                  className="protocol-reset-btn"
+                  onClick={resetAllFilters}
+                  style={{ marginTop: 6 }}
+                >
+                  <LuFilterX /> Reset Filters
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="protocol-btn-primary"
                   onClick={() => {
                     setForm(emptyForm);
                     setEditingId(null);
                     setDrawerOpen(true);
                   }}
+                  style={{ marginTop: 6 }}
                 >
-                  <FaPlus className="btn-icon" />
-                  <span>Create Protocol</span>
+                  <FaPlus />
+                  <span>Create First Protocol</span>
                 </button>
-              </div>
+              )}
             </div>
+          ) : (
+            filteredMedicines.map((m, idx) => {
+              const medCount = (m.medicines || []).length;
+              const testCount = (m.testAdvice || []).length;
+              const hasValidType = m.type && m.type.trim() && m.type !== "N/A";
 
-            {/* Filter Row: Tabs + Search & Filters */}
-            <div className="protocol-filter-row">
-              <div className="protocol-nav-tabs">
-                <button
-                  type="button"
-                  className="nav-tab-btn active"
-                  onClick={() => navigate("/settings/medicine")}
-                >
-                  <LuLayers className="tab-icon" />
-                  <span>Protocols</span>
-                </button>
-                <button
-                  type="button"
-                  className="nav-tab-btn"
-                  onClick={() => navigate("/medicines")}
-                >
-                  <LuPill className="tab-icon" />
-                  <span>Medicine Master</span>
-                </button>
-                <button
-                  type="button"
-                  className="nav-tab-btn"
-                  onClick={() => navigate("/tests")}
-                >
-                  <LuFlaskConical className="tab-icon" />
-                  <span>Lab Tests</span>
-                </button>
-                <button
-                  type="button"
-                  className="nav-tab-btn"
-                  onClick={() => navigate("/settings/advice")}
-                >
-                  <LuSparkles className="tab-icon" />
-                  <span>Care Advice</span>
-                </button>
-              </div>
-
-              <div className="protocol-search-filter-group">
-                <div className="protocol-search-box">
-                  <FaSearch className="search-icon" />
-                  <input
-                    type="text"
-                    className="search-input"
-                    placeholder="Search by condition, symptoms, or tags..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                  {search && (
-                    <button
-                      type="button"
-                      className="search-clear-btn"
-                      onClick={() => setSearch("")}
-                      title="Clear search"
-                    >
-                      <FaTimes />
-                    </button>
-                  )}
-                </div>
-
-                <div className="protocol-filters">
-                  <select
-                    className="filter-select"
-                    onChange={(e) => setFilterType(e.target.value)}
-                    value={filterType}
-                  >
-                    <option value="">All Types</option>
-                    {availableTypes.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
-
-                  <select
-                    className="filter-select"
-                    value={filterHasTest || ""}
-                    onChange={(e) => setFilterHasTest(e.target.value)}
-                  >
-                    <option value="">All Tests</option>
-                    <option value="yes">With Tests</option>
-                    <option value="no">No Tests</option>
-                  </select>
-
-                  <input
-                    type="text"
-                    className="filter-tag-input"
-                    placeholder="Filter tag..."
-                    value={filterTag || ""}
-                    onChange={(e) => setFilterTag(e.target.value)}
-                  />
-
-                  {hasActiveFilters && (
-                    <button
-                      type="button"
-                      className="clear-all-filters-btn"
-                      title="Reset All Filters"
-                      onClick={resetAllFilters}
-                    >
-                      <LuFilterX />
-                      <span>Reset</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </Toolbar>
-
-        {/* Main content: list and pagination */}
-        <main className="protocol-main-content">
-          {/* Results Summary Bar */}
-          <div className="protocol-results-bar">
-            <span className="results-count">
-              Showing <strong>{filteredMedicines.length}</strong> {filteredMedicines.length === 1 ? "protocol" : "protocols"}
-              {hasActiveFilters && " matching current filters"}
-            </span>
-            {hasActiveFilters && (
-              <button
-                className="inline-reset-link"
-                onClick={resetAllFilters}
-              >
-                Clear filters
-              </button>
-            )}
-          </div>
-
-          <div className="protocol-list-container">
-            {loading ? (
-              Array.from({ length: 5 }).map((_, idx) => (
+              return (
                 <div
-                  key={`skeleton-${idx}`}
-                  className="protocol-card-skeleton"
+                  key={m._id || idx}
+                  className="protocol-item-card"
+                  onClick={() => setViewingAdvice(m)}
+                  title="Click to view full protocol breakdown"
                 >
-                  <div className="skeleton-line skeleton-title"></div>
-                  <div className="skeleton-line skeleton-sub"></div>
-                </div>
-              ))
-            ) : filteredMedicines.length === 0 ? (
-              <div className="protocols-empty-state">
-                <div className="empty-icon-wrap">
-                  <LuListFilter />
-                </div>
-                <h3>No treatment protocols found</h3>
-                <p>
-                  {hasActiveFilters
-                    ? "No protocols match your search criteria. Try modifying your search or reset filters."
-                    : "No treatment protocols configured yet. Start by creating your first clinical template."}
-                </p>
-                {hasActiveFilters ? (
-                  <button
-                    className="protocol-reset-cta"
-                    onClick={resetAllFilters}
-                  >
-                    <LuFilterX /> Reset Filters
-                  </button>
-                ) : (
-                  <button
-                    className="protocol-create-btn"
-                    onClick={() => {
-                      setForm(emptyForm);
-                      setEditingId(null);
-                      setDrawerOpen(true);
-                    }}
-                  >
-                    <FaPlus className="btn-icon" />
-                    <span>Create First Protocol</span>
-                  </button>
-                )}
-              </div>
-            ) : (
-              filteredMedicines.map((m, idx) => {
-                const medCount = (m.medicines || []).length;
-                const testCount = (m.testAdvice || []).length;
-                const hasValidType = m.type && m.type.trim() && m.type !== "N/A";
-
-                return (
-                  <div
-                    key={m._id || idx}
-                    className="protocol-card"
-                    onClick={() => setViewingAdvice(m)}
-                    title="Click to view full protocol details"
-                  >
-                    <div className="protocol-card-main">
-                      <div className="protocol-card-title-row">
-                        <span className="protocol-card-name">{m.name || "Unnamed Protocol"}</span>
-                        {hasValidType && (
-                          <span
-                            className="protocol-type-chip"
-                            style={{
-                              backgroundColor: getColorForString(m.type),
-                            }}
-                          >
-                            {m.type}
-                          </span>
-                        )}
-                      </div>
-                      <p className="protocol-card-symptoms">
-                        {Array.isArray(m.symptoms) && m.symptoms.length > 0
-                          ? m.symptoms.slice(0, 5).join(" • ")
-                          : "No specific symptoms listed"}
-                      </p>
-                      {Array.isArray(m.tags) && m.tags.length > 0 && (
-                        <div className="protocol-tags-row">
-                          {m.tags.slice(0, 3).map((tag, tIdx) => (
-                            <span key={tIdx} className="protocol-tag-badge">
-                              <LuTag className="tag-badge-icon" /> {tag}
-                            </span>
-                          ))}
-                        </div>
+                  <div className="protocol-card-left">
+                    <div className="protocol-card-title-line">
+                      <span className="protocol-card-name">{m.name || "Unnamed Protocol"}</span>
+                      {hasValidType && (
+                        <span
+                          className="protocol-specialty-pill"
+                          style={{
+                            backgroundColor: getColorForString(m.type),
+                          }}
+                        >
+                          {m.type}
+                        </span>
                       )}
                     </div>
-
-                    <div className="protocol-card-stats">
-                      {/* Medicine Count Chip */}
-                      <div
-                        className={`protocol-stat-badge ${
-                          medCount > 0 ? "has-data med-badge" : "empty-badge"
-                        }`}
-                        title={`${medCount} medicines configured`}
-                      >
-                        <LuPill className="stat-icon" />
-                        <span>
-                          {medCount === 1
-                            ? "1 Medicine"
-                            : medCount > 1
-                            ? `${medCount} Medicines`
-                            : "No Medicines"}
-                        </span>
+                    <p className="protocol-symptoms-line">
+                      {Array.isArray(m.symptoms) && m.symptoms.length > 0
+                        ? m.symptoms.slice(0, 6).join(" • ")
+                        : "No specific symptoms listed"}
+                    </p>
+                    {Array.isArray(m.tags) && m.tags.length > 0 && (
+                      <div className="protocol-tags-container">
+                        {m.tags.slice(0, 4).map((tag, tIdx) => (
+                          <span key={tIdx} className="protocol-tag-chip">
+                            <LuTag className="tag-icon" /> {tag}
+                          </span>
+                        ))}
                       </div>
+                    )}
+                  </div>
 
-                      {/* Lab Test Count Chip */}
-                      <div
-                        className={`protocol-stat-badge ${
-                          testCount > 0 ? "has-data test-badge" : "empty-badge"
-                        }`}
-                        title={`${testCount} lab tests configured`}
-                      >
-                        <LuFlaskConical className="stat-icon" />
-                        <span>
-                          {testCount === 1
-                            ? "1 Lab Test"
-                            : testCount > 1
-                            ? `${testCount} Lab Tests`
-                            : "No Tests"}
-                        </span>
-                      </div>
+                  <div className="protocol-card-right">
+                    {/* Medicines Stat Badge */}
+                    <div
+                      className={`protocol-stat-pill ${
+                        medCount > 0 ? "med-badge" : "empty-badge"
+                      }`}
+                      title={`${medCount} medicines configured in this protocol`}
+                    >
+                      <LuPill className="stat-icon" />
+                      <span>
+                        {medCount === 1
+                          ? "1 Medicine"
+                          : medCount > 1
+                          ? `${medCount} Medicines`
+                          : "No Medicines"}
+                      </span>
+                    </div>
 
-                      {/* Action Buttons */}
-                      <div
-                        className="protocol-card-actions"
-                        onClick={(e) => e.stopPropagation()}
+                    {/* Lab Tests Stat Badge */}
+                    <div
+                      className={`protocol-stat-pill ${
+                        testCount > 0 ? "test-badge" : "empty-badge"
+                      }`}
+                      title={`${testCount} lab tests recommended in this protocol`}
+                    >
+                      <LuFlaskConical className="stat-icon" />
+                      <span>
+                        {testCount === 1
+                          ? "1 Lab Test"
+                          : testCount > 1
+                          ? `${testCount} Lab Tests`
+                          : "No Tests"}
+                      </span>
+                    </div>
+
+                    {/* Card Actions */}
+                    <div
+                      className="protocol-action-group"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        type="button"
+                        title="View Protocol Details"
+                        aria-label={`View details for ${m.name || "protocol"}`}
+                        className="protocol-action-icon view-btn"
+                        onClick={() => setViewingAdvice(m)}
                       >
-                        <button
-                          type="button"
-                          title="Quick View Details"
-                          aria-label={`View details for ${m.name || "protocol"}`}
-                          className="action-icon-btn view-action"
-                          onClick={() => setViewingAdvice(m)}
-                        >
-                          <FaEye />
-                        </button>
-                        <button
-                          type="button"
-                          title="Edit Protocol"
-                          aria-label={`Edit ${m.name || "protocol"}`}
-                          className="action-icon-btn edit-action"
-                          onClick={() => handleOpenEditDrawer(m)}
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          type="button"
-                          title="Delete Protocol"
-                          aria-label={`Delete ${m.name || "protocol"}`}
-                          className="action-icon-btn delete-action"
-                          onClick={() => handleDelete(m._id)}
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
+                        <FaEye />
+                      </button>
+                      <button
+                        type="button"
+                        title="Edit Protocol"
+                        aria-label={`Edit ${m.name || "protocol"}`}
+                        className="protocol-action-icon edit-btn"
+                        onClick={() => handleOpenEditDrawer(m)}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        type="button"
+                        title="Delete Protocol"
+                        aria-label={`Delete ${m.name || "protocol"}`}
+                        className="protocol-action-icon delete-btn"
+                        onClick={() => handleDelete(m._id)}
+                      >
+                        <FaTrash />
+                      </button>
                     </div>
                   </div>
-                );
-              })
-            )}
-          </div>
-
-          <div style={{ marginTop: 16, marginBottom: 24 }}>
-            <div className="pagination">
-              <button disabled={page <= 1} onClick={() => goToPage(page - 1)}>
-                Prev
-              </button>
-              {Array.from({ length: totalPages })
-                .slice(0, 7)
-                .map((_, idx) => {
-                  const p = idx + 1;
-                  return (
-                    <button
-                      key={p}
-                      className={p === page ? "active" : ""}
-                      onClick={() => goToPage(p)}
-                    >
-                      {p}
-                    </button>
-                  );
-                })}
-              <button
-                disabled={page >= totalPages}
-                onClick={() => goToPage(page + 1)}
-              >
-                Next
-              </button>
-            </div>
-            <div className="footer-note">
-              Showing page {page} of {totalPages}
-            </div>
-          </div>
+                </div>
+              );
+            })
+          )}
         </main>
-        {/* </div> */}
 
-        {/* View Details Modal */}
+        {/* Unified Pagination */}
+        {totalPages > 1 && (
+          <div style={{ marginTop: 8 }}>
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+            />
+          </div>
+        )}
+
+        {/* Quick View Details Modal */}
         {viewingAdvice && (
           <MedicineCard
             advice={viewingAdvice}
@@ -830,7 +793,8 @@ const MedicineSettings = () => {
             onEdit={handleOpenEditDrawer}
           />
         )}
-        {/* Drawer for create/edit (moved to separate component) */}
+
+        {/* Create / Edit Drawer */}
         {drawerOpen && (
           <MedicineDrawer
             form={form}
@@ -866,11 +830,8 @@ const MedicineSettings = () => {
             }
           />
         )}
-        <footer className="settings-footer">
-          OPD Dashboard • © {new Date().getFullYear()}
-        </footer>
-      </>
-    </section>
+      </div>
+    </div>
   );
 };
 
