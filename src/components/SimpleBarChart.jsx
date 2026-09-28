@@ -17,7 +17,7 @@ const SimpleBarChart = ({ data }) => {
   if (!data || data.length === 0) {
     return (
       <div className="chart-card simple-bar-card">
-        <h3>Revenue vs Due Comparison</h3>
+        <h3 className="chart-card-title">Revenue vs Due Comparison</h3>
         <div className="no-data">No data to display for selected filters</div>
       </div>
     );
@@ -27,15 +27,15 @@ const SimpleBarChart = ({ data }) => {
   const maxDue = Math.max(...data.map(d => Number(d.due || d.totalDue || 0)));
   const maxVal = Math.max(maxRevenue, maxDue, 100);
 
-  const chartHeight = 150;
-  const paddingLeft = 48;
+  const chartHeight = 140;
+  const paddingLeft = 44;
   const paddingRight = 20;
-  const paddingTop = 28;
-  const paddingBottom = 42;
+  const paddingTop = 26;
+  const paddingBottom = 34;
   const availableHeight = chartHeight - paddingTop - paddingBottom;
 
-  const barWidth = Math.min(24, Math.max(12, Math.floor(260 / (data.length * 2 + 1))));
-  const groupMargin = Math.min(22, Math.max(8, Math.floor(140 / (data.length + 1))));
+  const barWidth = Math.min(20, Math.max(10, Math.floor(240 / (data.length * 2 + 1))));
+  const groupMargin = Math.min(20, Math.max(8, Math.floor(130 / (data.length + 1))));
   const chartWidth = Math.max(260, data.length * (barWidth * 2 + groupMargin) + paddingLeft + paddingRight);
 
   // Y-axis grid ticks (0, 50%, 100%)
@@ -49,15 +49,15 @@ const SimpleBarChart = ({ data }) => {
     <div className="chart-card simple-bar-card">
       <div className="simple-bar-header">
         <div>
-          <h3>Revenue vs Due Comparison</h3>
-          <span className="chart-subtitle">Real-time collections and outstanding by period</span>
+          <h3 className="chart-card-title">Revenue vs Due Comparison</h3>
+          <span className="chart-subtitle">Real-time collections and outstanding</span>
         </div>
-        <div className="legend">
-          <div className="legend-item">
+        <div className="bar-legend-chips">
+          <div className="legend-chip paid">
             <span className="color-indicator revenue"></span>
             <span>Paid</span>
           </div>
-          <div className="legend-item">
+          <div className="legend-chip due">
             <span className="color-indicator due"></span>
             <span>Due</span>
           </div>
@@ -67,11 +67,11 @@ const SimpleBarChart = ({ data }) => {
       <div className="bar-chart-scroll-wrap">
         <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="simple-bar-svg" style={{ minWidth: `${chartWidth}px` }}>
           <defs>
-            <linearGradient id="paidGradient" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="paidBarGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#10b981" />
               <stop offset="100%" stopColor="#059669" />
             </linearGradient>
-            <linearGradient id="dueGradient" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="dueBarGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#f87171" />
               <stop offset="100%" stopColor="#dc2626" />
             </linearGradient>
@@ -85,14 +85,18 @@ const SimpleBarChart = ({ data }) => {
                 y1={tick.y}
                 x2={chartWidth - paddingRight}
                 y2={tick.y}
-                stroke="#e5e7eb"
+                stroke="var(--border-color, #e2e8f0)"
                 strokeDasharray={idx === 0 ? "none" : "3,3"}
+                opacity="0.6"
               />
               <text
-                x={paddingLeft - 8}
-                y={tick.y + 4}
+                x={paddingLeft - 6}
+                y={tick.y + 3.5}
                 textAnchor="end"
                 className="axis-number-label"
+                fill="var(--text-muted, #94a3b8)"
+                fontSize="9.5px"
+                fontWeight="500"
               >
                 {tick.label}
               </text>
@@ -105,8 +109,8 @@ const SimpleBarChart = ({ data }) => {
             y1={chartHeight - paddingBottom}
             x2={chartWidth - paddingRight}
             y2={chartHeight - paddingBottom}
-            stroke="#cbd5e1"
-            strokeWidth="1.5"
+            stroke="var(--border-color, #cbd5e1)"
+            strokeWidth="1.2"
           />
 
           {/* Bars */}
@@ -138,8 +142,8 @@ const SimpleBarChart = ({ data }) => {
                     y={revY}
                     width={barWidth}
                     height={Math.max(revenueHeight, 3)}
-                    rx="4"
-                    fill="url(#paidGradient)"
+                    rx="3"
+                    fill="url(#paidBarGrad)"
                     className="bar-rect"
                     opacity={isHovered ? 1 : 0.9}
                   />
@@ -149,10 +153,10 @@ const SimpleBarChart = ({ data }) => {
                       value={revenue}
                       prefix="₹"
                       x={x1 + barWidth / 2}
-                      y={revY - 6}
+                      y={revY - 5}
                       textAnchor="middle"
                       fill="#10b981"
-                      fontSize="10px"
+                      fontSize="9.5px"
                       fontWeight="600"
                     />
                   )}
@@ -163,8 +167,8 @@ const SimpleBarChart = ({ data }) => {
                     y={dueY}
                     width={barWidth}
                     height={Math.max(dueHeight, 3)}
-                    rx="4"
-                    fill="url(#dueGradient)"
+                    rx="3"
+                    fill="url(#dueBarGrad)"
                     className="bar-rect"
                     opacity={isHovered ? 1 : 0.9}
                   />
@@ -174,40 +178,43 @@ const SimpleBarChart = ({ data }) => {
                       value={due}
                       prefix="₹"
                       x={x2 + barWidth / 2}
-                      y={dueY - 6}
+                      y={dueY - 5}
                       textAnchor="middle"
                       fill="#ef4444"
-                      fontSize="10px"
+                      fontSize="9.5px"
                       fontWeight="600"
                     />
                   )}
 
                   {/* X Axis Period Label */}
                   <text
-                    x={x1 + barWidth / 2}
-                    y={chartHeight - paddingBottom + 12}
-                    textAnchor="end"
+                    x={x1 + barWidth}
+                    y={chartHeight - paddingBottom + 14}
+                    textAnchor="middle"
                     className={`bar-period-label ${isHovered ? 'active' : ''}`}
-                    fontSize="10px"
-                    transform={`rotate(-45 ${x1 + barWidth / 2} ${chartHeight - paddingBottom + 12})`}
+                    fill="var(--text-muted, #64748b)"
+                    fontSize="9.5px"
+                    fontWeight={isHovered ? '700' : '500'}
                   >
                     {d.period && d.period.length === 10 ? d.period.substring(5) : d.period}
                   </text>
 
                   {/* Hover tooltip */}
                   {isHovered && (
-                    <g transform={`translate(${x1 + barWidth - 60}, ${Math.max(4, Math.min(revY, dueY) - 48)})`}>
+                    <g transform={`translate(${x1 + barWidth - 55}, ${Math.max(2, Math.min(revY, dueY) - 44)})`}>
                       <rect
-                        width="120"
-                        height="44"
+                        width="110"
+                        height="38"
                         rx="6"
-                        fill="#1f2937"
-                        opacity="0.95"
+                        fill="var(--bg-card, #1e293b)"
+                        stroke="var(--border-color, #334155)"
+                        strokeWidth="1"
+                        style={{ filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.2))' }}
                       />
-                      <text x="60" y="16" textAnchor="middle" fill="#fff" fontSize="10px" fontWeight="600">
+                      <text x="55" y="14" textAnchor="middle" fill="var(--text-main, #fff)" fontSize="9px" fontWeight="700">
                         {d.period}
                       </text>
-                      <text x="60" y="32" textAnchor="middle" fill="#34d399" fontSize="10px">
+                      <text x="55" y="28" textAnchor="middle" fill="#34d399" fontSize="9px" fontWeight="600">
                         Paid: {fmtFull(revenue)} | <tspan fill="#f87171">Due: {fmtFull(due)}</tspan>
                       </text>
                     </g>

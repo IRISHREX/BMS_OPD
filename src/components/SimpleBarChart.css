@@ -1,53 +1,71 @@
+/* ==========================================================================
+   SimpleBarChart.css - Modern Revenue vs Due Bar Visualizer
+   Supports: theme-teal (Default), theme-light, theme-dark, theme-custom
+   ========================================================================== */
+
 .simple-bar-card {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  padding: 0.75rem 1rem;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  padding: 1rem 1.25rem;
   overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.simple-bar-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  border-color: var(--accent, #1a9e9b);
 }
 
 .simple-bar-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.5rem;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .simple-bar-header h3 {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.96rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-main, #0f172a);
 }
 
 .simple-bar-header .chart-subtitle {
-  font-size: 0.72rem;
-  color: #6b7280;
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+  display: block;
+  margin-top: 1px;
 }
 
-.simple-bar-card .legend {
+.bar-legend-chips {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
 }
 
-.simple-bar-card .legend-item {
+.legend-chip {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.75rem;
-  color: #4b5563;
-  font-weight: 500;
+  font-size: 11px;
+  color: var(--text-main, #4b5563);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--bg-subtle, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
 }
 
 .color-indicator {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 2px;
   display: inline-block;
 }
@@ -69,10 +87,19 @@
   align-items: center;
 }
 
+.bar-chart-scroll-wrap::-webkit-scrollbar {
+  height: 4px;
+}
+
+.bar-chart-scroll-wrap::-webkit-scrollbar-thumb {
+  background: var(--border-color, #cbd5e1);
+  border-radius: 4px;
+}
+
 .simple-bar-svg {
   width: 100%;
-  height: 150px;
-  max-height: 150px;
+  height: 140px;
+  max-height: 140px;
   display: block;
 }
 
@@ -81,33 +108,42 @@
 }
 
 .axis-number-label {
-  font-size: 11px;
-  fill: #9ca3af;
-  font-family: inherit;
-}
-
-.bar-value-text {
-  font-size: 11px;
-  font-weight: 700;
-  font-family: inherit;
-}
-
-.bar-value-text.revenue-text {
-  fill: #059669;
-}
-
-.bar-value-text.due-text {
-  fill: #dc2626;
+  font-family: var(--app-font, "Montserrat", sans-serif);
 }
 
 .bar-period-label {
-  font-size: 11px;
-  fill: #6b7280;
-  font-weight: 500;
-  font-family: inherit;
+  font-family: var(--app-font, "Montserrat", sans-serif);
+  transition: fill 0.15s ease;
 }
 
 .bar-period-label.active {
-  fill: #096dd9;
-  font-weight: 700;
+  fill: var(--accent, #096dd9) !important;
+}
+
+/* ==========================================================================
+   DARK THEME STYLES FOR SIMPLE BAR CHART
+   ========================================================================== */
+.theme-dark .simple-bar-card {
+  background: #151d2c !important;
+  border-color: #243044 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.theme-dark .simple-bar-card:hover {
+  border-color: #00d2ff !important;
+  box-shadow: 0 8px 24px rgba(0, 210, 255, 0.12) !important;
+}
+
+.theme-dark .simple-bar-header h3 {
+  color: #f8fafc !important;
+}
+
+.theme-dark .simple-bar-header .chart-subtitle {
+  color: #94a3b8 !important;
+}
+
+.theme-dark .legend-chip {
+  background: #1e293b !important;
+  border-color: #243044 !important;
+  color: #f8fafc !important;
 }

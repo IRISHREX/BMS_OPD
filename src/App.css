@@ -538,20 +538,22 @@ body {
   font-weight: 500;
   height: 40px;
   font-size: 15px;
+  background: var(--bg-card, #ffffff);
+  color: var(--text-main, #1e293b);
 }
-.banner .filter-box select:first-child {
-  background: #ff008d;
-}
-.dashboard .banner .filter-box select {
-  color: #fff;
+.banner .filter-box select {
+  background: var(--bg-card, #ffffff);
+  color: var(--text-main, #1e293b);
+  border: 1px solid var(--border-color, #cbd5e1);
 }
 .filter-box select:focus {
-  /* border: none; */
   outline: 0;
+  border-color: var(--accent, #0b74ff);
 }
 .filter-box select option {
-  font-weight: 600;
-  /* background: #ff008d; */
+  font-weight: 500;
+  background: var(--bg-card, #ffffff);
+  color: var(--text-main, #1e293b);
 }
 .filter-box select:focus-visible {
   outline: 0;

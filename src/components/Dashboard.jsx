@@ -802,7 +802,7 @@ const Dashboard = () => {
               value={selectedDoctorId}
               onChange={(e) => setSelectedDoctorId(e.target.value)}
               disabled={admin?.role === "Doctor"}
-              style={{ background: "#009688" }}
+              className="doctor-filter-select"
             >
               {admin?.role !== "Doctor" && (
                 <option value="">All Doctors</option>
@@ -865,14 +865,14 @@ const Dashboard = () => {
             <h5>Appointments</h5>
             <div className="btn-box">
               <button
-                className="btn"
+                className="btn btn-primary book-appt-btn"
                 onClick={() => navigate("/add-appointment")}
               >
                 <FaPrescriptionBottleMedical /> Book Appointment
               </button>
               <button
                 ref={setupClickSound}
-                className="btn"
+                className="btn btn-outline view-slots-btn"
                 onClick={() => setSlotCheckerOpen(true)}
               >
                 <MdSchedule /> View Slots
@@ -880,7 +880,7 @@ const Dashboard = () => {
               <RequirePermission allowedRoles={["Admin"]}>
                 <button
                   ref={setupClickSound}
-                  className="btn btn-danger"
+                  className="btn btn-danger bulk-delete-btn"
                   onClick={handleBulkDelete}
                   disabled={selectedAppointments.length === 0}
                 >

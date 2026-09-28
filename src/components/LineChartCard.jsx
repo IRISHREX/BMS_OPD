@@ -15,20 +15,20 @@ const LineChartCard = ({ data, title }) => {
 
   if (!data || data.length === 0) {
     return (
-      <div className="chart-card">
-        <h3>{title}</h3>
+      <div className="chart-card line-chart-card">
+        <h3 className="chart-card-title">{title}</h3>
         <div className="no-data">No data to display</div>
       </div>
     );
   }
 
-  const chartHeight = 150;
-  const paddingLeft = 45;
+  const chartHeight = 140;
+  const paddingLeft = 40;
   const paddingRight = 25;
-  const paddingTop = 28;
-  const paddingBottom = 42;
+  const paddingTop = 26;
+  const paddingBottom = 34;
   const availableHeight = chartHeight - paddingTop - paddingBottom;
-  const chartWidth = Math.max(250, data.length * 50);
+  const chartWidth = Math.max(250, data.length * 48);
 
   const maxVal = Math.max(...data.map(d => Number(d.value) || 0), 100);
   const pointGap = data.length > 1 ? (chartWidth - paddingLeft - paddingRight) / (data.length - 1) : 0;
@@ -41,47 +41,71 @@ const LineChartCard = ({ data, title }) => {
   });
 
   const polylineStr = pointsArr.map(p => `${p.x},${p.y}`).join(' ');
+  const totalRevenue = data.reduce((s, it) => s + (Number(it.value) || 0), 0);
 
   return (
-    <div className="chart-card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
-        <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 700, color: '#1f2937' }}>{title}</h3>
-        <span style={{ fontSize: '11px', color: '#475569', fontWeight: '600', backgroundColor: '#f1f5f9', padding: '2px 8px', borderRadius: '4px' }}>
-          Total: <CountUp end={data.reduce((s, it) => s + (Number(it.value) || 0), 0)} separator="," prefix="₹" duration={2} />
+    <div className="chart-card line-chart-card">
+      <div className="chart-card-header">
+        <div>
+          <h3 className="chart-card-title">{title}</h3>
+          <span className="chart-card-sub">Daily collections overview</span>
+        </div>
+        <span className="chart-card-badge">
+          Total: <CountUp end={totalRevenue} separator="," prefix="₹" duration={1.5} />
         </span>
       </div>
-      <div className="line-chart-container" style={{ overflowX: 'auto' }}>
-        <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} width="100%" height={chartHeight} style={{ minWidth: `${chartWidth}px`, maxHeight: `${chartHeight}px`, display: 'block' }}>
+
+      <div className="line-chart-container">
+        <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} width="100%" height={chartHeight} className="line-chart-svg">
           <defs>
-            <linearGradient id="lineAreaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+            <linearGradient id="lineAreaGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--accent, #10b981)" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="var(--accent, #10b981)" stopOpacity="0.0" />
             </linearGradient>
+            <filter id="lineGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="var(--accent, #10b981)" floodOpacity="0.4" />
+            </filter>
           </defs>
 
-          {/* Y-axis baseline */}
-          <line x1={paddingLeft} y1={paddingTop} x2={paddingLeft} y2={chartHeight - paddingBottom} stroke="#e5e7eb" />
-          <line x1={paddingLeft} y1={chartHeight - paddingBottom} x2={chartWidth - paddingRight} y2={chartHeight - paddingBottom} stroke="#cbd5e1" />
+          {/* Grid lines */}
+          <line
+            x1={paddingLeft}
+            y1={paddingTop}
+            x2={chartWidth - paddingRight}
+            y2={paddingTop}
+            stroke="var(--border-color, #e2e8f0)"
+            strokeDasharray="3,3"
+            opacity="0.6"
+          />
+          <line
+            x1={paddingLeft}
+            y1={chartHeight - paddingBottom}
+            x2={chartWidth - paddingRight}
+            y2={chartHeight - paddingBottom}
+            stroke="var(--border-color, #cbd5e1)"
+            strokeWidth="1.2"
+          />
 
-          {/* Area under curve */}
+          {/* Area Fill under curve */}
           {pointsArr.length > 1 && (
             <polygon
               points={`${pointsArr[0].x},${chartHeight - paddingBottom} ${polylineStr} ${pointsArr[pointsArr.length - 1].x},${chartHeight - paddingBottom}`}
-              fill="url(#lineAreaGrad)"
+              fill="url(#lineAreaGradient)"
             />
           )}
 
-          {/* Polyline */}
+          {/* Trend Polyline */}
           <polyline
             fill="none"
-            stroke="#10b981"
+            stroke="var(--accent, #10b981)"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
             points={polylineStr}
+            filter="url(#lineGlow)"
           />
 
-          {/* Points & Value Numbers */}
+          {/* Points & Hover Interactions */}
           {pointsArr.map((pt, i) => {
             const isHov = hoveredIdx === i;
             return (
@@ -91,15 +115,32 @@ const LineChartCard = ({ data, title }) => {
                 onMouseLeave={() => setHoveredIdx(null)}
                 style={{ cursor: 'pointer' }}
               >
+                {/* Vertical hover guide line */}
+                {isHov && (
+                  <line
+                    x1={pt.x}
+                    y1={paddingTop}
+                    x2={pt.x}
+                    y2={chartHeight - paddingBottom}
+                    stroke="var(--accent, #10b981)"
+                    strokeDasharray="2,2"
+                    strokeWidth="1"
+                    opacity="0.8"
+                  />
+                )}
+
+                {/* Point circle marker */}
                 <circle
                   cx={pt.x}
                   cy={pt.y}
                   r={isHov ? 6 : 4}
-                  fill="#10b981"
-                  stroke="#ffffff"
+                  fill="var(--accent, #10b981)"
+                  stroke="var(--bg-card, #ffffff)"
                   strokeWidth="2"
+                  style={{ transition: 'r 0.15s ease' }}
                 />
-                {/* Number shown above point */}
+
+                {/* Amount label */}
                 {pt.value > 0 && (
                   <AnimatedSvgNumber
                     value={pt.value}
@@ -107,20 +148,21 @@ const LineChartCard = ({ data, title }) => {
                     x={pt.x}
                     y={pt.y - 8}
                     textAnchor="middle"
-                    fill="#10b981"
-                    fontSize="11px"
+                    fill="var(--accent, #10b981)"
+                    fontSize="10px"
                     fontWeight="700"
                   />
                 )}
-                {/* X axis period label */}
+
+                {/* Date label on X axis */}
                 <text
                   x={pt.x}
-                  y={chartHeight - paddingBottom + 12}
-                  textAnchor="end"
-                  className="axis-label"
-                  fill="#6b7280"
-                  fontSize="10px"
-                  transform={`rotate(-45 ${pt.x} ${chartHeight - paddingBottom + 12})`}
+                  y={chartHeight - paddingBottom + 14}
+                  textAnchor="middle"
+                  className={`axis-date-label ${isHov ? 'active' : ''}`}
+                  fill="var(--text-muted, #64748b)"
+                  fontSize="9.5px"
+                  fontWeight={isHov ? '700' : '500'}
                 >
                   {pt.name && pt.name.length === 10 ? pt.name.substring(5) : pt.name}
                 </text>
