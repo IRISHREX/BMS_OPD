@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "../context/SnackbarContext";
 import { playSaveSound } from "../utils/soundUtils";
 import "./Prescription.css";
+import "./TreatmentProtocols.css";
+import MedicineDrawer from "./MedicineDrawer";
 import { formatAppointmentId, formatPatientId } from "../utils/idUtils";
 import { addMedicineRequest } from "../store/medicineSlice";
 import {
@@ -497,8 +499,8 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
           const cf = (typeof r.clinical_findings === 'object' && r.clinical_findings !== null)
             ? r.clinical_findings
             : (typeof r.clinicalFindings === 'object' && r.clinicalFindings !== null)
-            ? r.clinicalFindings
-            : null;
+              ? r.clinicalFindings
+              : null;
 
           nextClinicalFindings = {
             patientCondition: {
@@ -587,10 +589,10 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
           const rawMeds = Array.isArray(r.medicineAdvice)
             ? r.medicineAdvice
             : r.medicineAdvice
-            ? [r.medicineAdvice]
-            : Array.isArray(r.medicines)
-            ? r.medicines
-            : [];
+              ? [r.medicineAdvice]
+              : Array.isArray(r.medicines)
+                ? r.medicines
+                : [];
           nextMedicineAdvice = rawMeds.map((m) => ({
             ...m,
             selected: m.selected !== undefined ? m.selected : true,
@@ -1377,27 +1379,282 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
     }
   }
 
-  const handleSaveCatalog = async () => {
-    // Top middle save catalog logic
-    const catalogName = prompt("Enter a name for this Professional Diagnosis Catalog:", diagnosys_heading || "Provisional Diagnosis");
-    if (!catalogName || !catalogName.trim()) return;
+  // Treatment Protocol Drawer State (for Save Catalog)
+  const emptyProtocolForm = {
+    name: "",
+    symptoms: "",
+    type: "",
+    route: "",
+    desese_description: "",
+    medicines: [],
+    testAdvice: [],
+    medication: "",
+    diet: "",
+    aliases: "",
+    tags: "",
+    followupDays: "",
+    followupNote: "",
+    dose: "",
+    frequency: "",
+    duration: "",
+  };
 
+  const [protocolDrawerOpen, setProtocolDrawerOpen] = useState(false);
+  const [protocolForm, setProtocolForm] = useState(emptyProtocolForm);
+  const [protocolSaving, setProtocolSaving] = useState(false);
+  const [protocolError, setProtocolError] = useState("");
+  const [protocolFocusedMedicineIndex, setProtocolFocusedMedicineIndex] = useState(null);
+  const protocolMedicineRowRefs = React.useRef({});
+
+  const handleProtocolChange = (e) =>
+    setProtocolForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const addProtocolMedicineRow = () =>
+    setProtocolForm((prev) => ({
+      ...prev,
+      medicines: [
+        ...(prev.medicines || []),
+        {
+          name: "",
+          type: "",
+          dose: "",
+          frequency: "",
+          route: "",
+          duration: "",
+          notes: "",
+        },
+      ],
+    }));
+
+  const updateProtocolMedicineRow = (idx, field, value) =>
+    setProtocolForm((prev) => ({
+      ...prev,
+      medicines: (prev.medicines || []).map((m, i) =>
+        i === idx ? { ...m, [field]: value } : m
+      ),
+    }));
+
+  const removeProtocolMedicineRow = (idx) =>
+    setProtocolForm((prev) => ({
+      ...prev,
+      medicines: (prev.medicines || []).filter((_, i) => i !== idx),
+    }));
+
+  const addProtocolTestRow = () =>
+    setProtocolForm((prev) => ({
+      ...prev,
+      testAdvice: [
+        ...(prev.testAdvice || []),
+        { testName: "", testType: "", precautions: "", testDate: "" },
+      ],
+    }));
+
+  const updateProtocolTestRow = (idx, field, value) =>
+    setProtocolForm((prev) => ({
+      ...prev,
+      testAdvice: (prev.testAdvice || []).map((t, i) =>
+        i === idx ? { ...t, [field]: value } : t
+      ),
+    }));
+
+  const removeProtocolTestRow = (idx) =>
+    setProtocolForm((prev) => ({
+      ...prev,
+      testAdvice: (prev.testAdvice || []).filter((_, i) => i !== idx),
+    }));
+
+  const clearProtocolForm = () => {
+    setProtocolForm(emptyProtocolForm);
+    setProtocolError("");
+  };
+
+  const addSelectedProtocolMedicine = (medicine) => {
+    const medObj = typeof medicine === "string" ? { name: medicine } : medicine || {};
+    setProtocolForm((prev) => ({
+      ...prev,
+      medicines: [
+        ...(prev.medicines || []),
+        {
+          name: medObj.name || medObj.label || "",
+          type: medObj.type || "",
+          dose: medObj.dose || "",
+          frequency: medObj.frequency || "",
+          route: medObj.route || "Oral",
+          duration: medObj.duration || "",
+          notes: medObj.notes || medObj.instruction || "",
+        },
+      ],
+    }));
+  };
+
+  const handleProtocolSubmit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!protocolForm.name || !protocolForm.name.trim()) {
+      setProtocolError("Condition / Protocol Name is required");
+      return;
+    }
+    setProtocolSaving(true);
+    setProtocolError("");
     try {
       const payload = {
-        name: catalogName.trim(),
-        symptoms: selectedComplaints.map((c) => (typeof c === "object" ? c.name : c)),
-        medicines: medicineAdvice,
-        testAdvice: testAdviceRows,
-        diet: dietAdvice,
-        medication: medicationAdvice,
+        name: protocolForm.name.trim(),
+        symptoms:
+          typeof protocolForm.symptoms === "string"
+            ? protocolForm.symptoms
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean)
+            : Array.isArray(protocolForm.symptoms)
+            ? protocolForm.symptoms
+            : [],
+        type: (protocolForm.type || "General").trim(),
+        route: (protocolForm.route || "Oral").trim(),
+        desese_description: (protocolForm.desese_description || "").trim(),
+        medicines: Array.isArray(protocolForm.medicines)
+          ? protocolForm.medicines
+              .filter((m) => m && (m.name || m.label))
+              .map((m) => ({
+                name: (m.name || m.label || "").trim(),
+                type: (m.type || "").trim(),
+                dose: (m.dose || "").trim(),
+                frequency: (m.frequency || "").trim(),
+                route: (m.route || "Oral").trim(),
+                duration: (m.duration || "").trim(),
+                notes: (m.notes || m.instruction || "").trim(),
+              }))
+          : [],
+        testAdvice: Array.isArray(protocolForm.testAdvice)
+          ? protocolForm.testAdvice
+              .filter((t) => t && t.testName && t.testName.trim())
+              .map((t) => ({
+                testName: (t.testName || "").trim(),
+                testType: (t.testType || "General").trim(),
+                precautions: (t.precautions || "").trim(),
+                testDate: (t.testDate || "").trim(),
+              }))
+          : [],
+        medication: (protocolForm.medication || "").trim(),
+        diet: (protocolForm.diet || "").trim(),
+        aliases:
+          typeof protocolForm.aliases === "string"
+            ? protocolForm.aliases
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean)
+            : Array.isArray(protocolForm.aliases)
+            ? protocolForm.aliases
+            : [],
+        tags:
+          typeof protocolForm.tags === "string"
+            ? protocolForm.tags
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean)
+            : Array.isArray(protocolForm.tags)
+            ? protocolForm.tags
+            : [],
+        followup: {
+          days: protocolForm.followupDays
+            ? parseInt(protocolForm.followupDays, 10)
+            : undefined,
+          note: (protocolForm.followupNote || "").trim(),
+        },
+        dose: (protocolForm.dose || "").trim(),
+        frequency: (protocolForm.frequency || "").trim(),
+        duration: (protocolForm.duration || "").trim(),
       };
 
-      await api.post("/api/v1/medical", payload);
-      snackbar.success("Catalog saved successfully!");
+      console.log(">> SUBMITTING_PROTOCOL_PAYLOAD:", payload);
+      await api.post("/api/v1/medical/", payload);
       playSaveSound();
+      snackbar.success("Treatment protocol saved successfully!");
+      setProtocolDrawerOpen(false);
+      setProtocolForm(emptyProtocolForm);
     } catch (err) {
-      snackbar.error(err?.response?.data?.message || "Failed to save catalog");
+      const msg =
+        err?.response?.data?.message || "Failed to save treatment protocol";
+      setProtocolError(msg);
+      snackbar.error(msg);
+    } finally {
+      setProtocolSaving(false);
     }
+  };
+
+  const handleSaveCatalog = () => {
+    // Collect all prescription data to prefill in Treatment Protocol form
+    const symptomsList =
+      selectedComplaints && selectedComplaints.length > 0
+        ? selectedComplaints
+            .map((c) => (typeof c === "object" ? c.name : c))
+            .filter(Boolean)
+        : complaints
+        ? complaints
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
+
+    const medicinesList = (medicineAdvice || [])
+      .filter((m) => m && (m.name || m.label))
+      .map((m) => ({
+        name: (m.name || m.label || "").trim(),
+        type: (m.type || "").trim(),
+        dose: (m.dose || "").trim(),
+        frequency: (m.frequency || "").trim(),
+        route: (m.route || "Oral").trim(),
+        duration: (m.duration || "").trim(),
+        notes: (m.notes || m.instruction || "").trim(),
+      }));
+
+    const testsList = (testAdviceRows || [])
+      .filter((t) => t && t.testName && t.testName.trim())
+      .map((t) => ({
+        testName: (t.testName || "").trim(),
+        testType: (t.testType || "General").trim(),
+        precautions: (t.precautions || "").trim(),
+        testDate: (t.testDate || "").trim(),
+      }));
+
+    const descriptionParts = [
+      medicalHistory ? `Medical History: ${medicalHistory}` : "",
+      diagnosys?.Others ? `Clinical Findings: ${diagnosys.Others}` : "",
+      additionalAdvice ? `Additional Notes: ${additionalAdvice}` : "",
+    ].filter(Boolean);
+
+    const defaultProtocolName =
+      diagnosys_heading && diagnosys_heading !== "Provisional Diagnosis"
+        ? diagnosys_heading.trim()
+        : symptomsList.length > 0
+        ? `${symptomsList[0]} Protocol`
+        : "Treatment Protocol";
+
+    setProtocolForm({
+      name: defaultProtocolName,
+      symptoms: symptomsList.join(", "),
+      type: appointmentType || "General",
+      route: "Oral",
+      desese_description: descriptionParts.join("\n\n"),
+      medicines: medicinesList,
+      testAdvice: testsList,
+      medication: medicationAdvice || "",
+      diet: dietAdvice || "",
+      aliases: "",
+      tags: symptomsList.join(", "),
+      followupDays:
+        followUp && !isNaN(parseInt(followUp, 10))
+          ? String(parseInt(followUp, 10))
+          : "",
+      followupNote: followUp
+        ? isNaN(followUp)
+          ? `Follow up on ${followUp}`
+          : `Follow up after ${followUp} days`
+        : "",
+      dose: "",
+      frequency: "",
+      duration: "",
+    });
+    setProtocolError("");
+    setProtocolDrawerOpen(true);
   };
 
   const handleClose = () => {
@@ -1783,9 +2040,8 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
                   <label>BMI</label>
                   {diagnosys.BMI && (
                     <span
-                      className={`bmi-status-pill ${
-                        getBmiStatus(diagnosys.BMI).cls
-                      }`}
+                      className={`bmi-status-pill ${getBmiStatus(diagnosys.BMI).cls
+                        }`}
                     >
                       {getBmiStatus(diagnosys.BMI).text}
                     </span>
@@ -1876,17 +2132,16 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
                 <button
                   key={com}
                   type="button"
-                  className={`quick-chip ${
-                    complaints.includes(com) ? "active" : ""
-                  }`}
+                  className={`quick-chip ${complaints.includes(com) ? "active" : ""
+                    }`}
                   onClick={() => {
                     complaints.includes(com + ", ")
                       ? setComplaints(complaints.replace(com + ", ", ""))
                       : complaints.includes(com + ",")
-                      ? setComplaints(complaints.replace(com + ",", ""))
-                      : complaints.includes(com)
-                      ? setComplaints(complaints.replace(com, ""))
-                      : setComplaints(complaints + com + ", ");
+                        ? setComplaints(complaints.replace(com + ",", ""))
+                        : complaints.includes(com)
+                          ? setComplaints(complaints.replace(com, ""))
+                          : setComplaints(complaints + com + ", ");
                   }}
                 >
                   {complaints.includes(com) ? (
@@ -1936,23 +2191,22 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
                   <button
                     key={history}
                     type="button"
-                    className={`quick-chip ${
-                      medicalHistory.includes(history) ? "active" : ""
-                    }`}
+                    className={`quick-chip ${medicalHistory.includes(history) ? "active" : ""
+                      }`}
                     onClick={() => {
                       medicalHistory.includes(history + ", ")
                         ? setMedicalHistory(
-                            medicalHistory.replace(history + ", ", "")
-                          )
+                          medicalHistory.replace(history + ", ", "")
+                        )
                         : medicalHistory.includes(history + ",")
-                        ? setMedicalHistory(
+                          ? setMedicalHistory(
                             medicalHistory.replace(history + ",", "")
                           )
-                        : medicalHistory.includes(history)
-                        ? setMedicalHistory(
-                            medicalHistory.replace(history, "")
-                          )
-                        : setMedicalHistory(medicalHistory + history + ", ");
+                          : medicalHistory.includes(history)
+                            ? setMedicalHistory(
+                              medicalHistory.replace(history, "")
+                            )
+                            : setMedicalHistory(medicalHistory + history + ", ");
                     }}
                   >
                     {medicalHistory.includes(history) ? (
@@ -2485,8 +2739,8 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
                   item && typeof item === "object"
                     ? item.name || (typeof newVal === "string" ? newVal : "")
                     : typeof newVal === "string"
-                    ? newVal
-                    : item || "";
+                      ? newVal
+                      : item || "";
                 setComplaintSuggestions([]);
                 setSelectedComplaints((prev) => {
                   const names = new Set((prev || []).map((p) => p.name || p));
@@ -3069,6 +3323,32 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
           </button>
         </div>
       </footer>
+
+      {/* Treatment Protocol Modal Drawer */}
+      {protocolDrawerOpen && (
+        <MedicineDrawer
+          form={protocolForm}
+          handleChange={handleProtocolChange}
+          handleSubmit={handleProtocolSubmit}
+          saving={protocolSaving}
+          editingId={null}
+          error={protocolError}
+          addMedicineRow={addProtocolMedicineRow}
+          updateMedicineRow={updateProtocolMedicineRow}
+          removeMedicineRow={removeProtocolMedicineRow}
+          addTestRow={addProtocolTestRow}
+          updateTestRow={updateProtocolTestRow}
+          removeTestRow={removeProtocolTestRow}
+          clearForm={clearProtocolForm}
+          onClose={() => {
+            setProtocolDrawerOpen(false);
+            setProtocolError("");
+          }}
+          medicineRowRefs={protocolMedicineRowRefs}
+          focusedMedicineIndex={protocolFocusedMedicineIndex}
+          addSelectedMedicine={addSelectedProtocolMedicine}
+        />
+      )}
     </div>
   );
 };

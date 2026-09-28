@@ -15,7 +15,7 @@
 
 .rpt-page-container {
   width: 100%;
-  max-width: 1140px;
+  max-width: 1280px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -252,20 +252,37 @@
   box-shadow: 0 1px 4px rgba(26, 158, 155, 0.3);
 }
 
+/* Row 2: Search Input & Clear Filters */
+.rpt-search-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.rpt-search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+}
+
 .rpt-clear-filter-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  height: 36px;
-  padding: 0 12px;
+  gap: 6px;
+  height: 38px;
+  padding: 0 14px;
   border-radius: 8px;
   border: 1px solid var(--border-color, #cbd5e1);
   background: var(--bg-subtle, #f8fafc);
   color: var(--text-muted, #64748b);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  margin-left: auto;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: all 0.2s ease;
 }
 
@@ -273,14 +290,6 @@
   background: #fee2e2;
   color: #ef4444;
   border-color: #fca5a5;
-}
-
-/* Row 2: Search Input */
-.rpt-search-row {
-  display: flex;
-  align-items: center;
-  position: relative;
-  width: 100%;
 }
 
 .rpt-search-icon {
@@ -464,12 +473,13 @@
 }
 
 /* --------------------------------------------------------------------------
-   Charts Section
+   Charts Section (Single 3-Column Row)
    -------------------------------------------------------------------------- */
 .charts-container {
   display: grid;
-  grid-template-columns: 1fr 1.35fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.25rem;
+  width: 100%;
 }
 
 /* --------------------------------------------------------------------------

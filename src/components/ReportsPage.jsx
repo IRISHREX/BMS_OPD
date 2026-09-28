@@ -731,6 +731,43 @@ const ReportsPage = () => {
                   ))}
                 </select>
               </div>
+            </div>
+
+            {/* Row 2: Search Input & Clear Filters */}
+            <div className="rpt-search-row">
+              <div className="rpt-search-input-wrap">
+                <FaSearch className="rpt-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search by patient name, doctor, phone, NIC, appointment ID, or invoice #..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={onSearchKey}
+                  className="rpt-search-input"
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    className="rpt-search-clear-btn"
+                    onClick={handleClearSearch}
+                    title="Clear search"
+                  >
+                    <FaTimes />
+                  </button>
+                )}
+                <button
+                  ref={setupClickSound}
+                  type="button"
+                  className="rpt-search-submit-btn"
+                  onClick={() => {
+                    setReportPage(1);
+                    fetchSummary({ q: searchTerm, page: 1 });
+                  }}
+                  title="Search records"
+                >
+                  <FaSearch />
+                </button>
+              </div>
 
               <button
                 ref={setupClickSound}
@@ -741,41 +778,6 @@ const ReportsPage = () => {
               >
                 <LuFilterX style={{ fontSize: "0.95rem", color: "#ef4444" }} />
                 <span>Clear Filters</span>
-              </button>
-            </div>
-
-            {/* Row 2: Search Input */}
-            <div className="rpt-search-row">
-              <FaSearch className="rpt-search-icon" />
-              <input
-                type="text"
-                placeholder="Search by patient name, doctor, phone, NIC, appointment ID, or invoice #..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={onSearchKey}
-                className="rpt-search-input"
-              />
-              {searchTerm && (
-                <button
-                  type="button"
-                  className="rpt-search-clear-btn"
-                  onClick={handleClearSearch}
-                  title="Clear search"
-                >
-                  <FaTimes />
-                </button>
-              )}
-              <button
-                ref={setupClickSound}
-                type="button"
-                className="rpt-search-submit-btn"
-                onClick={() => {
-                  setReportPage(1);
-                  fetchSummary({ q: searchTerm, page: 1 });
-                }}
-                title="Search records"
-              >
-                <FaSearch />
               </button>
             </div>
           </div>

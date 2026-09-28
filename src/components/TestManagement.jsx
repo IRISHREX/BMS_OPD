@@ -4,38 +4,43 @@ import { BsArrowLeft } from "react-icons/bs";
 import {
   FaSearch,
   FaEdit,
-  FaFlask,
-  FaPlus,
   FaTimes,
   FaSort,
   FaSortUp,
   FaSortDown,
-  FaFilter,
 } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa6";
-import { LuFilterX, LuPlus } from "react-icons/lu";
-import Toolbar from "./Toolbar";
+import {
+  LuFilterX,
+  LuPlus,
+  LuFlaskConical,
+  LuLayers,
+  LuPill,
+  LuSparkles,
+} from "react-icons/lu";
 import api from "../utils/api";
 import { useSnackbar } from "../context/SnackbarContext";
-import { playSaveSound, playDeleteSound, playLoadSound } from "../utils/soundUtils";
+import {
+  playSaveSound,
+  playDeleteSound,
+  playLoadSound,
+} from "../utils/soundUtils";
+import Pagination from "./Pagination";
 import "./TestManagement.css";
 
-const STANDARD_CATEGORIES = [
-  "Blood Test",
-  "Imaging",
-  "Pathology",
-  "Urine Test",
-  "Cardiology",
-  "Radiology",
+const STANDARD_TEST_CATEGORIES = [
+  "General",
+  "Blood / Hematology",
   "Biochemistry",
-  "Hematology",
+  "Pathology",
+  "Radiology / Imaging",
+  "Urine Analysis",
   "Microbiology",
   "Serology",
   "Endocrinology",
-  "General",
+  "Cardiology / ECG",
+  "Orthopedics",
 ];
-
-const FILTER_CATEGORIES = ["All", ...STANDARD_CATEGORIES];
 
 const TestManagement = () => {
   const navigate = useNavigate();
@@ -43,7 +48,7 @@ const TestManagement = () => {
 
   // Tests State
   const [tests, setTests] = useState([]);
-  const [loadingTests, setLoadingTests] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [testSearch, setTestSearch] = useState("");
   const [testCategoryFilter, setTestCategoryFilter] = useState("All");
 
@@ -60,35 +65,37 @@ const TestManagement = () => {
   const [editingTestId, setEditingTestId] = useState(null);
   const [editingTestName, setEditingTestName] = useState("");
   const [editingTestCategory, setEditingTestCategory] = useState("General");
-  const [testRows, setTestRows] = useState([{ name: "", category: "General" }]);
-
-  // Submitting loader
   const [submitting, setSubmitting] = useState(false);
+
+  // Multi-row Add State
+  const [testRows, setTestRows] = useState([
+    { name: "", category: "General" },
+  ]);
 
   useEffect(() => {
     fetchTests();
   }, []);
 
-  // Reset to page 1 whenever filters or page size change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [testSearch, testCategoryFilter, pageSize]);
-
   const fetchTests = async () => {
-    setLoadingTests(true);
+    setLoading(true);
     try {
       playLoadSound();
       const { data } = await api.get("/api/v1/test");
       setTests(data.tests || []);
     } catch (err) {
-      console.error("Failed to fetch diagnostic tests", err);
+      console.error("Failed to fetch tests", err);
+      snackbar.error("Failed to load diagnostic tests");
     } finally {
-      setLoadingTests(false);
+      setLoading(false);
     }
   };
 
-  // ==================== SORTING HANDLERS ====================
+  // Reset to page 1 when search or category filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [testSearch, testCategoryFilter, pageSize]);
 
+  // Sorting Handlers
   const handleSort = (field) => {
     if (sortField === field) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -101,17 +108,16 @@ const TestManagement = () => {
 
   const renderSortIcon = (field) => {
     if (sortField !== field) {
-      return <FaSort className="sort-icon inactive" />;
+      return <FaSort style={{ opacity: 0.35, fontSize: "0.85rem" }} />;
     }
     return sortDirection === "asc" ? (
-      <FaSortUp className="sort-icon active" />
+      <FaSortUp style={{ color: "var(--accent, #1a9e9b)", fontSize: "0.95rem" }} />
     ) : (
-      <FaSortDown className="sort-icon active" />
+      <FaSortDown style={{ color: "var(--accent, #1a9e9b)", fontSize: "0.95rem" }} />
     );
   };
 
-  // ==================== TEST CRUD HANDLERS ====================
-
+  // Modal Handlers
   const handleOpenTestModal = (test = null) => {
     if (test) {
       setEditingTestId(test._id);
@@ -134,18 +140,17 @@ const TestManagement = () => {
     setTestRows([{ name: "", category: "General" }]);
   };
 
-  const handleAddMoreTestRow = () => {
-    setTestRows((prev) => [
-      ...prev,
-      { name: "", category: prev[prev.length - 1]?.category || "General" },
-    ]);
+  // Multi-row Handlers
+  const addTestRow = () => {
+    setTestRows((prev) => [...prev, { name: "", category: "General" }]);
   };
 
-  const handleRemoveTestRow = (idx) => {
+  const removeTestRow = (idx) => {
+    if (testRows.length === 1) return;
     setTestRows((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const handleTestRowChange = (idx, field, value) => {
+  const updateTestRow = (idx, field, value) => {
     setTestRows((prev) =>
       prev.map((row, i) => (i === idx ? { ...row, [field]: value } : row))
     );
@@ -210,8 +215,7 @@ const TestManagement = () => {
     }
   };
 
-  // ==================== FILTERING & SORTING ====================
-
+  // Filtered & Sorted Tests
   const filteredAndSortedTests = useMemo(() => {
     const filtered = (tests || []).filter((t) => {
       const testCat = t.category || t.type || "General";
@@ -244,8 +248,7 @@ const TestManagement = () => {
     });
   }, [tests, testSearch, testCategoryFilter, sortField, sortDirection]);
 
-  // ==================== PAGINATION CALCULATIONS ====================
-
+  // Pagination Calculations
   const totalTests = filteredAndSortedTests.length;
   const totalPages = Math.max(1, Math.ceil(totalTests / pageSize));
   const paginatedTests = useMemo(() => {
@@ -253,32 +256,19 @@ const TestManagement = () => {
     return filteredAndSortedTests.slice(start, start + pageSize);
   }, [filteredAndSortedTests, currentPage, pageSize]);
 
-  const startIndex = totalTests === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-  const endIndex = Math.min(currentPage * pageSize, totalTests);
+  const hasActiveFilters = Boolean(testSearch || testCategoryFilter !== "All");
 
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-    if (totalPages <= maxVisible + 2) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      if (currentPage > 3) pages.push("...");
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
-      for (let i = start; i <= end; i++) pages.push(i);
-      if (currentPage < totalPages - 2) pages.push("...");
-      pages.push(totalPages);
-    }
-    return pages;
+  const resetAllFilters = () => {
+    setTestSearch("");
+    setTestCategoryFilter("All");
   };
 
-  // Color generator for category badges
+  // Badge Style Generator
   const getBadgeStyle = (category) => {
-    if (!category) return { bg: "#f1f5f9", color: "#475569" };
+    if (!category) return { bg: "rgba(100, 116, 139, 0.1)", color: "#64748b" };
     const lower = category.toLowerCase();
     if (lower.includes("blood") || lower.includes("hematology"))
-      return { bg: "#fee2e2", color: "#b91c1c" };
+      return { bg: "rgba(239, 68, 68, 0.1)", color: "#ef4444" };
     if (
       lower.includes("imaging") ||
       lower.includes("radiology") ||
@@ -288,67 +278,109 @@ const TestManagement = () => {
       lower.includes("usg") ||
       lower.includes("ultrasound")
     )
-      return { bg: "#e0f2fe", color: "#0369a1" };
-    if (lower.includes("urine")) return { bg: "#fef3c7", color: "#b45309" };
+      return { bg: "rgba(2, 132, 199, 0.1)", color: "#0284c7" };
+    if (lower.includes("urine"))
+      return { bg: "rgba(217, 119, 6, 0.1)", color: "#d97706" };
     if (lower.includes("cardio") || lower.includes("ecg") || lower.includes("echo"))
-      return { bg: "#ffe4e6", color: "#e11d48" };
+      return { bg: "rgba(225, 29, 72, 0.1)", color: "#e11d48" };
     if (lower.includes("bio") || lower.includes("pathology"))
-      return { bg: "#f3e8ff", color: "#7e22ce" };
+      return { bg: "rgba(147, 51, 234, 0.1)", color: "#9333ea" };
     if (lower.includes("micro") || lower.includes("infectious"))
-      return { bg: "#ffedd5", color: "#c2410c" };
-    if (lower.includes("serology")) return { bg: "#fce7f3", color: "#be185d" };
+      return { bg: "rgba(234, 88, 12, 0.1)", color: "#ea580c" };
+    if (lower.includes("serology"))
+      return { bg: "rgba(219, 39, 119, 0.1)", color: "#db2777" };
     if (lower.includes("endo") || lower.includes("diabetes"))
-      return { bg: "#dcfce7", color: "#15803d" };
-    if (lower.includes("ortho")) return { bg: "#ccfbf1", color: "#0f766e" };
-    return { bg: "#f1f5f9", color: "#475569" };
+      return { bg: "rgba(16, 185, 129, 0.1)", color: "#10b981" };
+    if (lower.includes("ortho"))
+      return { bg: "rgba(20, 184, 166, 0.1)", color: "#14b8a6" };
+    return { bg: "rgba(100, 116, 139, 0.1)", color: "#64748b" };
   };
 
   return (
-    <section className="page test-management-page" style={{ minHeight: "100vh" }}>
-      <Toolbar>
-        <div className="test-mgmt-header-box">
-          {/* Header Row: Back + Title with Counter + Actions */}
-          <div className="test-mgmt-top-row">
-            <div className="test-mgmt-left">
-              <button
-                onClick={() => navigate(-1)}
-                className="test-back-btn"
-                title="Back"
-                aria-label="Back to previous page"
-              >
-                <BsArrowLeft />
-              </button>
-              <div className="test-mgmt-title-wrap">
-                <div className="test-title-line">
-                  <h2>Diagnostic Tests</h2>
-                  <span className="test-count-badge">
-                    {tests.length} {tests.length === 1 ? "Test" : "Tests"}
-                  </span>
-                </div>
-                <span className="test-mgmt-subtitle">
-                  Configure and manage laboratory and clinical diagnostic tests
+    <div className="test-management-page">
+      <div className="test-mgmt-container">
+        {/* Top Header Card */}
+        <header className="test-top-bar">
+          <div className="test-top-bar-left">
+            <button
+              onClick={() => navigate(-1)}
+              className="test-back-btn"
+              title="Back"
+              aria-label="Back to previous page"
+            >
+              <BsArrowLeft />
+            </button>
+            <div className="test-icon-badge">
+              <LuFlaskConical />
+            </div>
+            <div className="test-title-group">
+              <div className="test-title-row">
+                <h1 className="test-main-title">Diagnostic Tests</h1>
+                <span className="test-count-pill">
+                  {tests.length} {tests.length === 1 ? "Test" : "Tests"}
                 </span>
               </div>
-            </div>
-
-            <div className="test-mgmt-actions">
-              <button
-                className="test-primary-btn"
-                onClick={() => handleOpenTestModal()}
-              >
-                <LuPlus className="btn-icon" />
-                Create Test
-              </button>
+              <p className="test-subtitle-text">
+                Configure clinical diagnostic lab tests, pathology orders, and imaging procedures
+              </p>
             </div>
           </div>
 
-          {/* Search & Filters Unified Control Bar */}
-          <div className="test-mgmt-filter-row">
+          <div className="test-top-bar-right">
+            <button
+              type="button"
+              className="test-primary-btn"
+              onClick={() => handleOpenTestModal()}
+            >
+              <LuPlus />
+              <span>Create Test</span>
+            </button>
+          </div>
+        </header>
+
+        {/* Control Card: Sub-Navigation + Search & Filters */}
+        <div className="test-control-card">
+          <nav className="protocol-segmented-tabs" aria-label="Clinical Catalog Sections">
+            <button
+              type="button"
+              className="protocol-tab-pill"
+              onClick={() => navigate("/settings/medicine")}
+            >
+              <LuLayers className="tab-icon" />
+              <span>Protocols</span>
+            </button>
+            <button
+              type="button"
+              className="protocol-tab-pill"
+              onClick={() => navigate("/medicines")}
+            >
+              <LuPill className="tab-icon" />
+              <span>Medicine Master</span>
+            </button>
+            <button
+              type="button"
+              className="protocol-tab-pill active"
+              onClick={() => navigate("/tests")}
+            >
+              <LuFlaskConical className="tab-icon" />
+              <span>Lab Tests</span>
+            </button>
+            <button
+              type="button"
+              className="protocol-tab-pill"
+              onClick={() => navigate("/settings/advice")}
+            >
+              <LuSparkles className="tab-icon" />
+              <span>Care Advice</span>
+            </button>
+          </nav>
+
+          <div className="test-search-filter-group">
             <div className="test-search-box">
               <FaSearch className="search-icon" />
               <input
                 type="text"
-                placeholder="Search tests by name or category..."
+                placeholder="Search diagnostic tests or categories..."
                 value={testSearch}
                 onChange={(e) => setTestSearch(e.target.value)}
                 className="search-input"
@@ -365,400 +397,315 @@ const TestManagement = () => {
               )}
             </div>
 
-            <div className="test-filter-bar">
-              <div className="filter-select-wrapper">
-                <FaFilter className="filter-select-icon" />
-                <select
-                  value={testCategoryFilter}
-                  onChange={(e) => setTestCategoryFilter(e.target.value)}
-                  className="filter-category-select"
-                >
-                  {FILTER_CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat === "All" ? "All Categories" : cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <select
+              className="test-filter-select"
+              value={testCategoryFilter}
+              onChange={(e) => setTestCategoryFilter(e.target.value)}
+              aria-label="Filter by Category"
+            >
+              <option value="All">All Categories</option>
+              {STANDARD_TEST_CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
 
-              {(testSearch || testCategoryFilter !== "All") && (
-                <button
-                  className="test-reset-filter-btn"
-                  title="Reset all filters"
-                  onClick={() => {
-                    setTestSearch("");
-                    setTestCategoryFilter("All");
-                  }}
-                >
-                  <LuFilterX className="btn-icon-sm" />
-                  Reset
-                </button>
-              )}
-
-              <div className="test-results-count">
-                Showing <strong>{filteredAndSortedTests.length}</strong> of{" "}
-                <strong>{tests.length}</strong>
-              </div>
-            </div>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                className="test-reset-btn"
+                title="Reset Filters"
+                onClick={resetAllFilters}
+              >
+                <LuFilterX />
+                <span>Reset</span>
+              </button>
+            )}
           </div>
         </div>
-      </Toolbar>
 
-      {/* Main Content Area */}
-      <main className="test-mgmt-main-content">
-        <div className="tests-list-section">
-          {loadingTests ? (
-            <div className="loading-state">
-              <span className="loader"></span>
+        {/* Results Summary Bar */}
+        <div className="test-summary-bar">
+          <span className="test-summary-text">
+            Showing <strong>{filteredAndSortedTests.length}</strong> of{" "}
+            <strong>{tests.length}</strong> diagnostic tests
+            {hasActiveFilters && " (filtered)"}
+          </span>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              className="test-summary-clear"
+              onClick={resetAllFilters}
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+
+        {/* Clinical Data Table */}
+        <main className="test-table-card">
+          {loading ? (
+            <div style={{ padding: "48px 24px", textAlign: "center", color: "var(--text-muted)" }}>
               <p>Loading diagnostic tests...</p>
             </div>
           ) : filteredAndSortedTests.length === 0 ? (
-            <div className="empty-state-card">
-              <FaFlask className="empty-icon" />
-              <h3>No Diagnostic Tests Found</h3>
-              <p className="muted">
-                {testSearch || testCategoryFilter !== "All"
-                  ? "Try adjusting your search query or filter."
-                  : "Get started by creating your first clinical diagnostic test."}
+            <div style={{ padding: "56px 24px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--bg-subtle)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.6rem", color: "var(--text-muted)" }}>
+                <LuFlaskConical />
+              </div>
+              <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 700, color: "var(--text-main)" }}>
+                No Diagnostic Tests Found
+              </h3>
+              <p style={{ margin: 0, fontSize: "0.86rem", color: "var(--text-muted)", maxWidth: 400 }}>
+                {hasActiveFilters
+                  ? "No tests match your active search or category filter. Try adjusting your query."
+                  : "No diagnostic tests created yet. Get started by adding your first test."}
               </p>
-              <button
-                className="add-btn test-primary-btn"
-                onClick={() => handleOpenTestModal()}
-                style={{ marginTop: "1rem" }}
-              >
-                + Add Diagnostic Test
-              </button>
+              {hasActiveFilters ? (
+                <button
+                  type="button"
+                  className="test-reset-btn"
+                  onClick={resetAllFilters}
+                  style={{ marginTop: 6 }}
+                >
+                  <LuFilterX /> Reset Filters
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="test-primary-btn"
+                  onClick={() => handleOpenTestModal()}
+                  style={{ marginTop: 6 }}
+                >
+                  <LuPlus /> Create Test
+                </button>
+              )}
             </div>
           ) : (
-            <>
-              {/* Table View */}
-              <div className="test-table-container">
-                <table className="test-table">
-                  <thead>
-                    <tr>
-                      <th className="th-index">#</th>
-                      <th
-                        className={`th-name th-sortable ${
-                          sortField === "name" ? "sorted" : ""
-                        }`}
-                        onClick={() => handleSort("name")}
-                        title={`Sort by Test Name (${
-                          sortField === "name" && sortDirection === "asc"
-                            ? "Click for Descending"
-                            : "Click for Ascending"
-                        })`}
-                      >
-                        <div className="th-sort-wrapper">
-                          <span>Test Name</span>
-                          <span className="th-sort-icon-box">
-                            {renderSortIcon("name")}
+            <div className="test-table-wrap">
+              <table className="test-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: 60 }}>#</th>
+                    <th
+                      className="th-sortable"
+                      onClick={() => handleSort("name")}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span>Test Name</span>
+                        {renderSortIcon("name")}
+                      </div>
+                    </th>
+                    <th
+                      className="th-sortable"
+                      onClick={() => handleSort("category")}
+                      style={{ width: 220 }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span>Category</span>
+                        {renderSortIcon("category")}
+                      </div>
+                    </th>
+                    <th style={{ width: 110, textAlign: "center" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedTests.map((t, idx) => {
+                    const category = t.category || t.type || "General";
+                    const badgeStyle = getBadgeStyle(category);
+                    const rowIndex = (currentPage - 1) * pageSize + idx + 1;
+
+                    return (
+                      <tr key={t._id || idx}>
+                        <td style={{ color: "var(--text-muted)", fontWeight: 600 }}>
+                          {rowIndex}
+                        </td>
+                        <td className="test-name-cell">{t.name}</td>
+                        <td>
+                          <span
+                            className="test-category-badge"
+                            style={{
+                              background: badgeStyle.bg,
+                              color: badgeStyle.color,
+                            }}
+                          >
+                            {category}
                           </span>
-                        </div>
-                      </th>
-                      <th
-                        className={`th-category th-sortable ${
-                          sortField === "category" ? "sorted" : ""
-                        }`}
-                        onClick={() => handleSort("category")}
-                        title={`Sort by Category (${
-                          sortField === "category" && sortDirection === "asc"
-                            ? "Click for Descending"
-                            : "Click for Ascending"
-                        })`}
-                      >
-                        <div className="th-sort-wrapper">
-                          <span>Category</span>
-                          <span className="th-sort-icon-box">
-                            {renderSortIcon("category")}
-                          </span>
-                        </div>
-                      </th>
-                      <th className="th-actions">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedTests.map((test, index) => {
-                      const categoryName = test.category || test.type || "General";
-                      const badge = getBadgeStyle(categoryName);
-                      const serialNumber = (currentPage - 1) * pageSize + index + 1;
-                      return (
-                        <tr key={test._id} className="test-table-row">
-                          <td className="td-index">{serialNumber}</td>
-                          <td className="td-name">
-                            <span className="test-table-name-text">{test.name}</span>
-                          </td>
-                          <td className="td-category">
-                            <span
-                              className="test-type-badge"
-                              style={{
-                                backgroundColor: badge.bg,
-                                color: badge.color,
-                              }}
+                        </td>
+                        <td>
+                          <div className="test-actions-cell" style={{ justifyContent: "center" }}>
+                            <button
+                              type="button"
+                              className="test-action-icon edit-btn"
+                              title="Edit Test"
+                              aria-label={`Edit ${t.name}`}
+                              onClick={() => handleOpenTestModal(t)}
                             >
-                              {categoryName}
-                            </span>
-                          </td>
-                          <td className="td-actions">
-                            <div className="table-action-buttons">
-                              <button
-                                type="button"
-                                title="Edit Test"
-                                aria-label={`Edit ${test.name}`}
-                                className="action-icon-btn edit-action"
-                                onClick={() => handleOpenTestModal(test)}
-                              >
-                                <FaEdit />
-                              </button>
-                              <button
-                                type="button"
-                                title="Delete Test"
-                                aria-label={`Delete ${test.name}`}
-                                className="action-icon-btn delete-action"
-                                onClick={() => handleDeleteTest(test._id, test.name)}
-                              >
-                                <FaTrash />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Pagination Controls Footer */}
-              <div className="test-pagination-wrapper">
-                <div className="pagination-info">
-                  Showing <strong>{startIndex}</strong> to <strong>{endIndex}</strong> of{" "}
-                  <strong>{totalTests}</strong> tests
-                </div>
-
-                <div className="pagination-controls-group">
-                  <div className="rows-per-page">
-                    <label>Rows:</label>
-                    <select
-                      value={pageSize}
-                      onChange={(e) => setPageSize(Number(e.target.value))}
-                    >
-                      <option value={10}>10</option>
-                      <option value={15}>15</option>
-                      <option value={25}>25</option>
-                      <option value={50}>50</option>
-                      <option value={100}>100</option>
-                    </select>
-                  </div>
-
-                  <div className="pagination-btns">
-                    <button
-                      className="page-nav-btn"
-                      disabled={currentPage <= 1}
-                      onClick={() => setCurrentPage(1)}
-                      title="First Page"
-                    >
-                      «
-                    </button>
-                    <button
-                      className="page-nav-btn"
-                      disabled={currentPage <= 1}
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      title="Previous Page"
-                    >
-                      ‹ Prev
-                    </button>
-
-                    {getPageNumbers().map((item, idx) =>
-                      item === "..." ? (
-                        <span key={`ellipsis-${idx}`} className="pagination-ellipsis">
-                          ...
-                        </span>
-                      ) : (
-                        <button
-                          key={item}
-                          className={`page-num-btn ${
-                            item === currentPage ? "active" : ""
-                          }`}
-                          onClick={() => setCurrentPage(item)}
-                        >
-                          {item}
-                        </button>
-                      )
-                    )}
-
-                    <button
-                      className="page-nav-btn"
-                      disabled={currentPage >= totalPages}
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                      title="Next Page"
-                    >
-                      Next ›
-                    </button>
-                    <button
-                      className="page-nav-btn"
-                      disabled={currentPage >= totalPages}
-                      onClick={() => setCurrentPage(totalPages)}
-                      title="Last Page"
-                    >
-                      »
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </>
+                              <FaEdit />
+                            </button>
+                            <button
+                              type="button"
+                              className="test-action-icon delete-btn"
+                              title="Delete Test"
+                              aria-label={`Delete ${t.name}`}
+                              onClick={() => handleDeleteTest(t._id, t.name)}
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
-        </div>
-      </main>
+        </main>
 
-      {/* ==================== MODAL: ADD / EDIT DIAGNOSTIC TEST ==================== */}
+        {/* Unified Pagination */}
+        {totalPages > 1 && (
+          <div style={{ marginTop: 8 }}>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(p) => setCurrentPage(p)}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Test Add / Edit Modal */}
       {showTestModal && (
-        <div className="modal-overlay" onClick={handleCloseTestModal}>
+        <div className="test-modal-overlay" onClick={handleCloseTestModal}>
           <div
-            className="modal-content test-modal-content"
+            className="test-modal-dialog"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h3>
-                {editingTestId
-                  ? "Edit Diagnostic Test"
-                  : "Add New Diagnostic Test"}
-              </h3>
-              <button className="close-btn" onClick={handleCloseTestModal}>
+              <h2>{editingTestId ? "Edit Diagnostic Test" : "Create Diagnostic Tests"}</h2>
+              <button
+                className="close-btn"
+                onClick={handleCloseTestModal}
+                aria-label="Close modal"
+              >
                 <FaTimes />
               </button>
             </div>
-            <form onSubmit={handleTestSubmit} className="modal-body test-form">
-              {editingTestId ? (
-                // Single Test Edit Form
-                <div className="single-test-edit-fields">
-                  <div className="form-group">
-                    <label>Test Name *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Complete Blood Count (CBC)"
-                      value={editingTestName}
-                      onChange={(e) => setEditingTestName(e.target.value)}
-                      autoFocus
-                    />
-                  </div>
-
-                  <div className="form-group" style={{ marginTop: "12px" }}>
-                    <label>Test Category</label>
-                    <select
-                      value={editingTestCategory}
-                      onChange={(e) => setEditingTestCategory(e.target.value)}
-                    >
-                      {STANDARD_CATEGORIES.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              ) : (
-                // Multi-Test Create Form
-                <div className="multi-test-create-wrapper">
-                  <div className="multi-test-header-labels">
-                    <span className="col-label test-name-col-label">
-                      Test Name *
-                    </span>
-                    <span className="col-label test-cat-col-label">
-                      Test Category
-                    </span>
-                  </div>
-
-                  <div className="test-name-inputs-list">
-                    {testRows.map((row, idx) => (
-                      <div key={idx} className="multi-test-input-row">
-                        <div className="row-input-wrap test-name-input-wrap">
+            <div className="modal-body">
+              <form onSubmit={handleTestSubmit} className="protocol-drawer-form">
+                {editingTestId ? (
+                  <>
+                    <div className="protocol-form-group">
+                      <label className="protocol-form-label">
+                        Test Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={editingTestName}
+                        onChange={(e) => setEditingTestName(e.target.value)}
+                        placeholder="e.g. Complete Blood Count (CBC)"
+                        required
+                        className="protocol-form-input"
+                      />
+                    </div>
+                    <div className="protocol-form-group">
+                      <label className="protocol-form-label">
+                        Category / Specialty
+                      </label>
+                      <select
+                        value={editingTestCategory}
+                        onChange={(e) => setEditingTestCategory(e.target.value)}
+                        className="protocol-form-input"
+                      >
+                        {STANDARD_TEST_CATEGORIES.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p style={{ margin: "0 0 10px 0", fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                      Add one or more diagnostic tests simultaneously:
+                    </p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {testRows.map((row, idx) => (
+                        <div key={idx} className="test-multi-row-card">
                           <input
                             type="text"
-                            required={idx === 0}
-                            placeholder="e.g. Complete Blood Count (CBC)"
+                            placeholder="Test Name (e.g. X-Ray Chest PA)"
                             value={row.name}
-                            onChange={(e) =>
-                              handleTestRowChange(idx, "name", e.target.value)
-                            }
-                            autoFocus={idx === 0}
+                            onChange={(e) => updateTestRow(idx, "name", e.target.value)}
+                            className="protocol-row-input"
+                            style={{ flex: 2.2, minWidth: 160 }}
                           />
-                        </div>
-
-                        <div className="row-input-wrap test-cat-select-wrap">
                           <select
                             value={row.category}
-                            onChange={(e) =>
-                              handleTestRowChange(
-                                idx,
-                                "category",
-                                e.target.value
-                              )
-                            }
+                            onChange={(e) => updateTestRow(idx, "category", e.target.value)}
+                            className="protocol-row-input"
+                            style={{ flex: 1.5, minWidth: 140 }}
                           >
-                            {STANDARD_CATEGORIES.map((cat) => (
+                            {STANDARD_TEST_CATEGORIES.map((cat) => (
                               <option key={cat} value={cat}>
                                 {cat}
                               </option>
                             ))}
                           </select>
+                          {testRows.length > 1 && (
+                            <button
+                              type="button"
+                              className="protocol-row-delete-btn"
+                              title="Remove Row"
+                              aria-label="Remove test row"
+                              onClick={() => removeTestRow(idx)}
+                            >
+                              <FaTrash />
+                            </button>
+                          )}
                         </div>
+                      ))}
+                      <button
+                        type="button"
+                        className="protocol-btn-add-row"
+                        onClick={addTestRow}
+                        style={{ marginTop: 4 }}
+                      >
+                        + Add Another Test Row
+                      </button>
+                    </div>
+                  </>
+                )}
 
-                        {testRows.length > 1 && (
-                          <button
-                            type="button"
-                            className="action-icon-btn delete-action remove-test-row-btn"
-                            title="Remove Row"
-                            onClick={() => handleRemoveTestRow(idx)}
-                          >
-                            <FaTrash />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
+                <div className="protocol-drawer-actions">
                   <button
                     type="button"
-                    className="add-more-test-btn"
-                    onClick={handleAddMoreTestRow}
+                    className="protocol-btn-clear"
+                    onClick={handleCloseTestModal}
                   >
-                    <LuPlus style={{ fontSize: "0.85rem", marginRight: "4px" }} />
-                    Add more
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="protocol-btn-submit"
+                  >
+                    {submitting
+                      ? "Saving..."
+                      : editingTestId
+                      ? "Update Test"
+                      : "Create Test(s)"}
                   </button>
                 </div>
-              )}
-
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn secondary"
-                  onClick={handleCloseTestModal}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn add-btn test-primary-btn"
-                  disabled={submitting}
-                >
-                  {submitting
-                    ? "Saving..."
-                    : editingTestId
-                    ? "Update Test"
-                    : testRows.filter((r) => r.name.trim()).length > 1
-                    ? "Create Tests"
-                    : "Create Test"}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}
-
-      <footer className="settings-footer">
-        OPD Diagnostic Test Management • © {new Date().getFullYear()}
-      </footer>
-    </section>
+    </div>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../utils/api";
 import { useSnackbar } from "../context/SnackbarContext";
 import {
@@ -77,6 +77,7 @@ const emptyForm = {
 
 const MedicineSettings = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const snackbar = useSnackbar();
   const [medicines, setMedicines] = useState([]);
   const [page, setPage] = useState(1);
@@ -119,6 +120,57 @@ const MedicineSettings = () => {
   useEffect(() => {
     fetchMedicines();
   }, []);
+
+  // Handle prefill protocol state passed from Prescription
+  useEffect(() => {
+    if (location.state?.prefillProtocol) {
+      const p = location.state.prefillProtocol;
+      setForm({
+        name: p.name || "",
+        symptoms: Array.isArray(p.symptoms)
+          ? p.symptoms.join(", ")
+          : p.symptoms || "",
+        type: p.type || "",
+        route: p.route || "",
+        desese_description: p.desese_description || "",
+        medicines: Array.isArray(p.medicines)
+          ? p.medicines.map((m) => ({
+              name: m.name || "",
+              type: m.type || "",
+              dose: m.dose || "",
+              frequency: m.frequency || "",
+              route: m.route || "",
+              duration: m.duration || "",
+              notes: m.notes || "",
+            }))
+          : [],
+        testAdvice: Array.isArray(p.testAdvice)
+          ? p.testAdvice.map((t) => ({
+              testName: t.testName || "",
+              testType: t.testType || "",
+              precautions: t.precautions || "",
+              testDate: t.testDate || "",
+            }))
+          : [],
+        medication: p.medication || "",
+        diet: p.diet || "",
+        aliases: Array.isArray(p.aliases)
+          ? p.aliases.join(", ")
+          : p.aliases || "",
+        tags: Array.isArray(p.tags) ? p.tags.join(", ") : p.tags || "",
+        followupDays: p.followupDays || "",
+        followupNote: p.followupNote || "",
+        dose: p.dose || "",
+        frequency: p.frequency || "",
+        duration: p.duration || "",
+      });
+      setEditingId(null);
+      setDrawerOpen(true);
+      snackbar.info("Pre-filled Treatment Protocol from Prescription");
+      // Clear location state from browser history
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // When drawer opens and a focused medicine index exists, scroll it into view
   useEffect(() => {

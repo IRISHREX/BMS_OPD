@@ -24,6 +24,17 @@
   --accent: #2f78c8;
 }
 
+.theme-dark {
+  --pres-bg: #0b0f17;
+  --pres-card: #151d2c;
+  --pres-border: #243044;
+  --pres-border-focus: #00d2ff;
+  --pres-text-primary: #f8fafc;
+  --pres-text-secondary: #94a3b8;
+  --pres-text-muted: #64748b;
+  --card: #151d2c;
+}
+
 
 
 /* ==================== MODAL OVERLAY & CONTAINER ==================== */
@@ -824,67 +835,81 @@
 }
 
 /* ==================== MEDICINE ADVICE TABLE ==================== */
-.medicine-card {
+.prescription-modal-container .medicine-card,
+.prescription-container .medicine-card {
   border-left: 4px solid #10b981;
 }
 
-.medicine-table-wrap {
+.prescription-modal-container .medicine-table-wrap,
+.prescription-container .medicine-table-wrap {
   overflow-x: auto;
   border: 1px solid var(--pres-border);
   border-radius: 8px;
 }
 
-.medicine-table {
+.prescription-modal-container .medicine-table,
+.prescription-container .medicine-table {
   width: 100%;
   min-width: 900px;
   border-collapse: collapse;
   text-align: left;
 }
 
-.medicine-table th {
-  background: #f8fafc;
+.prescription-modal-container .medicine-table th,
+.prescription-container .medicine-table th {
+  background: var(--pres-bg, #f8fafc);
   padding: 10px 10px;
   font-size: 0.8rem;
   font-weight: 700;
-  color: #475569;
+  color: var(--pres-text-secondary, #475569);
   border-bottom: 1px solid var(--pres-border);
   white-space: nowrap;
 }
 
-.medicine-table td {
+.prescription-modal-container .medicine-table td,
+.prescription-container .medicine-table td {
   padding: 8px 6px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--pres-border);
   vertical-align: middle;
 }
 
-.medicine-table tbody tr:hover {
-  background: #f8fafc;
+.prescription-modal-container .medicine-table tbody tr:hover,
+.prescription-container .medicine-table tbody tr:hover {
+  background: var(--pres-bg, #f8fafc);
 }
 
-.medicine-table .th-check,
-.medicine-table .td-check {
+.prescription-modal-container .medicine-table .th-check,
+.prescription-modal-container .medicine-table .td-check,
+.prescription-container .medicine-table .th-check,
+.prescription-container .medicine-table .td-check {
   width: 36px;
   text-align: center;
 }
 
-.medicine-table .th-check input,
-.medicine-table .td-check input {
+.prescription-modal-container .medicine-table .th-check input,
+.prescription-modal-container .medicine-table .td-check input,
+.prescription-container .medicine-table .th-check input,
+.prescription-container .medicine-table .td-check input {
   width: 17px;
   height: 17px;
   cursor: pointer;
   accent-color: var(--pres-primary);
 }
 
-.medicine-table input {
+.prescription-modal-container .medicine-table input,
+.prescription-container .medicine-table input {
   width: 100%;
   padding: 7px 8px;
   font-size: 0.86rem;
   border: 1px solid var(--pres-border);
   border-radius: 6px;
   box-sizing: border-box;
+  background: var(--pres-card, #ffffff);
+  color: var(--pres-text-primary, #0f172a);
 }
 
-.medicine-table input:focus {
+.prescription-modal-container .medicine-table input:focus,
+.prescription-container .medicine-table input:focus {
   outline: none;
   border-color: var(--pres-primary);
 }
@@ -974,16 +999,19 @@
 }
 
 /* ==================== TEST ADVICE TABLE ==================== */
-.tests-card {
+.prescription-modal-container .tests-card,
+.prescription-container .tests-card {
   border-left: 4px solid #6366f1;
 }
 
-.test-advice-table {
+.prescription-modal-container .test-advice-table,
+.prescription-container .test-advice-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.test-advice-table td {
+.prescription-modal-container .test-advice-table td,
+.prescription-container .test-advice-table td {
   padding: 6px;
 }
 

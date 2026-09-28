@@ -59,15 +59,15 @@ const MedicineDrawer = ({
 
         {/* Drawer Form Body */}
         <div className="protocol-drawer-body">
-          <form onSubmit={handleSubmit} className="medicine-form">
+          <form onSubmit={handleSubmit} className="protocol-drawer-form">
             {/* Basic Info Section */}
             <div className="protocol-form-section-title">
               <FaFileMedical style={{ color: 'var(--accent, #1a9e9b)' }} />
               <span>General Protocol Information</span>
             </div>
 
-            <div>
-              <label style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: 4, display: 'block' }}>
+            <div className="protocol-form-group">
+              <label className="protocol-form-label">
                 Condition / Protocol Name *
               </label>
               <input
@@ -76,14 +76,13 @@ const MedicineDrawer = ({
                 onChange={handleChange}
                 placeholder="e.g. Frozen Shoulder, Type 2 Diabetes"
                 required
-                className="protocol-row-input"
-                style={{ width: '100%' }}
+                className="protocol-form-input"
               />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div>
-                <label style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: 4, display: 'block' }}>
+              <div className="protocol-form-group">
+                <label className="protocol-form-label">
                   Specialty / Type
                 </label>
                 <input
@@ -91,13 +90,12 @@ const MedicineDrawer = ({
                   value={form.type}
                   onChange={handleChange}
                   placeholder="e.g. Ortho, General, Derm"
-                  className="protocol-row-input"
-                  style={{ width: '100%' }}
+                  className="protocol-form-input"
                 />
               </div>
 
-              <div>
-                <label style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: 4, display: 'block' }}>
+              <div className="protocol-form-group">
+                <label className="protocol-form-label">
                   Effected Area / Route
                 </label>
                 <input
@@ -105,14 +103,13 @@ const MedicineDrawer = ({
                   value={form.route}
                   onChange={handleChange}
                   placeholder="e.g. Shoulder, Oral, Topical"
-                  className="protocol-row-input"
-                  style={{ width: '100%' }}
+                  className="protocol-form-input"
                 />
               </div>
             </div>
 
-            <div>
-              <label style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: 4, display: 'block' }}>
+            <div className="protocol-form-group">
+              <label className="protocol-form-label">
                 Symptoms (comma separated)
               </label>
               <input
@@ -120,13 +117,12 @@ const MedicineDrawer = ({
                 value={form.symptoms}
                 onChange={handleChange}
                 placeholder="e.g. Shoulder stiffness, Decreased range of motion, Pain"
-                className="protocol-row-input"
-                style={{ width: '100%' }}
+                className="protocol-form-input"
               />
             </div>
 
-            <div>
-              <label style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: 4, display: 'block' }}>
+            <div className="protocol-form-group">
+              <label className="protocol-form-label">
                 Clinical Description & Indications
               </label>
               <textarea
@@ -135,17 +131,7 @@ const MedicineDrawer = ({
                 onChange={handleChange}
                 rows={3}
                 placeholder="Detailed clinical notes or description of the protocol..."
-                style={{
-                  width: '100%',
-                  padding: '9px 12px',
-                  borderRadius: 8,
-                  border: '1px solid var(--border-color, #cbd5e1)',
-                  background: 'var(--bg-card, #ffffff)',
-                  color: 'var(--text-main, #0f172a)',
-                  boxSizing: 'border-box',
-                  fontFamily: 'inherit',
-                  fontSize: '0.85rem',
-                }}
+                className="protocol-form-textarea"
               />
             </div>
 
@@ -155,20 +141,10 @@ const MedicineDrawer = ({
               <span>Standard Prescribed Medicines</span>
             </div>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: 12,
-                background: 'var(--bg-subtle, #f8fafc)',
-                padding: 12,
-                borderRadius: 10,
-                border: '1px solid var(--border-color, #e2e8f0)',
-              }}
-            >
+            <div className="protocol-search-panel">
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: 4, display: 'block' }}>
-                  <FaSearch style={{ marginRight: 6, color: '#0284c7' }} /> Add Medicine by Name
+                <label className="protocol-form-label" style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <FaSearch style={{ color: '#0284c7' }} /> Add Medicine by Name
                 </label>
                 <MedicineSearch
                   searchBy="name"
@@ -178,8 +154,8 @@ const MedicineDrawer = ({
                 />
               </div>
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: 4, display: 'block' }}>
-                  <FaSearch style={{ marginRight: 6, color: '#0284c7' }} /> Add Medicine by Composition
+                <label className="protocol-form-label" style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <FaSearch style={{ color: '#0284c7' }} /> Add Medicine by Composition
                 </label>
                 <MedicineSearch
                   onSelect={(medicine) => {
@@ -258,21 +234,8 @@ const MedicineDrawer = ({
               ))}
               <button
                 type="button"
+                className="protocol-btn-add-row"
                 onClick={addMedicineRow}
-                style={{
-                  alignSelf: 'flex-start',
-                  padding: '7px 14px',
-                  borderRadius: 8,
-                  border: '1px dashed var(--border-color, #cbd5e1)',
-                  background: 'var(--bg-subtle, #f8fafc)',
-                  color: 'var(--accent, #1a9e9b)',
-                  fontWeight: 600,
-                  fontSize: '0.82rem',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                }}
               >
                 + Add Medicine Row
               </button>
@@ -327,21 +290,8 @@ const MedicineDrawer = ({
               ))}
               <button
                 type="button"
+                className="protocol-btn-add-row"
                 onClick={addTestRow}
-                style={{
-                  alignSelf: 'flex-start',
-                  padding: '7px 14px',
-                  borderRadius: 8,
-                  border: '1px dashed var(--border-color, #cbd5e1)',
-                  background: 'var(--bg-subtle, #f8fafc)',
-                  color: 'var(--accent, #1a9e9b)',
-                  fontWeight: 600,
-                  fontSize: '0.82rem',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                }}
               >
                 + Add Lab Test Row
               </button>
@@ -354,8 +304,8 @@ const MedicineDrawer = ({
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div>
-                <label style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: 4, display: 'block' }}>
+              <div className="protocol-form-group">
+                <label className="protocol-form-label">
                   General Medication Guidance
                 </label>
                 <textarea
@@ -364,22 +314,12 @@ const MedicineDrawer = ({
                   onChange={handleChange}
                   rows={2}
                   placeholder="e.g. Take after meals, Drink plenty of water..."
-                  style={{
-                    width: '100%',
-                    padding: '9px 12px',
-                    borderRadius: 8,
-                    border: '1px solid var(--border-color, #cbd5e1)',
-                    background: 'var(--bg-card, #ffffff)',
-                    color: 'var(--text-main, #0f172a)',
-                    boxSizing: 'border-box',
-                    fontFamily: 'inherit',
-                    fontSize: '0.85rem',
-                  }}
+                  className="protocol-form-textarea"
                 />
               </div>
 
-              <div>
-                <label style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: 4, display: 'block' }}>
+              <div className="protocol-form-group">
+                <label className="protocol-form-label">
                   Dietary & Lifestyle Advice
                 </label>
                 <textarea
@@ -388,23 +328,13 @@ const MedicineDrawer = ({
                   onChange={handleChange}
                   rows={2}
                   placeholder="e.g. Avoid oily foods, gentle shoulder exercises..."
-                  style={{
-                    width: '100%',
-                    padding: '9px 12px',
-                    borderRadius: 8,
-                    border: '1px solid var(--border-color, #cbd5e1)',
-                    background: 'var(--bg-card, #ffffff)',
-                    color: 'var(--text-main, #0f172a)',
-                    boxSizing: 'border-box',
-                    fontFamily: 'inherit',
-                    fontSize: '0.85rem',
-                  }}
+                  className="protocol-form-textarea"
                 />
               </div>
             </div>
 
-            <div>
-              <label style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: 4, display: 'block' }}>
+            <div className="protocol-form-group">
+              <label className="protocol-form-label">
                 Classification Tags (comma separated)
               </label>
               <input
@@ -412,52 +342,23 @@ const MedicineDrawer = ({
                 value={form.tags}
                 onChange={handleChange}
                 placeholder="e.g. Ortho, Shoulder, Joint Pain"
-                className="protocol-row-input"
-                style={{ width: '100%' }}
+                className="protocol-form-input"
               />
             </div>
 
             {/* Actions Bar */}
-            <div
-              style={{
-                display: 'flex',
-                gap: 12,
-                marginTop: 20,
-                paddingTop: 16,
-                borderTop: '1px solid var(--border-color, #e2e8f0)',
-                justifyContent: 'flex-end',
-              }}
-            >
+            <div className="protocol-drawer-actions">
               <button
                 type="button"
                 onClick={clearForm}
-                style={{
-                  height: 40,
-                  padding: '0 18px',
-                  borderRadius: 8,
-                  border: '1px solid var(--border-color, #cbd5e1)',
-                  background: 'var(--bg-subtle, #f8fafc)',
-                  color: 'var(--text-muted, #64748b)',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
+                className="protocol-btn-clear"
               >
                 Clear
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                style={{
-                  height: 40,
-                  padding: '0 24px',
-                  borderRadius: 8,
-                  border: 'none',
-                  background: 'var(--btn-gradient, linear-gradient(135deg, #1a9e9b, #2f78c8))',
-                  color: '#ffffff',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 8px rgba(26, 158, 155, 0.25)',
-                }}
+                className="protocol-btn-submit"
               >
                 {saving ? 'Saving...' : editingId ? 'Update Protocol' : 'Create Protocol'}
               </button>

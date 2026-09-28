@@ -673,7 +673,7 @@
   inset: 0;
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(4px);
-  z-index: 1200;
+  z-index: 10005;
   display: flex;
   justify-content: flex-end;
   animation: protocol-fadeIn 0.2s ease;
@@ -850,6 +850,129 @@
   color: #ffffff !important;
 }
 
+/* Scoped Protocol Drawer Form */
+.protocol-drawer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.protocol-form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.protocol-form-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+  display: block;
+  color: var(--text-main, #0f172a);
+}
+
+.protocol-form-input,
+.protocol-form-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: var(--bg-card, #ffffff);
+  color: var(--text-main, #0f172a);
+  font-size: 0.86rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.protocol-form-input:focus,
+.protocol-form-textarea:focus {
+  border-color: var(--accent, #1a9e9b);
+  box-shadow: 0 0 0 3px rgba(26, 158, 155, 0.15);
+}
+
+.protocol-form-textarea {
+  resize: vertical;
+}
+
+.protocol-search-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: var(--bg-subtle, #f8fafc);
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.protocol-btn-add-row {
+  align-self: flex-start;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px dashed var(--border-color, #cbd5e1);
+  background: var(--bg-subtle, #f8fafc);
+  color: var(--accent, #1a9e9b);
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.protocol-btn-add-row:hover {
+  background: var(--bg-card, #ffffff);
+  border-color: var(--accent, #1a9e9b);
+  transform: translateY(-1px);
+}
+
+.protocol-drawer-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  justify-content: flex-end;
+}
+
+.protocol-btn-clear {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: var(--bg-subtle, #f8fafc);
+  color: var(--text-muted, #64748b);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.protocol-btn-clear:hover {
+  background: var(--bg-card, #ffffff);
+  color: var(--text-main, #0f172a);
+}
+
+.protocol-btn-submit {
+  height: 40px;
+  padding: 0 24px;
+  border-radius: 8px;
+  border: none;
+  background: var(--btn-gradient, linear-gradient(135deg, #1a9e9b, #2f78c8));
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(26, 158, 155, 0.25);
+  transition: all 0.2s ease;
+}
+
+.protocol-btn-submit:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
 /* --------------------------------------------------------------------------
    THEME OVERRIDES
    -------------------------------------------------------------------------- */
@@ -886,7 +1009,44 @@
 .theme-dark .protocol-empty-state h3,
 .theme-dark .protocol-drawer-header h3,
 .theme-dark .protocol-summary-text strong,
-.theme-dark .protocol-form-section-title {
+.theme-dark .protocol-form-section-title,
+.theme-dark .protocol-form-label {
+  color: #f8fafc !important;
+}
+
+.theme-dark .protocol-form-input,
+.theme-dark .protocol-form-textarea,
+.theme-dark .protocol-row-input {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.theme-dark .protocol-search-panel,
+.theme-dark .protocol-row-card {
+  background: #151d2c !important;
+  border-color: #334155 !important;
+}
+
+.theme-dark .protocol-btn-add-row {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #00d2ff !important;
+}
+
+.theme-dark .protocol-btn-add-row:hover {
+  background: #243044 !important;
+  border-color: #00d2ff !important;
+}
+
+.theme-dark .protocol-btn-clear {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.theme-dark .protocol-btn-clear:hover {
+  background: #243044 !important;
   color: #f8fafc !important;
 }
 
