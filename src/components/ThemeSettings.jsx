@@ -5,15 +5,87 @@ import { setTheme, setCustomTheme } from '../store/themeSlice';
 import { playSaveSound, playLoadSound, playLoadSound2, playDeleteSound } from '../utils/soundUtils';
 import HeaderFooterCreator from './HeaderFooterCreator';
 import OrganizationSettings from './OrganizationSettings';
-import { IoColorPaletteOutline, IoVolumeHighOutline, IoDocumentTextOutline, IoBusinessOutline, IoVolumeMute, IoVolumeHigh, IoPlay } from "react-icons/io5";
+import {
+  IoColorPaletteOutline,
+  IoVolumeHighOutline,
+  IoDocumentTextOutline,
+  IoBusinessOutline,
+  IoVolumeMute,
+  IoVolumeHigh,
+  IoPlay,
+  IoArrowBack,
+  IoCheckmarkCircle,
+  IoSparklesOutline,
+  IoMoonOutline,
+  IoSunnyOutline,
+  IoLeafOutline,
+  IoBrushOutline,
+  IoLayersOutline
+} from "react-icons/io5";
 import "./Settings.css";
 import "./GeneralSettings.css";
 
-
-const themes = [
-  { key: "theme-teal", name: "Clinical Teal (Default)" },
-  { key: "theme-light", name: "Medical Blue" },
-  { key: "theme-dark", name: "Dark Mode" },
+const themeConfigs = [
+  {
+    key: "theme-teal",
+    name: "Clinical Teal",
+    badge: "Recommended",
+    subtitle: "Calming emerald & teal tones optimized for high-contrast clinical OPD workflow.",
+    icon: IoLeafOutline,
+    preview: {
+      sidebar: "#0c4e4c",
+      accent: "#1a9e9b",
+      surface: "#ffffff",
+      bg: "#f3fbfb",
+      text: "#0c4e4c",
+    },
+    tags: ["High Contrast", "Clinical", "Day Shift"]
+  },
+  {
+    key: "theme-light",
+    name: "Medical Blue",
+    badge: "Corporate",
+    subtitle: "Classic navy & cobalt accents designed for structured hospital records.",
+    icon: IoSunnyOutline,
+    preview: {
+      sidebar: "#173a5e",
+      accent: "#2f78c8",
+      surface: "#ffffff",
+      bg: "#e7f1fb",
+      text: "#173a5e",
+    },
+    tags: ["Balanced", "Corporate", "Classic"]
+  },
+  {
+    key: "theme-dark",
+    name: "Dark Mode",
+    badge: "Night Shift",
+    subtitle: "Deep obsidian canvas with cyber-cyan glowing auras to reduce eye fatigue.",
+    icon: IoMoonOutline,
+    preview: {
+      sidebar: "#0d131f",
+      accent: "#00d2ff",
+      surface: "#151d2c",
+      bg: "#0b0f17",
+      text: "#f8fafc",
+    },
+    tags: ["Eye Comfort", "OLED Dark", "Cyan Glow"]
+  },
+  {
+    key: "theme-custom",
+    name: "Custom Studio",
+    badge: "Studio",
+    subtitle: "Craft your tailored palette, custom corner radius, and typography scale.",
+    icon: IoBrushOutline,
+    preview: {
+      sidebar: "#1e293b",
+      accent: "#6366f1",
+      surface: "#ffffff",
+      bg: "#f8fafc",
+      text: "#0f172a",
+    },
+    tags: ["Personalized", "Variables", "Flexible"]
+  },
 ];
 
 const GeneralSettings = () => {
@@ -36,7 +108,6 @@ const GeneralSettings = () => {
   // Save volume to localStorage and soundUtils
   useEffect(() => {
     localStorage.setItem('soundVolume', volume);
-    // Update global sound volume
     window.globalSoundVolume = volume / 100;
   }, [volume]);
 
@@ -69,16 +140,15 @@ const GeneralSettings = () => {
   };
 
   // Live preview for custom theme
-  React.useEffect(() => {
+  useEffect(() => {
     if (selected === 'theme-custom') {
       const root = document.documentElement;
-      root.style.setProperty('--btn-radius', custom.btnRadius + 'px');
-      root.style.setProperty('--btn-opacity', custom.btnOpacity);
-      root.style.setProperty('--text-size', custom.textSize + 'px');
-      root.style.setProperty('--bg-main', custom.bgMain);
-      root.style.setProperty('--accent', custom.accent);
+      root.style.setProperty('--btn-radius', (custom.btnRadius || 8) + 'px');
+      root.style.setProperty('--btn-opacity', custom.btnOpacity || 1);
+      root.style.setProperty('--text-size', (custom.textSize || 16) + 'px');
+      root.style.setProperty('--bg-main', custom.bgMain || '#e7f1fb');
+      root.style.setProperty('--accent', custom.accent || '#2f78c8');
     } else {
-      // Reset to default for non-custom themes
       const root = document.documentElement;
       root.style.removeProperty('--btn-radius');
       root.style.removeProperty('--btn-opacity');
@@ -88,251 +158,498 @@ const GeneralSettings = () => {
     }
   }, [selected, custom]);
 
-  return (
-    <section className="page">
-      <div className="settings-page">
-        <button onClick={() => navigate(-1)} className="back-btn add-btn">
-          ← Go Back
-        </button>
-        <h2>General Settings</h2>
+  const activeThemeMeta = themeConfigs.find(t => t.key === selected) || themeConfigs[0];
 
-        {/* Navigation Bar */}
+  return (
+    <section className="page general-settings-page-wrapper">
+      <div className="settings-page general-settings-container">
+        {/* Page Top Header Bar */}
+        <div className="general-settings-top-header">
+          <div className="general-header-left">
+            <button
+              onClick={() => navigate(-1)}
+              className="general-back-btn"
+              title="Go back to previous page"
+            >
+              <IoArrowBack className="back-icon" />
+              <span>Back</span>
+            </button>
+            <div className="general-title-block">
+              <div className="general-title-row">
+                <h2>General Settings</h2>
+                <span className={`general-theme-pill ${selected}`}>
+                  <activeThemeMeta.icon className="theme-pill-icon" />
+                  {activeThemeMeta.name}
+                </span>
+              </div>
+              <p className="general-subtitle">
+                Configure clinic profile, live appearance themes, audio feedback, and document branding.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation Tabs Bar */}
         <div className="general-settings-nav-bar">
           <button
             className={`general-nav-item ${activeSection === 'organization' ? 'active' : ''}`}
             onClick={() => setActiveSection('organization')}
           >
-            <IoBusinessOutline style={{ marginRight: 6, verticalAlign: "middle" }} /> Organization & Branding
+            <IoBusinessOutline className="nav-icon" />
+            <span>Organization & Branding</span>
           </button>
           <button
             className={`general-nav-item ${activeSection === 'themes' ? 'active' : ''}`}
             onClick={() => setActiveSection('themes')}
           >
-            <IoColorPaletteOutline style={{ marginRight: 6, verticalAlign: "middle" }} /> Themes
+            <IoColorPaletteOutline className="nav-icon" />
+            <span>Themes & Appearance</span>
           </button>
           <button
             className={`general-nav-item ${activeSection === 'sounds' ? 'active' : ''}`}
             onClick={() => setActiveSection('sounds')}
           >
-            <IoVolumeHighOutline style={{ marginRight: 6, verticalAlign: "middle" }} /> Sounds
+            <IoVolumeHighOutline className="nav-icon" />
+            <span>Sound Effects</span>
           </button>
           <button
             className={`general-nav-item ${activeSection === 'header-footer' ? 'active' : ''}`}
             onClick={() => setActiveSection('header-footer')}
           >
-            <IoDocumentTextOutline style={{ marginRight: 6, verticalAlign: "middle" }} /> Header & Footer Designer
+            <IoDocumentTextOutline className="nav-icon" />
+            <span>Header & Footer Designer</span>
           </button>
         </div>
 
-        {/* Organization Profile & Branding */}
+        {/* Section 1: Organization Profile & Branding */}
         {activeSection === 'organization' && (
-          <OrganizationSettings />
+          <div className="general-section-content">
+            <OrganizationSettings />
+          </div>
         )}
 
-        {/* Themes Section */}
+        {/* Section 2: Themes & Appearance */}
         {activeSection === 'themes' && (
-          <div style={{ marginBottom: "3rem" }}>
-            <h3 style={{ marginBottom: "1.5rem" }}>Theme</h3>
-            <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
-              {themes.map(theme => (
-                <button
-                  key={theme.key}
-                  style={{
-                    padding: "1rem 2rem",
-                    borderRadius: "10px",
-                    border: selected === theme.key ? "2px solid #0b74ff" : "1px solid #ccc",
-                    background: selected === theme.key ? "var(--btn-gradient)" : "var(--bg-card)",
-                    color: selected === theme.key ? "var(--text-accent)" : "var(--text-main)",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                    fontSize: "1.1rem"
-                  }}
-                  onClick={() => dispatch(setTheme(theme.key))}
-                >
-                  {theme.name}
-                </button>
-              ))}
-              <button
-                key="theme-custom"
-                style={{
-                  padding: "1rem 2rem",
-                  borderRadius: "10px",
-                  border: selected === 'theme-custom' ? "2px solid #0b74ff" : "1px solid #ccc",
-                  background: selected === 'theme-custom' ? "var(--btn-gradient)" : "var(--bg-card)",
-                  color: selected === 'theme-custom' ? "var(--text-accent)" : "var(--text-main)",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  fontSize: "1.1rem"
-                }}
-                onClick={() => dispatch(setTheme('theme-custom'))}
-              >
-                Custom
-              </button>
+          <div className="general-section-content themes-section-content">
+            <div className="section-intro-card">
+              <div className="intro-icon-box">
+                <IoColorPaletteOutline />
+              </div>
+              <div className="intro-text">
+                <h3>Interface Themes</h3>
+                <p>
+                  Choose a visual theme tailored to your clinic workspace. All screens, cards, charts, and prescription drawers adapt instantaneously.
+                </p>
+              </div>
             </div>
+
+            {/* Theme Selector Cards Grid */}
+            <div className="theme-cards-grid">
+              {themeConfigs.map(item => {
+                const isCurrent = selected === item.key;
+                const IconComponent = item.icon;
+                return (
+                  <div
+                    key={item.key}
+                    className={`theme-card ${item.key} ${isCurrent ? 'selected' : ''}`}
+                    onClick={() => dispatch(setTheme(item.key))}
+                  >
+                    <div className="theme-card-top">
+                      <div className="theme-card-icon-title">
+                        <div className="theme-type-icon">
+                          <IconComponent />
+                        </div>
+                        <div>
+                          <h4 className="theme-name">{item.name}</h4>
+                          <span className="theme-badge">{item.badge}</span>
+                        </div>
+                      </div>
+                      {isCurrent && (
+                        <div className="theme-active-indicator">
+                          <IoCheckmarkCircle className="check-icon" />
+                          <span>Active</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <p className="theme-desc">{item.subtitle}</p>
+
+                    {/* Mini Visual UI Mockup */}
+                    <div className="theme-preview-mockup">
+                      <div
+                        className="mockup-sidebar"
+                        style={{ background: item.preview.sidebar }}
+                      >
+                        <div className="mockup-dot" />
+                        <div className="mockup-dot" />
+                        <div className="mockup-dot" />
+                      </div>
+                      <div
+                        className="mockup-body"
+                        style={{ background: item.preview.bg }}
+                      >
+                        <div
+                          className="mockup-header-bar"
+                          style={{
+                            background: item.preview.surface,
+                            borderBottom: `1px solid ${item.preview.accent}33`
+                          }}
+                        >
+                          <div
+                            className="mockup-bar-title"
+                            style={{ background: item.preview.text }}
+                          />
+                        </div>
+                        <div className="mockup-cards-row">
+                          <div
+                            className="mockup-card"
+                            style={{
+                              background: item.preview.surface,
+                              borderColor: `${item.preview.accent}44`
+                            }}
+                          >
+                            <div
+                              className="mockup-chip"
+                              style={{ background: item.preview.accent }}
+                            />
+                            <div
+                              className="mockup-line"
+                              style={{ background: `${item.preview.text}55` }}
+                            />
+                          </div>
+                          <div
+                            className="mockup-card"
+                            style={{
+                              background: item.preview.surface,
+                              borderColor: `${item.preview.accent}44`
+                            }}
+                          >
+                            <div
+                              className="mockup-chip"
+                              style={{ background: item.preview.accent }}
+                            />
+                            <div
+                              className="mockup-line"
+                              style={{ background: `${item.preview.text}55` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Color Swatches Palette */}
+                    <div className="theme-swatches-row">
+                      <span className="swatches-label">Palette:</span>
+                      <div className="swatches-dots">
+                        <span
+                          className="swatch-dot"
+                          title="Sidebar"
+                          style={{ background: item.preview.sidebar }}
+                        />
+                        <span
+                          className="swatch-dot"
+                          title="Accent"
+                          style={{ background: item.preview.accent }}
+                        />
+                        <span
+                          className="swatch-dot"
+                          title="Surface"
+                          style={{
+                            background: item.preview.surface,
+                            border: '1px solid #ccc'
+                          }}
+                        />
+                        <span
+                          className="swatch-dot"
+                          title="Background"
+                          style={{
+                            background: item.preview.bg,
+                            border: '1px solid #ccc'
+                          }}
+                        />
+                      </div>
+                      <div className="theme-tags">
+                        {item.tags.map(tag => (
+                          <span key={tag} className="tag-pill">{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className={`theme-apply-btn ${isCurrent ? 'active' : ''}`}
+                    >
+                      {isCurrent ? "Currently Applied" : "Select Theme"}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Custom Theme Studio Controls */}
             {selected === 'theme-custom' && (
-              <div style={{ marginTop: '2.5rem', maxWidth: 500 }}>
-                <h4>Customize Theme</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  <label>
-                    Button Radius: <input type="range" min={0} max={32} value={custom.btnRadius} onChange={e => handleCustom('btnRadius', Number(e.target.value))} /> {custom.btnRadius}px
-                  </label>
-                  <label>
-                    Button Opacity: <input type="range" min={0.2} max={1} step={0.01} value={custom.btnOpacity} onChange={e => handleCustom('btnOpacity', Number(e.target.value))} /> {custom.btnOpacity}
-                  </label>
-                  <label>
-                    Text Size: <input type="range" min={12} max={32} value={custom.textSize} onChange={e => handleCustom('textSize', Number(e.target.value))} /> {custom.textSize}px
-                  </label>
-                  <label>
-                    Background Color: <input type="color" value={custom.bgMain} onChange={e => handleCustom('bgMain', e.target.value)} /> {custom.bgMain}
-                  </label>
-                  <label>
-                    Accent Color: <input type="color" value={custom.accent} onChange={e => handleCustom('accent', e.target.value)} /> {custom.accent}
-                  </label>
+              <div className="custom-theme-studio-card">
+                <div className="studio-header">
+                  <div className="studio-icon">
+                    <IoBrushOutline />
+                  </div>
+                  <div>
+                    <h4>Custom Theme Studio</h4>
+                    <p>Adjust fine UI properties, button curves, text scaling, and core palette.</p>
+                  </div>
+                </div>
+
+                <div className="studio-controls-grid">
+                  <div className="studio-control-group">
+                    <div className="control-label-row">
+                      <label>Button Corner Radius</label>
+                      <span className="val-chip">{custom.btnRadius || 8}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={32}
+                      value={custom.btnRadius ?? 8}
+                      onChange={e => handleCustom('btnRadius', Number(e.target.value))}
+                      className="studio-range-slider"
+                    />
+                  </div>
+
+                  <div className="studio-control-group">
+                    <div className="control-label-row">
+                      <label>Button Opacity</label>
+                      <span className="val-chip">{Math.round((custom.btnOpacity ?? 1) * 100)}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0.2}
+                      max={1}
+                      step={0.05}
+                      value={custom.btnOpacity ?? 1}
+                      onChange={e => handleCustom('btnOpacity', Number(e.target.value))}
+                      className="studio-range-slider"
+                    />
+                  </div>
+
+                  <div className="studio-control-group">
+                    <div className="control-label-row">
+                      <label>Base Typography Scale</label>
+                      <span className="val-chip">{custom.textSize || 16}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={12}
+                      max={24}
+                      value={custom.textSize ?? 16}
+                      onChange={e => handleCustom('textSize', Number(e.target.value))}
+                      className="studio-range-slider"
+                    />
+                  </div>
+
+                  <div className="studio-control-group">
+                    <div className="control-label-row">
+                      <label>App Background Canvas</label>
+                      <span className="val-chip">{custom.bgMain || '#e7f1fb'}</span>
+                    </div>
+                    <div className="color-picker-wrap">
+                      <input
+                        type="color"
+                        value={custom.bgMain || '#e7f1fb'}
+                        onChange={e => handleCustom('bgMain', e.target.value)}
+                        className="studio-color-input"
+                      />
+                      <input
+                        type="text"
+                        value={custom.bgMain || '#e7f1fb'}
+                        onChange={e => handleCustom('bgMain', e.target.value)}
+                        className="studio-hex-text"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="studio-control-group">
+                    <div className="control-label-row">
+                      <label>Primary Accent Color</label>
+                      <span className="val-chip">{custom.accent || '#2f78c8'}</span>
+                    </div>
+                    <div className="color-picker-wrap">
+                      <input
+                        type="color"
+                        value={custom.accent || '#2f78c8'}
+                        onChange={e => handleCustom('accent', e.target.value)}
+                        className="studio-color-input"
+                      />
+                      <input
+                        type="text"
+                        value={custom.accent || '#2f78c8'}
+                        onChange={e => handleCustom('accent', e.target.value)}
+                        className="studio-hex-text"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Live Preview interactive sample */}
+                <div className="studio-preview-banner">
+                  <span className="banner-title">Live Interactive Preview:</span>
+                  <button
+                    type="button"
+                    className="studio-sample-btn"
+                    style={{
+                      borderRadius: (custom.btnRadius || 8) + 'px',
+                      opacity: custom.btnOpacity ?? 1,
+                      background: custom.accent || '#2f78c8',
+                      fontSize: (custom.textSize || 16) + 'px'
+                    }}
+                  >
+                    Sample Action Button
+                  </button>
                 </div>
               </div>
             )}
-            </div>
+          </div>
         )}
 
-        {/* Sound Settings Section */}
+        {/* Section 3: Sound Effects */}
         {activeSection === 'sounds' && (
-          <div style={{
-            padding: "2rem",
-            background: "var(--bg-card)",
-            borderRadius: "15px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-          }}>
-            <h3 style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span>Sound Settings</span>
-            <button
-              onClick={() => setIsMuted(!isMuted)}
-              style={{
-                padding: "0.5rem 1.5rem",
-                borderRadius: "8px",
-                border: isMuted ? "2px solid #ff6b6b" : "2px solid #51cf66",
-                background: isMuted ? "rgba(255, 107, 107, 0.1)" : "rgba(81, 207, 102, 0.1)",
-                color: isMuted ? "#ff6b6b" : "#51cf66",
-                fontWeight: "bold",
-                cursor: "pointer",
-                fontSize: "0.95rem",
-                transition: "all 0.3s ease"
-              }}
-              title={isMuted ? "Click to unmute" : "Click to mute"}
-              >
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  {isMuted ? <><IoVolumeMute /> Muted</> : <><IoVolumeHigh /> Unmuted</>}
-                </span>
-              </button>
-            </h3>
+          <div className="general-section-content sounds-section-content">
+            <div className="sounds-console-card">
+              <div className="sounds-console-header">
+                <div className="sounds-header-left">
+                  <div className="sounds-icon-badge">
+                    <IoVolumeHighOutline />
+                  </div>
+                  <div>
+                    <h3>Audio & Sound Feedback</h3>
+                    <p>Configure acoustic sound effects for user interactions, saves, transitions, and alerts.</p>
+                  </div>
+                </div>
 
-            {/* Volume Control */}
-            <div style={{ marginBottom: "2rem" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
-                <span style={{ minWidth: "100px", fontWeight: "500" }}>Volume:</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={volume}
-                  onChange={(e) => setVolume(Number(e.target.value))}
-                  style={{ flex: 1, cursor: "pointer" }}
-                />
-                <span style={{ minWidth: "50px", textAlign: "right", fontWeight: "bold" }}>{volume}%</span>
-              </label>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMuted(!isMuted)}
+                  className={`sound-mute-toggle-btn ${isMuted ? 'muted' : 'unmuted'}`}
+                  title={isMuted ? "Click to unmute sound effects" : "Click to mute all sounds"}
+                >
+                  {isMuted ? (
+                    <>
+                      <IoVolumeMute className="btn-sound-icon" />
+                      <span>Sound Muted</span>
+                    </>
+                  ) : (
+                    <>
+                      <IoVolumeHigh className="btn-sound-icon" />
+                      <span>Sound Enabled</span>
+                    </>
+                  )}
+                </button>
+              </div>
 
-            {/* Test Buttons */}
-            <div style={{ marginTop: "2rem" }}>
-              <h4 style={{ marginBottom: "1rem" }}>Test Sounds</h4>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1rem" }}>
-                <button
-                  onClick={testSaveSound}
-                  style={{
-                    padding: "0.8rem 1.2rem",
-                    borderRadius: "8px",
-                    border: "1px solid #51cf66",
-                    background: "rgba(81, 207, 102, 0.15)",
-                    color: "var(--text-main)",
-                    fontWeight: "600",
-                    cursor: "pointer",
-                    fontSize: "0.95rem",
-                    transition: "all 0.2s",
-                    opacity: isMuted ? 0.5 : 1
-                  }}
-                  onMouseEnter={(e) => !isMuted && (e.target.style.background = "rgba(81, 207, 102, 0.3)")}
-                  onMouseLeave={(e) => (e.target.style.background = "rgba(81, 207, 102, 0.15)")}
-                  disabled={isMuted}
-                >
-                  <IoPlay style={{ marginRight: 6, verticalAlign: "middle" }} /> Save Sound
-                </button>
-                <button
-                  onClick={testLoadSound}
-                  style={{
-                    padding: "0.8rem 1.2rem",
-                    borderRadius: "8px",
-                    border: "1px solid #4dabf7",
-                    background: "rgba(77, 171, 247, 0.15)",
-                    color: "var(--text-main)",
-                    fontWeight: "600",
-                    cursor: "pointer",
-                    fontSize: "0.95rem",
-                    transition: "all 0.2s",
-                    opacity: isMuted ? 0.5 : 1
-                  }}
-                  onMouseEnter={(e) => !isMuted && (e.target.style.background = "rgba(77, 171, 247, 0.3)")}
-                  onMouseLeave={(e) => (e.target.style.background = "rgba(77, 171, 247, 0.15)")}
-                  disabled={isMuted}
-                >
-                  <IoPlay style={{ marginRight: 6, verticalAlign: "middle" }} /> Load Sound
-                </button>
-                <button
-                  onClick={testLoginSound}
-                  style={{
-                    padding: "0.8rem 1.2rem",
-                    borderRadius: "8px",
-                    border: "1px solid #ffd43b",
-                    background: "rgba(255, 212, 59, 0.15)",
-                    color: "var(--text-main)",
-                    fontWeight: "600",
-                    cursor: "pointer",
-                    fontSize: "0.95rem",
-                    transition: "all 0.2s",
-                    opacity: isMuted ? 0.5 : 1
-                  }}
-                  onMouseEnter={(e) => !isMuted && (e.target.style.background = "rgba(255, 212, 59, 0.3)")}
-                  onMouseLeave={(e) => (e.target.style.background = "rgba(255, 212, 59, 0.15)")}
-                  disabled={isMuted}
-                >
-                  <IoPlay style={{ marginRight: 6, verticalAlign: "middle" }} /> Login Sound
-                </button>
-                <button
-                  onClick={testDeleteSound}
-                  style={{
-                    padding: "0.8rem 1.2rem",
-                    borderRadius: "8px",
-                    border: "1px solid #ff6b6b",
-                    background: "rgba(255, 107, 107, 0.15)",
-                    color: "var(--text-main)",
-                    fontWeight: "600",
-                    cursor: "pointer",
-                    fontSize: "0.95rem",
-                    transition: "all 0.2s",
-                    opacity: isMuted ? 0.5 : 1
-                  }}
-                  onMouseEnter={(e) => !isMuted && (e.target.style.background = "rgba(255, 107, 107, 0.3)")}
-                  onMouseLeave={(e) => (e.target.style.background = "rgba(255, 107, 107, 0.15)")}
-                  disabled={isMuted}
-                >
-                  <IoPlay style={{ marginRight: 6, verticalAlign: "middle" }} /> Delete Sound
-                </button>
+              {/* Master Volume Slider */}
+              <div className="sound-master-volume-box">
+                <div className="volume-label-row">
+                  <div className="volume-label-title">
+                    <span>Master Output Volume</span>
+                    <span className="volume-state-chip">
+                      {isMuted ? "Muted" : `${volume}%`}
+                    </span>
+                  </div>
+                </div>
+                <div className="volume-slider-row">
+                  <IoVolumeMute className="vol-icon min" />
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={volume}
+                    disabled={isMuted}
+                    onChange={(e) => setVolume(Number(e.target.value))}
+                    className="volume-range-slider"
+                  />
+                  <IoVolumeHigh className="vol-icon max" />
+                </div>
+              </div>
+
+              {/* Test Soundboard Grid */}
+              <div className="soundboard-section">
+                <div className="soundboard-header">
+                  <h4>Interactive Soundboard</h4>
+                  <p>Click any test card to audition the acoustic feedback audio file.</p>
+                </div>
+
+                <div className="soundboard-grid">
+                  <button
+                    type="button"
+                    onClick={testSaveSound}
+                    disabled={isMuted}
+                    className="sound-tile save-sound"
+                  >
+                    <div className="tile-icon-box save">
+                      <IoPlay />
+                    </div>
+                    <div className="tile-details">
+                      <h5>Save & Confirm</h5>
+                      <p>Triggered on saving records, prescriptions, and updates.</p>
+                    </div>
+                    <span className="tile-action-chip">Test</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={testLoadSound}
+                    disabled={isMuted}
+                    className="sound-tile load-sound"
+                  >
+                    <div className="tile-icon-box load">
+                      <IoPlay />
+                    </div>
+                    <div className="tile-details">
+                      <h5>Load / Transition</h5>
+                      <p>Acoustic chime played on loading data and drawer sliding.</p>
+                    </div>
+                    <span className="tile-action-chip">Test</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={testLoginSound}
+                    disabled={isMuted}
+                    className="sound-tile login-sound"
+                  >
+                    <div className="tile-icon-box login">
+                      <IoPlay />
+                    </div>
+                    <div className="tile-details">
+                      <h5>Welcome / Login</h5>
+                      <p>Harmonic chime played when authenticated successfully.</p>
+                    </div>
+                    <span className="tile-action-chip">Test</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={testDeleteSound}
+                    disabled={isMuted}
+                    className="sound-tile delete-sound"
+                  >
+                    <div className="tile-icon-box delete">
+                      <IoPlay />
+                    </div>
+                    <div className="tile-details">
+                      <h5>Delete / Warning</h5>
+                      <p>Haptic warning cue played on deleting records or items.</p>
+                    </div>
+                    <span className="tile-action-chip">Test</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Header & Footer Section */}
+        {/* Section 4: Header & Footer Section */}
         {activeSection === 'header-footer' && (
-          <div className="general-settings-header-footer-section">
+          <div className="general-section-content header-footer-section-content">
             <HeaderFooterCreator />
           </div>
         )}

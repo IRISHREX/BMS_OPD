@@ -1273,6 +1273,23 @@ input[type="time"]:before {
   --sidebar-bg: #0d131f;
 }
 
+.theme-custom {
+  --bg-main: var(--bg-main, #e7f1fb);
+  --bg-card: #ffffff;
+  --bg-subtle: #f8fafc;
+  --border-color: #cbd5e1;
+  --border-teal: #94a3b8;
+  --accent: var(--accent, #2f78c8);
+  --accent-teal: #2f78c8;
+  --btn-gradient: linear-gradient(135deg, var(--accent, #2f78c8), #1e293b);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-accent: #ffffff;
+  --app-font: "Montserrat", sans-serif;
+  --sidebar-bg: #1e293b;
+}
+
+
 /* ==========================================================================
    COMPREHENSIVE DARK THEME STABILIZATION
    ========================================================================== */
