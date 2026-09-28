@@ -518,7 +518,29 @@ const Dashboard = () => {
   };
 
   const handlePrescriptionClick = async (patientId, appointmentId = null) => {
-    const rawPid = patientId?._id || patientId;
+    let rawPid = patientId?._id || patientId;
+    if (rawPid === "undefined" || rawPid === "null" || !rawPid) {
+      rawPid = null;
+    }
+
+    // Self-healing fallback: if patientId is missing on appointment, auto-link patient
+    if (!rawPid && appointmentId) {
+      try {
+        const healRes = await api.post(`/api/v1/appointment/ensure-patient/${appointmentId}`);
+        if (healRes.data?.success && healRes.data?.patientId) {
+          rawPid = healRes.data.patientId;
+          fetchAppointments();
+        }
+      } catch (err) {
+        console.warn("Could not auto-link patient record:", err);
+      }
+    }
+
+    if (!rawPid) {
+      snackbar.error("No patient record linked to this appointment.");
+      return;
+    }
+
     setSelectedPatientId(rawPid);
     setSelectedAppointmentId(appointmentId);
     // Fetch patient data

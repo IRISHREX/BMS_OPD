@@ -390,10 +390,28 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
   useEffect(() => {
     const fetchLatestAppointment = async () => {
       try {
-        const { data } = await api.get(
-          `/api/v1/appointment/patient/${patientId}`
-        );
-        const appointments = data.appointments || [];
+        let appointments = [];
+        const hasValidPatientId = patientId && patientId !== "undefined" && patientId !== "null";
+        if (hasValidPatientId) {
+          try {
+            const { data } = await api.get(
+              `/api/v1/appointment/patient/${patientId}`
+            );
+            appointments = data.appointments || [];
+          } catch (e) {
+            console.warn("Failed fetching by patientId:", e);
+          }
+        }
+        if (!appointments.length && propAppointmentId) {
+          try {
+            const { data: singleApptData } = await api.get(`/api/v1/appointment/${propAppointmentId}`);
+            if (singleApptData?.appointment) {
+              appointments = [singleApptData.appointment];
+            }
+          } catch (e) {
+            console.warn("Failed fetching by appointmentId:", e);
+          }
+        }
         if (!appointments.length) return setLoading(false);
         let selectedAppt = null;
         if (propAppointmentId) {
@@ -678,8 +696,8 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
       }
     };
 
-    if (patientId) fetchLatestAppointment();
-  }, [patientId]);
+    if (patientId || propAppointmentId) fetchLatestAppointment();
+  }, [patientId, propAppointmentId]);
 
   // compute dirty state whenever key fields change
   useEffect(() => {
