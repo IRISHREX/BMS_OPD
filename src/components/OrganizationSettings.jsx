@@ -5,6 +5,8 @@ import {
   generateLocationQrDataUrl,
   resolveFullImageUrl,
   getGeneralSettings,
+  saveAddressToStorageApi,
+  deleteAddressFromStorageApi,
 } from "../utils/generalSettingsUtil";
 import {
   FaBuilding,
@@ -18,6 +20,7 @@ import {
   FaSpinner,
   FaArrowUpRightFromSquare,
   FaRotateLeft,
+  FaBookmark,
 } from "react-icons/fa6";
 import "./OrganizationSettings.css";
 
@@ -30,8 +33,9 @@ const OrganizationSettings = () => {
   const [orgName, setOrgName] = useState("");
   const [regNo, setRegNo] = useState("");
   const [address, setAddress] = useState("");
+  const [savedAddresses, setSavedAddresses] = useState([]);
   const [ownerName, setOwnerName] = useState("");
-  const [platformFee, setPlatformFee] = useState(50);
+  const [platformFee, setPlatformFee] = useState(20);
   const [googleLocationUrl, setGoogleLocationUrl] = useState("");
 
   const [headerPreview, setHeaderPreview] = useState("");
@@ -53,8 +57,9 @@ const OrganizationSettings = () => {
         setOrgName(settings.orgName || "");
         setRegNo(settings.regNo || "");
         setAddress(settings.address || "");
+        setSavedAddresses(settings.savedAddresses || []);
         setOwnerName(settings.ownerName || "");
-        setPlatformFee(settings.platformFee ?? 50);
+        setPlatformFee(settings.platformFee ?? 20);
         setGoogleLocationUrl(settings.googleLocationUrl || "");
 
         if (settings.defaultHeaderImage) {
@@ -247,7 +252,24 @@ const OrganizationSettings = () => {
             </div>
 
             <div className="org-form-group">
-              <label>Clinic Address</label>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                <label style={{ margin: 0 }}>Clinic Address</label>
+                {address && address.trim().length > 3 && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const updated = await saveAddressToStorageApi(address);
+                      if (updated) {
+                        setSavedAddresses(updated);
+                        snackbar.success("Address added to saved storage!");
+                      }
+                    }}
+                    className="org-add-addr-btn"
+                  >
+                    <FaBookmark size={11} style={{ marginRight: 4 }} /> Save to Storage
+                  </button>
+                )}
+              </div>
               <div className="org-input-wrap">
                 <FaLocationDot className="org-field-icon" style={{ alignSelf: "flex-start", marginTop: "10px" }} />
                 <textarea
@@ -257,6 +279,49 @@ const OrganizationSettings = () => {
                   onChange={(e) => setAddress(e.target.value)}
                 />
               </div>
+
+              {/* Saved Address Storage History */}
+              {savedAddresses.length > 0 && (
+                <div className="org-saved-addresses-box">
+                  <div className="org-saved-addr-title">
+                    <span>Stored Addresses (Click to select & use):</span>
+                  </div>
+                  <div className="org-addr-chips-wrap">
+                    {savedAddresses.map((addr, idx) => {
+                      const isCurrent = address.trim().toLowerCase() === addr.trim().toLowerCase();
+                      return (
+                        <div
+                          key={idx}
+                          className={`org-addr-chip ${isCurrent ? "active" : ""}`}
+                          title="Click to apply this address"
+                        >
+                          <span
+                            className="chip-text"
+                            onClick={() => setAddress(addr)}
+                          >
+                            {addr}
+                          </span>
+                          <button
+                            type="button"
+                            className="chip-remove"
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              const res = await deleteAddressFromStorageApi(addr);
+                              if (res) {
+                                setSavedAddresses(res);
+                                snackbar.info("Address removed from storage");
+                              }
+                            }}
+                            title="Remove from storage"
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

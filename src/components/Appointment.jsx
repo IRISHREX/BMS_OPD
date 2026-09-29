@@ -11,7 +11,7 @@ import {
   ageToDob,
 } from "../utils/ageUtils";
 import { useSnackbar } from "../context/SnackbarContext";
-import { generateFullReceiptHtml } from "../utils/generalSettingsUtil";
+import { generateFullReceiptHtml, getGeneralSettings } from "../utils/generalSettingsUtil";
 import "./Appointment.css";
 import { useNavigate } from "react-router-dom";
 import {
@@ -64,7 +64,9 @@ const Appointment = () => {
   const [appointmentType, setAppointmentType] = useState("OPD");
   const [_id, set_id] = useState("");
   const [hasVisited, setHasVisited] = useState(false);
-  const [price, setPrice] = useState(0);
+  const [platformFeeDefault, setPlatformFeeDefault] = useState(20);
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [price, setPrice] = useState(20);
   const [doctorFee, setDoctorFee] = useState(100);
   const [diagnosys, setDiagnosys] = useState({
     BP: "",
@@ -151,6 +153,30 @@ const Appointment = () => {
   const [canBook, setCanBook] = useState(false);
   const dispatch = useDispatch();
   const appointmentState = useSelector((s) => s.appointment);
+
+  // Load General Settings (platform fee & saved addresses)
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const gs = await getGeneralSettings();
+        if (isMounted && gs) {
+          const fee = Number(gs.platformFee !== undefined ? gs.platformFee : 20);
+          setPlatformFeeDefault(fee);
+          setPrice(fee);
+          if (Array.isArray(gs.savedAddresses) && gs.savedAddresses.length > 0) {
+            setSavedAddresses(gs.savedAddresses);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not load general settings in Appointment:", err);
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
@@ -362,13 +388,13 @@ const Appointment = () => {
         setDoctorFirstName(d.firstName);
         setDoctorLastName(d.lastName);
         setDoctorFee(d.consultationFee || 100);
-        setPrice(Math.round((d.consultationFee || 100) * 0.2));
+        setPrice(platformFeeDefault);
         if (d.doctorDepartment) {
           setDepartment(d.doctorDepartment);
         }
       }
     }
-  }, [_id, doctors]);
+  }, [_id, doctors, platformFeeDefault]);
 
   const handleNextStep = () => {
     if (!name || !name.trim()) {
@@ -592,7 +618,7 @@ const Appointment = () => {
       setProfession("");
       setAddress("");
       set_id("");
-      setPrice(0);
+      setPrice(platformFeeDefault);
       setDiagnosys({
         BP: "",
         PR: "",
@@ -1119,7 +1145,13 @@ const Appointment = () => {
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="Area, Village/City, P.O, P.S, District, PIN code *"
+                    list="saved-patient-addresses"
                   />
+                  <datalist id="saved-patient-addresses">
+                    {savedAddresses.map((addr, idx) => (
+                      <option key={idx} value={addr} />
+                    ))}
+                  </datalist>
                 </div>
 
                 {/* Step 1 Actions */}

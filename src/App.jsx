@@ -37,6 +37,7 @@ import CyberPunk404 from "./components/ErrorPage";
 import DoctorDashboard from "./components/DoctorDashboard";
 import CreateReferralTab from "./components/tabs/CreateReferralTab";
 import ReferralPage from "./components/ReferralPage";
+import ReferralsTable from "./components/ReferralsTable";
 import HeaderFooterCreator from "./components/HeaderFooterCreator";
 import TemplateBuilder from "./components/TemplateBuilder";
 import PublicDoctorBooking from "./components/PublicDoctorBooking";
@@ -106,6 +107,11 @@ const App = () => {
             <Route path="/messages" element={
               <RequireAuth allowedRoles={["Admin","Doctor","Compounder"]}>
                 <Messages />
+              </RequireAuth>
+            } />
+            <Route path="/referrals" element={
+              <RequireAuth allowedRoles={["Admin","Doctor","Compounder"]}>
+                <ReferralsTable />
               </RequireAuth>
             } />
             <Route path="/prescription" element={

@@ -559,3 +559,124 @@
   border-color: #991b1b;
   color: #fecaca;
 }
+
+/* Stored Addresses Section */
+.org-add-addr-btn {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #16a34a;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.org-add-addr-btn:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.org-saved-addresses-box {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.org-saved-addr-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+.org-addr-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.org-addr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #334155;
+  transition: all 0.2s ease;
+  max-width: 100%;
+}
+
+.org-addr-chip:hover {
+  border-color: #0284c7;
+  background: #f0f9ff;
+}
+
+.org-addr-chip.active {
+  border-color: #0284c7;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 600;
+}
+
+.org-addr-chip .chip-text {
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.org-addr-chip .chip-remove {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.15rem;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.org-addr-chip .chip-remove:hover {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+.theme-dark .org-saved-addresses-box {
+  background: #111c2e;
+  border-color: #1e293b;
+}
+
+.theme-dark .org-saved-addr-title {
+  color: #94a3b8;
+}
+
+.theme-dark .org-addr-chip {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.theme-dark .org-addr-chip:hover {
+  border-color: #38bdf8;
+  background: #0c4a6e;
+}
+
+.theme-dark .org-addr-chip.active {
+  background: #0369a1;
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+

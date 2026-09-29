@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { setTheme, setCustomTheme } from '../store/themeSlice';
-import { playSaveSound, playLoadSound, playLoadSound2, playDeleteSound } from '../utils/soundUtils';
+import { playSaveSound, playLoadSound, playLoadSound2, playDeleteSound, playNotificationSound } from '../utils/soundUtils';
+import { getGeneralSettings, updateSoundSettingsApi } from '../utils/generalSettingsUtil';
 import HeaderFooterCreator from './HeaderFooterCreator';
 import OrganizationSettings from './OrganizationSettings';
 import {
@@ -105,11 +106,36 @@ const GeneralSettings = () => {
     return stored ? JSON.parse(stored) : false;
   });
 
-  // Save volume to localStorage and soundUtils
+  // Load sound settings from DB
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const gs = await getGeneralSettings();
+        if (active && gs?.soundSettings) {
+          if (gs.soundSettings.volume !== undefined) {
+            setVolume(Number(gs.soundSettings.volume));
+          }
+          if (gs.soundSettings.isMuted !== undefined) {
+            setIsMuted(Boolean(gs.soundSettings.isMuted));
+          }
+        }
+      } catch (_) {}
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Save volume to localStorage and soundUtils + persist to DB (debounced)
   useEffect(() => {
     localStorage.setItem('soundVolume', volume);
     window.globalSoundVolume = volume / 100;
-  }, [volume]);
+    const timer = setTimeout(() => {
+      updateSoundSettingsApi(volume, isMuted);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [volume, isMuted]);
 
   // Save mute state to localStorage
   useEffect(() => {
@@ -137,6 +163,10 @@ const GeneralSettings = () => {
 
   const testDeleteSound = () => {
     if (!isMuted) playDeleteSound();
+  };
+
+  const testNotificationSound = () => {
+    if (!isMuted) playNotificationSound();
   };
 
   // Live preview for custom theme
@@ -638,6 +668,22 @@ const GeneralSettings = () => {
                     <div className="tile-details">
                       <h5>Delete / Warning</h5>
                       <p>Haptic warning cue played on deleting records or items.</p>
+                    </div>
+                    <span className="tile-action-chip">Test</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={testNotificationSound}
+                    disabled={isMuted}
+                    className="sound-tile notification-sound"
+                  >
+                    <div className="tile-icon-box notify" style={{ background: "rgba(2, 132, 199, 0.15)", color: "#0284c7" }}>
+                      <IoPlay />
+                    </div>
+                    <div className="tile-details">
+                      <h5>Notification / Alert</h5>
+                      <p>Acoustic chime for inbound referrals and urgent clinical alerts.</p>
                     </div>
                     <span className="tile-action-chip">Test</span>
                   </button>

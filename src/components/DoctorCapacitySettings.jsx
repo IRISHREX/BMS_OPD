@@ -1,9 +1,23 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useMemo } from "react";
 import { useSnackbar } from "../context/SnackbarContext";
 import { Context } from "../main";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
-import { FaClipboardList, FaLightbulb, FaTrash, FaUserMd, FaArrowLeft } from "react-icons/fa";
+import {
+  FaCalendarAlt,
+  FaUserMd,
+  FaArrowLeft,
+  FaChevronLeft,
+  FaChevronRight,
+  FaTimes,
+  FaCheck,
+  FaTrash,
+  FaClock,
+  FaBan,
+  FaLayerGroup,
+  FaCheckSquare,
+  FaRegSquare,
+} from "react-icons/fa";
 import "./DoctorCapacitySettings.css";
 
 const DoctorCapacitySettings = ({ doctorId: initialDoctorId }) => {
@@ -13,11 +27,23 @@ const DoctorCapacitySettings = ({ doctorId: initialDoctorId }) => {
 
   const [capacities, setCapacities] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [formLoading, setFormLoading] = useState(false);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [maxCapacity, setMaxCapacity] = useState("20");
-  const [selectedDoctorId, setSelectedDoctorId] = useState(initialDoctorId || (admin?.role === "Doctor" ? admin._id : ""));
+  const [modalLoading, setModalLoading] = useState(false);
+  const [selectedDoctorId, setSelectedDoctorId] = useState(
+    initialDoctorId || (admin?.role === "Doctor" ? admin._id : "")
+  );
   const [doctors, setDoctors] = useState([]);
+
+  // Calendar State
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
+  const [selectedDates, setSelectedDates] = useState([]); // Array of 'YYYY-MM-DD' strings
+
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeDateItem, setActiveDateItem] = useState(null); // Existing capacity object if any
+  const [modalCapacity, setModalCapacity] = useState(20);
+  const [modalIsWorkingDay, setModalIsWorkingDay] = useState(true);
+  const [modalNotes, setModalNotes] = useState("");
 
   // Fetch doctors list for Admin
   useEffect(() => {
@@ -37,7 +63,7 @@ const DoctorCapacitySettings = ({ doctorId: initialDoctorId }) => {
     }
   }, [admin]);
 
-  // Fetch capacities
+  // Fetch capacities for selected doctor
   const fetchCapacities = async () => {
     try {
       setLoading(true);
@@ -59,109 +85,241 @@ const DoctorCapacitySettings = ({ doctorId: initialDoctorId }) => {
     fetchCapacities();
   }, [selectedDoctorId]);
 
-  const handleSetCapacity = async (e) => {
-    e.preventDefault();
-    if (!selectedDate || !maxCapacity) {
-      snackbar.error("Please select date and capacity");
-      return;
+  // Map capacities by date string 'YYYY-MM-DD'
+  const capacityMap = useMemo(() => {
+    const map = {};
+    (capacities || []).forEach((c) => {
+      const rawDate = c.serviceDate || c.date;
+      if (rawDate) {
+        const key = typeof rawDate === "string" ? rawDate.slice(0, 10) : new Date(rawDate).toISOString().slice(0, 10);
+        map[key] = c;
+      }
+    });
+    return map;
+  }, [capacities]);
+
+  // Helper date format YYYY-MM-DD
+  const formatDateKey = (d) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  // Month navigation
+  const prevMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+
+  const nextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  };
+
+  const goToToday = () => {
+    setCurrentDate(new Date());
+  };
+
+  // Generate calendar days
+  const calendarDays = useMemo(() => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    const firstDayIndex = new Date(year, month, 1).getDay(); // 0 is Sunday
+    const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+    const prevMonthTotalDays = new Date(year, month, 0).getDate();
+
+    const days = [];
+
+    // Previous month padding
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      const d = new Date(year, month - 1, prevMonthTotalDays - i);
+      days.push({
+        date: d,
+        dateKey: formatDateKey(d),
+        isCurrentMonth: false,
+      });
     }
 
+    // Current month days
+    for (let i = 1; i <= totalDaysInMonth; i++) {
+      const d = new Date(year, month, i);
+      days.push({
+        date: d,
+        dateKey: formatDateKey(d),
+        isCurrentMonth: true,
+      });
+    }
+
+    // Next month padding to fill complete grid of 35 or 42
+    const remaining = (7 - (days.length % 7)) % 7;
+    for (let i = 1; i <= remaining; i++) {
+      const d = new Date(year, month + 1, i);
+      days.push({
+        date: d,
+        dateKey: formatDateKey(d),
+        isCurrentMonth: false,
+      });
+    }
+
+    return days;
+  }, [currentDate]);
+
+  // Click on date tile
+  const handleDateClick = (dayObj) => {
+    const { dateKey } = dayObj;
+
+    if (isMultiSelectMode) {
+      // Toggle date in selectedDates
+      setSelectedDates((prev) =>
+        prev.includes(dateKey) ? prev.filter((d) => d !== dateKey) : [...prev, dateKey]
+      );
+    } else {
+      // Open modal for single date
+      openModalForDates([dateKey]);
+    }
+  };
+
+  // Open modal
+  const openModalForDates = (dates) => {
+    if (!dates || dates.length === 0) return;
+
+    if (dates.length === 1) {
+      const existing = capacityMap[dates[0]];
+      setActiveDateItem(existing || null);
+      setModalCapacity(existing?.capacity !== undefined ? existing.capacity : 20);
+      setModalIsWorkingDay(existing?.isWorkingDay !== undefined ? existing.isWorkingDay : true);
+      setModalNotes(existing?.notes || "");
+    } else {
+      setActiveDateItem(null);
+      setModalCapacity(20);
+      setModalIsWorkingDay(true);
+      setModalNotes("");
+    }
+
+    setSelectedDates(dates);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    if (!isMultiSelectMode) {
+      setSelectedDates([]);
+    }
+    setActiveDateItem(null);
+  };
+
+  // Save Capacity from Modal
+  const handleSaveModal = async (e) => {
+    e.preventDefault();
     const docId = selectedDoctorId || (admin?.role === "Doctor" ? admin._id : "");
     if (!docId) {
       snackbar.error("Doctor is required");
       return;
     }
 
-    try {
-      setFormLoading(true);
-      const capNumber = parseInt(maxCapacity, 10) || 20;
-      const payload = {
-        doctorId: docId,
-        serviceDate: selectedDate,
-        date: selectedDate,
-        capacity: capNumber,
-        maxPatients: capNumber,
-        notes: `Capacity set to ${capNumber}`,
-      };
+    if (!selectedDates.length) {
+      snackbar.error("No dates selected");
+      return;
+    }
 
-      await api.post("/api/v1/capacity-scheduler/set", payload);
-      snackbar.success("Capacity set successfully");
-      setSelectedDate("");
-      setMaxCapacity("20");
-      fetchCapacities();
-    } catch (error) {
-      snackbar.error(error.response?.data?.message || "Failed to set capacity");
+    try {
+      setModalLoading(true);
+      const capNum = parseInt(modalCapacity, 10) || 20;
+
+      if (selectedDates.length === 1) {
+        // Single date save
+        await api.post("/api/v1/capacity-scheduler/set", {
+          doctorId: docId,
+          serviceDate: selectedDates[0],
+          capacity: capNum,
+          maxPatients: capNum,
+          isWorkingDay: modalIsWorkingDay,
+          notes: modalNotes.trim(),
+        });
+        snackbar.success(`Capacity saved for ${selectedDates[0]}`);
+      } else {
+        // Multi-date bulk save
+        await api.post("/api/v1/capacity-scheduler/set-bulk", {
+          doctorId: docId,
+          dates: selectedDates,
+          capacity: capNum,
+          maxPatients: capNum,
+          isWorkingDay: modalIsWorkingDay,
+          notes: modalNotes.trim(),
+        });
+        snackbar.success(`Capacity saved across ${selectedDates.length} dates successfully!`);
+        setSelectedDates([]);
+        setIsMultiSelectMode(false);
+      }
+
+      await fetchCapacities();
+      closeModal();
+    } catch (err) {
+      snackbar.error(err.response?.data?.message || "Failed to update capacity");
     } finally {
-      setFormLoading(false);
+      setModalLoading(false);
     }
   };
 
-  const handleDeleteCapacity = (id) => {
-    snackbar.confirm("Are you sure you want to remove this capacity override?", async () => {
+  // Delete single capacity override
+  const handleDeleteCapacity = async () => {
+    if (!activeDateItem?._id) return;
+
+    snackbar.confirm("Are you sure you want to remove this capacity configuration?", async () => {
       try {
-        await api.delete(`/api/v1/capacity-scheduler/${id}`);
-        snackbar.success("Capacity removed");
-        fetchCapacities();
-      } catch (error) {
-        snackbar.error(error.response?.data?.message || "Failed to remove capacity");
+        setModalLoading(true);
+        await api.delete(`/api/v1/capacity-scheduler/${activeDateItem._id}`);
+        snackbar.success("Capacity removed successfully");
+        await fetchCapacities();
+        closeModal();
+      } catch (err) {
+        snackbar.error(err.response?.data?.message || "Failed to delete capacity");
+      } finally {
+        setModalLoading(false);
       }
     });
   };
 
-  const getCapacityPercentage = (booked, max) => {
-    if (!max || max <= 0) return 0;
-    return Math.min(100, Math.round(((booked || 0) / max) * 100));
-  };
+  const todayKey = formatDateKey(new Date());
 
-  const getCapacityStatus = (percentage) => {
-    if (percentage < 50) return { status: "green", label: "Available" };
-    if (percentage < 75) return { status: "yellow", label: "Almost Full" };
-    return { status: "red", label: "Full" };
-  };
-
-  const getCapacityColor = (percentage) => {
-    if (percentage < 50) return "#10b981";
-    if (percentage < 75) return "#f59e0b";
-    return "#ef4444";
-  };
-
-  const getMinDate = () => {
-    return new Date().toISOString().split("T")[0];
-  };
-
-  const getMaxDate = () => {
-    const maxDate = new Date();
-    maxDate.setDate(maxDate.getDate() + 90);
-    return maxDate.toISOString().split("T")[0];
-  };
+  // Metrics summary
+  const totalConfigured = Object.keys(capacityMap).length;
+  const totalWorkingDays = Object.values(capacityMap).filter((c) => c.isWorkingDay).length;
 
   return (
     <section className="page">
       <div className="settings-page">
+        {/* Navigation back */}
         <button onClick={() => navigate(-1)} className="back-btn add-btn" style={{ marginBottom: "1rem" }}>
           <FaArrowLeft style={{ marginRight: 6 }} /> Go Back
         </button>
 
-        <div className="doctor-capacity-settings">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "1rem" }}>
+        <div className="doctor-capacity-card">
+          {/* Header & Doctor Switcher */}
+          <div className="capacity-header-row">
             <div>
-              <h3><FaClipboardList style={{ marginRight: 8, color: "#0284c7" }} /> Doctor Daily Capacity</h3>
-              <p style={{ color: "#64748b", margin: "4px 0 0 0", fontSize: "0.9rem" }}>
-                Configure daily max patient limits and schedule capacity.
+              <h2 className="capacity-title">
+                <FaCalendarAlt className="header-icon" /> Doctor Daily Capacity Calendar
+              </h2>
+              <p className="capacity-subtitle">
+                Interactive calendar to manage daily appointment limits, schedule off-days, and configure multi-date capacity.
               </p>
             </div>
 
             {admin?.role === "Admin" && doctors.length > 0 && (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <FaUserMd color="#0284c7" />
+              <div className="doctor-select-box">
+                <FaUserMd className="doc-icon" />
                 <select
                   value={selectedDoctorId}
-                  onChange={(e) => setSelectedDoctorId(e.target.value)}
-                  style={{ padding: "0.5rem 0.75rem", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.9rem" }}
+                  onChange={(e) => {
+                    setSelectedDoctorId(e.target.value);
+                    setSelectedDates([]);
+                  }}
+                  className="doctor-dropdown"
                 >
                   {doctors.map((d) => (
                     <option key={d._id} value={d._id}>
-                      Dr. {d.firstName} {d.lastName} ({d.doctorDepartment || "General"})
+                      Dr. {d.firstName} {d.lastName} ({d.doctorDepartment || d.specialization || "General"})
                     </option>
                   ))}
                 </select>
@@ -169,172 +327,303 @@ const DoctorCapacitySettings = ({ doctorId: initialDoctorId }) => {
             )}
           </div>
 
-          {/* Set Capacity Form */}
-          <div className="capacity-form-section">
-            <h4>Set Daily Capacity</h4>
-            <form onSubmit={handleSetCapacity} className="capacity-form">
-              <div className="form-group">
-                <label htmlFor="capacityDate">Service Date</label>
-                <input
-                  id="capacityDate"
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  min={getMinDate()}
-                  max={getMaxDate()}
-                  required
-                  style={{
-                    padding: "0.75rem",
-                    border: "1px solid #cbd5e1",
-                    borderRadius: "6px",
-                    fontSize: "0.95rem",
-                    boxSizing: "border-box",
-                  }}
-                />
-              </div>
+          {/* Quick Metrics Bar */}
+          <div className="capacity-stats-bar">
+            <div className="stat-pill">
+              <span className="stat-label">Configured Dates:</span>
+              <span className="stat-value">{totalConfigured}</span>
+            </div>
+            <div className="stat-pill">
+              <span className="stat-label">Active Working Days:</span>
+              <span className="stat-value green">{totalWorkingDays}</span>
+            </div>
+            <div className="stat-pill">
+              <span className="stat-label">Off-Days Scheduled:</span>
+              <span className="stat-value red">{totalConfigured - totalWorkingDays}</span>
+            </div>
+          </div>
 
-              <div className="form-group">
-                <label htmlFor="capacityMax">Max Patients Limit</label>
-                <div className="capacity-input-group" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                  <input
-                    id="capacityMax"
-                    type="number"
-                    min="1"
-                    max="200"
-                    value={maxCapacity}
-                    onChange={(e) => setMaxCapacity(e.target.value)}
-                    required
-                    style={{
-                      padding: "0.75rem",
-                      border: "1px solid #cbd5e1",
-                      borderRadius: "6px",
-                      fontSize: "0.95rem",
-                      boxSizing: "border-box",
-                      width: "120px",
-                    }}
-                  />
-                  <span style={{ fontSize: "0.875rem", color: "#64748b", fontWeight: 500 }}>patients / day</span>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={formLoading}
-                className="capacity-form-submit btn btn-primary"
-                style={{ padding: "0.75rem 1.5rem", borderRadius: "6px", cursor: "pointer", alignSelf: "flex-end" }}
-              >
-                {formLoading ? "Saving..." : "Save Limit"}
+          {/* Calendar Toolbar */}
+          <div className="calendar-controls-row">
+            <div className="month-navigation">
+              <button type="button" onClick={prevMonth} className="btn-nav" title="Previous Month">
+                <FaChevronLeft />
               </button>
-            </form>
+              <span className="month-label">
+                {currentDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+              </span>
+              <button type="button" onClick={nextMonth} className="btn-nav" title="Next Month">
+                <FaChevronRight />
+              </button>
+              <button type="button" onClick={goToToday} className="btn-today">
+                Today
+              </button>
+            </div>
+
+            <div className="selection-actions">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMultiSelectMode(!isMultiSelectMode);
+                  if (isMultiSelectMode) setSelectedDates([]);
+                }}
+                className={`btn-mode-toggle ${isMultiSelectMode ? "active" : ""}`}
+              >
+                {isMultiSelectMode ? <FaCheckSquare /> : <FaRegSquare />}
+                <span>{isMultiSelectMode ? "Multi-Select Active" : "Multi-Select Mode"}</span>
+              </button>
+
+              {isMultiSelectMode && selectedDates.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => openModalForDates(selectedDates)}
+                  className="btn-apply-bulk"
+                >
+                  <FaLayerGroup /> Set Capacity for {selectedDates.length} Date{selectedDates.length > 1 ? "s" : ""}
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Capacity List */}
-          <div className="capacity-list-section" style={{ marginTop: "2rem" }}>
-            <h4>Active Schedules</h4>
-            {loading ? (
-              <p style={{ textAlign: "center", color: "#94a3b8", padding: "1.5rem" }}>Loading capacity records...</p>
-            ) : capacities.length > 0 ? (
-              <div className="capacity-list" style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                {capacities.map((item) => {
-                  const max = Number(item.capacity || item.maxCapacity || item.maxPatients || 20);
-                  const booked = Number(item.bookedCount || item.currentAppointments || 0);
-                  const percentage = getCapacityPercentage(booked, max);
-                  const { status, label } = getCapacityStatus(percentage);
-                  const rawDate = item.serviceDate || item.date;
-                  const dateStr = rawDate ? new Date(rawDate).toLocaleDateString("en-US", {
-                    weekday: "short",
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  }) : "Date N/A";
+          {/* Multi-select informative banner */}
+          {isMultiSelectMode && (
+            <div className="multi-select-banner">
+              <span>
+                💡 <strong>Multi-select mode is ON:</strong> Click on dates in the calendar to select multiple days, then click <strong>Set Capacity</strong> above to apply limits all at once.
+              </span>
+              {selectedDates.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedDates([])}
+                  className="btn-clear-selection"
+                >
+                  Clear Selection ({selectedDates.length})
+                </button>
+              )}
+            </div>
+          )}
 
-                  return (
-                    <div
-                      key={item._id}
-                      className="capacity-item"
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "1rem 1.25rem",
-                        background: "#f8fafc",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: "8px",
-                      }}
-                    >
-                      <div className="capacity-item-date" style={{ minWidth: "160px" }}>
-                        <strong style={{ color: "#1e293b", fontSize: "0.95rem" }}>{dateStr}</strong>
-                        {item.notes && <div style={{ fontSize: "0.8rem", color: "#64748b" }}>{item.notes}</div>}
-                      </div>
+          {/* Calendar Grid */}
+          <div className="calendar-grid-container">
+            {/* Weekday headers */}
+            <div className="weekdays-grid">
+              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                <div key={day} className="weekday-header">
+                  {day}
+                </div>
+              ))}
+            </div>
 
-                      <div className="capacity-item-info" style={{ display: "flex", alignItems: "center", gap: "1.5rem", flex: 1, justifyContent: "flex-end" }}>
-                        <div className="capacity-stats" style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem" }}>
-                          <span style={{ fontWeight: 600, color: "#334155" }}>
-                            {booked} / {max} booked
-                          </span>
-                          <span style={{ color: "#64748b" }}>({percentage}%)</span>
-                        </div>
+            {/* Days grid */}
+            <div className="days-grid">
+              {calendarDays.map((dayObj) => {
+                const { date, dateKey, isCurrentMonth } = dayObj;
+                const cap = capacityMap[dateKey];
+                const isSelected = selectedDates.includes(dateKey);
+                const isToday = dateKey === todayKey;
 
-                        <div className="capacity-bar-container" style={{ width: "120px", height: "8px", background: "#e2e8f0", borderRadius: "4px", overflow: "hidden" }}>
-                          <div
-                            className="capacity-bar-fill"
-                            style={{
-                              width: `${percentage}%`,
-                              height: "100%",
-                              backgroundColor: getCapacityColor(percentage),
-                              borderRadius: "4px",
-                            }}
-                          />
-                        </div>
+                let capClass = "no-capacity";
+                let capBadge = null;
 
-                        <span
-                          className={`status-badge status-${status}`}
-                          style={{
-                            padding: "4px 10px",
-                            borderRadius: "12px",
-                            fontSize: "0.75rem",
-                            fontWeight: 600,
-                            backgroundColor:
-                              status === "green" ? "#dcfce7" : status === "yellow" ? "#fef3c7" : "#fee2e2",
-                            color:
-                              status === "green" ? "#15803d" : status === "yellow" ? "#b45309" : "#b91c1c",
-                          }}
-                        >
-                          {label}
+                if (cap) {
+                  if (!cap.isWorkingDay) {
+                    capClass = "off-day";
+                    capBadge = (
+                      <span className="badge-off">
+                        <FaBan className="badge-icon" /> Off Day
+                      </span>
+                    );
+                  } else {
+                    const maxCap = Number(cap.capacity || 20);
+                    const booked = Number(cap.bookedCount || 0);
+                    const pct = Math.round((booked / maxCap) * 100);
+
+                    if (pct >= 80) capClass = "cap-red";
+                    else if (pct >= 50) capClass = "cap-yellow";
+                    else capClass = "cap-green";
+
+                    capBadge = (
+                      <span className="badge-capacity">
+                        <strong>{maxCap}</strong> Max {booked > 0 ? `(${booked} booked)` : "Slots"}
+                      </span>
+                    );
+                  }
+                }
+
+                return (
+                  <div
+                    key={dateKey}
+                    onClick={() => handleDateClick(dayObj)}
+                    className={`calendar-day-tile ${isCurrentMonth ? "current-month" : "other-month"} ${capClass} ${isSelected ? "selected-tile" : ""} ${isToday ? "today-tile" : ""}`}
+                  >
+                    <div className="tile-top">
+                      <span className="day-number">{date.getDate()}</span>
+                      {isToday && <span className="today-chip">Today</span>}
+                      {isMultiSelectMode && (
+                        <span className={`select-check ${isSelected ? "checked" : ""}`}>
+                          {isSelected ? <FaCheck /> : null}
                         </span>
-
-                        <button
-                          onClick={() => handleDeleteCapacity(item._id)}
-                          style={{
-                            background: "none",
-                            border: "none",
-                            color: "#ef4444",
-                            cursor: "pointer",
-                            padding: "4px 8px",
-                          }}
-                          title="Remove capacity limit"
-                        >
-                          <FaTrash size={14} />
-                        </button>
-                      </div>
+                      )}
                     </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p style={{ textAlign: "center", color: "#94a3b8", padding: "2rem", background: "#f8fafc", borderRadius: "8px" }}>
-                No capacity limit overrides set yet. The default doctor limit will be used.
-              </p>
-            )}
+
+                    <div className="tile-body">
+                      {capBadge}
+                      {cap?.notes && (
+                        <div className="tile-note" title={cap.notes}>
+                          <FaClock style={{ marginRight: 3 }} /> {cap.notes}
+                        </div>
+                      )}
+                      {!cap && isCurrentMonth && (
+                        <span className="tile-empty-hint">+ Set</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          <div style={{ marginTop: "1.5rem", padding: "1rem", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "8px" }}>
-            <p style={{ margin: 0, fontSize: "0.875rem", color: "#1e40af", display: "flex", alignItems: "center" }}>
-              <FaLightbulb style={{ marginRight: 8, color: "#f59e0b", flexShrink: 0 }} />
-              Setting a daily capacity ensures appointments will automatically lock when the daily limit is reached.
-            </p>
+          {/* Calendar Color Legend */}
+          <div className="calendar-legend-bar">
+            <div className="legend-item">
+              <span className="legend-dot green"></span>
+              <span>Available (&lt;50% booked)</span>
+            </div>
+            <div className="legend-item">
+              <span className="legend-dot yellow"></span>
+              <span>Moderate (50-75%)</span>
+            </div>
+            <div className="legend-item">
+              <span className="legend-dot red"></span>
+              <span>Full (&gt;75%)</span>
+            </div>
+            <div className="legend-item">
+              <span className="legend-dot gray"></span>
+              <span>Off Day / Leave</span>
+            </div>
+            <div className="legend-item">
+              <span className="legend-dot empty"></span>
+              <span>Unconfigured (Default 20)</span>
+            </div>
           </div>
         </div>
+
+        {/* Modal: Set Capacity Dialog */}
+        {isModalOpen && (
+          <div className="capacity-modal-backdrop" onClick={closeModal}>
+            <div
+              className="capacity-modal-card"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <div>
+                  <h3 className="modal-title">
+                    <FaCalendarAlt style={{ color: "#0284c7", marginRight: 8 }} />
+                    {selectedDates.length === 1 ? "Configure Day Capacity" : `Configure ${selectedDates.length} Selected Dates`}
+                  </h3>
+                  <div className="modal-dates-chips">
+                    {selectedDates.map((d) => (
+                      <span key={d} className="modal-date-chip">
+                        {new Date(d).toLocaleDateString("en-US", {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <button type="button" onClick={closeModal} className="btn-close-modal">
+                  <FaTimes />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveModal} className="modal-body-form">
+                {/* Working Day Toggle */}
+                <div className="form-toggle-row">
+                  <label className="toggle-label">
+                    <input
+                      type="checkbox"
+                      checked={modalIsWorkingDay}
+                      onChange={(e) => setModalIsWorkingDay(e.target.checked)}
+                      className="custom-checkbox"
+                    />
+                    <span className="toggle-text">
+                      <strong>Doctor Available (Working Day)</strong>
+                      <small style={{ display: "block", color: "#64748b" }}>
+                        Uncheck this if the doctor is on leave or the clinic is closed on this date.
+                      </small>
+                    </span>
+                  </label>
+                </div>
+
+                {/* Capacity Input */}
+                {modalIsWorkingDay && (
+                  <div className="form-field-wrap">
+                    <label htmlFor="modalMaxCapacity">Daily Max Patient Capacity *</label>
+                    <div className="input-with-addon">
+                      <input
+                        id="modalMaxCapacity"
+                        type="number"
+                        min="1"
+                        max="300"
+                        value={modalCapacity}
+                        onChange={(e) => setModalCapacity(e.target.value)}
+                        required
+                        className="modal-number-input"
+                      />
+                      <span className="input-addon">patients / day</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Notes Input */}
+                <div className="form-field-wrap">
+                  <label htmlFor="modalNotes">Clinical Notes / Timings (Optional)</label>
+                  <input
+                    id="modalNotes"
+                    type="text"
+                    placeholder="e.g. 10:00 AM - 1:00 PM OPD, Walk-ins welcome"
+                    value={modalNotes}
+                    onChange={(e) => setModalNotes(e.target.value)}
+                    className="modal-text-input"
+                  />
+                </div>
+
+                {/* Modal Footer Actions */}
+                <div className="modal-footer-actions">
+                  {selectedDates.length === 1 && activeDateItem && (
+                    <button
+                      type="button"
+                      onClick={handleDeleteCapacity}
+                      disabled={modalLoading}
+                      className="btn-danger-remove"
+                    >
+                      <FaTrash style={{ marginRight: 6 }} /> Delete Schedule
+                    </button>
+                  )}
+
+                  <div style={{ marginLeft: "auto", display: "flex", gap: "10px" }}>
+                    <button
+                      type="button"
+                      onClick={closeModal}
+                      className="btn-secondary-cancel"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={modalLoading}
+                      className="btn-primary-save"
+                    >
+                      {modalLoading ? "Saving..." : `Save Capacity${selectedDates.length > 1 ? ` (${selectedDates.length})` : ""}`}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

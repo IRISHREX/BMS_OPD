@@ -11,6 +11,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaTimes,
+  FaHandshake,
 } from "react-icons/fa";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import { IoMdSettings } from "react-icons/io";
@@ -116,6 +117,12 @@ const Sidebar = () => {
       name: "Messages",
       path: "/messages",
       icon: FaBell,
+      roles: ["Admin", "Doctor", "Compounder"],
+    },
+    {
+      name: "Referrals & Commission",
+      path: "/referrals",
+      icon: FaHandshake,
       roles: ["Admin", "Doctor", "Compounder"],
     },
     {

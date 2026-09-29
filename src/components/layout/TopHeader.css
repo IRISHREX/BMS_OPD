@@ -68,6 +68,62 @@
   gap: 1.25rem;
 }
 
+/* Notification Bell */
+.notif-bell-btn {
+  position: relative;
+  background: var(--bg-main, #e7f1fb);
+  border: 1px solid var(--border-color, #9ec9f3);
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main, #173a5e);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.notif-bell-btn:hover {
+  background: var(--accent, #2f78c8);
+  color: #ffffff;
+  border-color: var(--accent, #2f78c8);
+}
+
+.notif-bell-btn .btn-svg {
+  font-size: 1.15rem;
+}
+
+.notif-badge-bubble {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid var(--bg-card, #ffffff);
+  box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+  animation: pulseBadge 2s infinite;
+}
+
+@keyframes pulseBadge {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
 /* Mode Switcher Pill */
 .mode-switcher-pill {
   display: flex;

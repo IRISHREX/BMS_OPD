@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Context } from "../../main";
 import { useSidebar, SIDEBAR_MODES } from "../../context/SidebarContext";
@@ -6,7 +6,8 @@ import { BiMenu, BiSidebar } from "react-icons/bi";
 import { FiMaximize2, FiMinimize2 } from "react-icons/fi";
 import { BsLayoutSidebarInset, BsLayoutSidebar } from "react-icons/bs";
 import { FaUserCircle, FaBell } from "react-icons/fa";
-import { playClickSound } from "../../utils/soundUtils";
+import api from "../../utils/api";
+import { playClickSound, playNotificationSound } from "../../utils/soundUtils";
 import "./TopHeader.css";
 
 const PAGE_TITLES = {
@@ -34,6 +35,7 @@ const PAGE_TITLES = {
   "/settings/header-footer": "Prescription Header/Footer",
   "/settings/templates": "Prescription Templates",
   "/settings/capacity": "Doctor Daily Capacity",
+  "/referrals": "Referral Management & Commissions",
 };
 
 const TopHeader = () => {
@@ -46,6 +48,34 @@ const TopHeader = () => {
     toggleDrawer,
     isMobile,
   } = useSidebar();
+
+  const [unreadCount, setUnreadCount] = useState(0);
+  const prevCountRef = useRef(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    const checkNotifications = async () => {
+      try {
+        const { data } = await api.get("/api/v1/message/getall");
+        if (isMounted && data?.messages) {
+          const unread = data.messages.filter((m) => !m.read).length;
+          if (unread > prevCountRef.current && prevCountRef.current !== 0) {
+            // New notification arrived! Ring notification.mp3
+            playNotificationSound();
+          }
+          prevCountRef.current = unread;
+          setUnreadCount(unread);
+        }
+      } catch (_) {}
+    };
+
+    checkNotifications();
+    const interval = setInterval(checkNotifications, 15000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   const currentTitle =
     PAGE_TITLES[location.pathname] ||
@@ -125,6 +155,24 @@ const TopHeader = () => {
             </button>
           </div>
         )}
+
+        {/* Notification Bell */}
+        <button
+          className="header-icon-btn notif-bell-btn"
+          onClick={() => {
+            playClickSound();
+            navigate("/messages");
+          }}
+          title={`${unreadCount} Unread Notifications`}
+          aria-label="Notifications"
+        >
+          <FaBell className="btn-svg" />
+          {unreadCount > 0 && (
+            <span className="notif-badge-bubble">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+        </button>
 
         {/* User Pill */}
         <div

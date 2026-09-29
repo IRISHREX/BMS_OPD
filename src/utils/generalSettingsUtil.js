@@ -24,16 +24,74 @@ export const getGeneralSettings = async (forceRefresh = false) => {
   }
   return (
     cachedSettings || {
-      orgName: "BioMechaSoft OPD",
+      orgName: "THYROGEN OPD",
       regNo: "",
       address: "Vill - Tarbagan, Po - Dhuliyan, Dist - Murshidabad, Pin - 742202, State - WB",
       ownerName: "",
-      platformFee: 50,
+      platformFee: 20,
       googleLocationUrl: "",
       defaultHeaderImage: "/Header.jpeg",
       defaultFooterImage: "/Footer.png",
+      savedAddresses: [
+        "Vill - Tarbagan, Po - Dhuliyan, Dist - Murshidabad, Pin - 742202, State - WB",
+      ],
+      soundSettings: {
+        volume: 50,
+        isMuted: false,
+      },
     }
   );
+};
+
+/**
+ * Add or promote an address into storage on the backend
+ */
+export const saveAddressToStorageApi = async (address) => {
+  try {
+    const { data } = await api.post("/api/v1/settings/general/save-address", { address });
+    if (data?.success && data?.savedAddresses) {
+      if (cachedSettings) cachedSettings.savedAddresses = data.savedAddresses;
+      return data.savedAddresses;
+    }
+  } catch (err) {
+    console.warn("Failed to save address to storage:", err);
+  }
+  return null;
+};
+
+/**
+ * Delete an address from storage on the backend
+ */
+export const deleteAddressFromStorageApi = async (address) => {
+  try {
+    const { data } = await api.post("/api/v1/settings/general/delete-address", { address });
+    if (data?.success && data?.savedAddresses) {
+      if (cachedSettings) cachedSettings.savedAddresses = data.savedAddresses;
+      return data.savedAddresses;
+    }
+  } catch (err) {
+    console.warn("Failed to delete address from storage:", err);
+  }
+  return null;
+};
+
+/**
+ * Persist sound settings (volume & muted) to the backend DB
+ */
+export const updateSoundSettingsApi = async (volume, isMuted) => {
+  try {
+    const { data } = await api.post("/api/v1/settings/general/sound-settings", {
+      volume,
+      isMuted,
+    });
+    if (data?.success && data?.soundSettings) {
+      if (cachedSettings) cachedSettings.soundSettings = data.soundSettings;
+      return data.soundSettings;
+    }
+  } catch (err) {
+    console.warn("Failed to save sound settings to DB:", err);
+  }
+  return null;
 };
 
 /**
