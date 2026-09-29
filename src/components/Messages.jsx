@@ -224,26 +224,139 @@ const Messages = () => {
   };
 
   const handleDownloadPrescription = async (message) => {
-    const phone = String(message.phone || "").replace(/\D/g, "");
-    const name = `${message.firstName || ""} ${message.lastName || ""}`.trim() || "Patient";
-    if (!phone) {
-      snackbar.error("No phone number found in this message to look up patient.");
+    const msgText = String(message?.message || "");
+
+    // Extract patient name if in notification format: "Prescription completed for <name>."
+    let extractedName = "";
+    const nameMatch = msgText.match(/Prescription completed for\s+([^.\n]+)/i);
+    if (nameMatch && nameMatch[1]) {
+      extractedName = nameMatch[1].trim().replace(/^patient NIC:\s*/i, "").trim();
+    }
+    const fallbackName = `${message?.firstName || ""} ${message?.lastName || ""}`.trim();
+    const displayName =
+      extractedName ||
+      (fallbackName && fallbackName.toLowerCase() !== "system notification"
+        ? fallbackName
+        : "Patient");
+
+    // 1. Direct MongoDB patientId from preview link in the message body
+    const previewMatch =
+      msgText.match(/\/preview\/([a-f0-9]{24})/i) ||
+      msgText.match(/\/preview\/([^\s\/?#]+)/i);
+    if (previewMatch && previewMatch[1]) {
+      setDownloadPrescriptionPatient({
+        patientId: previewMatch[1],
+        name: displayName,
+      });
       return;
     }
-    try {
-      const { data } = await api.get(`/api/v1/user/patients?search=${phone}`);
-      const patients = data.patients || data.users || [];
-      const found = patients.find(
-        (p) => String(p.phone || "").replace(/\D/g, "").endsWith(phone.slice(-10))
-      );
-      if (found) {
-        setDownloadPrescriptionPatient({ patientId: found._id, name });
-      } else {
-        snackbar.error("Could not find a registered patient matching this message's phone number.");
+
+    // 2. Extract NIC if mentioned in message (e.g. "patient NIC: 12345")
+    const nicMatch =
+      msgText.match(/patient NIC:\s*([^\s\n.]+)/i) ||
+      msgText.match(/NIC[:\s]+([^\s\n.]+)/i);
+    if (nicMatch && nicMatch[1]) {
+      try {
+        const { data } = await api.get(
+          `/api/v1/user/patients?search=${encodeURIComponent(nicMatch[1])}`
+        );
+        const patients = data?.patients || data?.users || [];
+        const found = patients.find((p) => p.nic === nicMatch[1]) || patients[0];
+        if (found) {
+          setDownloadPrescriptionPatient({
+            patientId: found._id,
+            name:
+              `${found.firstName || ""} ${found.lastName || ""}`.trim() ||
+              displayName,
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn("Patient lookup by NIC failed:", err);
       }
-    } catch (err) {
-      snackbar.error("Failed to look up patient: " + (err?.response?.data?.message || err.message));
     }
+
+    // 3. Search by extracted patient name if available and not generic
+    if (extractedName && extractedName.toLowerCase() !== "patient") {
+      try {
+        const { data } = await api.get(
+          `/api/v1/user/patients?search=${encodeURIComponent(extractedName)}`
+        );
+        const patients = data?.patients || data?.users || [];
+        const found =
+          patients.find((p) => {
+            const fullName = `${p.firstName || ""} ${p.lastName || ""}`
+              .trim()
+              .toLowerCase();
+            return (
+              fullName === extractedName.toLowerCase() ||
+              fullName.includes(extractedName.toLowerCase())
+            );
+          }) || patients[0];
+        if (found) {
+          setDownloadPrescriptionPatient({
+            patientId: found._id,
+            name:
+              `${found.firstName || ""} ${found.lastName || ""}`.trim() ||
+              extractedName,
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn("Patient lookup by name failed:", err);
+      }
+    }
+
+    // 4. Try phone number if it's a real phone number (not dummy 0000000000)
+    const phone = String(message?.phone || "").replace(/\D/g, "");
+    const isDummyPhone = !phone || /^0+$/.test(phone) || phone.length < 5;
+    if (!isDummyPhone) {
+      try {
+        const { data } = await api.get(`/api/v1/user/patients?search=${phone}`);
+        const patients = data?.patients || data?.users || [];
+        const found = patients.find((p) =>
+          String(p.phone || "").replace(/\D/g, "").endsWith(phone.slice(-10))
+        );
+        if (found) {
+          setDownloadPrescriptionPatient({
+            patientId: found._id,
+            name:
+              `${found.firstName || ""} ${found.lastName || ""}`.trim() ||
+              displayName,
+          });
+          return;
+        }
+      } catch (err) {
+        snackbar.error(
+          "Failed to look up patient: " +
+            (err?.response?.data?.message || err.message)
+        );
+        return;
+      }
+    }
+
+    // 5. Try sender name if it's a regular user message (not system notification)
+    if (fallbackName && !/system/i.test(fallbackName) && fallbackName !== "Patient") {
+      try {
+        const { data } = await api.get(
+          `/api/v1/user/patients?search=${encodeURIComponent(fallbackName)}`
+        );
+        const patients = data?.patients || data?.users || [];
+        if (patients.length > 0) {
+          setDownloadPrescriptionPatient({
+            patientId: patients[0]._id,
+            name:
+              `${patients[0].firstName || ""} ${patients[0].lastName || ""}`.trim() ||
+              fallbackName,
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn("Patient lookup by sender name failed:", err);
+      }
+    }
+
+    snackbar.error("Could not find a registered patient for this message.");
   };
 
   // Build doctor list according to the logged-in user's role

@@ -52,6 +52,7 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
   const [appointmentId, setAppointmentId] = useState(propAppointmentId || "");
   const [nic, setNic] = useState("");
   const [name, setName] = useState("");
+  const [patientPhone, setPatientPhone] = useState("");
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("");
   const [appointmentType, setAppointmentType] = useState("OPD");
@@ -428,6 +429,7 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
         setAppointmentType(latest.appointmentType || latest.type || "OPD");
         setNic(latest.nic || "");
         setName(latest.name || "");
+        setPatientPhone(latest.phone || "");
         setGender(latest.gender || "");
         setAge(latest.age || "");
         setBookedBy(latest.bookedBy || "");
@@ -1341,9 +1343,9 @@ const Prescription = ({ patientId, onClose, appointmentId: propAppointmentId }) 
             firstName: "System",
             lastName: "Notification",
             email: "notifications@biomechasoft.in",
-            phone: "0000000000",
+            phone: patientPhone || "0000000000",
             recipient: notificationRecipient,
-            message: `Prescription completed for ${name || `patient NIC: ${nic}`}.\nDownload link: ${previewUrl}`,
+            message: `Prescription completed for ${name || (nic ? `patient NIC: ${nic}` : "Patient")}.\nDownload link: ${previewUrl}`,
           });
         } catch (msgErr) {
           console.warn("Failed to send doctor notification message", msgErr);
