@@ -1,0 +1,426 @@
+/* ==========================================================================
+   Referral Commission Modal Styling
+   ========================================================================== */
+
+.comm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  animation: commFadeIn 0.2s ease-out;
+}
+
+@keyframes commFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.comm-modal-content {
+  background: var(--surface-color, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 680px;
+  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: commSlideUp 0.25s ease-out;
+}
+
+.comm-modal-content.is-inline-settings {
+  max-width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  animation: none;
+}
+
+@keyframes commSlideUp {
+  from {
+    transform: translateY(20px) scale(0.97);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.comm-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-hover, #f8fafc);
+}
+
+.comm-modal-title-box {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.comm-modal-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 10px rgba(14, 165, 233, 0.25);
+}
+
+.comm-modal-title-box h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+}
+
+.comm-modal-title-box p {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted, #64748b);
+}
+
+.comm-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.comm-modal-close:hover {
+  background: var(--border-color, #e2e8f0);
+  color: var(--text-main, #0f172a);
+}
+
+.comm-modal-form {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-height: calc(85vh - 120px);
+  overflow-y: auto;
+}
+
+/* Rules Grid */
+.comm-rules-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .comm-rules-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.comm-rule-card {
+  border: 1.5px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  padding: 1rem;
+  background: var(--surface-color, #ffffff);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.comm-rule-card:hover {
+  border-color: #0284c7;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.08);
+}
+
+.comm-rule-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.comm-rule-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.comm-rule-badge.blue {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.comm-rule-badge.emerald {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.comm-rule-badge.slate {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.comm-rule-badge.purple {
+  background: #faf5ff;
+  color: #7e22ce;
+}
+
+.comm-input-wrap {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.comm-number-input {
+  width: 76px;
+  height: 36px;
+  border: 1.5px solid var(--border-color, #cbd5e1);
+  border-radius: 8px;
+  padding: 0 22px 0 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: right;
+  color: var(--text-main, #0f172a);
+  background: var(--bg-hover, #ffffff);
+  transition: all 0.15s ease;
+}
+
+.comm-number-input:focus {
+  outline: none;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.comm-pct-symbol {
+  position: absolute;
+  right: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted, #64748b);
+  pointer-events: none;
+}
+
+.comm-rule-desc {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+}
+
+.comm-rule-desc strong {
+  color: var(--text-main, #1e293b);
+}
+
+/* Fallback Bar */
+.comm-fallback-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-hover, #f8fafc);
+  border: 1px dashed var(--border-color, #cbd5e1);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  gap: 1rem;
+}
+
+.comm-fallback-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--text-muted, #64748b);
+}
+
+.comm-fallback-info svg {
+  color: #0284c7;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Live Simulation Box */
+.comm-simulation-box {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border: 1.5px solid #a7f3d0;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.comm-sim-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.comm-sim-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #065f46;
+}
+
+.comm-sim-fee-input {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffffff;
+  border: 1px solid #6ee7b7;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #065f46;
+}
+
+.sim-fee-val {
+  width: 60px;
+  border: none;
+  background: transparent;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #065f46;
+  text-align: right;
+  outline: none;
+}
+
+.comm-sim-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.65rem;
+}
+
+@media (max-width: 600px) {
+  .comm-sim-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.sim-chip {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.sim-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #64748b;
+  text-align: center;
+}
+
+.sim-payout {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #065f46;
+  margin: 2px 0;
+}
+
+.sim-pct {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #059669;
+}
+
+/* Modal Footer */
+.comm-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color, #e2e8f0);
+}
+
+.comm-modal-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-comm-reset {
+  background: none;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-comm-reset:hover {
+  background: var(--bg-hover, #f1f5f9);
+  color: var(--text-main, #0f172a);
+}
+
+.btn-comm-cancel {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-comm-cancel:hover {
+  background: var(--bg-hover, #f1f5f9);
+}
+
+.btn-comm-save {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: #ffffff;
+  border: none;
+  padding: 8px 20px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+  transition: all 0.15s ease;
+}
+
+.btn-comm-save:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.btn-comm-save:disabled,
+.btn-comm-reset:disabled,
+.btn-comm-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

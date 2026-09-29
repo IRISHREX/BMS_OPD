@@ -38,6 +38,34 @@
   line-height: 1.45;
 }
 
+.referrals-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-commission-rules {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border: none;
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-commission-rules:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+}
+
 .btn-refresh {
   display: inline-flex;
   align-items: center;
@@ -506,6 +534,11 @@
   color: #b91c1c;
 }
 
+.comm-badge-clickable {
+  display: inline-block;
+  cursor: pointer;
+}
+
 .commission-pct-badge {
   background: #f1f5f9;
   border: 1px solid #cbd5e1;
@@ -513,6 +546,78 @@
   border-radius: 6px;
   font-weight: 700;
   color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.15s ease;
+}
+
+.commission-pct-badge.editable:hover {
+  background: #e0f2fe;
+  border-color: #0284c7;
+  color: #0369a1;
+  transform: translateY(-1px);
+}
+
+.comm-quick-icon {
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+}
+
+.commission-pct-badge.editable:hover .comm-quick-icon {
+  opacity: 1;
+}
+
+/* Inline Edit Controls */
+.inline-comm-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.inline-comm-field {
+  width: 60px;
+  height: 30px;
+  border: 1.5px solid #0284c7;
+  border-radius: 6px;
+  padding: 0 4px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-align: right;
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+}
+
+.btn-inline-comm-action {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-inline-comm-action.save {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.btn-inline-comm-action.save:hover {
+  background: #059669;
+}
+
+.btn-inline-comm-action.cancel {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.btn-inline-comm-action.cancel:hover {
+  background: #dc2626;
 }
 
 .commission-amt-cell {

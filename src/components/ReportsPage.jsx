@@ -179,9 +179,17 @@ const ReportsPage = () => {
         if (summaryRes.data) {
           const rev = Number(summaryRes.data.totals?.revenue || 0);
           const due = Number(summaryRes.data.totals?.due || 0);
+          const exp = Number(summaryRes.data.totals?.expenses || 0);
+          const net = Number(
+            summaryRes.data.totals?.net !== undefined
+              ? summaryRes.data.totals.net
+              : Math.max(0, rev - exp)
+          );
           setTotals({
             paid: rev,
             totalDue: due,
+            expenses: exp,
+            net: net,
             invoiced: rev + due,
           });
           setGroups(summaryRes.data.byPeriod || []);
@@ -795,8 +803,10 @@ const ReportsPage = () => {
                   <CountUp end={totals.invoiced || 0} separator="," prefix="₹" duration={1.5} />
                 </h3>
                 <div className="rpt-kpi-breakdown-row">
-                  <span className="rpt-kpi-sub-pill paid">Paid: ₹{fmt(totals.paid)}</span>
-                  <span className="rpt-kpi-sub-pill due">Due: ₹{fmt(totals.totalDue)}</span>
+                  <span className="rpt-kpi-sub-pill paid" title="Gross Paid Collections">Paid: ₹{fmt(totals.paid)}</span>
+                  <span className="rpt-kpi-sub-pill due" title="Outstanding Receivables">Due: ₹{fmt(totals.totalDue)}</span>
+                  <span className="rpt-kpi-sub-pill expense" title="Referral Commission Expenses">Expenses: ₹{fmt(totals.expenses || 0)}</span>
+                  <span className="rpt-kpi-sub-pill net" title="Net Collections (Paid - Expenses)">Net: ₹{fmt(totals.net !== undefined ? totals.net : Math.max(0, (totals.paid || 0) - (totals.expenses || 0)))}</span>
                 </div>
               </div>
             </div>
@@ -858,6 +868,7 @@ const ReportsPage = () => {
                 data={[
                   { name: "Paid", value: totals.paid || 0 },
                   { name: "Due", value: totals.totalDue || 0 },
+                  { name: "Expenses", value: totals.expenses || 0 },
                 ]}
               />
               <LineChartCard

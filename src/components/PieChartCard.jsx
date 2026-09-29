@@ -14,8 +14,18 @@ const PieChartCard = ({ data, title }) => {
     );
   }
 
-  // Clinical color palette: Paid (Emerald), Due (Coral/Red), Refund (Sky Blue), Other (Amber)
-  const COLORS = ['#10b981', '#ef4444', '#3b82f6', '#f59e0b'];
+  // Clinical color palette: Paid (Emerald), Due (Coral/Red), Expenses (Amber), Refund (Sky Blue)
+  const COLOR_MAP = {
+    Paid: '#10b981',
+    Due: '#ef4444',
+    Expenses: '#f59e0b',
+    Expense: '#f59e0b',
+    Refund: '#3b82f6',
+    Net: '#06b6d4',
+  };
+  const DEFAULT_COLORS = ['#10b981', '#ef4444', '#f59e0b', '#3b82f6', '#8b5cf6'];
+  const getItemColor = (name, idx) => COLOR_MAP[name] || DEFAULT_COLORS[idx % DEFAULT_COLORS.length];
+
   const total = data.reduce((sum, item) => sum + (Number(item.value) || 0), 0);
 
   // Calculate Donut Slices (Outer radius 40, Inner radius 25)
@@ -31,13 +41,14 @@ const PieChartCard = ({ data, title }) => {
     const angle = (val / total) * 360;
     const isFull = angle >= 359.99;
     const isHovered = hoveredIdx === index;
+    const sliceColor = getItemColor(item.name, index);
 
     if (isFull) {
       return (
         <path
           key={item.name}
           d={`M ${cx},${cy - outerR} A ${outerR},${outerR} 0 1,1 ${cx - 0.01},${cy - outerR} L ${cx - 0.01},${cy - innerR} A ${innerR},${innerR} 0 1,0 ${cx},${cy - innerR} Z`}
-          fill={COLORS[index % COLORS.length]}
+          fill={sliceColor}
           className="donut-slice"
           style={{
             transform: isHovered ? 'scale(1.04)' : 'scale(1)',
@@ -78,7 +89,7 @@ const PieChartCard = ({ data, title }) => {
       <path
         key={item.name}
         d={pathData}
-        fill={COLORS[index % COLORS.length]}
+        fill={sliceColor}
         className="donut-slice"
         style={{
           transform: isHovered ? 'scale(1.04)' : 'scale(1)',
@@ -131,7 +142,7 @@ const PieChartCard = ({ data, title }) => {
               >
                 <span
                   className="legend-dot"
-                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                  style={{ backgroundColor: getItemColor(item.name, index) }}
                 />
                 <div className="legend-info">
                   <span className="legend-name">{item.name}</span>

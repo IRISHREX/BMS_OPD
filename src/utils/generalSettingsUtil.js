@@ -39,6 +39,13 @@ export const getGeneralSettings = async (forceRefresh = false) => {
         volume: 50,
         isMuted: false,
       },
+      commissionSettings: {
+        registeredSelfPercentage: 5,
+        registeredOtherPercentage: 8,
+        guestSelfPercentage: 0,
+        guestOtherPercentage: 0,
+        defaultPercentage: 5,
+      },
     }
   );
 };
@@ -90,6 +97,22 @@ export const updateSoundSettingsApi = async (volume, isMuted) => {
     }
   } catch (err) {
     console.warn("Failed to save sound settings to DB:", err);
+  }
+  return null;
+};
+
+/**
+ * Persist predefined referral commission settings based on user type & booking target
+ */
+export const updateCommissionSettingsApi = async (commissionSettings) => {
+  try {
+    const { data } = await api.post("/api/v1/settings/general/commission-settings", commissionSettings);
+    if (data?.success && data?.commissionSettings) {
+      if (cachedSettings) cachedSettings.commissionSettings = data.commissionSettings;
+      return data.commissionSettings;
+    }
+  } catch (err) {
+    console.warn("Failed to save commission settings to DB:", err);
   }
   return null;
 };

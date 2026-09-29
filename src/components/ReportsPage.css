@@ -472,6 +472,16 @@
   color: #b91c1c;
 }
 
+.rpt-kpi-sub-pill.expense {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.rpt-kpi-sub-pill.net {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
 /* --------------------------------------------------------------------------
    Charts Section (Single 3-Column Row)
    -------------------------------------------------------------------------- */

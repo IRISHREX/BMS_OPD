@@ -6,6 +6,7 @@ import { playSaveSound, playLoadSound, playLoadSound2, playDeleteSound, playNoti
 import { getGeneralSettings, updateSoundSettingsApi } from '../utils/generalSettingsUtil';
 import HeaderFooterCreator from './HeaderFooterCreator';
 import OrganizationSettings from './OrganizationSettings';
+import ReferralCommissionModal from './ReferralCommissionModal';
 import {
   IoColorPaletteOutline,
   IoVolumeHighOutline,
@@ -248,6 +249,13 @@ const GeneralSettings = () => {
           >
             <IoDocumentTextOutline className="nav-icon" />
             <span>Header & Footer Designer</span>
+          </button>
+          <button
+            className={`general-nav-item ${activeSection === 'commission' ? 'active' : ''}`}
+            onClick={() => setActiveSection('commission')}
+          >
+            <IoLayersOutline className="nav-icon" />
+            <span>Referral Commissions</span>
           </button>
         </div>
 
@@ -697,6 +705,13 @@ const GeneralSettings = () => {
         {activeSection === 'header-footer' && (
           <div className="general-section-content header-footer-section-content">
             <HeaderFooterCreator />
+          </div>
+        )}
+
+        {/* Section 5: Referral Commission Rules */}
+        {activeSection === 'commission' && (
+          <div className="general-section-content commission-section-content">
+            <ReferralCommissionModal isInline={true} />
           </div>
         )}
       </div>

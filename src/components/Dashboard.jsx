@@ -98,16 +98,23 @@ const Dashboard = () => {
     () => typeof window !== "undefined" && window.innerWidth > 900
   );
 
-  const [dashboardTotals, setDashboardTotals] = useState({ paid: 0, due: 0 });
+  const [dashboardTotals, setDashboardTotals] = useState({ paid: 0, due: 0, expenses: 0, net: 0 });
   const [dashboardGroups, setDashboardGroups] = useState([]);
 
   const fetchDashboardCharts = useCallback(async () => {
     try {
       const { data } = await api.get('/api/v1/invoice/stats?group=day');
       const groups = Array.isArray(data.groups) ? data.groups : [];
+      const paid = Number(data.totalEarning || 0);
+      const due = Number(data.totalDue || 0);
+      const expenses = Number(data.totalExpenses || 0);
+      const net = Number(data.netEarning !== undefined ? data.netEarning : Math.max(0, paid - expenses));
+
       setDashboardTotals({
-        paid: Number(data.totalEarning || 0),
-        due: Number(data.totalDue || 0)
+        paid,
+        due,
+        expenses,
+        net,
       });
       setDashboardGroups(groups.map(g => ({
         period: g.period,
@@ -714,7 +721,7 @@ const Dashboard = () => {
             data={[
               { name: "Paid", value: dashboardTotals.paid || 0 },
               { name: "Due", value: dashboardTotals.due || 0 },
-              { name: "Refund", value: dashboardTotals.refund || 0 },
+              { name: "Expenses", value: dashboardTotals.expenses || 0 },
             ]}
           />
           <LineChartCard

@@ -25,7 +25,11 @@ import {
   FaExclamationTriangle,
   FaUserTie,
   FaHospitalUser,
+  FaPercentage,
+  FaCheck,
+  FaTimes,
 } from "react-icons/fa";
+import ReferralCommissionModal from "./ReferralCommissionModal";
 import "./ReferralsTable.css";
 
 const ReferralsTable = () => {
@@ -43,6 +47,13 @@ const ReferralsTable = () => {
 
   // Multi-Selection
   const [selectedIds, setSelectedIds] = useState([]);
+
+  // Commission Rules Modal State
+  const [isCommissionModalOpen, setIsCommissionModalOpen] = useState(false);
+
+  // Inline Commission Editing State
+  const [inlineEditingId, setInlineEditingId] = useState(null);
+  const [inlinePctValue, setInlinePctValue] = useState("");
 
   // Edit Modal State
   const [editingReferral, setEditingReferral] = useState(null);
@@ -297,6 +308,36 @@ const ReferralsTable = () => {
     }
   };
 
+  // Inline Commission Editing Handlers
+  const handleStartInlineEdit = (r) => {
+    playClickSound();
+    setInlineEditingId(r._id);
+    setInlinePctValue(String(r.commissionPercent !== undefined ? r.commissionPercent : 5));
+  };
+
+  const handleSaveInlineEdit = async (id) => {
+    const newPct = Math.max(0, Math.min(100, Number(inlinePctValue) || 0));
+    try {
+      setActionLoading(true);
+      await api.put(`/api/v1/referral/${id}/commission`, {
+        commissionPercent: newPct,
+      });
+      setReferrals((prev) =>
+        prev.map((item) =>
+          item._id === id ? { ...item, commissionPercent: newPct } : item
+        )
+      );
+      playSaveSound();
+      snackbar.success(`Commission updated to ${newPct}%!`);
+      setInlineEditingId(null);
+      await fetchReferrals();
+    } catch (err) {
+      snackbar.error("Failed to update commission percentage");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   return (
     <div className="referrals-table-container">
       {/* Top Banner & Header */}
@@ -309,15 +350,28 @@ const ReferralsTable = () => {
             Track referral partners from the website and clinic, manage commission percentages, and process instant payouts upon patient consultation completion.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={fetchReferrals}
-          disabled={loading}
-          className="btn-refresh"
-          title="Refresh table"
-        >
-          <FaSync className={loading ? "spin" : ""} /> Refresh
-        </button>
+        <div className="referrals-header-actions">
+          <button
+            type="button"
+            onClick={() => {
+              playClickSound();
+              setIsCommissionModalOpen(true);
+            }}
+            className="btn-commission-rules"
+            title="Configure predefined commission percentages based on type"
+          >
+            <FaPercentage /> Commission Rules
+          </button>
+          <button
+            type="button"
+            onClick={fetchReferrals}
+            disabled={loading}
+            className="btn-refresh"
+            title="Refresh table"
+          >
+            <FaSync className={loading ? "spin" : ""} /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Metric Cards Bar */}
@@ -575,9 +629,51 @@ const ReferralsTable = () => {
 
                     {/* Commission % */}
                     <td>
-                      <span className="commission-pct-badge">
-                        {r.commissionPercent !== undefined ? r.commissionPercent : 5}%
-                      </span>
+                      {inlineEditingId === r._id ? (
+                        <div className="inline-comm-wrap">
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.5"
+                            autoFocus
+                            className="inline-comm-field"
+                            value={inlinePctValue}
+                            onChange={(e) => setInlinePctValue(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleSaveInlineEdit(r._id);
+                              if (e.key === "Escape") setInlineEditingId(null);
+                            }}
+                          />
+                          <button
+                            type="button"
+                            className="btn-inline-comm-action save"
+                            onClick={() => handleSaveInlineEdit(r._id)}
+                            title="Save percentage"
+                          >
+                            <FaCheck size={10} />
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-inline-comm-action cancel"
+                            onClick={() => setInlineEditingId(null)}
+                            title="Cancel"
+                          >
+                            <FaTimes size={10} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          className="comm-badge-clickable"
+                          onClick={() => handleStartInlineEdit(r)}
+                          title="Click to edit commission percentage"
+                        >
+                          <span className="commission-pct-badge editable">
+                            {r.commissionPercent !== undefined ? r.commissionPercent : 5}%
+                            <FaEdit className="comm-quick-icon" size={10} />
+                          </span>
+                        </div>
+                      )}
                     </td>
 
                     {/* Commission Amount */}
@@ -757,6 +853,13 @@ const ReferralsTable = () => {
           </div>
         </div>
       )}
+
+      {/* Commission Predefined Rules Modal */}
+      <ReferralCommissionModal
+        isOpen={isCommissionModalOpen}
+        onClose={() => setIsCommissionModalOpen(false)}
+        onSaved={() => fetchReferrals()}
+      />
     </div>
   );
 };
